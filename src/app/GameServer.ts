@@ -1,7 +1,14 @@
 import SocketIO from "socket.io";
-import { uniqueId } from "lodash";
+import { Vector3 } from "three";
+import { uniqueId, random } from "lodash";
 import { GameState } from "./game/GameState";
-import { GameEvent, PlayerLeftEvent, PlayerJoinEvent } from "./game/GameEvent";
+import {
+    GameEvent,
+    PlayerLeftEvent,
+    PlayerJoinEvent,
+    AvatarSpawnEvent,
+    AvatarDeathEvent
+} from "./game/GameEvent";
 
 export class GameServer {
     private readonly gameState = new GameState();
@@ -14,10 +21,15 @@ export class GameServer {
             const playerId = socket.id;
 
             setTimeout(() => {
+                const spawn = new Vector3();
+                spawn.x = random(1, 6, true);
+                spawn.z = random(1, 6, true);
                 this.dispatch(new PlayerJoinEvent(playerId));
+                this.dispatch(new AvatarSpawnEvent(playerId, spawn));
             }, 100);
 
             socket.on("disconnect", () => {
+                this.dispatch(new AvatarDeathEvent(playerId));
                 this.dispatch(new PlayerLeftEvent(playerId));
             });
         });

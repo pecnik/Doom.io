@@ -1,6 +1,7 @@
 import { GameEntity } from "./GameEntity";
 import { GameEvent, GameEventType } from "./GameEvent";
 import { PerspectiveCamera, Scene } from "three";
+import { findInMap } from "../core/Utils";
 
 export class GameState {
     public readonly camera = new PerspectiveCamera(90);
@@ -21,39 +22,39 @@ export class GameState {
                 break;
             }
 
-            case GameEventType.PlayerLeftEvent: {
-                const { playerId } = event;
-
-                const deleteBatch = new Array<GameEntity>();
-                this.entities.forEach(entity => {
-                    if (entity.playerId === playerId) {
-                        deleteBatch.push(entity);
-                    }
-                });
-
-                this.entityGroups.forEach(group => {
-                    deleteBatch.forEach(entity => group.delete(entity.id));
-                });
-
-                break;
-            }
-
             case GameEventType.AvatarSpawnEvent: {
                 const { playerId, position } = event;
                 const avatar = new GameEntity.Avatar(playerId);
                 avatar.position.copy(position);
                 this.entities.set(avatar.id, avatar);
                 this.avatars.set(avatar.id, avatar);
+                this.scene.add(avatar.model);
                 break;
             }
 
             case GameEventType.AvatarDeathEvent: {
                 const { playerId } = event;
-                for (const [entityId, entity] of this.entities) {
-                    if (entity.playerId === playerId) {
-                        this.entities.delete(entityId);
-                        this.players.delete(entityId);
-                    }
+                const [avatar] = findInMap(this.avatars, avatar => {
+                    return avatar.playerId === playerId;
+                });
+
+                if (avatar !== undefined) {
+                    this.entities.delete(avatar.id);
+                    this.avatars.delete(avatar.id);
+                    this.scene.remove(avatar.model);
+                }
+
+                break;
+            }
+
+            case GameEventType.PlayerLeftEvent: {
+                const { playerId } = event;
+                const [player] = findInMap(this.players, avatar => {
+                    return avatar.playerId === playerId;
+                });
+                if (player !== undefined) {
+                    this.entities.delete(player.id);
+                    this.players.delete(player.id);
                 }
                 break;
             }
