@@ -1,3 +1,8 @@
-import { Game } from "../Game";
+import { Engine } from "../core/Engine";
 
-new Game();
+const engine = new Engine(
+    document.getElementById("viewport") as HTMLCanvasElement,
+    document.getElementById("gamearea") as HTMLDivElement
+);
+
+engine.start(800, 600);

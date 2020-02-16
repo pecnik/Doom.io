@@ -1,24 +1,23 @@
 import { Renderer } from "./Renderer";
-import { PerspectiveCamera, Scene } from "three";
 import { Input } from "./Input";
+import { Game } from "../Game";
 
 export class Engine {
     private readonly renderer: Renderer;
     private readonly gamearea: HTMLDivElement;
     private readonly viewport: HTMLCanvasElement;
 
-    private readonly camera = new PerspectiveCamera(90);
-    private readonly scene = new Scene();
-
-    private aspect: number = 1;
+    private readonly game: Game;
     private gameTime = 0;
+    private aspect = 1;
 
     public readonly input = new Input({ requestPointerLock: true });
 
     public constructor(canvas: HTMLCanvasElement, gamearea: HTMLDivElement) {
         this.viewport = canvas;
         this.gamearea = gamearea;
-        this.renderer = new Renderer(canvas);
+        this.renderer = new Renderer(this.viewport);
+        this.game = new Game(this.input);
     }
 
     public start(width: number, height: number) {
@@ -38,12 +37,16 @@ export class Engine {
         // Call resize manually once
         this.onWindowResize();
 
+        // Start game
+        this.game.onStart();
+
         // Start game loop
         this.loop(0);
     }
 
-    private update(_: number) {
-        this.renderer.webgl.render(this.scene, this.camera);
+    private update(dt: number) {
+        this.game.update(dt);
+        this.renderer.webgl.render(this.game.scene, this.game.camera);
         this.input.clear();
     }
 
@@ -73,10 +76,10 @@ export class Engine {
         }
 
         // Update camera
-        this.camera.aspect = this.aspect;
-        this.camera.near = 0.1;
-        this.camera.far = 1000;
-        this.camera.updateProjectionMatrix();
+        this.game.camera.aspect = this.aspect;
+        this.game.camera.near = 0.1;
+        this.game.camera.far = 1000;
+        this.game.camera.updateProjectionMatrix();
 
         // Update gamearea to center the viewport
         this.gamearea.style.width = width + "px";
