@@ -1,5 +1,6 @@
 import { Renderer } from "./Renderer";
 import { PerspectiveCamera, Scene } from "three";
+import { Input } from "./Input";
 
 export class Engine {
     private readonly renderer: Renderer;
@@ -11,6 +12,8 @@ export class Engine {
 
     private aspect: number = 1;
     private gameTime = 0;
+
+    public readonly input = new Input({ requestPointerLock: true });
 
     public constructor(canvas: HTMLCanvasElement, gamearea: HTMLDivElement) {
         this.viewport = canvas;
@@ -41,6 +44,7 @@ export class Engine {
 
     private update(_: number) {
         this.renderer.webgl.render(this.scene, this.camera);
+        this.input.clear();
     }
 
     private loop(gameTime: number) {
