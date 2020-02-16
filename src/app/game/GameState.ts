@@ -28,7 +28,6 @@ export class GameState {
                 avatar.position.copy(position);
                 this.entities.set(avatar.id, avatar);
                 this.avatars.set(avatar.id, avatar);
-                this.scene.add(avatar.model);
                 break;
             }
 
@@ -41,7 +40,6 @@ export class GameState {
                 if (avatar !== undefined) {
                     this.entities.delete(avatar.id);
                     this.avatars.delete(avatar.id);
-                    this.scene.remove(avatar.model);
                 }
 
                 break;

@@ -1,14 +1,20 @@
 import SocketIOClient from "socket.io-client";
-import { Mesh, BoxGeometry, MeshBasicMaterial, Vector3 } from "three";
-import { Input, KeyCode } from "./core/Input";
-import { modulo } from "./core/Utils";
+import { Mesh, BoxGeometry, MeshBasicMaterial } from "three";
+import { Input } from "./core/Input";
 import { GameState } from "./game/GameState";
 import { GameEvent } from "./game/GameEvent";
+import { MeshSystem } from "./systems/MeshSystem";
+import { ControllerSystem } from "./systems/ControllerSystem";
+import { LocalPlayerSystem } from "./systems/LocalPlayerSystem";
+import { findInMap } from "./core/Utils";
 
 export class GameClient {
-    private readonly gameState = new GameState();
     private readonly input: Input;
     private readonly socket: SocketIOClient.Socket;
+    private readonly gameState = new GameState();
+    private readonly systems: Array<{
+        update: (gameState: GameState, dt: number) => void;
+    }>;
 
     public constructor(input: Input) {
         const url = location.origin.replace(location.port, "8080");
@@ -17,6 +23,12 @@ export class GameClient {
             reconnection: false,
             autoConnect: false
         });
+
+        this.systems = [
+            new LocalPlayerSystem(this.socket),
+            new ControllerSystem(this.input),
+            new MeshSystem()
+        ];
     }
 
     public get scene() {
@@ -24,6 +36,14 @@ export class GameClient {
     }
 
     public get camera() {
+        const [avatar] = findInMap(this.gameState.avatars, avatar => {
+            return avatar.isLocalPlayer;
+        });
+
+        if (avatar !== undefined) {
+            return avatar.camera;
+        }
+
         return this.gameState.camera;
     }
 
@@ -74,33 +94,8 @@ export class GameClient {
     }
 
     public update(dt: number) {
-        const mouseSensitivity = 0.1;
-        const lookHor = this.input.mouse.dx;
-        this.camera.rotation.y -= lookHor * mouseSensitivity * dt;
-        this.camera.rotation.y = modulo(this.camera.rotation.y, Math.PI * 2);
-
-        const forward = this.input.isKeyDown(KeyCode.W);
-        const backward = this.input.isKeyDown(KeyCode.S);
-        const left = this.input.isKeyDown(KeyCode.A);
-        const right = this.input.isKeyDown(KeyCode.D);
-
-        const velocity = new Vector3();
-        velocity.z -= forward ? 1 : 0;
-        velocity.z += backward ? 1 : 0;
-        velocity.x -= left ? 1 : 0;
-        velocity.x += right ? 1 : 0;
-
-        if (velocity.length() > 0) {
-            const facingAngle = this.camera.rotation.y;
-            const angle = Math.atan2(velocity.z, velocity.x) - facingAngle;
-            velocity.z = Math.sin(angle);
-            velocity.x = Math.cos(angle);
-        }
-
-        const movementSpeed = 5;
-        velocity.normalize();
-        velocity.multiplyScalar(movementSpeed * dt);
-
-        this.camera.position.add(velocity);
+        this.systems.forEach(system => {
+            system.update(this.gameState, dt);
+        });
     }
 }
