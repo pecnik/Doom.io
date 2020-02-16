@@ -28,6 +28,20 @@ export class GameState {
                 avatar.position.copy(position);
                 this.entities.set(avatar.id, avatar);
                 this.avatars.set(avatar.id, avatar);
+
+                // Hide avatar model from pov camera
+                let count = 0;
+                this.avatars.forEach(avatar => {
+                    count++;
+                    avatar.mesh.traverse(obj => obj.layers.set(count));
+                    avatar.camera.layers.enableAll();
+                    avatar.camera.layers.disable(count);
+                });
+
+                // Add avatar mehs to scene
+                avatar.mesh.add(avatar.camera);
+                this.scene.add(avatar.mesh);
+
                 break;
             }
 
@@ -40,6 +54,7 @@ export class GameState {
                 if (avatar !== undefined) {
                     this.entities.delete(avatar.id);
                     this.avatars.delete(avatar.id);
+                    this.scene.remove(avatar.mesh);
                 }
 
                 break;
