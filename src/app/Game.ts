@@ -7,6 +7,7 @@ import {
     Vector3
 } from "three";
 import { Input, KeyCode } from "./core/Input";
+import { modulo } from "./core/Utils";
 
 export class Game {
     public readonly camera = new PerspectiveCamera(90);
@@ -48,6 +49,11 @@ export class Game {
     }
 
     public update(dt: number) {
+        const mouseSensitivity = 0.1;
+        const lookHor = this.input.mouse.dx;
+        this.camera.rotation.y -= lookHor * mouseSensitivity * dt;
+        this.camera.rotation.y = modulo(this.camera.rotation.y, Math.PI * 2);
+
         const forward = this.input.isKeyDown(KeyCode.W);
         const backward = this.input.isKeyDown(KeyCode.S);
         const left = this.input.isKeyDown(KeyCode.A);
@@ -58,6 +64,13 @@ export class Game {
         velocity.z += backward ? 1 : 0;
         velocity.x -= left ? 1 : 0;
         velocity.x += right ? 1 : 0;
+
+        if (velocity.length() > 0) {
+            const facingAngle = this.camera.rotation.y;
+            const angle = Math.atan2(velocity.z, velocity.x) - facingAngle;
+            velocity.z = Math.sin(angle);
+            velocity.x = Math.cos(angle);
+        }
 
         const movementSpeed = 5;
         velocity.normalize();
