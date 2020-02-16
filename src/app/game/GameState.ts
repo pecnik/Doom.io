@@ -1,7 +1,11 @@
 import { GameEntity } from "./GameEntity";
 import { GameEvent, GameEventType } from "./GameEvent";
+import { PerspectiveCamera, Scene } from "three";
 
 export class GameState {
+    public readonly camera = new PerspectiveCamera(90);
+    public readonly scene = new Scene();
+
     public readonly entities = new Map<string, GameEntity>();
     public readonly players = new Map<string, GameEntity.Player>();
     public readonly avatars = new Map<string, GameEntity.Avatar>();
