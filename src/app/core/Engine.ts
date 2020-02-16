@@ -1,13 +1,13 @@
+import { GameClient } from "../GameClient";
 import { Renderer } from "./Renderer";
 import { Input } from "./Input";
-import { Game } from "../Game";
 
 export class Engine {
     private readonly renderer: Renderer;
     private readonly gamearea: HTMLDivElement;
     private readonly viewport: HTMLCanvasElement;
 
-    private readonly game: Game;
+    private readonly game: GameClient;
     private gameTime = 0;
     private aspect = 1;
 
@@ -17,7 +17,7 @@ export class Engine {
         this.viewport = canvas;
         this.gamearea = gamearea;
         this.renderer = new Renderer(this.viewport);
-        this.game = new Game(this.input);
+        this.game = new GameClient(this.input);
     }
 
     public start(width: number, height: number) {

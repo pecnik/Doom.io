@@ -8,11 +8,11 @@ export type GameEvent =
     | AvatarUpdateEvent;
 
 export enum GameEventType {
-    PlayerJoinEvent,
-    PlayerLeftEvent,
-    AvatarSpawnEvent,
-    AvatarDeathEvent,
-    AvatarUpdateEvent
+    PlayerJoinEvent = "PlayerJoinEvent",
+    PlayerLeftEvent = "PlayerLeftEvent",
+    AvatarSpawnEvent = "AvatarSpawnEvent",
+    AvatarDeathEvent = "AvatarDeathEvent",
+    AvatarUpdateEvent = "AvatarUpdateEvent"
 }
 
 export class PlayerJoinEvent {
