@@ -4,22 +4,19 @@ import { Input, KeyCode } from "./core/Input";
 import { modulo } from "./core/Utils";
 import { GameState } from "./game/GameState";
 import { GameEvent } from "./game/GameEvent";
-import { Renderer } from "./core/Renderer";
 
 export class GameClient {
     private readonly gameState = new GameState();
-
     private readonly input: Input;
     private readonly socket: SocketIOClient.Socket;
 
     public constructor(input: Input) {
         const url = location.origin.replace(location.port, "8080");
+        this.input = input;
         this.socket = SocketIOClient.connect(url, {
             reconnection: false,
             autoConnect: false
         });
-
-        this.input = input;
     }
 
     public get scene() {
@@ -28,6 +25,22 @@ export class GameClient {
 
     public get camera() {
         return this.gameState.camera;
+    }
+
+    public initSocket() {
+        return new Promise(resolve => {
+            this.socket.connect();
+
+            this.socket.on("connect", () => {
+                console.log("> Connection");
+                resolve();
+            });
+
+            this.socket.on("dispatch", (event: GameEvent) => {
+                console.log(`> dispatch::${event.type}`);
+                this.gameState.dispatch(event);
+            });
+        });
     }
 
     public onStart() {
@@ -58,15 +71,6 @@ export class GameClient {
 
         this.camera.position.x = level[0].length / 2;
         this.camera.position.z = level.length / 2;
-
-        this.socket.connect();
-        this.socket.on("connect", () => {
-            console.log("> Connection");
-        });
-        this.socket.on("dispatch", (event: GameEvent) => {
-            console.log(`> dispatch::${event.type}`);
-            this.gameState.dispatch(event);
-        });
     }
 
     public update(dt: number) {
@@ -99,6 +103,4 @@ export class GameClient {
 
         this.camera.position.add(velocity);
     }
-
-    public render(renderer: Renderer) {}
 }

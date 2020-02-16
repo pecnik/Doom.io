@@ -37,11 +37,13 @@ export class Engine {
         // Call resize manually once
         this.onWindowResize();
 
-        // Start game
-        this.game.onStart();
+        this.game.initSocket().then(() => {
+            // Start game
+            this.game.onStart();
 
-        // Start game loop
-        this.loop(0);
+            // Start game loop
+            this.loop(0);
+        });
     }
 
     private update(dt: number) {
