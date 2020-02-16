@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "forceConsistentCasingInFileNames": true,
+        "target": "ES2016",
+        "lib": ["es2018", "dom"],
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "rootDir": "game",
+        "sourceMap": true,
+        "strict": true,
+        "typeRoots": ["./node_modules/@types", "./typings"],
+        "esModuleInterop": true
+    }
+}

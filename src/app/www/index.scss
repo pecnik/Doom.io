@@ -1,0 +1,22 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    color: white;
+    background-color: #222;
+    width: 100vw;
+    height: 100vh;
+}
+
+#gamearea {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+#viewport {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+}
