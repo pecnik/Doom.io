@@ -90,6 +90,23 @@ export class GameClient {
         this.activeCamera.position.z = level.length / 2;
     }
 
+    public onResize(aspect: number) {
+        const near = 0.1;
+        const far = 1000;
+
+        this.gameState.camera.aspect = aspect;
+        this.gameState.camera.near = near;
+        this.gameState.camera.far = far;
+        this.gameState.camera.updateProjectionMatrix();
+
+        this.gameState.avatars.forEach(avatar => {
+            avatar.camera.aspect = aspect;
+            avatar.camera.near = near;
+            avatar.camera.far = far;
+            avatar.camera.updateProjectionMatrix();
+        });
+    }
+
     public update(dt: number) {
         this.systems.forEach(system => {
             system.update(this.gameState, dt);

@@ -24,6 +24,7 @@ export class GameState {
             case GameEventType.AvatarSpawnEvent: {
                 const { playerId, position } = event;
                 const avatar = new GameEntity.Avatar(playerId);
+
                 avatar.position.copy(position);
 
                 this.avatars.set(avatar.id, avatar);

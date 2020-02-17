@@ -77,10 +77,7 @@ export class Engine {
         }
 
         // Update camera
-        this.game.activeCamera.aspect = this.aspect;
-        this.game.activeCamera.near = 0.1;
-        this.game.activeCamera.far = 1000;
-        this.game.activeCamera.updateProjectionMatrix();
+        this.game.onResize(this.aspect);
 
         // Update gamearea to center the viewport
         this.gamearea.style.width = width + "px";
