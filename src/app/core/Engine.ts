@@ -1,6 +1,5 @@
 import { GameClient } from "../GameClient";
 import { Renderer } from "./Renderer";
-import { Input } from "./Input";
 
 export class Engine {
     private readonly renderer: Renderer;
@@ -11,13 +10,11 @@ export class Engine {
     private gameTime = 0;
     private aspect = 1;
 
-    public readonly input = new Input({ requestPointerLock: true });
-
     public constructor(canvas: HTMLCanvasElement, gamearea: HTMLDivElement) {
         this.viewport = canvas;
         this.gamearea = gamearea;
         this.renderer = new Renderer(this.viewport);
-        this.game = new GameClient(this.input);
+        this.game = new GameClient();
     }
 
     public start(width: number, height: number) {
@@ -48,8 +45,10 @@ export class Engine {
 
     private update(dt: number) {
         this.game.update(dt);
-        this.renderer.webgl.render(this.game.scene, this.game.camera);
-        this.input.clear();
+        this.renderer.webgl.render(
+            this.game.activeScene,
+            this.game.activeCamera
+        );
     }
 
     private loop(gameTime: number) {
@@ -78,10 +77,10 @@ export class Engine {
         }
 
         // Update camera
-        this.game.camera.aspect = this.aspect;
-        this.game.camera.near = 0.1;
-        this.game.camera.far = 1000;
-        this.game.camera.updateProjectionMatrix();
+        this.game.activeCamera.aspect = this.aspect;
+        this.game.activeCamera.near = 0.1;
+        this.game.activeCamera.far = 1000;
+        this.game.activeCamera.updateProjectionMatrix();
 
         // Update gamearea to center the viewport
         this.gamearea.style.width = width + "px";

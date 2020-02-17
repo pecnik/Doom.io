@@ -6,7 +6,6 @@ import { GameEvent } from "./game/GameEvent";
 import { MeshSystem } from "./systems/MeshSystem";
 import { ControllerSystem } from "./systems/ControllerSystem";
 import { LocalPlayerSystem } from "./systems/LocalPlayerSystem";
-import { findInMap } from "./core/Utils";
 
 export class GameClient {
     private readonly input: Input;
@@ -16,9 +15,9 @@ export class GameClient {
         update: (gameState: GameState, dt: number) => void;
     }>;
 
-    public constructor(input: Input) {
+    public constructor() {
         const url = location.origin.replace(location.port, "8080");
-        this.input = input;
+        this.input = new Input({ requestPointerLock: true });
         this.socket = SocketIOClient.connect(url, {
             reconnection: false,
             autoConnect: false
@@ -31,17 +30,15 @@ export class GameClient {
         ];
     }
 
-    public get scene() {
+    public get activeScene() {
         return this.gameState.scene;
     }
 
-    public get camera() {
-        const [avatar] = findInMap(this.gameState.avatars, avatar => {
-            return avatar.isLocalPlayer;
-        });
-
-        if (avatar !== undefined) {
-            return avatar.camera;
+    public get activeCamera() {
+        for (const [, avatar] of this.gameState.avatars) {
+            if (avatar.isLocalPlayer) {
+                return avatar.camera;
+            }
         }
 
         return this.gameState.camera;
@@ -84,18 +81,19 @@ export class GameClient {
                 if (tileId > 0) {
                     const tile = new Mesh(tileGeo, tileMat);
                     tile.position.set(x, 0, z);
-                    this.scene.add(tile);
+                    this.activeScene.add(tile);
                 }
             }
         }
 
-        this.camera.position.x = level[0].length / 2;
-        this.camera.position.z = level.length / 2;
+        this.activeCamera.position.x = level[0].length / 2;
+        this.activeCamera.position.z = level.length / 2;
     }
 
     public update(dt: number) {
         this.systems.forEach(system => {
             system.update(this.gameState, dt);
         });
+        this.input.clear();
     }
 }

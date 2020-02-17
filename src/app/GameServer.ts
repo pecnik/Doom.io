@@ -20,6 +20,17 @@ export class GameServer {
         this.io.on("connect", socket => {
             const playerId = socket.id;
 
+            this.gameState.players.forEach(player => {
+                socket.emit("dispatch", new PlayerJoinEvent(player.playerId));
+            });
+
+            this.gameState.avatars.forEach(avatar => {
+                socket.emit(
+                    "dispatch",
+                    new AvatarSpawnEvent(avatar.playerId, avatar.position)
+                );
+            });
+
             setTimeout(() => {
                 const spawn = new Vector3();
                 spawn.x = random(1, 6, true);

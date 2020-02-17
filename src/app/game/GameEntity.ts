@@ -1,6 +1,5 @@
 import {
     Vector3,
-    Object3D,
     Mesh,
     CylinderGeometry,
     MeshBasicMaterial,
