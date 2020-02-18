@@ -1,7 +1,8 @@
 import SocketIOClient from "socket.io-client";
 import { Input } from "./core/Input";
 import { World } from "./world/World";
-import { ControllerSystem } from "./world/systems/ControllerSystem";
+import { NetworkSystem } from "./world/systems/client/NetworkSystem";
+import { ControllerSystem } from "./world/systems/client/ControllerSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -36,6 +37,7 @@ export class GameClient {
     }
 
     public onStart() {
+        this.world.addSystem(new NetworkSystem(this.world, this.socket));
         this.world.addSystem(new ControllerSystem(this.world, this.input));
     }
 

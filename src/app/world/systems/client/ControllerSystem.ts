@@ -1,12 +1,12 @@
-import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
-import { World } from "../World";
+import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
+import { World } from "../../World";
 import {
     VelocityComponent,
     RotationComponent,
     PositionComponent
-} from "../Components";
-import { Input, KeyCode } from "../../core/Input";
-import { modulo } from "../../core/Utils";
+} from "../../Components";
+import { Input, KeyCode } from "../../../core/Input";
+import { modulo } from "../../../core/Utils";
 import { clamp } from "lodash";
 
 export class ControllerSystem extends System {
@@ -20,15 +20,6 @@ export class ControllerSystem extends System {
             .include(VelocityComponent)
             .include(RotationComponent)
             .build();
-    }
-
-    public onAttach(world: World) {
-        const avatar = new Entity();
-        avatar.id = "my-avatar";
-        avatar.putComponent(PositionComponent);
-        avatar.putComponent(VelocityComponent);
-        avatar.putComponent(RotationComponent);
-        world.addEntity(avatar);
     }
 
     public update(world: World, dt: number) {
