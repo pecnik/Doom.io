@@ -45,10 +45,7 @@ export class Engine {
 
     private update(dt: number) {
         this.game.update(dt);
-        this.renderer.webgl.render(
-            this.game.activeScene,
-            this.game.activeCamera
-        );
+        this.renderer.webgl.render(this.game.scene, this.game.camera);
     }
 
     private loop(gameTime: number) {
@@ -77,7 +74,10 @@ export class Engine {
         }
 
         // Update camera
-        this.game.onResize(this.aspect);
+        this.game.camera.aspect = this.aspect;
+        this.game.camera.near = 0.1;
+        this.game.camera.far = 1000;
+        this.game.camera.updateProjectionMatrix();
 
         // Update gamearea to center the viewport
         this.gamearea.style.width = width + "px";

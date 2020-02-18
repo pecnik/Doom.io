@@ -1,19 +1,19 @@
 import SocketIOClient from "socket.io-client";
-import { Mesh, BoxGeometry, MeshBasicMaterial } from "three";
 import { Input } from "./core/Input";
-import { GameState } from "./game/GameState";
-import { GameEvent } from "./game/GameEvent";
-import { MeshSystem } from "./systems/MeshSystem";
-import { ControllerSystem } from "./systems/ControllerSystem";
-import { LocalPlayerSystem } from "./systems/LocalPlayerSystem";
+import {
+    Mesh,
+    BoxGeometry,
+    MeshBasicMaterial,
+    PerspectiveCamera,
+    Scene
+} from "three";
 
 export class GameClient {
     private readonly input: Input;
     private readonly socket: SocketIOClient.Socket;
-    private readonly gameState = new GameState();
-    private readonly systems: Array<{
-        update: (gameState: GameState, dt: number) => void;
-    }>;
+
+    public readonly scene = new Scene();
+    public readonly camera = new PerspectiveCamera(90);
 
     public constructor() {
         const url = location.origin.replace(location.port, "8080");
@@ -22,40 +22,14 @@ export class GameClient {
             reconnection: false,
             autoConnect: false
         });
-
-        this.systems = [
-            new LocalPlayerSystem(this.socket),
-            new ControllerSystem(this.input),
-            new MeshSystem()
-        ];
-    }
-
-    public get activeScene() {
-        return this.gameState.scene;
-    }
-
-    public get activeCamera() {
-        for (const [, avatar] of this.gameState.avatars) {
-            if (avatar.isLocalPlayer) {
-                return avatar.camera;
-            }
-        }
-
-        return this.gameState.camera;
     }
 
     public initSocket() {
         return new Promise(resolve => {
             this.socket.connect();
-
             this.socket.on("connect", () => {
                 console.log("> Connection");
                 resolve();
-            });
-
-            this.socket.on("dispatch", (event: GameEvent) => {
-                console.log(`> dispatch::${event.type}`);
-                this.gameState.dispatch(event);
             });
         });
     }
@@ -81,36 +55,17 @@ export class GameClient {
                 if (tileId > 0) {
                     const tile = new Mesh(tileGeo, tileMat);
                     tile.position.set(x, 0, z);
-                    this.activeScene.add(tile);
+                    this.scene.add(tile);
                 }
             }
         }
 
-        this.activeCamera.position.x = level[0].length / 2;
-        this.activeCamera.position.z = level.length / 2;
+        this.camera.position.x = level[0].length / 2;
+        this.camera.position.z = level.length / 2;
     }
 
-    public onResize(aspect: number) {
-        const near = 0.1;
-        const far = 1000;
-
-        this.gameState.camera.aspect = aspect;
-        this.gameState.camera.near = near;
-        this.gameState.camera.far = far;
-        this.gameState.camera.updateProjectionMatrix();
-
-        this.gameState.avatars.forEach(avatar => {
-            avatar.camera.aspect = aspect;
-            avatar.camera.near = near;
-            avatar.camera.far = far;
-            avatar.camera.updateProjectionMatrix();
-        });
-    }
-
-    public update(dt: number) {
-        this.systems.forEach(system => {
-            system.update(this.gameState, dt);
-        });
+    public update(_: number) {
+        /// ....
         this.input.clear();
     }
 }
