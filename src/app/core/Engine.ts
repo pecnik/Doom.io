@@ -34,7 +34,7 @@ export class Engine {
         // Call resize manually once
         this.onWindowResize();
 
-        this.game.initSocket().then(() => {
+        this.game.connect().then(() => {
             // Start game
             this.game.onStart();
 

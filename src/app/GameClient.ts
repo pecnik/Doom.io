@@ -9,9 +9,8 @@ import {
 } from "three";
 
 export class GameClient {
-    private readonly input: Input;
-    private readonly socket: SocketIOClient.Socket;
-
+    public readonly input: Input;
+    public readonly socket: SocketIOClient.Socket;
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
 
@@ -24,7 +23,7 @@ export class GameClient {
         });
     }
 
-    public initSocket() {
+    public connect() {
         return new Promise(resolve => {
             this.socket.connect();
             this.socket.on("connect", () => {
