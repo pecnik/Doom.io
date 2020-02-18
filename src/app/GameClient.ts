@@ -1,6 +1,7 @@
 import SocketIOClient from "socket.io-client";
 import { Input } from "./core/Input";
 import { World } from "./world/World";
+import { ControllerSystem } from "./world/systems/ControllerSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -14,6 +15,8 @@ export class GameClient {
             reconnection: false,
             autoConnect: false
         });
+
+        this.world.addSystem(new ControllerSystem(this.world, this.input));
     }
 
     public getActiveScene() {
@@ -38,8 +41,8 @@ export class GameClient {
         // ...
     }
 
-    public update(_: number) {
-        /// ....
+    public update(dt: number) {
+        this.world.update(dt);
         this.input.clear();
     }
 }

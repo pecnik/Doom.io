@@ -7,12 +7,12 @@ import {
     Mesh
 } from "three";
 
-export class World {
-    public readonly ecs = new Engine();
+export class World extends Engine {
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
 
     public constructor() {
+        super();
         const level = [
             [1, 1, 1, 1, 1, 1],
             [1, 0, 0, 0, 0, 1],
