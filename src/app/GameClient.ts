@@ -15,8 +15,6 @@ export class GameClient {
             reconnection: false,
             autoConnect: false
         });
-
-        this.world.addSystem(new ControllerSystem(this.world, this.input));
     }
 
     public getActiveScene() {
@@ -38,7 +36,7 @@ export class GameClient {
     }
 
     public onStart() {
-        // ...
+        this.world.addSystem(new ControllerSystem(this.world, this.input));
     }
 
     public update(dt: number) {
