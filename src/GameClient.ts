@@ -1,8 +1,8 @@
 import SocketIOClient from "socket.io-client";
 import { Input } from "./core/Input";
-import { World } from "./world/World";
-import { NetworkSystem } from "./world/systems/client/NetworkSystem";
-import { ControllerSystem } from "./world/systems/client/ControllerSystem";
+import { World } from "./World";
+import { NetworkSystem } from "./systems/client/NetworkSystem";
+import { ControllerSystem } from "./systems/client/ControllerSystem";
 
 export class GameClient {
     public readonly input: Input;

@@ -1,8 +1,8 @@
 import SocketIO from "socket.io";
 import { uniqueId } from "lodash";
 import { Clock } from "three";
-import { World } from "./world/World";
-import { NetworkSystem } from "./world/systems/server/NetworkSystem";
+import { World } from "./World";
+import { NetworkSystem } from "./systems/server/NetworkSystem";
 
 export class GameServer {
     private readonly io: SocketIO.Server;

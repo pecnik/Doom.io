@@ -5,8 +5,8 @@ import {
     RotationComponent,
     PositionComponent
 } from "../../Components";
-import { Input, KeyCode } from "../../../core/Input";
-import { modulo } from "../../../core/Utils";
+import { Input, KeyCode } from "../../core/Input";
+import { modulo } from "../../core/Utils";
 import { clamp } from "lodash";
 
 export class ControllerSystem extends System {
