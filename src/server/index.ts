@@ -1,6 +1,6 @@
 import express from "express";
 import SocketIO from "socket.io";
-import { GameServer } from "../app/GameServer";
+import { GameServer } from "../GameServer";
 
 const PORT = 8080;
 const app = express();
