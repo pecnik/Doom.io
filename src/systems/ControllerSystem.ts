@@ -11,13 +11,13 @@ import { modulo } from "../core/Utils";
 import { clamp } from "lodash";
 
 export class ControllerSystem extends System {
-    private readonly avatars: Family;
+    private readonly family: Family;
     private readonly input: Input;
 
     public constructor(world: World, input: Input) {
         super();
         this.input = input;
-        this.avatars = new FamilyBuilder(world)
+        this.family = new FamilyBuilder(world)
             .include(LocalPlayerTag)
             .include(VelocityComponent)
             .include(RotationComponent)
@@ -25,14 +25,24 @@ export class ControllerSystem extends System {
     }
 
     public update(world: World, dt: number) {
-        for (let i = 0; i < this.avatars.entities.length; i++) {
-            const avatar = this.avatars.entities[i];
+        for (let i = 0; i < this.family.entities.length; i++) {
+            const avatar = this.family.entities[i];
             const position = avatar.getComponent(PositionComponent);
             const velocity = avatar.getComponent(VelocityComponent);
             const rotation = avatar.getComponent(RotationComponent);
 
-            this.updateMouseLook(rotation, dt);
+            // Mouse look
+            const mouseSensitivity = 0.1;
 
+            const lookHor = this.input.mouse.dx;
+            rotation.y -= lookHor * mouseSensitivity * dt;
+            rotation.y = modulo(rotation.y, Math.PI * 2);
+
+            const lookVer = this.input.mouse.dy;
+            rotation.x -= lookVer * mouseSensitivity * dt;
+            rotation.x = clamp(rotation.x, -Math.PI / 2, Math.PI / 2);
+
+            // Movement
             const forward = this.input.isKeyDown(KeyCode.W);
             const backward = this.input.isKeyDown(KeyCode.S);
             const left = this.input.isKeyDown(KeyCode.A);
@@ -66,17 +76,5 @@ export class ControllerSystem extends System {
             world.camera.position.set(position.x, position.y, position.z);
             world.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
         }
-    }
-
-    private updateMouseLook(rotation: RotationComponent, dt: number) {
-        const mouseSensitivity = 0.1;
-
-        const lookHor = this.input.mouse.dx;
-        rotation.y -= lookHor * mouseSensitivity * dt;
-        rotation.y = modulo(rotation.y, Math.PI * 2);
-
-        const lookVer = this.input.mouse.dy;
-        rotation.x -= lookVer * mouseSensitivity * dt;
-        rotation.x = clamp(rotation.x, -Math.PI / 2, Math.PI / 2);
     }
 }
