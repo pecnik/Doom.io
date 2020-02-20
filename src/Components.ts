@@ -1,5 +1,13 @@
 import { Component } from "@nova-engine/ecs";
 
+export class LocalPlayerTag implements Component {
+    // ...
+}
+
+export class ModelComponent implements Component {
+    // ...
+}
+
 export class PositionComponent implements Component {
     public x = 0;
     public y = 0;

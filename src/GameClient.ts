@@ -1,9 +1,16 @@
 import SocketIOClient from "socket.io-client";
 import { Input } from "./core/Input";
 import { World } from "./World";
-import { NetworkSystem } from "./systems/client/NetworkSystem";
-import { ControllerSystem } from "./systems/client/ControllerSystem";
-import { ModelSystem } from "./systems/client/ModelSystem";
+import { ControllerSystem } from "./systems/ControllerSystem";
+import { MeshSystem } from "./systems/MeshSystem";
+import { Entity } from "@nova-engine/ecs";
+import {
+    PositionComponent,
+    VelocityComponent,
+    RotationComponent,
+    ModelComponent,
+    LocalPlayerTag
+} from "./Components";
 
 export class GameClient {
     public readonly input: Input;
@@ -38,9 +45,31 @@ export class GameClient {
     }
 
     public onStart() {
-        this.world.addSystem(new NetworkSystem(this.world, this.socket));
         this.world.addSystem(new ControllerSystem(this.world, this.input));
-        this.world.addSystem(new ModelSystem(this.world));
+        this.world.addSystem(new MeshSystem(this.world));
+
+        const player = new Entity();
+        player.id = "player-1";
+        player.putComponent(LocalPlayerTag);
+        player.putComponent(PositionComponent);
+        player.putComponent(VelocityComponent);
+        player.putComponent(RotationComponent);
+        this.world.addEntity(player);
+
+        for (let i = 0; i < 3; i++) {
+            const enemy = new Entity();
+            enemy.id = `enemay-${i}`;
+
+            const position = enemy.putComponent(PositionComponent);
+            position.x = Math.random() * 5;
+            position.z = Math.random() * 5;
+
+            enemy.putComponent(VelocityComponent);
+            enemy.putComponent(RotationComponent);
+            enemy.putComponent(ModelComponent);
+
+            this.world.addEntity(enemy);
+        }
     }
 
     public update(dt: number) {

@@ -1,26 +1,26 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
-import { World } from "../../World";
+import { World } from "../World";
 import {
-    VelocityComponent,
     RotationComponent,
-    PositionComponent
-} from "../../Components";
+    PositionComponent,
+    ModelComponent
+} from "../Components";
 import { Mesh, CylinderGeometry, MeshBasicMaterial } from "three";
 
-export class ModelSystem extends System {
-    private readonly avatars: Family;
+export class MeshSystem extends System {
+    private readonly family: Family;
 
     public constructor(world: World) {
         super();
-        this.avatars = new FamilyBuilder(world)
+        this.family = new FamilyBuilder(world)
             .include(PositionComponent)
-            .include(VelocityComponent)
             .include(RotationComponent)
+            .include(ModelComponent)
             .build();
 
         world.addEntityListener({
             onEntityAdded: (entity: Entity) => {
-                if (this.avatars.includesEntity(entity)) {
+                if (this.family.includesEntity(entity)) {
                     const model = new Mesh(
                         new CylinderGeometry(0.25, 0.25, 1, 8),
                         new MeshBasicMaterial({ wireframe: true })
@@ -30,7 +30,7 @@ export class ModelSystem extends System {
                 }
             },
             onEntityRemoved: (entity: Entity) => {
-                if (this.avatars.includesEntity(entity)) {
+                if (this.family.includesEntity(entity)) {
                     const model = world.scene.getObjectByName(
                         entity.id as string
                     );
@@ -44,8 +44,8 @@ export class ModelSystem extends System {
     }
 
     public update(world: World) {
-        for (let i = 0; i < this.avatars.entities.length; i++) {
-            const entity = this.avatars.entities[i];
+        for (let i = 0; i < this.family.entities.length; i++) {
+            const entity = this.family.entities[i];
             const model = world.scene.getObjectByName(entity.id as string);
             if (model !== undefined) {
                 const position = entity.getComponent(PositionComponent);

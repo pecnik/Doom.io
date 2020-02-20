@@ -2,7 +2,6 @@ import SocketIO from "socket.io";
 import { uniqueId } from "lodash";
 import { Clock } from "three";
 import { World } from "./World";
-import { NetworkSystem } from "./systems/server/NetworkSystem";
 
 export class GameServer {
     private readonly io: SocketIO.Server;
@@ -21,11 +20,8 @@ export class GameServer {
 
         this.clock = new Clock();
         this.world = new World();
-
-        this.world.addSystem(new NetworkSystem(this.world, this.io));
-
         setInterval(() => {
             this.world.update(this.clock.getDelta());
-        }, 1000 / 60);
+        }, 1000 / 1);
     }
 }

@@ -1,12 +1,13 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
-import { World } from "../../World";
+import { World } from "../World";
 import {
     VelocityComponent,
     RotationComponent,
-    PositionComponent
-} from "../../Components";
-import { Input, KeyCode } from "../../core/Input";
-import { modulo } from "../../core/Utils";
+    PositionComponent,
+    LocalPlayerTag
+} from "../Components";
+import { Input, KeyCode } from "../core/Input";
+import { modulo } from "../core/Utils";
 import { clamp } from "lodash";
 
 export class ControllerSystem extends System {
@@ -17,6 +18,7 @@ export class ControllerSystem extends System {
         super();
         this.input = input;
         this.avatars = new FamilyBuilder(world)
+            .include(LocalPlayerTag)
             .include(VelocityComponent)
             .include(RotationComponent)
             .build();
