@@ -3,6 +3,7 @@ import { Input } from "./core/Input";
 import { World } from "./World";
 import { NetworkSystem } from "./systems/client/NetworkSystem";
 import { ControllerSystem } from "./systems/client/ControllerSystem";
+import { ModelSystem } from "./systems/client/ModelSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -39,6 +40,7 @@ export class GameClient {
     public onStart() {
         this.world.addSystem(new NetworkSystem(this.world, this.socket));
         this.world.addSystem(new ControllerSystem(this.world, this.input));
+        this.world.addSystem(new ModelSystem(this.world));
     }
 
     public update(dt: number) {
