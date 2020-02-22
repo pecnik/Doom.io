@@ -76,11 +76,24 @@ export class Level {
 
         const planes: PlaneGeometry[] = [];
 
-        const floor = findLayer("Floor");
+        const ceil = findLayer("Ceiling");
         const wall = findLayer("Wall");
+        const floor = findLayer("Floor");
         for (let z = 0; z < this.rows; z++) {
             for (let x = 0; x < this.cols; x++) {
                 const index = z * tilemap.width + x;
+
+                if (ceil !== undefined) {
+                    const tileId = ceil.data[index];
+                    if (tileId > 0) {
+                        const plane = new PlaneGeometry(1, 1, 1, 1);
+                        setTextureUV(plane.faceVertexUvs[0], tileId);
+                        plane.rotateX(degToRad(90));
+                        plane.translate(x, 0.5, z);
+                        planes.push(plane);
+                    }
+                }
+
                 if (floor !== undefined) {
                     const tileId = floor.data[index];
                     if (tileId > 0) {
