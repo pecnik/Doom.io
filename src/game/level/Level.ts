@@ -34,7 +34,6 @@ export class Level {
         tileset: Tiled2D.Tileset,
         texture: Texture
     ) {
-        console.log({ tilemap, tileset });
         this.scene.remove(...this.scene.children);
 
         this.rows = tilemap.height;
