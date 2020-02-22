@@ -25,11 +25,11 @@ export class Level {
                 new TextureLoader().load("/assets/tileset.png", resolve);
             })
         ]).then((data: [Tiled2D.Tilemap, Tiled2D.Tileset, Texture]) => {
-            this.build(...data);
+            this.buildMesh(...data);
         });
     }
 
-    public build(
+    public buildMesh(
         tilemap: Tiled2D.Tilemap,
         tileset: Tiled2D.Tileset,
         texture: Texture
@@ -77,6 +77,7 @@ export class Level {
         const planes: PlaneGeometry[] = [];
 
         const floor = findLayer("Floor");
+        const wall = findLayer("Wall");
         for (let z = 0; z < this.rows; z++) {
             for (let x = 0; x < this.cols; x++) {
                 const index = z * tilemap.width + x;
@@ -88,6 +89,51 @@ export class Level {
                         plane.rotateX(degToRad(-90));
                         plane.translate(x, -0.5, z);
                         planes.push(plane);
+                    }
+                }
+
+                if (wall !== undefined) {
+                    const tileId = wall.data[index];
+                    if (tileId > 0) {
+                        // Front wall
+                        const frontWallIndex = (z + 1) * tilemap.width + x;
+                        if (!wall.data[frontWallIndex]) {
+                            const frontWall = new PlaneGeometry(1, 1, 1, 1);
+                            setTextureUV(frontWall.faceVertexUvs[0], tileId);
+                            frontWall.rotateY(degToRad(0));
+                            frontWall.translate(x, 0, z + 0.5);
+                            planes.push(frontWall);
+                        }
+
+                        // Back wall
+                        const backWallIndex = (z - 1) * tilemap.width + x;
+                        if (!wall.data[backWallIndex]) {
+                            const backWall = new PlaneGeometry(1, 1, 1, 1);
+                            setTextureUV(backWall.faceVertexUvs[0], tileId);
+                            backWall.rotateY(degToRad(180));
+                            backWall.translate(x, 0, z - 0.5);
+                            planes.push(backWall);
+                        }
+
+                        // Right wall
+                        const rightWallIndex = z * tilemap.width + (x - 1);
+                        if (!wall.data[rightWallIndex]) {
+                            const rightWall = new PlaneGeometry(1, 1, 1, 1);
+                            setTextureUV(rightWall.faceVertexUvs[0], tileId);
+                            rightWall.rotateY(degToRad(-90));
+                            rightWall.translate(x - 0.5, 0, z);
+                            planes.push(rightWall);
+                        }
+
+                        // Left wall
+                        const leftWallIndex = z * tilemap.width + (x + 1);
+                        if (!wall.data[leftWallIndex]) {
+                            const leftWall = new PlaneGeometry(1, 1, 1, 1);
+                            setTextureUV(leftWall.faceVertexUvs[0], tileId);
+                            leftWall.rotateY(degToRad(90));
+                            leftWall.translate(x + 0.5, 0, z);
+                            planes.push(leftWall);
+                        }
                     }
                 }
             }
