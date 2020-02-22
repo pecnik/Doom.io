@@ -6,7 +6,8 @@ import {
     Geometry,
     MeshBasicMaterial,
     Texture,
-    TextureLoader
+    TextureLoader,
+    Vector2
 } from "three";
 import { degToRad } from "../core/Utils";
 
@@ -48,6 +49,37 @@ export class Level {
             return;
         };
 
+        const setTextureUV = (
+            cords: Vector2[][],
+            tileId: number,
+            filpX = false,
+            flipY = false
+        ) => {
+            const { imagewidth, imageheight, tilewidth, tileheight } = tileset;
+            const x = tileId % tilewidth;
+            const y = Math.floor(tileId / tilewidth);
+
+            const minX = x;
+            const maxX = x + tilewidth;
+            const minY = y;
+            const maxY = y + tileheight;
+
+            const x0 = filpX ? maxX : minX;
+            const x1 = filpX ? minX : maxX;
+            const y0 = flipY ? minY : maxY;
+            const y1 = flipY ? maxY : minY;
+
+            console.log({ x0, x1, y0, y1 });
+
+            cords[0][0].set(x0 / imagewidth, 1.0 - y0 / imageheight);
+            cords[0][1].set(x0 / imagewidth, 1.0 - y1 / imageheight);
+            cords[0][2].set(x1 / imagewidth, 1.0 - y0 / imageheight);
+
+            cords[1][0].set(x1 / imagewidth, 1.0 - y1 / imageheight);
+            cords[1][1].set(x0 / imagewidth, 1.0 - y1 / imageheight);
+            cords[1][2].set(x0 / imagewidth, 1.0 - y0 / imageheight);
+        };
+
         const planes: PlaneGeometry[] = [];
 
         const floor = findLayer("Floor");
@@ -61,6 +93,7 @@ export class Level {
                         plane.rotateX(degToRad(-90));
                         plane.translate(x, -0.5, z);
                         planes.push(plane);
+                        setTextureUV(plane.faceVertexUvs[0], tileId);
                     }
                 }
             }
@@ -73,8 +106,6 @@ export class Level {
         });
 
         const materal = new MeshBasicMaterial({
-            // color: 0xffffff,
-            // wireframe: true,
             map: texture
         });
 
