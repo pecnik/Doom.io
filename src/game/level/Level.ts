@@ -8,7 +8,9 @@ import {
     Texture,
     TextureLoader,
     Vector2,
-    NearestFilter
+    NearestFilter,
+    Color,
+    VertexColors
 } from "three";
 import { degToRad } from "../core/Utils";
 
@@ -73,8 +75,20 @@ export class Level {
             }
         };
 
+        const setVertexColor = (geo: Geometry, color: Color) => {
+            const faceCount = 2;
+            const vertsPerFace = 3;
+            for (let i = 0; i < faceCount; i++) {
+                for (let j = 0; j < vertsPerFace; j++) {
+                    geo.faces[i].vertexColors[j] = color;
+                }
+            }
+            geo.elementsNeedUpdate = true;
+        };
+
         const planes: PlaneGeometry[] = [];
 
+        const lights = findLayer("Lights");
         const ceil = findLayer("Ceiling");
         const wall = findLayer("Wall");
         const floor = findLayer("Floor");
@@ -82,10 +96,19 @@ export class Level {
             for (let x = 0; x < this.cols; x++) {
                 const index = z * tilemap.width + x;
 
+                let color = new Color(0xffffff);
+                if (lights !== undefined) {
+                    const light = lights.data[index];
+                    if (light > 0) {
+                        color = new Color(0xff0000);
+                    }
+                }
+
                 if (ceil !== undefined) {
                     const tileId = ceil.data[index];
                     if (tileId > 0) {
                         const plane = new PlaneGeometry(1, 1, 1, 1);
+                        setVertexColor(plane, color);
                         setTextureUV(plane.faceVertexUvs[0], tileId);
                         plane.rotateX(degToRad(90));
                         plane.translate(x, 0.5, z);
@@ -97,6 +120,8 @@ export class Level {
                     const tileId = floor.data[index];
                     if (tileId > 0) {
                         const plane = new PlaneGeometry(1, 1, 1, 1);
+                        setVertexColor(plane, color);
+                        setVertexColor(plane, color);
                         setTextureUV(plane.faceVertexUvs[0], tileId);
                         plane.rotateX(degToRad(-90));
                         plane.translate(x, -0.5, z);
@@ -111,6 +136,7 @@ export class Level {
                         const frontWallIndex = (z + 1) * tilemap.width + x;
                         if (!wall.data[frontWallIndex]) {
                             const frontWall = new PlaneGeometry(1, 1, 1, 1);
+                            setVertexColor(frontWall, color);
                             setTextureUV(frontWall.faceVertexUvs[0], tileId);
                             frontWall.rotateY(degToRad(0));
                             frontWall.translate(x, 0, z + 0.5);
@@ -121,6 +147,7 @@ export class Level {
                         const backWallIndex = (z - 1) * tilemap.width + x;
                         if (!wall.data[backWallIndex]) {
                             const backWall = new PlaneGeometry(1, 1, 1, 1);
+                            setVertexColor(backWall, color);
                             setTextureUV(backWall.faceVertexUvs[0], tileId);
                             backWall.rotateY(degToRad(180));
                             backWall.translate(x, 0, z - 0.5);
@@ -131,6 +158,7 @@ export class Level {
                         const rightWallIndex = z * tilemap.width + (x - 1);
                         if (!wall.data[rightWallIndex]) {
                             const rightWall = new PlaneGeometry(1, 1, 1, 1);
+                            setVertexColor(rightWall, color);
                             setTextureUV(rightWall.faceVertexUvs[0], tileId);
                             rightWall.rotateY(degToRad(-90));
                             rightWall.translate(x - 0.5, 0, z);
@@ -141,6 +169,7 @@ export class Level {
                         const leftWallIndex = z * tilemap.width + (x + 1);
                         if (!wall.data[leftWallIndex]) {
                             const leftWall = new PlaneGeometry(1, 1, 1, 1);
+                            setVertexColor(leftWall, color);
                             setTextureUV(leftWall.faceVertexUvs[0], tileId);
                             leftWall.rotateY(degToRad(90));
                             leftWall.translate(x + 0.5, 0, z);
@@ -156,8 +185,12 @@ export class Level {
             geometry.merge(plane);
             plane.dispose();
         });
+        geometry.elementsNeedUpdate = true;
 
-        const materal = new MeshBasicMaterial({ map: texture });
+        const materal = new MeshBasicMaterial({
+            vertexColors: VertexColors,
+            map: texture
+        });
         texture.minFilter = NearestFilter;
         texture.magFilter = NearestFilter;
 
