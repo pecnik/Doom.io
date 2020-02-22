@@ -1,0 +1,29 @@
+{ "height":9,
+ "infinite":false,
+ "layers":[
+        {
+         "data":[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 9, 9, 9, 9, 9, 0, 1, 1, 9, 9, 9, 9, 9, 9, 9, 1, 1, 9, 9, 9, 0, 9, 9, 9, 1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 18, 11, 11, 0, 11, 11, 18, 1, 1, 10, 10, 10, 10, 10, 10, 10, 1, 1, 18, 11, 11, 0, 11, 11, 18, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+         "height":9,
+         "name":"Floor",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":9,
+         "x":0,
+         "y":0
+        }],
+ "nextobjectid":1,
+ "orientation":"orthogonal",
+ "renderorder":"right-down",
+ "tiledversion":"1.1.4",
+ "tileheight":64,
+ "tilesets":[
+        {
+         "firstgid":1,
+         "source":"tileset.json"
+        }],
+ "tilewidth":64,
+ "type":"map",
+ "version":1,
+ "width":9
+}

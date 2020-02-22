@@ -34,14 +34,20 @@ export class GameClient {
         return this.world.camera;
     }
 
-    public connect() {
-        return new Promise(resolve => {
-            this.socket.connect();
-            this.socket.on("connect", () => {
-                console.log(`> Connection::${this.socket.id}`);
-                resolve();
-            });
-        });
+    public initialize() {
+        return Promise.all([
+            // Load level
+            this.world.level.load(),
+
+            // Connect to the server
+            new Promise(resolve => {
+                this.socket.connect();
+                this.socket.on("connect", () => {
+                    console.log(`> Connection::${this.socket.id}`);
+                    resolve();
+                });
+            })
+        ]);
     }
 
     public onStart() {

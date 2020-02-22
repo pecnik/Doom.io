@@ -34,7 +34,7 @@ export class Engine {
         // Call resize manually once
         this.onWindowResize();
 
-        this.game.connect().then(() => {
+        this.game.initialize().then(() => {
             // Start game
             this.game.onStart();
 
