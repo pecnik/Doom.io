@@ -88,21 +88,51 @@ export class Level {
 
         const planes: PlaneGeometry[] = [];
 
-        const lights = findLayer("Lights");
         const ceil = findLayer("Ceiling");
         const wall = findLayer("Wall");
         const floor = findLayer("Floor");
+
+        const lights = findLayer("Lights");
+        const lightPonts: Vector2[] = [];
+        if (lights !== undefined) {
+            for (let z = 0; z < this.rows; z++) {
+                for (let x = 0; x < this.cols; x++) {
+                    const index = z * tilemap.width + x;
+                    if (lights.data[index] > 0) {
+                        lightPonts.push(new Vector2(x, z));
+                    }
+                }
+            }
+        }
+
+        const getLightColor = (x: number, y: number) => {
+            const radius = 6;
+            const point = new Vector2(x, y);
+            const color = new Color(0x111122);
+
+            for (let i = 0; i < lightPonts.length; i++) {
+                const light = lightPonts[i];
+                let dist = radius - light.distanceTo(point);
+                dist = Math.max(0, dist);
+                color.r += dist / radius;
+                color.g += dist / radius;
+                color.b += dist / radius;
+            }
+
+            return color;
+        };
+
         for (let z = 0; z < this.rows; z++) {
             for (let x = 0; x < this.cols; x++) {
                 const index = z * tilemap.width + x;
 
-                let color = new Color(0xffffff);
-                if (lights !== undefined) {
-                    const light = lights.data[index];
-                    if (light > 0) {
-                        color = new Color(0xff0000);
-                    }
-                }
+                let color = getLightColor(x, z);
+                // if (lights !== undefined) {
+                //     const light = lights.data[index];
+                //     if (light > 0) {
+                //         color = new Color(0xff0000);
+                //     }
+                // }
 
                 if (ceil !== undefined) {
                     const tileId = ceil.data[index];
