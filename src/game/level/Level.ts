@@ -7,7 +7,8 @@ import {
     MeshBasicMaterial,
     Texture,
     TextureLoader,
-    Vector2
+    Vector2,
+    NearestFilter
 } from "three";
 import { degToRad } from "../core/Utils";
 
@@ -49,12 +50,7 @@ export class Level {
             return;
         };
 
-        const setTextureUV = (
-            cords: Vector2[][],
-            tileId: number,
-            filpX = false,
-            flipY = false
-        ) => {
+        const setTextureUV = (cords: Vector2[][], tileId: number) => {
             // Initialize UV
             const tileU = tileset.tilewidth / tileset.imagewidth;
             const tileV = tileset.tileheight / tileset.imageheight;
@@ -103,9 +99,9 @@ export class Level {
             plane.dispose();
         });
 
-        const materal = new MeshBasicMaterial({
-            map: texture
-        });
+        const materal = new MeshBasicMaterial({ map: texture });
+        texture.minFilter = NearestFilter;
+        texture.magFilter = NearestFilter;
 
         const mesh = new Mesh(geometry, materal);
         this.scene.add(mesh);
