@@ -1,5 +1,13 @@
 import { Tiled2D } from "./Tiled2D";
-import { Scene, PlaneGeometry, Mesh, Geometry, MeshBasicMaterial } from "three";
+import {
+    Scene,
+    PlaneGeometry,
+    Mesh,
+    Geometry,
+    MeshBasicMaterial,
+    Texture,
+    TextureLoader
+} from "three";
 import { degToRad } from "../core/Utils";
 
 export class Level {
@@ -10,13 +18,20 @@ export class Level {
     public load() {
         return Promise.all([
             fetch("/assets/tilemap.json").then(rsp => rsp.json()),
-            fetch("/assets/tileset.json").then(rsp => rsp.json())
-        ]).then((data: [Tiled2D.Tilemap, Tiled2D.Tileset]) => {
+            fetch("/assets/tileset.json").then(rsp => rsp.json()),
+            new Promise<Texture>(resolve => {
+                new TextureLoader().load("/assets/tileset.png", resolve);
+            })
+        ]).then((data: [Tiled2D.Tilemap, Tiled2D.Tileset, Texture]) => {
             this.build(...data);
         });
     }
 
-    public build(tilemap: Tiled2D.Tilemap, tileset: Tiled2D.Tileset) {
+    public build(
+        tilemap: Tiled2D.Tilemap,
+        tileset: Tiled2D.Tileset,
+        texture: Texture
+    ) {
         console.log({ tilemap, tileset });
         this.scene.remove(...this.scene.children);
 
@@ -43,7 +58,7 @@ export class Level {
                     const tileId = floor.data[index];
                     if (tileId > 0) {
                         const plane = new PlaneGeometry(1, 1, 1, 1);
-                        plane.rotateX(degToRad(90));
+                        plane.rotateX(degToRad(-90));
                         plane.translate(x, -0.5, z);
                         planes.push(plane);
                     }
@@ -58,8 +73,9 @@ export class Level {
         });
 
         const materal = new MeshBasicMaterial({
-            color: 0xffffff,
-            wireframe: true
+            // color: 0xffffff,
+            // wireframe: true,
+            map: texture
         });
 
         const mesh = new Mesh(geometry, materal);
