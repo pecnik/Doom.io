@@ -55,29 +55,27 @@ export class Level {
             filpX = false,
             flipY = false
         ) => {
-            const { imagewidth, imageheight, tilewidth, tileheight } = tileset;
-            const x = tileId % tilewidth;
-            const y = Math.floor(tileId / tilewidth);
+            // Initialize UV
+            const tileU = tileset.tilewidth / tileset.imagewidth;
+            const tileV = tileset.tileheight / tileset.imageheight;
 
-            const minX = x;
-            const maxX = x + tilewidth;
-            const minY = y;
-            const maxY = y + tileheight;
+            cords[0][0].set(0, 1);
+            cords[0][1].set(0, 1 - tileV);
+            cords[0][2].set(tileU, 1);
 
-            const x0 = filpX ? maxX : minX;
-            const x1 = filpX ? minX : maxX;
-            const y0 = flipY ? minY : maxY;
-            const y1 = flipY ? maxY : minY;
+            cords[1][0].set(0, 1 - tileV);
+            cords[1][1].set(tileU, 1 - tileV);
+            cords[1][2].set(tileU, 1);
 
-            console.log({ x0, x1, y0, y1 });
-
-            cords[0][0].set(x0 / imagewidth, 1.0 - y0 / imageheight);
-            cords[0][1].set(x0 / imagewidth, 1.0 - y1 / imageheight);
-            cords[0][2].set(x1 / imagewidth, 1.0 - y0 / imageheight);
-
-            cords[1][0].set(x1 / imagewidth, 1.0 - y1 / imageheight);
-            cords[1][1].set(x0 / imagewidth, 1.0 - y1 / imageheight);
-            cords[1][2].set(x0 / imagewidth, 1.0 - y0 / imageheight);
+            // Offset by tileID
+            let x = (tileId - 1) % tileset.columns;
+            let y = Math.floor((tileId - 1) / tileset.columns);
+            for (let i = 0; i < 2; i++) {
+                for (let j = 0; j < 3; j++) {
+                    cords[i][j].x += tileU * x;
+                    cords[i][j].y -= tileV * y;
+                }
+            }
         };
 
         const planes: PlaneGeometry[] = [];
@@ -90,10 +88,10 @@ export class Level {
                     const tileId = floor.data[index];
                     if (tileId > 0) {
                         const plane = new PlaneGeometry(1, 1, 1, 1);
+                        setTextureUV(plane.faceVertexUvs[0], tileId);
                         plane.rotateX(degToRad(-90));
                         plane.translate(x, -0.5, z);
                         planes.push(plane);
-                        setTextureUV(plane.faceVertexUvs[0], tileId);
                     }
                 }
             }

@@ -60,6 +60,10 @@ export class GameClient {
         player.putComponent(PositionComponent);
         player.putComponent(VelocityComponent);
         player.putComponent(RotationComponent);
+
+        player.getComponent(RotationComponent).x = -0.8;
+        player.getComponent(RotationComponent).y = Math.PI * 1.2;
+
         this.world.addEntity(player);
 
         for (let i = 0; i < 3; i++) {
