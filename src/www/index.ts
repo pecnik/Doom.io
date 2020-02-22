@@ -1,4 +1,4 @@
-import { Engine } from "../core/Engine";
+import { Engine } from "../game/core/Engine";
 
 new Engine(
     document.getElementById("viewport") as HTMLCanvasElement,
