@@ -236,6 +236,29 @@ export class Level {
                 const color = lightMap[index];
                 const tile = new Vector2(x, y);
                 lightPoints.forEach(light => {
+                    // Check wall collision
+                    const direction = light
+                        .clone()
+                        .sub(tile)
+                        .normalize();
+
+                    const ray = tile.clone();
+                    for (let i = 0; i < 24; i++) {
+                        ray.x += direction.x;
+                        ray.y += direction.y;
+
+                        const rx = Math.round(ray.x);
+                        const ry = Math.round(ray.y);
+                        if (rx === light.x && ry === light.y) {
+                            break; // Reached the light
+                        }
+
+                        const rindex = ry * tilemap.width + rx;
+                        if (wallLayer[rindex] > 0) {
+                            return; // Hit the wall
+                        }
+                    }
+
                     const radius = 16;
                     const dist = clamp(tile.distanceTo(light), 0, radius);
                     const value = (radius - dist) / radius;
@@ -251,6 +274,9 @@ export class Level {
         this.lightMap.push(...lightMap);
 
         // Render
+        const renderDebug = true;
+        if (!renderDebug) return;
+
         const canvas = document.createElement("canvas");
         canvas.width = 512;
         canvas.height = 512;
