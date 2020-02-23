@@ -12,7 +12,7 @@ import {
     Color,
     VertexColors
 } from "three";
-import { times } from "lodash";
+import { times, clamp } from "lodash";
 import { degToRad } from "../core/Utils";
 
 export class Level {
@@ -226,12 +226,37 @@ export class Level {
     }
 
     private buildLightMap(tilemap: Tiled2D.Tilemap) {
-        const walls = Tiled2D.getLayerTiles(tilemap, "Wall");
-        const lights = Tiled2D.getLayerTiles(tilemap, "Lights");
-        console.log({ walls, lights });
+        const wallLayer = Tiled2D.getLayerTiles(tilemap, "Wall");
+        const lightLayer = Tiled2D.getLayerTiles(tilemap, "Lights");
+        console.log({ walls: wallLayer, lights: lightLayer });
 
-        // Init lightmap
-        const lightMap: Color[] = lights.map(_ => new Color(0x222222));
+        // Fill all lights in the scene
+        const lightPoints: Vector2[] = [];
+        lightLayer.forEach((lightId, index) => {
+            if (lightId > 0) {
+                const x = index % tilemap.width;
+                const y = Math.floor(index / tilemap.width);
+                lightPoints.push(new Vector2(x, y));
+            }
+        });
+
+        // Build lightmap
+        const lightMap: Color[] = lightLayer.map(_ => new Color(0x222222));
+        for (let y = 0; y < tilemap.height; y++) {
+            for (let x = 0; x < tilemap.width; x++) {
+                const index = y * tilemap.width + x;
+                const color = lightMap[index];
+                const tile = new Vector2(x, y);
+                lightPoints.forEach(light => {
+                    const radius = 8;
+                    const dist = clamp(tile.distanceTo(light), 0, radius);
+                    const value = (radius - dist) / radius;
+                    color.r = value;
+                    color.g = value;
+                    color.b = value;
+                });
+            }
+        }
 
         // Render
         const canvas = document.createElement("canvas");
@@ -260,12 +285,16 @@ export class Level {
             for (let y = 0; y < tilemap.height; y++) {
                 for (let x = 0; x < tilemap.width; x++) {
                     const index = y * tilemap.width + x;
-                    const wallId = walls[index];
+
+                    const light = lightMap[index];
+                    fillTile(x, y, "#" + light.getHexString());
+
+                    const wallId = wallLayer[index];
                     if (wallId > 0) {
-                        fillTile(x, y, "#666666");
+                        fillTile(x, y, "#008888");
                     }
 
-                    const lightId = lights[index];
+                    const lightId = lightLayer[index];
                     if (lightId > 0) {
                         fillTile(x, y, "#aa2222");
                     }
