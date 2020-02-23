@@ -2,16 +2,16 @@ import SocketIOClient from "socket.io-client";
 import { Input } from "./core/Input";
 import { World } from "./World";
 import { ControllerSystem } from "./systems/ControllerSystem";
+import { PhysicsSystem } from "./systems/PhysicsSystem";
+import { CameraSystem } from "./systems/CameraSystem";
 import { MeshSystem } from "./systems/MeshSystem";
 import { Entity } from "@nova-engine/ecs";
 import {
     PositionComponent,
     VelocityComponent,
     RotationComponent,
-    ModelComponent,
     LocalPlayerTag
 } from "./Components";
-import { PhysicsSystem } from "./systems/PhysicsSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -55,6 +55,7 @@ export class GameClient {
         this.world.addSystem(new ControllerSystem(this.world, this.input));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new MeshSystem(this.world));
+        this.world.addSystem(new CameraSystem(this.world));
 
         // Spawn player
         const player = new Entity();
