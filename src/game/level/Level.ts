@@ -217,7 +217,6 @@ export class Level {
     private buildLightMap(tilemap: Tiled2D.Tilemap) {
         const wallLayer = Tiled2D.getLayerTiles(tilemap, "Wall");
         const lightLayer = Tiled2D.getLayerTiles(tilemap, "Lights");
-        console.log({ walls: wallLayer, lights: lightLayer });
 
         // Fill all lights in the scene
         const lightPoints: Vector2[] = [];
@@ -237,12 +236,12 @@ export class Level {
                 const color = lightMap[index];
                 const tile = new Vector2(x, y);
                 lightPoints.forEach(light => {
-                    const radius = 8;
+                    const radius = 16;
                     const dist = clamp(tile.distanceTo(light), 0, radius);
                     const value = (radius - dist) / radius;
-                    color.r = value;
-                    color.g = value;
-                    color.b = value;
+                    color.r += value;
+                    color.g += value;
+                    color.b += value;
                 });
             }
         }
@@ -279,7 +278,10 @@ export class Level {
                 for (let x = 0; x < tilemap.width; x++) {
                     const index = y * tilemap.width + x;
 
-                    const light = lightMap[index];
+                    const light = lightMap[index].clone();
+                    light.r = clamp(light.r, 0, 1);
+                    light.g = clamp(light.g, 0, 1);
+                    light.b = clamp(light.b, 0, 1);
                     fillTile(x, y, "#" + light.getHexString());
 
                     const wallId = wallLayer[index];
