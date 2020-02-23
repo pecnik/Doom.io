@@ -12,7 +12,7 @@ import {
     Color,
     VertexColors
 } from "three";
-import { times, clamp } from "lodash";
+import { clamp } from "lodash";
 import { degToRad } from "../core/Utils";
 
 export class Level {
@@ -35,25 +35,19 @@ export class Level {
         });
     }
 
+    public getLightColor(x: number, y: number) {
+        const index = y * this.cols + x;
+        return this.lightMap[index] || new Color(0x000000);
+    }
+
     private buildMesh(
         tilemap: Tiled2D.Tilemap,
         tileset: Tiled2D.Tileset,
         texture: Texture
     ) {
         this.scene.remove(...this.scene.children);
-
         this.rows = tilemap.height;
         this.cols = tilemap.width;
-
-        const findLayer = (name: string): number[] | undefined => {
-            for (let i = 0; i < tilemap.layers.length; i++) {
-                const layer = tilemap.layers[i];
-                if (layer.name === name && layer.type === "tilelayer") {
-                    return layer.data;
-                }
-            }
-            return times(tilemap.width * tilemap.height).map(() => 0);
-        };
 
         const setTextureUV = (cords: Vector2[][], tileId: number) => {
             // Initialize UV
@@ -90,35 +84,16 @@ export class Level {
             geo.elementsNeedUpdate = true;
         };
 
+        const ceil = Tiled2D.getLayerTiles(tilemap, "Ceiling");
+        const wall = Tiled2D.getLayerTiles(tilemap, "Wall");
+        const floor = Tiled2D.getLayerTiles(tilemap, "Floor");
+
         const planes: PlaneGeometry[] = [];
-
-        const ceil = findLayer("Ceiling");
-        const wall = findLayer("Wall");
-        const floor = findLayer("Floor");
-
-        const lights = findLayer("Lights");
-        const lightPonts: Vector2[] = [];
-        if (lights !== undefined) {
-            for (let z = 0; z < this.rows; z++) {
-                for (let x = 0; x < this.cols; x++) {
-                    const index = z * tilemap.width + x;
-                    if (lights[index] > 0) {
-                        lightPonts.push(new Vector2(x, z));
-                    }
-                }
-            }
-        }
-
-        const getLightColor = (x: number, y: number) => {
-            const index = y * tilemap.width + x;
-            return this.lightMap[index] || new Color(0x000000);
-        };
-
+        const getLightColor = this.getLightColor.bind(this);
         for (let z = 0; z < this.rows; z++) {
             for (let x = 0; x < this.cols; x++) {
                 const index = z * tilemap.width + x;
-
-                let color = getLightColor(x, z);
+                const color = getLightColor(x, z);
 
                 if (ceil !== undefined) {
                     const tileId = ceil[index];
@@ -136,7 +111,6 @@ export class Level {
                     const tileId = floor[index];
                     if (tileId > 0) {
                         const plane = new PlaneGeometry(1, 1, 1, 1);
-                        setVertexColor(plane, color);
                         setVertexColor(plane, color);
                         setTextureUV(plane.faceVertexUvs[0], tileId);
                         plane.rotateX(degToRad(-90));
