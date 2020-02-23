@@ -96,11 +96,11 @@ export class Level {
         const floor = Tiled2D.getLayerTiles(tilemap, "Floor");
 
         const planes: PlaneGeometry[] = [];
-        const getLightColor = this.getLightColor.bind(this);
+        const getLight = this.getLightColor.bind(this);
         floor.forEach((_, index) => {
             const x = index % this.cols;
             const z = Math.floor(index / this.cols);
-            const color = getLightColor(x, z);
+            const color = getLight(x, z);
 
             const ceilId = ceil[index];
             if (ceilId > 0) {
@@ -123,8 +123,7 @@ export class Level {
                 // Front wall
                 const frontWallIndex = (z + 1) * tilemap.width + x;
                 if (!wall[frontWallIndex]) {
-                    const color = getLightColor(x, z + 1);
-                    const frontWall = createPlane(wallId, color);
+                    const frontWall = createPlane(wallId, getLight(x, z + 1));
                     frontWall.rotateY(degToRad(0));
                     frontWall.translate(x, 0, z + 0.5);
                     planes.push(frontWall);
@@ -133,8 +132,7 @@ export class Level {
                 // Back wall
                 const backWallIndex = (z - 1) * tilemap.width + x;
                 if (!wall[backWallIndex]) {
-                    const color = getLightColor(x, z - 1);
-                    const backWall = createPlane(wallId, color);
+                    const backWall = createPlane(wallId, getLight(x, z - 1));
                     backWall.rotateY(degToRad(180));
                     backWall.translate(x, 0, z - 0.5);
                     planes.push(backWall);
@@ -143,8 +141,7 @@ export class Level {
                 // Right wall
                 const rightWallIndex = z * tilemap.width + (x - 1);
                 if (!wall[rightWallIndex]) {
-                    const color = getLightColor(x - 1, z);
-                    const rightWall = createPlane(wallId, color);
+                    const rightWall = createPlane(wallId, getLight(x - 1, z));
                     rightWall.rotateY(degToRad(-90));
                     rightWall.translate(x - 0.5, 0, z);
                     planes.push(rightWall);
@@ -153,8 +150,7 @@ export class Level {
                 // Left wall
                 const leftWallIndex = z * tilemap.width + (x + 1);
                 if (!wall[leftWallIndex]) {
-                    const color = getLightColor(x + 1, z);
-                    const leftWall = createPlane(wallId, color);
+                    const leftWall = createPlane(wallId, getLight(x + 1, z));
                     leftWall.rotateY(degToRad(90));
                     leftWall.translate(x + 0.5, 0, z);
                     planes.push(leftWall);
