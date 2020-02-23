@@ -28,7 +28,9 @@ export class Level {
                 new TextureLoader().load("/assets/tileset.png", resolve);
             })
         ]).then((data: [Tiled2D.Tilemap, Tiled2D.Tileset, Texture]) => {
-            this.buildMesh(...data);
+            const [tilemap, tileset, texture] = data;
+            this.buildLightMap(tilemap);
+            this.buildMesh(tilemap, tileset, texture);
         });
     }
 
@@ -221,5 +223,54 @@ export class Level {
 
         const mesh = new Mesh(geometry, materal);
         this.scene.add(mesh);
+    }
+
+    private buildLightMap(tilemap: Tiled2D.Tilemap) {
+        const walls = Tiled2D.getLayerTiles(tilemap, "Wall");
+        const lights = Tiled2D.getLayerTiles(tilemap, "Lights");
+        console.log({ walls, lights });
+
+        // Init lightmap
+        const lightMap: Color[] = lights.map(_ => new Color(0x222222));
+
+        // Render
+        const canvas = document.createElement("canvas");
+        canvas.width = 512;
+        canvas.height = 512;
+        canvas.style.position = "absolute";
+        document.body.appendChild(canvas);
+
+        const ctx = canvas.getContext("2d");
+        if (ctx !== null) {
+            const fillTile = (x: number, y: number, color: string) => {
+                const tilesize = 32;
+                const pad = 2;
+                ctx.fillStyle = color;
+                ctx.fillRect(
+                    x * tilesize,
+                    y * tilesize,
+                    tilesize - pad,
+                    tilesize - pad
+                );
+            };
+
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, 512, 512);
+
+            for (let y = 0; y < tilemap.height; y++) {
+                for (let x = 0; x < tilemap.width; x++) {
+                    const index = y * tilemap.width + x;
+                    const wallId = walls[index];
+                    if (wallId > 0) {
+                        fillTile(x, y, "#666666");
+                    }
+
+                    const lightId = lights[index];
+                    if (lightId > 0) {
+                        fillTile(x, y, "#aa2222");
+                    }
+                }
+            }
+        }
     }
 }

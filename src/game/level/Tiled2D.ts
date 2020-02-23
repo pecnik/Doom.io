@@ -69,4 +69,20 @@ export module Tiled2D {
         x: number;
         y: number;
     }
+
+    export function getLayerTiles(tilemap: Tilemap, name: string) {
+        for (let i = 0; i < tilemap.layers.length; i++) {
+            const layer = tilemap.layers[i];
+            if (layer.name === name && layer.type === "tilelayer") {
+                return layer.data;
+            }
+        }
+
+        const size = tilemap.width * tilemap.height;
+        const data: number[] = [];
+        for (let i = 0; i < size; i++) {
+            data.push(0);
+        }
+        return data;
+    }
 }
