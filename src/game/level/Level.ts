@@ -84,6 +84,13 @@ export class Level {
             geo.elementsNeedUpdate = true;
         };
 
+        const createPlane = (tileId: number, color: Color) => {
+            const plane = new PlaneGeometry(1, 1, 1, 1);
+            setVertexColor(plane, color);
+            setTextureUV(plane.faceVertexUvs[0], tileId);
+            return plane;
+        };
+
         const ceil = Tiled2D.getLayerTiles(tilemap, "Ceiling");
         const wall = Tiled2D.getLayerTiles(tilemap, "Wall");
         const floor = Tiled2D.getLayerTiles(tilemap, "Floor");
@@ -93,14 +100,11 @@ export class Level {
         floor.forEach((_, index) => {
             const x = index % this.cols;
             const z = Math.floor(index / this.cols);
-
             const color = getLightColor(x, z);
 
             const ceilId = ceil[index];
             if (ceilId > 0) {
-                const plane = new PlaneGeometry(1, 1, 1, 1);
-                setVertexColor(plane, color);
-                setTextureUV(plane.faceVertexUvs[0], ceilId);
+                const plane = createPlane(ceilId, color);
                 plane.rotateX(degToRad(90));
                 plane.translate(x, 0.5, z);
                 planes.push(plane);
@@ -108,9 +112,7 @@ export class Level {
 
             const floorId = floor[index];
             if (floorId > 0) {
-                const plane = new PlaneGeometry(1, 1, 1, 1);
-                setVertexColor(plane, color);
-                setTextureUV(plane.faceVertexUvs[0], floorId);
+                const plane = createPlane(floorId, color);
                 plane.rotateX(degToRad(-90));
                 plane.translate(x, -0.5, z);
                 planes.push(plane);
@@ -121,9 +123,8 @@ export class Level {
                 // Front wall
                 const frontWallIndex = (z + 1) * tilemap.width + x;
                 if (!wall[frontWallIndex]) {
-                    const frontWall = new PlaneGeometry(1, 1, 1, 1);
-                    setVertexColor(frontWall, getLightColor(x, z + 1));
-                    setTextureUV(frontWall.faceVertexUvs[0], wallId);
+                    const color = getLightColor(x, z + 1);
+                    const frontWall = createPlane(wallId, color);
                     frontWall.rotateY(degToRad(0));
                     frontWall.translate(x, 0, z + 0.5);
                     planes.push(frontWall);
@@ -132,9 +133,8 @@ export class Level {
                 // Back wall
                 const backWallIndex = (z - 1) * tilemap.width + x;
                 if (!wall[backWallIndex]) {
-                    const backWall = new PlaneGeometry(1, 1, 1, 1);
-                    setVertexColor(backWall, getLightColor(x, z - 1));
-                    setTextureUV(backWall.faceVertexUvs[0], wallId);
+                    const color = getLightColor(x, z - 1);
+                    const backWall = createPlane(wallId, color);
                     backWall.rotateY(degToRad(180));
                     backWall.translate(x, 0, z - 0.5);
                     planes.push(backWall);
@@ -143,9 +143,8 @@ export class Level {
                 // Right wall
                 const rightWallIndex = z * tilemap.width + (x - 1);
                 if (!wall[rightWallIndex]) {
-                    const rightWall = new PlaneGeometry(1, 1, 1, 1);
-                    setVertexColor(rightWall, getLightColor(x - 1, z));
-                    setTextureUV(rightWall.faceVertexUvs[0], wallId);
+                    const color = getLightColor(x - 1, z);
+                    const rightWall = createPlane(wallId, color);
                     rightWall.rotateY(degToRad(-90));
                     rightWall.translate(x - 0.5, 0, z);
                     planes.push(rightWall);
@@ -154,9 +153,8 @@ export class Level {
                 // Left wall
                 const leftWallIndex = z * tilemap.width + (x + 1);
                 if (!wall[leftWallIndex]) {
-                    const leftWall = new PlaneGeometry(1, 1, 1, 1);
-                    setVertexColor(leftWall, getLightColor(x + 1, z));
-                    setTextureUV(leftWall.faceVertexUvs[0], wallId);
+                    const color = getLightColor(x + 1, z);
+                    const leftWall = createPlane(wallId, color);
                     leftWall.rotateY(degToRad(90));
                     leftWall.translate(x + 0.5, 0, z);
                     planes.push(leftWall);
@@ -176,8 +174,8 @@ export class Level {
         texture.minFilter = NearestFilter;
         texture.magFilter = NearestFilter;
 
-        const mesh = new Mesh(geometry, materal);
-        this.scene.add(mesh);
+        const levelMesh = new Mesh(geometry, materal);
+        this.scene.add(levelMesh);
     }
 
     private buildLightMap(tilemap: Tiled2D.Tilemap) {
