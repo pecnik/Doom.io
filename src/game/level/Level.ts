@@ -30,6 +30,11 @@ export class Level {
             })
         ]).then((data: [Tiled2D.Tilemap, Tiled2D.Tileset, Texture]) => {
             const [tilemap, tileset, texture] = data;
+
+            this.scene.remove(...this.scene.children);
+            this.rows = tilemap.height;
+            this.cols = tilemap.width;
+
             this.buildLightMap(tilemap);
             this.buildMesh(tilemap, tileset, texture);
         });
@@ -45,10 +50,6 @@ export class Level {
         tileset: Tiled2D.Tileset,
         texture: Texture
     ) {
-        this.scene.remove(...this.scene.children);
-        this.rows = tilemap.height;
-        this.cols = tilemap.width;
-
         const setTextureUV = (cords: Vector2[][], tileId: number) => {
             // Initialize UV
             const tileU = tileset.tilewidth / tileset.imagewidth;
@@ -276,22 +277,22 @@ export class Level {
         if (!renderDebug) return;
 
         const canvas = document.createElement("canvas");
-        canvas.width = 512;
-        canvas.height = 512;
+        const tilesize = 8;
+        const padding = 0;
+        canvas.width = tilesize * this.cols;
+        canvas.height = tilesize * this.rows;
         canvas.style.position = "absolute";
         document.body.appendChild(canvas);
 
         const ctx = canvas.getContext("2d");
         if (ctx !== null) {
             const fillTile = (x: number, y: number, color: string) => {
-                const tilesize = 32;
-                const pad = 2;
                 ctx.fillStyle = color;
                 ctx.fillRect(
                     x * tilesize,
                     y * tilesize,
-                    tilesize - pad,
-                    tilesize - pad
+                    tilesize - padding,
+                    tilesize - padding
                 );
             };
 
