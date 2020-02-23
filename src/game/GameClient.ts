@@ -11,6 +11,7 @@ import {
     ModelComponent,
     LocalPlayerTag
 } from "./Components";
+import { PhysicsSystem } from "./systems/PhysicsSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -52,34 +53,23 @@ export class GameClient {
 
     public onStart() {
         this.world.addSystem(new ControllerSystem(this.world, this.input));
+        this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new MeshSystem(this.world));
 
+        // Spawn player
         const player = new Entity();
         player.id = "player-1";
         player.putComponent(LocalPlayerTag);
         player.putComponent(PositionComponent);
         player.putComponent(VelocityComponent);
         player.putComponent(RotationComponent);
+        // player.putComponent(ModelComponent);
 
-        player.getComponent(RotationComponent).x = -0.8;
-        player.getComponent(RotationComponent).y = Math.PI * 1.2;
+        const position = player.getComponent(PositionComponent);
+        position.x = 3;
+        position.z = 3;
 
         this.world.addEntity(player);
-
-        for (let i = 0; i < 3; i++) {
-            const enemy = new Entity();
-            enemy.id = `enemay-${i}`;
-
-            const position = enemy.putComponent(PositionComponent);
-            position.x = Math.random() * 5;
-            position.z = Math.random() * 5;
-
-            enemy.putComponent(VelocityComponent);
-            enemy.putComponent(RotationComponent);
-            enemy.putComponent(ModelComponent);
-
-            this.world.addEntity(enemy);
-        }
     }
 
     public update(dt: number) {

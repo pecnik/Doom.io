@@ -42,8 +42,8 @@ export class Level {
         });
     }
 
-    public getCell(x: number, y: number): LevelCell | undefined {
-        const index = y * this.cols + x;
+    public getCell(x: number, z: number): LevelCell | undefined {
+        const index = z * this.cols + x;
         const cell = this.cells[index];
         return cell;
     }

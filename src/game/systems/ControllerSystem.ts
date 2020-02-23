@@ -69,10 +69,6 @@ export class ControllerSystem extends System {
             velocity.y *= movementSpeed;
             velocity.z *= movementSpeed;
 
-            position.x += velocity.x * dt;
-            position.y += velocity.y * dt;
-            position.z += velocity.z * dt;
-
             world.camera.position.set(position.x, position.y, position.z);
             world.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
         }
