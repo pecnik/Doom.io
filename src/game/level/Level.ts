@@ -15,23 +15,7 @@ import {
 } from "three";
 import { clamp } from "lodash";
 import { degToRad } from "../core/Utils";
-
-export interface LevelCell {
-    readonly index: number;
-
-    readonly x: number;
-    readonly y: number;
-    readonly z: number;
-
-    readonly ceil: boolean;
-    readonly wall: boolean;
-    readonly floor: boolean;
-    readonly ceilId: number;
-    readonly wallId: number;
-    readonly floorId: number;
-    readonly light: Color;
-    readonly aabb: Box3;
-}
+import { LevelCell } from "./LevelCell";
 
 export class Level {
     public readonly scene = new Scene();
@@ -62,11 +46,6 @@ export class Level {
         const index = y * this.cols + x;
         const cell = this.cells[index];
         return cell;
-    }
-
-    public isWallCell(x: number, y: number) {
-        const cell = this.getCell(x, y);
-        return cell !== undefined && cell.wall;
     }
 
     private buildCells(tilemap: Tiled2D.Tilemap) {
@@ -158,6 +137,11 @@ export class Level {
             return cell ? cell.light : new Color(0x000000);
         };
 
+        const isWallCell = (x: number, z: number) => {
+            const cell = this.getCell(x, z);
+            return cell === undefined || cell.wall;
+        };
+
         const planes: PlaneGeometry[] = [];
         this.cells.forEach(cell => {
             const { x, z, ceilId, wallId, floorId } = cell;
@@ -179,7 +163,7 @@ export class Level {
 
             if (wallId > 0) {
                 // Front wall
-                if (!this.isWallCell(x, z + 1)) {
+                if (!isWallCell(x, z + 1)) {
                     const frontWall = createPlane(wallId, getLight(x, z + 1));
                     frontWall.rotateY(degToRad(0));
                     frontWall.translate(x, 0, z + 0.5);
@@ -187,7 +171,7 @@ export class Level {
                 }
 
                 // Back wall
-                if (!this.isWallCell(x, z - 1)) {
+                if (!isWallCell(x, z - 1)) {
                     const backWall = createPlane(wallId, getLight(x, z - 1));
                     backWall.rotateY(degToRad(180));
                     backWall.translate(x, 0, z - 0.5);
@@ -195,7 +179,7 @@ export class Level {
                 }
 
                 // Right wall
-                if (!this.isWallCell(x - 1, z)) {
+                if (!isWallCell(x - 1, z)) {
                     const rightWall = createPlane(wallId, getLight(x - 1, z));
                     rightWall.rotateY(degToRad(-90));
                     rightWall.translate(x - 0.5, 0, z);
@@ -203,7 +187,7 @@ export class Level {
                 }
 
                 // Left wall
-                if (!this.isWallCell(x + 1, z)) {
+                if (!isWallCell(x + 1, z)) {
                     const leftWall = createPlane(wallId, getLight(x + 1, z));
                     leftWall.rotateY(degToRad(90));
                     leftWall.translate(x + 0.5, 0, z);
