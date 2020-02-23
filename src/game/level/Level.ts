@@ -218,6 +218,9 @@ export class Level {
         const wallLayer = Tiled2D.getLayerTiles(tilemap, "Wall");
         const lightLayer = Tiled2D.getLayerTiles(tilemap, "Lights");
 
+        const shadowColor = new Color(0x222222);
+        const lightRadius = 8;
+
         // Fill all lights in the scene
         const lightPoints: Vector2[] = [];
         lightLayer.forEach((lightId, index) => {
@@ -229,14 +232,20 @@ export class Level {
         });
 
         // Build lightmap
-        const lightMap: Color[] = lightLayer.map(_ => new Color(0x222222));
+        const lightMap: Color[] = lightLayer.map(_ => shadowColor.clone());
         for (let y = 0; y < tilemap.height; y++) {
             for (let x = 0; x < tilemap.width; x++) {
                 const index = y * tilemap.width + x;
+                if (wallLayer[index] > 0) {
+                    continue; // Is in shadow
+                }
+
                 const color = lightMap[index];
                 const tile = new Vector2(x, y);
                 lightPoints.forEach(light => {
                     // Check wall collision
+                    let reachedLight = false;
+
                     const direction = light
                         .clone()
                         .sub(tile)
@@ -250,24 +259,52 @@ export class Level {
                         const rx = Math.round(ray.x);
                         const ry = Math.round(ray.y);
                         if (rx === light.x && ry === light.y) {
+                            reachedLight = true;
                             break; // Reached the light
                         }
 
                         const rindex = ry * tilemap.width + rx;
                         if (wallLayer[rindex] > 0) {
-                            return; // Hit the wall
+                            break; // Hit the wall
                         }
                     }
 
-                    const radius = 16;
-                    const dist = clamp(tile.distanceTo(light), 0, radius);
-                    const value = (radius - dist) / radius;
-                    color.r += value;
-                    color.g += value;
-                    color.b += value;
+                    if (reachedLight) {
+                        let value = tile.distanceTo(light);
+                        value = clamp(value, 0, lightRadius);
+                        value = (lightRadius - value) / lightRadius;
+
+                        color.r += value;
+                        color.g += value;
+                        color.b += value;
+                    }
                 });
             }
         }
+
+        // Soft shadows
+        const lightMapClone = lightMap.map(color => new Color(color));
+        lightMapClone.forEach((color, index) => {
+            if (color.getHex() !== shadowColor.getHex()) {
+                return;
+            }
+
+            const x = index % tilemap.width;
+            const y = Math.floor(index / tilemap.width);
+
+            const shadowCell = lightMap[index];
+            for (let y1 = y - 1; y1 <= y + 1; y1++) {
+                for (let x1 = x - 1; x1 <= x + 1; x1++) {
+                    const index = y1 * tilemap.width + x1;
+                    const color = lightMapClone[index];
+                    if (color === undefined) continue;
+                    if (color.getHex() === shadowColor.getHex()) continue;
+                    shadowCell.r += color.r / 16;
+                    shadowCell.g += color.g / 16;
+                    shadowCell.b += color.b / 16;
+                }
+            }
+        });
 
         // Store new light map
         this.lightMap.length = 0;
