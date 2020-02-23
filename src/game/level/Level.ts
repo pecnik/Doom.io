@@ -184,12 +184,21 @@ export class Level {
         const lightStr = 0.75;
 
         // Fill all lights in the scene
-        const lightPoints: Vector2[] = [];
+        const lightData: Array<{ point: Vector2; color: Color }> = [];
+        const lightColors = [
+            new Color(0xffffff),
+            new Color(0xff0000),
+            new Color(0x00ff00),
+            new Color(0x0000ff)
+        ];
         lightLayer.forEach((lightId, index) => {
             if (lightId > 0) {
                 const x = index % tilemap.width;
                 const y = Math.floor(index / tilemap.width);
-                lightPoints.push(new Vector2(x, y));
+                lightData.push({
+                    point: new Vector2(x, y),
+                    color: lightColors[lightId - 1] || new Color(0xffffff)
+                });
             }
         });
 
@@ -204,11 +213,11 @@ export class Level {
 
                 const color = lightMap[index];
                 const tile = new Vector2(x, y);
-                lightPoints.forEach(light => {
+                lightData.forEach(light => {
                     // Check wall collision
                     let reachedLight = false;
 
-                    const direction = light
+                    const direction = light.point
                         .clone()
                         .sub(tile)
                         .normalize();
@@ -220,7 +229,7 @@ export class Level {
 
                         const rx = Math.round(ray.x);
                         const ry = Math.round(ray.y);
-                        if (rx === light.x && ry === light.y) {
+                        if (rx === light.point.x && ry === light.point.y) {
                             reachedLight = true;
                             break; // Reached the light
                         }
@@ -232,13 +241,13 @@ export class Level {
                     }
 
                     if (reachedLight) {
-                        let value = tile.distanceTo(light);
+                        let value = tile.distanceTo(light.point);
                         value = clamp(value, 0, lightRad);
                         value = (lightRad - value) / lightRad;
                         value = value * lightStr;
-                        color.r += value;
-                        color.g += value;
-                        color.b += value;
+                        color.r += light.color.r * value;
+                        color.g += light.color.g * value;
+                        color.b += light.color.b * value;
                     }
                 });
             }
