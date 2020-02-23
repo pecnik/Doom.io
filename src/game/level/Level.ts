@@ -17,6 +17,7 @@ import { degToRad } from "../core/Utils";
 
 export class Level {
     public readonly scene = new Scene();
+    public readonly lightMap: Color[] = [];
     public rows = 0;
     public cols = 0;
 
@@ -109,20 +110,8 @@ export class Level {
         }
 
         const getLightColor = (x: number, y: number) => {
-            const radius = 6;
-            const point = new Vector2(x, y);
-            const color = new Color(0x111122);
-
-            for (let i = 0; i < lightPonts.length; i++) {
-                const light = lightPonts[i];
-                let dist = radius - light.distanceTo(point);
-                dist = Math.max(0, dist);
-                color.r += dist / radius;
-                color.g += dist / radius;
-                color.b += dist / radius;
-            }
-
-            return color;
+            const index = y * tilemap.width + x;
+            return this.lightMap[index] || new Color(0x000000);
         };
 
         for (let z = 0; z < this.rows; z++) {
@@ -257,6 +246,10 @@ export class Level {
                 });
             }
         }
+
+        // Store new light map
+        this.lightMap.length = 0;
+        this.lightMap.push(...lightMap);
 
         // Render
         const canvas = document.createElement("canvas");
