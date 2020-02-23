@@ -96,76 +96,70 @@ export class Level {
 
             const color = getLightColor(x, z);
 
-            if (ceil !== undefined) {
-                const tileId = ceil[index];
-                if (tileId > 0) {
-                    const plane = new PlaneGeometry(1, 1, 1, 1);
-                    setVertexColor(plane, color);
-                    setTextureUV(plane.faceVertexUvs[0], tileId);
-                    plane.rotateX(degToRad(90));
-                    plane.translate(x, 0.5, z);
-                    planes.push(plane);
-                }
+            const ceilId = ceil[index];
+            if (ceilId > 0) {
+                const plane = new PlaneGeometry(1, 1, 1, 1);
+                setVertexColor(plane, color);
+                setTextureUV(plane.faceVertexUvs[0], ceilId);
+                plane.rotateX(degToRad(90));
+                plane.translate(x, 0.5, z);
+                planes.push(plane);
             }
 
-            if (floor !== undefined) {
-                const tileId = floor[index];
-                if (tileId > 0) {
-                    const plane = new PlaneGeometry(1, 1, 1, 1);
-                    setVertexColor(plane, color);
-                    setTextureUV(plane.faceVertexUvs[0], tileId);
-                    plane.rotateX(degToRad(-90));
-                    plane.translate(x, -0.5, z);
-                    planes.push(plane);
-                }
+            const floorId = floor[index];
+            if (floorId > 0) {
+                const plane = new PlaneGeometry(1, 1, 1, 1);
+                setVertexColor(plane, color);
+                setTextureUV(plane.faceVertexUvs[0], floorId);
+                plane.rotateX(degToRad(-90));
+                plane.translate(x, -0.5, z);
+                planes.push(plane);
             }
 
-            if (wall !== undefined) {
-                const tileId = wall[index];
-                if (tileId > 0) {
-                    // Front wall
-                    const frontWallIndex = (z + 1) * tilemap.width + x;
-                    if (!wall[frontWallIndex]) {
-                        const frontWall = new PlaneGeometry(1, 1, 1, 1);
-                        setVertexColor(frontWall, getLightColor(x, z + 1));
-                        setTextureUV(frontWall.faceVertexUvs[0], tileId);
-                        frontWall.rotateY(degToRad(0));
-                        frontWall.translate(x, 0, z + 0.5);
-                        planes.push(frontWall);
-                    }
+            const wallId = wall[index];
+            if (wallId > 0) {
+                // Front wall
+                const frontWallIndex = (z + 1) * tilemap.width + x;
+                if (!wall[frontWallIndex]) {
+                    const frontWall = new PlaneGeometry(1, 1, 1, 1);
+                    setVertexColor(frontWall, getLightColor(x, z + 1));
+                    setTextureUV(frontWall.faceVertexUvs[0], wallId);
+                    frontWall.rotateY(degToRad(0));
+                    frontWall.translate(x, 0, z + 0.5);
+                    planes.push(frontWall);
+                }
 
-                    // Back wall
-                    const backWallIndex = (z - 1) * tilemap.width + x;
-                    if (!wall[backWallIndex]) {
-                        const backWall = new PlaneGeometry(1, 1, 1, 1);
-                        setVertexColor(backWall, getLightColor(x, z - 1));
-                        setTextureUV(backWall.faceVertexUvs[0], tileId);
-                        backWall.rotateY(degToRad(180));
-                        backWall.translate(x, 0, z - 0.5);
-                        planes.push(backWall);
-                    }
+                // Back wall
+                const backWallIndex = (z - 1) * tilemap.width + x;
+                if (!wall[backWallIndex]) {
+                    const backWall = new PlaneGeometry(1, 1, 1, 1);
+                    setVertexColor(backWall, getLightColor(x, z - 1));
+                    setTextureUV(backWall.faceVertexUvs[0], wallId);
+                    backWall.rotateY(degToRad(180));
+                    backWall.translate(x, 0, z - 0.5);
+                    planes.push(backWall);
+                }
 
-                    // Right wall
-                    const rightWallIndex = z * tilemap.width + (x - 1);
-                    if (!wall[rightWallIndex]) {
-                        const rightWall = new PlaneGeometry(1, 1, 1, 1);
-                        setVertexColor(rightWall, getLightColor(x - 1, z));
-                        setTextureUV(rightWall.faceVertexUvs[0], tileId);
-                        rightWall.rotateY(degToRad(-90));
-                        rightWall.translate(x - 0.5, 0, z);
-                        planes.push(rightWall);
-                    }
+                // Right wall
+                const rightWallIndex = z * tilemap.width + (x - 1);
+                if (!wall[rightWallIndex]) {
+                    const rightWall = new PlaneGeometry(1, 1, 1, 1);
+                    setVertexColor(rightWall, getLightColor(x - 1, z));
+                    setTextureUV(rightWall.faceVertexUvs[0], wallId);
+                    rightWall.rotateY(degToRad(-90));
+                    rightWall.translate(x - 0.5, 0, z);
+                    planes.push(rightWall);
+                }
 
-                    // Left wall
-                    const leftWallIndex = z * tilemap.width + (x + 1);
-                    if (!wall[leftWallIndex]) {
-                        const leftWall = new PlaneGeometry(1, 1, 1, 1);
-                        setVertexColor(leftWall, getLightColor(x + 1, z));
-                        setTextureUV(leftWall.faceVertexUvs[0], tileId);
-                        leftWall.rotateY(degToRad(90));
-                        leftWall.translate(x + 0.5, 0, z);
-                        planes.push(leftWall);
-                    }
+                // Left wall
+                const leftWallIndex = z * tilemap.width + (x + 1);
+                if (!wall[leftWallIndex]) {
+                    const leftWall = new PlaneGeometry(1, 1, 1, 1);
+                    setVertexColor(leftWall, getLightColor(x + 1, z));
+                    setTextureUV(leftWall.faceVertexUvs[0], wallId);
+                    leftWall.rotateY(degToRad(90));
+                    leftWall.translate(x + 0.5, 0, z);
+                    planes.push(leftWall);
                 }
             }
         });
