@@ -179,7 +179,8 @@ export class Level {
         const lightLayer = Tiled2D.getLayerTiles(tilemap, "Lights");
 
         const shadowColor = new Color(0x222222);
-        const lightRadius = 8;
+        const lightRad = 10;
+        const lightStr = 0.75;
 
         // Fill all lights in the scene
         const lightPoints: Vector2[] = [];
@@ -231,9 +232,9 @@ export class Level {
 
                     if (reachedLight) {
                         let value = tile.distanceTo(light);
-                        value = clamp(value, 0, lightRadius);
-                        value = (lightRadius - value) / lightRadius;
-
+                        value = clamp(value, 0, lightRad);
+                        value = (lightRad - value) / lightRad;
+                        value = value * lightStr;
                         color.r += value;
                         color.g += value;
                         color.b += value;
