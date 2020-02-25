@@ -1,13 +1,15 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
 import { World } from "../World";
+import { Input, KeyCode } from "../core/Input";
+import { modulo, lerp } from "../core/Utils";
+import { clamp } from "lodash";
 import {
     VelocityComponent,
     RotationComponent,
     LocalPlayerTag
 } from "../Components";
-import { Input, KeyCode } from "../core/Input";
-import { modulo } from "../core/Utils";
-import { clamp } from "lodash";
+import { Vector2 } from "three";
+import { RUN_SPEED } from "../Globals";
 
 export class ControllerSystem extends System {
     private readonly family: Family;
@@ -39,25 +41,21 @@ export class ControllerSystem extends System {
         const left = this.input.isKeyDown(KeyCode.A);
         const right = this.input.isKeyDown(KeyCode.D);
 
-        velocity.x = 0;
-        velocity.z = 0;
+        const movement = new Vector2();
 
-        velocity.z -= forward ? 1 : 0;
-        velocity.z += backward ? 1 : 0;
+        movement.y -= forward ? 1 : 0;
+        movement.y += backward ? 1 : 0;
 
-        velocity.x -= left ? 1 : 0;
-        velocity.x += right ? 1 : 0;
+        movement.x -= left ? 1 : 0;
+        movement.x += right ? 1 : 0;
 
-        if (velocity.x !== 0 || velocity.z !== 0) {
-            const facingAngle = rotation.y;
-            const angle = Math.atan2(velocity.z, velocity.x) - facingAngle;
-            velocity.z = Math.sin(angle);
-            velocity.x = Math.cos(angle);
+        if (movement.x !== 0 || movement.y !== 0) {
+            movement.rotateAround(new Vector2(), -rotation.y);
         }
 
-        const movementSpeed = 5;
-        velocity.x *= movementSpeed;
-        velocity.z *= movementSpeed;
+        movement.multiplyScalar(RUN_SPEED);
+        velocity.x = lerp(velocity.x, movement.x, RUN_SPEED / 4);
+        velocity.z = lerp(velocity.z, movement.y, RUN_SPEED / 4);
     }
 
     private mouseLook(rotation: RotationComponent, dt: number) {
