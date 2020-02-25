@@ -1,4 +1,5 @@
 import { Component } from "@nova-engine/ecs";
+import { PositionalAudio } from "three";
 
 export class LocalPlayerTag implements Component {
     // ...
@@ -28,4 +29,9 @@ export class VelocityComponent implements Component {
 export class RotationComponent implements Component {
     public x = 0; // Up-down
     public y = 0; // Left-right
+}
+
+export class SoundEmitterComponent {
+    // public audio: HTMLAudioElement | undefined = undefined;
+    public audio: PositionalAudio | undefined = undefined;
 }

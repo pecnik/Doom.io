@@ -14,6 +14,7 @@ import {
     JumpComponent
 } from "./Components";
 import { JumpingSystem } from "./systems/JumpingSystem";
+import { SoundSystem } from "./systems/SoundSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -59,6 +60,7 @@ export class GameClient {
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new MeshSystem(this.world));
         this.world.addSystem(new CameraSystem(this.world));
+        this.world.addSystem(new SoundSystem(this.world));
 
         // Spawn player
         const player = new Entity();
