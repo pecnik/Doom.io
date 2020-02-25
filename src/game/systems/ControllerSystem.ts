@@ -40,7 +40,6 @@ export class ControllerSystem extends System {
         const right = this.input.isKeyDown(KeyCode.D);
 
         velocity.x = 0;
-        velocity.y = 0;
         velocity.z = 0;
 
         velocity.z -= forward ? 1 : 0;
@@ -58,7 +57,6 @@ export class ControllerSystem extends System {
 
         const movementSpeed = 5;
         velocity.x *= movementSpeed;
-        velocity.y *= movementSpeed;
         velocity.z *= movementSpeed;
     }
 

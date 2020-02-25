@@ -10,8 +10,10 @@ import {
     PositionComponent,
     VelocityComponent,
     RotationComponent,
-    LocalPlayerTag
+    LocalPlayerTag,
+    JumpComponent
 } from "./Components";
+import { JumpingSystem } from "./systems/JumpingSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -53,6 +55,7 @@ export class GameClient {
 
     public onStart() {
         this.world.addSystem(new ControllerSystem(this.world, this.input));
+        this.world.addSystem(new JumpingSystem(this.world, this.input));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new MeshSystem(this.world));
         this.world.addSystem(new CameraSystem(this.world));
@@ -64,7 +67,7 @@ export class GameClient {
         player.putComponent(PositionComponent);
         player.putComponent(VelocityComponent);
         player.putComponent(RotationComponent);
-        // player.putComponent(ModelComponent);
+        player.putComponent(JumpComponent);
 
         const position = player.getComponent(PositionComponent);
         position.x = 3;
@@ -74,6 +77,7 @@ export class GameClient {
     }
 
     public update(dt: number) {
+        this.world.elapsedTime += dt;
         this.world.update(dt);
         this.input.clear();
     }

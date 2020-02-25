@@ -12,6 +12,7 @@ export class World extends Engine {
     public readonly level = new Level();
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
+    public elapsedTime = 0;
 
     public constructor() {
         super();

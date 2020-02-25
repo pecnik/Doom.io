@@ -3,6 +3,7 @@ import { World } from "../World";
 import { VelocityComponent, PositionComponent } from "../Components";
 import { Vector2 } from "three";
 import { clamp } from "lodash";
+import { GRAVITY, FLOOR, CEIL } from "../Globals";
 
 export class PhysicsSystem extends System {
     private readonly family: Family;
@@ -21,11 +22,26 @@ export class PhysicsSystem extends System {
             const position = entity.getComponent(PositionComponent);
             const velocity = entity.getComponent(VelocityComponent);
 
+            // Apply gravity
+            velocity.y -= GRAVITY * dt;
+
+            // Apply velocity
             const prevPos = { ...position };
             const nextPos = { ...position };
             nextPos.x += velocity.x * dt;
             nextPos.y += velocity.y * dt;
             nextPos.z += velocity.z * dt;
+
+            // Vertical collision
+            if (nextPos.y < FLOOR) {
+                nextPos.y = FLOOR;
+                velocity.y = 0;
+            }
+
+            if (nextPos.y > CEIL) {
+                nextPos.y = CEIL;
+                velocity.y = 0;
+            }
 
             // Level collision
             const minX = Math.floor(Math.min(prevPos.x, nextPos.x)) - 1;
