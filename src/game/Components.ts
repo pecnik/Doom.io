@@ -1,4 +1,5 @@
 import { Component } from "@nova-engine/ecs";
+import { Raycaster, PerspectiveCamera, Vector2 } from "three";
 
 export class LocalPlayerTag implements Component {
     // ...
@@ -9,8 +10,15 @@ export class ModelComponent implements Component {
 }
 
 export class JumpComponent implements Component {
-    public triggerTime = -Number.MAX_SAFE_INTEGER;
-    public coyoteTime = -Number.MAX_SAFE_INTEGER;
+    public triggerTime = 0;
+    public coyoteTime = 0;
+}
+
+export class ShooterComponent implements Component {
+    public origin = new Vector2();
+    public camera = new PerspectiveCamera(45);
+    public raycaster = new Raycaster();
+    public shootTime = 0;
 }
 
 export class PositionComponent implements Component {

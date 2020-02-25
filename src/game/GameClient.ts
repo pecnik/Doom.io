@@ -5,6 +5,8 @@ import { ControllerSystem } from "./systems/ControllerSystem";
 import { PhysicsSystem } from "./systems/PhysicsSystem";
 import { CameraSystem } from "./systems/CameraSystem";
 import { MeshSystem } from "./systems/MeshSystem";
+import { JumpingSystem } from "./systems/JumpingSystem";
+import { ShootingSystem } from "./systems/ShootingSystem";
 import { Entity } from "@nova-engine/ecs";
 import {
     PositionComponent,
@@ -12,11 +14,11 @@ import {
     RotationComponent,
     LocalPlayerTag,
     JumpComponent,
+    ShooterComponent,
     ModelComponent,
     SoundComponent,
     FootstepComponent
 } from "./Components";
-import { JumpingSystem } from "./systems/JumpingSystem";
 import { SoundSystem } from "./systems/SoundSystem";
 import { FootstepSystem } from "./systems/FootstepSystem";
 import { RUN_SPEED } from "./Globals";
@@ -63,6 +65,7 @@ export class GameClient {
         this.world.addSystem(new ControllerSystem(this.world, this.input));
         this.world.addSystem(new JumpingSystem(this.world, this.input));
         this.world.addSystem(new PhysicsSystem(this.world));
+        this.world.addSystem(new ShootingSystem(this.world, this.input));
         this.world.addSystem(new MeshSystem(this.world));
         this.world.addSystem(new FootstepSystem(this.world));
         this.world.addSystem(new CameraSystem(this.world));
@@ -77,6 +80,7 @@ export class GameClient {
             player.putComponent(VelocityComponent);
             player.putComponent(RotationComponent);
             player.putComponent(FootstepComponent);
+            player.putComponent(ShooterComponent);
             player.putComponent(SoundComponent);
             player.putComponent(JumpComponent);
 
