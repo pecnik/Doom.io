@@ -1,4 +1,5 @@
 export const RUN_SPEED = 4;
+export const WALK_SPEED = 1.5;
 
 export const FLOOR = 0;
 export const CEIL = 0.374;

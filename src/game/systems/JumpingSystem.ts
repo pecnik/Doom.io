@@ -49,7 +49,6 @@ export class JumpingSystem extends System {
             // Halt jump
             if (this.input.isKeyReleased(KeyCode.SPACE) && velocity.y > 0) {
                 velocity.y *= 0.5;
-                console.log("HALT");
             }
         }
     }

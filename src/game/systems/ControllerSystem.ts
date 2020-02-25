@@ -9,7 +9,7 @@ import {
     LocalPlayerTag
 } from "../Components";
 import { Vector2 } from "three";
-import { RUN_SPEED } from "../Globals";
+import { RUN_SPEED, WALK_SPEED } from "../Globals";
 
 export class ControllerSystem extends System {
     private readonly family: Family;
@@ -43,17 +43,20 @@ export class ControllerSystem extends System {
 
         const movement = new Vector2();
 
-        movement.y -= forward ? 1 : 0;
-        movement.y += backward ? 1 : 0;
+        const speed = this.input.isKeyDown(KeyCode.SHIFT)
+            ? WALK_SPEED
+            : RUN_SPEED;
 
-        movement.x -= left ? 1 : 0;
-        movement.x += right ? 1 : 0;
+        movement.y -= forward ? speed : 0;
+        movement.y += backward ? speed : 0;
+
+        movement.x -= left ? speed : 0;
+        movement.x += right ? speed : 0;
 
         if (movement.x !== 0 || movement.y !== 0) {
             movement.rotateAround(new Vector2(), -rotation.y);
         }
 
-        movement.multiplyScalar(RUN_SPEED);
         velocity.x = lerp(velocity.x, movement.x, RUN_SPEED / 4);
         velocity.z = lerp(velocity.z, movement.y, RUN_SPEED / 4);
     }
