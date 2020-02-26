@@ -49,7 +49,7 @@ export class RotationComponent implements Component {
 }
 
 export class SoundComponent {
-    public audio?: PositionalAudio;
+    public channels: PositionalAudio[] = [];
     public play = false;
     public src = "";
 }

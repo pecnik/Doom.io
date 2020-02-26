@@ -32,16 +32,20 @@ export class SoundSystem extends System {
                 if (!entity.hasComponent(SoundComponent)) return;
                 const object = entity.getComponent(Object3DComponent);
                 const sound = entity.getComponent(SoundComponent);
-                sound.audio = new PositionalAudio(this.listener);
-                object.add(sound.audio);
+                for (let i = 0; i < 3; i++) {
+                    const channel = new PositionalAudio(this.listener);
+                    channel.position.z = -1;
+                    sound.channels.push(channel);
+                    object.add(channel);
+                }
             },
             onEntityRemoved(entity) {
                 if (!entity.hasComponent(Object3DComponent)) return;
                 if (!entity.hasComponent(SoundComponent)) return;
                 const object = entity.getComponent(Object3DComponent);
                 const sound = entity.getComponent(SoundComponent);
-                if (sound.audio !== undefined) {
-                    object.remove(sound.audio);
+                if (sound.channels !== undefined) {
+                    object.remove(...sound.channels);
                 }
             }
         });
@@ -56,21 +60,32 @@ export class SoundSystem extends System {
             const entity = this.family.entities[i];
             const sound = entity.getComponent(SoundComponent);
             if (!sound.play) continue;
-            if (!sound.audio) continue;
 
             const audio = this.getAudioBuffer(sound.src);
             if (audio.buffer === undefined) continue;
 
-            sound.audio.setBuffer(audio.buffer);
-            sound.audio.setVolume(1);
-            sound.audio.setRefDistance(8);
-            sound.audio.setRolloffFactor(8);
+            for (let i = 0; i < sound.channels.length; i++) {
+                const channel = sound.channels[i];
 
-            if (sound.audio.isPlaying) {
-                sound.audio.stop();
+                let isFree = false;
+                if (channel.isPlaying === false) isFree = true;
+                if (channel.buffer === null) isFree = true;
+                if (channel.buffer === audio.buffer) isFree = true;
+                if (!isFree) {
+                    continue;
+                }
+
+                if (channel.isPlaying) {
+                    channel.stop();
+                }
+
+                channel.setBuffer(audio.buffer);
+                channel.setVolume(1);
+                channel.setRefDistance(8);
+                channel.setRolloffFactor(8);
+                channel.play(0);
+                break;
             }
-
-            sound.audio.play(0);
 
             sound.play = false;
         }

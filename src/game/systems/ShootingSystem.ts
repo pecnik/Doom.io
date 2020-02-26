@@ -7,7 +7,8 @@ import {
     VelocityComponent,
     LocalPlayerTag,
     RotationComponent,
-    ShooterComponent
+    ShooterComponent,
+    SoundComponent
 } from "../Components";
 import { Input, MouseBtn } from "../core/Input";
 
@@ -33,21 +34,27 @@ export class ShootingSystem extends System {
             const entity = this.family.entities[i];
             const shooter = entity.getComponent(ShooterComponent);
 
-            const fireRate = 1 / 20;
+            const fireRate = 1 / 8;
             const shootDelta = elapsedTime - shooter.shootTime;
             const shootTriger = this.input.isMouseDown(MouseBtn.Left);
             if (shootTriger && shootDelta > fireRate) {
                 shooter.shootTime = elapsedTime;
 
+                // Play sound
+                if (entity.hasComponent(SoundComponent)) {
+                    const sound = entity.getComponent(SoundComponent);
+                    sound.play = true;
+                    sound.src = "/assets/sounds/fire.wav";
+                }
+
                 const hits = this.hitscan(entity, world);
                 for (let i = 0; i < hits.length; i++) {
                     const hit = hits[i];
 
-                    // TMP
-                    const impact = new Mesh(
-                        new BoxGeometry(0.05, 0.05, 0.05),
-                        new MeshBasicMaterial({ color: 0x000000 })
-                    );
+                    // Spawn impact mexh
+                    const geo = new BoxGeometry(0.05, 0.05, 0.05);
+                    const mat = new MeshBasicMaterial({ color: 0xff00ff });
+                    const impact = new Mesh(geo, mat);
                     impact.position.copy(hit.point);
                     world.scene.add(impact);
 

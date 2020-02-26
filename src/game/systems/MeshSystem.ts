@@ -54,7 +54,7 @@ export class MeshSystem extends System {
 
             if (entity.hasComponent(RotationComponent)) {
                 const rotation = entity.getComponent(RotationComponent);
-                object.rotation.y = rotation.y;
+                object.rotation.set(rotation.x, rotation.y, 0, "YXZ");
             }
         }
     }
