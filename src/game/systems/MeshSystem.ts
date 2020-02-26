@@ -20,27 +20,28 @@ export class MeshSystem extends System {
             .include(MeshComponent)
             .build();
 
-        world.addEntityListener({
-            onEntityAdded: (entity: Entity) => {
-                if (this.family.includesEntity(entity)) {
-                    const object = entity.getComponent(Object3DComponent);
-                    const mesh = entity.getComponent(MeshComponent);
-                    mesh.instance = new Mesh(
-                        new CylinderGeometry(0.25, 0.25, 1, 8),
-                        new MeshBasicMaterial({ wireframe: true })
-                    );
+        this.initEntityMesh(world);
+    }
 
-                    object.add(mesh.instance);
-                    world.scene.add(object);
+    private initEntityMesh(world: World) {
+        const geo = new CylinderGeometry(0.25, 0.25, 1, 8);
+        const mat = new MeshBasicMaterial({ wireframe: true });
+        const onEntityAdded = (entity: Entity) => {
+            if (entity.hasComponent(Object3DComponent)) {
+                const object = entity.getComponent(Object3DComponent);
+                if (entity.hasComponent(MeshComponent)) {
+                    object.add(new Mesh(geo, mat));
                 }
-            },
-            onEntityRemoved: (entity: Entity) => {
-                if (this.family.includesEntity(entity)) {
-                    const object = entity.getComponent(Object3DComponent);
-                    world.scene.remove(object);
-                }
+                world.scene.add(object);
             }
-        });
+        };
+        const onEntityRemoved = (entity: Entity) => {
+            if (entity.hasComponent(Object3DComponent)) {
+                const object = entity.getComponent(Object3DComponent);
+                world.scene.remove(object);
+            }
+        };
+        world.addEntityListener({ onEntityAdded, onEntityRemoved });
     }
 
     public update() {
