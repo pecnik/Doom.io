@@ -49,12 +49,14 @@ export class FootstepSystem extends System {
                 continue;
             }
 
-            footstep.traveled += delta;
-
-            if (footstep.traveled > 1) {
-                footstep.traveled = 0;
+            if (delta > 0 && footstep.traveled === 0) {
                 sound.play = true;
                 sound.src = "/assets/sounds/footstep-1.wav";
+            }
+
+            footstep.traveled += delta;
+            if (footstep.traveled > 1.5) {
+                footstep.traveled = 0;
             }
         }
     }

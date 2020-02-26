@@ -1,5 +1,5 @@
 import SocketIOClient from "socket.io-client";
-import { Input } from "./core/Input";
+import { Input, KeyCode } from "./core/Input";
 import { World } from "./World";
 import { ControllerSystem } from "./systems/ControllerSystem";
 import { PhysicsSystem } from "./systems/PhysicsSystem";
@@ -19,6 +19,7 @@ import {
 import { JumpingSystem } from "./systems/JumpingSystem";
 import { SoundSystem } from "./systems/SoundSystem";
 import { FootstepSystem } from "./systems/FootstepSystem";
+import { RUN_SPEED } from "./Globals";
 
 export class GameClient {
     public readonly input: Input;
@@ -94,6 +95,7 @@ export class GameClient {
             bot.putComponent(PositionComponent);
             bot.putComponent(RotationComponent);
             bot.putComponent(VelocityComponent);
+            bot.putComponent(FootstepComponent);
             bot.putComponent(ModelComponent);
             bot.putComponent(SoundComponent);
 
@@ -105,22 +107,25 @@ export class GameClient {
             sound.play = true;
             sound.src = "/assets/sounds/fire.wav";
 
-            // setInterval(() => {
-            //     const sound = bot.getComponent(SoundComponent);
-            //     const rotation = bot.getComponent(RotationComponent);
-
-            //     if (Math.random() < 0.25) {
-            //         console.log(`> Bot::fire`);
-            //         sound.play = true;
-            //         sound.src = "/assets/sounds/fire.wav";
-            //     } else if (Math.random() < 0.25) {
-            //         console.log(`> Bot::turn-left`);
-            //         rotation.y += 0.1;
-            //     } else if (Math.random() < 0.25) {
-            //         console.log(`> Bot::turn-right`);
-            //         rotation.y -= 0.1;
-            //     }
-            // }, 1000);
+            // TMP
+            setInterval(() => {
+                const speed = RUN_SPEED;
+                const velocity = bot.getComponent(VelocityComponent);
+                velocity.z = 0;
+                velocity.x = 0;
+                if (this.input.isKeyDown(KeyCode.UP)) {
+                    velocity.z = +speed;
+                }
+                if (this.input.isKeyDown(KeyCode.DOWN)) {
+                    velocity.z = -speed;
+                }
+                if (this.input.isKeyDown(KeyCode.LEFT)) {
+                    velocity.x = +speed;
+                }
+                if (this.input.isKeyDown(KeyCode.RIGHT)) {
+                    velocity.x = -speed;
+                }
+            }, 1000 / 60);
 
             this.world.addEntity(bot);
         }

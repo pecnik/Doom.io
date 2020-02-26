@@ -28,7 +28,8 @@ export class SoundSystem extends System {
             emitter.loaded = true;
             emitter.audio.setBuffer(buffer);
             emitter.audio.setVolume(1);
-            emitter.audio.setRefDistance(100);
+            emitter.audio.setRefDistance(8);
+            emitter.audio.setRolloffFactor(16);
         });
 
         return emitter;
@@ -54,11 +55,11 @@ export class SoundSystem extends System {
             const psoition = entity.getComponent(PositionComponent);
             const emitter = this.getEmitter(sound.src, world);
             if (emitter.loaded) {
-                emitter.position.set(psoition.x, psoition.y, psoition.z);
-
                 if (emitter.audio.isPlaying) {
                     emitter.audio.stop();
                 }
+
+                emitter.position.set(psoition.x, psoition.y, psoition.z);
                 emitter.audio.play(0);
             }
 
