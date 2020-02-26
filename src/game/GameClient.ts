@@ -77,6 +77,7 @@ export class GameClient {
             const player = new Entity();
             player.id = "player-1";
             player.putComponent(LocalPlayerTag);
+            player.putComponent(Object3DComponent);
             player.putComponent(PositionComponent);
             player.putComponent(VelocityComponent);
             player.putComponent(RotationComponent);

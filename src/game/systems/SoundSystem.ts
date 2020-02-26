@@ -1,48 +1,53 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
 import { memoize } from "lodash";
 import { World } from "../World";
-import { SoundComponent, PositionComponent } from "../Components";
+import { SoundComponent, Object3DComponent } from "../Components";
 import { AudioListener, AudioLoader, PositionalAudio, Object3D } from "three";
-
-export class SoundEmitter extends Object3D {
-    public readonly audio: PositionalAudio;
-    public readonly src: string;
-    public loaded = false;
-    public constructor(src: string, listener: AudioListener) {
-        super();
-        this.src = src;
-        this.audio = new PositionalAudio(listener);
-        this.add(this.audio);
-    }
-}
 
 export class SoundSystem extends System {
     private readonly family: Family;
     private readonly listener: AudioListener;
-
-    private readonly getEmitter = memoize((src: string, world: World) => {
-        const emitter = new SoundEmitter(src, this.listener);
-        world.scene.add(emitter);
-
+    private readonly getAudioBuffer = memoize((src: string) => {
+        const audio: { buffer?: AudioBuffer } = {};
         new AudioLoader().load(src, buffer => {
-            emitter.loaded = true;
-            emitter.audio.setBuffer(buffer);
-            emitter.audio.setVolume(1);
-            emitter.audio.setRefDistance(8);
-            emitter.audio.setRolloffFactor(16);
+            audio.buffer = buffer;
         });
-
-        return emitter;
+        return audio;
     });
 
     public constructor(world: World) {
         super();
-        this.family = new FamilyBuilder(world).include(SoundComponent).build();
+
         this.listener = new AudioListener();
         world.camera.add(this.listener);
+
+        this.family = new FamilyBuilder(world)
+            .include(Object3DComponent)
+            .include(SoundComponent)
+            .build();
+
+        world.addEntityListener({
+            onEntityAdded: entity => {
+                if (!entity.hasComponent(Object3DComponent)) return;
+                if (!entity.hasComponent(SoundComponent)) return;
+                const object = entity.getComponent(Object3DComponent);
+                const sound = entity.getComponent(SoundComponent);
+                sound.audio = new PositionalAudio(this.listener);
+                object.add(sound.audio);
+            },
+            onEntityRemoved(entity) {
+                if (!entity.hasComponent(Object3DComponent)) return;
+                if (!entity.hasComponent(SoundComponent)) return;
+                const object = entity.getComponent(Object3DComponent);
+                const sound = entity.getComponent(SoundComponent);
+                if (sound.audio !== undefined) {
+                    object.remove(sound.audio);
+                }
+            }
+        });
     }
 
-    public update(world: World) {
+    public update() {
         if (!(document as any).pointerLockElement) {
             return;
         }
@@ -51,17 +56,21 @@ export class SoundSystem extends System {
             const entity = this.family.entities[i];
             const sound = entity.getComponent(SoundComponent);
             if (!sound.play) continue;
+            if (!sound.audio) continue;
 
-            const psoition = entity.getComponent(PositionComponent);
-            const emitter = this.getEmitter(sound.src, world);
-            if (emitter.loaded) {
-                if (emitter.audio.isPlaying) {
-                    emitter.audio.stop();
-                }
+            const audio = this.getAudioBuffer(sound.src);
+            if (audio.buffer === undefined) continue;
 
-                emitter.position.set(psoition.x, psoition.y, psoition.z);
-                emitter.audio.play(0);
+            sound.audio.setBuffer(audio.buffer);
+            sound.audio.setVolume(1);
+            sound.audio.setRefDistance(8);
+            sound.audio.setRolloffFactor(8);
+
+            if (sound.audio.isPlaying) {
+                sound.audio.stop();
             }
+
+            sound.audio.play(0);
 
             sound.play = false;
         }

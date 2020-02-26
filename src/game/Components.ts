@@ -1,5 +1,11 @@
 import { Component } from "@nova-engine/ecs";
-import { Raycaster, PerspectiveCamera, Vector2, Object3D, Mesh } from "three";
+import {
+    Raycaster,
+    PerspectiveCamera,
+    Vector2,
+    Object3D,
+    PositionalAudio
+} from "three";
 
 export class LocalPlayerTag implements Component {
     // Tag ...
@@ -43,6 +49,7 @@ export class RotationComponent implements Component {
 }
 
 export class SoundComponent {
+    public audio?: PositionalAudio;
     public play = false;
     public src = "";
 }
