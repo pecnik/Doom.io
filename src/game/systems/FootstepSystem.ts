@@ -6,6 +6,7 @@ import {
     FootstepComponent
 } from "../Components";
 import { Vector2 } from "three";
+import { FLOOR } from "../Globals";
 
 export class FootstepSystem extends System {
     private readonly family: Family;
@@ -49,7 +50,7 @@ export class FootstepSystem extends System {
                 continue;
             }
 
-            if (delta > 0 && footstep.traveled === 0) {
+            if (delta > 0 && footstep.traveled === 0 && position.y === FLOOR) {
                 sound.play = true;
                 sound.src = "/assets/sounds/footstep-1.wav";
             }
