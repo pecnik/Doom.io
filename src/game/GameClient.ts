@@ -15,9 +15,10 @@ import {
     LocalPlayerTag,
     JumpComponent,
     ShooterComponent,
-    ModelComponent,
+    MeshComponent,
     SoundComponent,
-    FootstepComponent
+    FootstepComponent,
+    Object3DComponent
 } from "./Components";
 import { SoundSystem } from "./systems/SoundSystem";
 import { FootstepSystem } from "./systems/FootstepSystem";
@@ -100,7 +101,8 @@ export class GameClient {
             bot.putComponent(RotationComponent);
             bot.putComponent(VelocityComponent);
             bot.putComponent(FootstepComponent);
-            bot.putComponent(ModelComponent);
+            bot.putComponent(Object3DComponent);
+            bot.putComponent(MeshComponent);
             bot.putComponent(SoundComponent);
 
             const position = bot.getComponent(PositionComponent);

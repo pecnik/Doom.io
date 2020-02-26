@@ -1,12 +1,16 @@
 import { Component } from "@nova-engine/ecs";
-import { Raycaster, PerspectiveCamera, Vector2 } from "three";
+import { Raycaster, PerspectiveCamera, Vector2, Object3D, Mesh } from "three";
 
 export class LocalPlayerTag implements Component {
     // ...
 }
 
-export class ModelComponent implements Component {
+export class Object3DComponent extends Object3D implements Component {
     // ...
+}
+
+export class MeshComponent implements Component {
+    public instance = new Mesh();
 }
 
 export class JumpComponent implements Component {

@@ -3,7 +3,8 @@ import { World } from "../World";
 import {
     RotationComponent,
     PositionComponent,
-    ModelComponent
+    MeshComponent,
+    Object3DComponent
 } from "../Components";
 import { Mesh, CylinderGeometry, MeshBasicMaterial } from "three";
 
@@ -15,44 +16,41 @@ export class MeshSystem extends System {
         this.family = new FamilyBuilder(world)
             .include(PositionComponent)
             .include(RotationComponent)
-            .include(ModelComponent)
+            .include(Object3DComponent)
+            .include(MeshComponent)
             .build();
 
         world.addEntityListener({
             onEntityAdded: (entity: Entity) => {
                 if (this.family.includesEntity(entity)) {
-                    const model = new Mesh(
+                    const object = entity.getComponent(Object3DComponent);
+                    const mesh = entity.getComponent(MeshComponent);
+                    mesh.instance = new Mesh(
                         new CylinderGeometry(0.25, 0.25, 1, 8),
                         new MeshBasicMaterial({ wireframe: true })
                     );
-                    model.name = entity.id as string;
-                    world.scene.add(model);
+
+                    object.add(mesh.instance);
+                    world.scene.add(object);
                 }
             },
             onEntityRemoved: (entity: Entity) => {
                 if (this.family.includesEntity(entity)) {
-                    const model = world.scene.getObjectByName(
-                        entity.id as string
-                    );
-
-                    if (model !== undefined) {
-                        world.scene.remove(model);
-                    }
+                    const object = entity.getComponent(Object3DComponent);
+                    world.scene.remove(object);
                 }
             }
         });
     }
 
-    public update(world: World) {
+    public update() {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
-            const model = world.scene.getObjectByName(entity.id as string);
-            if (model !== undefined) {
-                const position = entity.getComponent(PositionComponent);
-                const rotation = entity.getComponent(RotationComponent);
-                model.position.set(position.x, position.y, position.z);
-                model.rotation.y = rotation.y;
-            }
+            const object = entity.getComponent(Object3DComponent);
+            const position = entity.getComponent(PositionComponent);
+            const rotation = entity.getComponent(RotationComponent);
+            object.position.set(position.x, position.y, position.z);
+            object.rotation.y = rotation.y;
         }
     }
 }
