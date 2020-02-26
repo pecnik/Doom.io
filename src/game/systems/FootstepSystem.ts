@@ -40,8 +40,10 @@ export class FootstepSystem extends System {
             const sound = entity.getComponent(SoundComponent);
 
             const dx = footstep.prevx - position.x;
+            const dy = footstep.prevy - position.y;
             const dz = footstep.prevz - position.z;
             footstep.prevx = position.x;
+            footstep.prevy = position.y;
             footstep.prevz = position.z;
 
             const delta = new Vector2(dx, dz).length();
@@ -50,7 +52,12 @@ export class FootstepSystem extends System {
                 continue;
             }
 
-            if (delta > 0 && footstep.traveled === 0 && position.y === FLOOR) {
+            if (position.y === FLOOR && delta > 0 && footstep.traveled === 0) {
+                sound.play = true;
+                sound.src = "/assets/sounds/footstep-1.wav";
+            }
+
+            if (position.y === FLOOR && dy > 0) {
                 sound.play = true;
                 sound.src = "/assets/sounds/footstep-1.wav";
             }

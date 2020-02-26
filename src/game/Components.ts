@@ -56,6 +56,7 @@ export class SoundComponent {
 
 export class FootstepComponent {
     public prevx = 0;
+    public prevy = 0;
     public prevz = 0;
     public traveled = 0;
 }
