@@ -11,7 +11,9 @@ import {
     VelocityComponent,
     RotationComponent,
     LocalPlayerTag,
-    JumpComponent
+    JumpComponent,
+    ModelComponent,
+    SoundComponent
 } from "./Components";
 import { JumpingSystem } from "./systems/JumpingSystem";
 import { SoundSystem } from "./systems/SoundSystem";
@@ -62,20 +64,42 @@ export class GameClient {
         this.world.addSystem(new CameraSystem(this.world));
         this.world.addSystem(new SoundSystem(this.world));
 
-        // Spawn player
-        const player = new Entity();
-        player.id = "player-1";
-        player.putComponent(LocalPlayerTag);
-        player.putComponent(PositionComponent);
-        player.putComponent(VelocityComponent);
-        player.putComponent(RotationComponent);
-        player.putComponent(JumpComponent);
+        {
+            // Spawn player
+            const player = new Entity();
+            player.id = "player-1";
+            player.putComponent(LocalPlayerTag);
+            player.putComponent(PositionComponent);
+            player.putComponent(VelocityComponent);
+            player.putComponent(RotationComponent);
+            player.putComponent(JumpComponent);
 
-        const position = player.getComponent(PositionComponent);
-        position.x = 3;
-        position.z = 3;
+            const position = player.getComponent(PositionComponent);
+            position.x = 3;
+            position.z = 3;
 
-        this.world.addEntity(player);
+            this.world.addEntity(player);
+        }
+
+        {
+            // Spawn bot
+            const bot = new Entity();
+            bot.id = "bot";
+            bot.putComponent(PositionComponent);
+            bot.putComponent(RotationComponent);
+            bot.putComponent(ModelComponent);
+            bot.putComponent(SoundComponent);
+
+            const position = bot.getComponent(PositionComponent);
+            position.x = 3;
+            position.z = 3;
+
+            const sound = bot.getComponent(SoundComponent);
+            sound.play = true;
+            sound.src = "/assets/sounds/fire.wav";
+
+            this.world.addEntity(bot);
+        }
     }
 
     public update(dt: number) {

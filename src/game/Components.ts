@@ -31,6 +31,11 @@ export class RotationComponent implements Component {
     public y = 0; // Left-right
 }
 
+export class SoundComponent {
+    public play = false;
+    public src = "";
+}
+
 export class SoundEmitterComponent {
     // public audio: HTMLAudioElement | undefined = undefined;
     public audio: PositionalAudio | undefined = undefined;
