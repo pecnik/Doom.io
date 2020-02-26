@@ -35,8 +35,3 @@ export class SoundComponent {
     public play = false;
     public src = "";
 }
-
-export class SoundEmitterComponent {
-    // public audio: HTMLAudioElement | undefined = undefined;
-    public audio: PositionalAudio | undefined = undefined;
-}

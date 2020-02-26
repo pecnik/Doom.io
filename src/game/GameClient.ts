@@ -85,8 +85,10 @@ export class GameClient {
             // Spawn bot
             const bot = new Entity();
             bot.id = "bot";
+
             bot.putComponent(PositionComponent);
             bot.putComponent(RotationComponent);
+            bot.putComponent(VelocityComponent);
             bot.putComponent(ModelComponent);
             bot.putComponent(SoundComponent);
 
@@ -97,6 +99,23 @@ export class GameClient {
             const sound = bot.getComponent(SoundComponent);
             sound.play = true;
             sound.src = "/assets/sounds/fire.wav";
+
+            setInterval(() => {
+                const sound = bot.getComponent(SoundComponent);
+                const rotation = bot.getComponent(RotationComponent);
+
+                if (Math.random() < 0.25) {
+                    console.log(`> Bot::fire`);
+                    sound.play = true;
+                    sound.src = "/assets/sounds/fire.wav";
+                } else if (Math.random() < 0.25) {
+                    console.log(`> Bot::turn-left`);
+                    rotation.y += 0.1;
+                } else if (Math.random() < 0.25) {
+                    console.log(`> Bot::turn-right`);
+                    rotation.y -= 0.1;
+                }
+            }, 1000);
 
             this.world.addEntity(bot);
         }
