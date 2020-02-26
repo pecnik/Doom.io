@@ -1,5 +1,4 @@
 import { Component } from "@nova-engine/ecs";
-import { PositionalAudio } from "three";
 
 export class LocalPlayerTag implements Component {
     // ...
@@ -34,4 +33,10 @@ export class RotationComponent implements Component {
 export class SoundComponent {
     public play = false;
     public src = "";
+}
+
+export class FootstepComponent {
+    public prevx = 0;
+    public prevz = 0;
+    public traveled = 0;
 }

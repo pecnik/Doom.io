@@ -13,10 +13,12 @@ import {
     LocalPlayerTag,
     JumpComponent,
     ModelComponent,
-    SoundComponent
+    SoundComponent,
+    FootstepComponent
 } from "./Components";
 import { JumpingSystem } from "./systems/JumpingSystem";
 import { SoundSystem } from "./systems/SoundSystem";
+import { FootstepSystem } from "./systems/FootstepSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -61,6 +63,7 @@ export class GameClient {
         this.world.addSystem(new JumpingSystem(this.world, this.input));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new MeshSystem(this.world));
+        this.world.addSystem(new FootstepSystem(this.world));
         this.world.addSystem(new CameraSystem(this.world));
         this.world.addSystem(new SoundSystem(this.world));
 
@@ -72,6 +75,8 @@ export class GameClient {
             player.putComponent(PositionComponent);
             player.putComponent(VelocityComponent);
             player.putComponent(RotationComponent);
+            player.putComponent(FootstepComponent);
+            player.putComponent(SoundComponent);
             player.putComponent(JumpComponent);
 
             const position = player.getComponent(PositionComponent);
@@ -100,22 +105,22 @@ export class GameClient {
             sound.play = true;
             sound.src = "/assets/sounds/fire.wav";
 
-            setInterval(() => {
-                const sound = bot.getComponent(SoundComponent);
-                const rotation = bot.getComponent(RotationComponent);
+            // setInterval(() => {
+            //     const sound = bot.getComponent(SoundComponent);
+            //     const rotation = bot.getComponent(RotationComponent);
 
-                if (Math.random() < 0.25) {
-                    console.log(`> Bot::fire`);
-                    sound.play = true;
-                    sound.src = "/assets/sounds/fire.wav";
-                } else if (Math.random() < 0.25) {
-                    console.log(`> Bot::turn-left`);
-                    rotation.y += 0.1;
-                } else if (Math.random() < 0.25) {
-                    console.log(`> Bot::turn-right`);
-                    rotation.y -= 0.1;
-                }
-            }, 1000);
+            //     if (Math.random() < 0.25) {
+            //         console.log(`> Bot::fire`);
+            //         sound.play = true;
+            //         sound.src = "/assets/sounds/fire.wav";
+            //     } else if (Math.random() < 0.25) {
+            //         console.log(`> Bot::turn-left`);
+            //         rotation.y += 0.1;
+            //     } else if (Math.random() < 0.25) {
+            //         console.log(`> Bot::turn-right`);
+            //         rotation.y -= 0.1;
+            //     }
+            // }, 1000);
 
             this.world.addEntity(bot);
         }

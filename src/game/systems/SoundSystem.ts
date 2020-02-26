@@ -27,8 +27,8 @@ export class SoundSystem extends System {
         new AudioLoader().load(src, buffer => {
             emitter.loaded = true;
             emitter.audio.setBuffer(buffer);
-            emitter.audio.setVolume(0.25);
-            emitter.audio.setRefDistance(4);
+            emitter.audio.setVolume(1);
+            emitter.audio.setRefDistance(100);
         });
 
         return emitter;
@@ -53,11 +53,16 @@ export class SoundSystem extends System {
 
             const psoition = entity.getComponent(PositionComponent);
             const emitter = this.getEmitter(sound.src, world);
-            if (emitter.loaded && !emitter.audio.isPlaying) {
+            if (emitter.loaded) {
                 emitter.position.set(psoition.x, psoition.y, psoition.z);
-                emitter.audio.play();
-                sound.play = false;
+
+                if (emitter.audio.isPlaying) {
+                    emitter.audio.stop();
+                }
+                emitter.audio.play(0);
             }
+
+            sound.play = false;
         }
     }
 }
