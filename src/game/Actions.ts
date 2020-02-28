@@ -1,26 +1,17 @@
 import { PositionComponent } from "./Components";
 
-export type Action = SpawnPlayerAvatarAction | DespwnPlayerAvatarAction;
+export type Action = BulletImpact;
 
 export enum ActionType {
-    SpawnPlayerAvatar,
-    DespwnPlayerAvatar
+    BulletImpact
 }
 
-export class SpawnPlayerAvatarAction {
-    public readonly type = ActionType.SpawnPlayerAvatar;
+export class BulletImpact {
+    public readonly type = ActionType.BulletImpact;
     public readonly id: string;
     public readonly position: PositionComponent;
     public constructor(id: string, position: PositionComponent) {
         this.id = id;
         this.position = position;
-    }
-}
-
-export class DespwnPlayerAvatarAction {
-    public readonly type = ActionType.DespwnPlayerAvatar;
-    public readonly id: string;
-    public constructor(id: string) {
-        this.id = id;
     }
 }

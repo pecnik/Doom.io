@@ -7,6 +7,10 @@ import {
     PositionalAudio
 } from "three";
 
+export class ImpactTag implements Component {
+    // Tag ...
+}
+
 export class LocalPlayerTag implements Component {
     // Tag ...
 }
@@ -38,6 +42,12 @@ export class PositionComponent implements Component {
 }
 
 export class VelocityComponent implements Component {
+    public x = 0;
+    public y = 0;
+    public z = 0;
+}
+
+export class NormalComponent implements Component {
     public x = 0;
     public y = 0;
     public z = 0;
