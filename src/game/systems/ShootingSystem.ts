@@ -82,6 +82,7 @@ export class ShootingSystem extends System {
         position.z = hitPoint.z;
 
         const emitter = entity.getComponent(ParticleEmitterComponent);
+        emitter.direction.copy(hitNormal);
         emitter.times = 1;
 
         const decal = entity.getComponent(BulletDecalComponent);

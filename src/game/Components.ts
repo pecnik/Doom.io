@@ -5,7 +5,8 @@ import {
     Vector2,
     Object3D,
     PositionalAudio,
-    Mesh
+    Mesh,
+    Vector3
 } from "three";
 
 export class LocalPlayerTag implements Component {
@@ -40,6 +41,7 @@ export class BulletDecalComponent implements Component {
 }
 
 export class ParticleEmitterComponent implements Component {
+    public direction = new Vector3();
     public interval = 1;
     public emitTime = 0;
     public count = 0;
