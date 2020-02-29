@@ -1,6 +1,10 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
 import { World } from "../World";
-import { PositionComponent, ImpactTag, NormalComponent } from "../Components";
+import {
+    PositionComponent,
+    BulletDecalTag,
+    NormalComponent
+} from "../Components";
 import {
     Group,
     Mesh,
@@ -12,7 +16,7 @@ import {
 } from "three";
 import { degToRad } from "../core/Utils";
 
-export class ImpactSystem extends System {
+export class BulletDecalSystem extends System {
     private readonly family: Family;
     private readonly group: Group;
     private ringBufferIndex = 0;
@@ -23,7 +27,7 @@ export class ImpactSystem extends System {
         this.group = new Group();
 
         this.family = new FamilyBuilder(world)
-            .include(ImpactTag)
+            .include(BulletDecalTag)
             .include(PositionComponent)
             .include(NormalComponent)
             .build();

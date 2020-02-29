@@ -9,9 +9,10 @@ import {
     ShooterComponent,
     SoundComponent,
     NormalComponent,
-    ImpactTag
+    BulletDecalTag
 } from "../Components";
 import { Input, MouseBtn } from "../core/Input";
+import { Vector3 } from "three";
 
 export class ShootingSystem extends System {
     private readonly family: Family;
@@ -53,39 +54,43 @@ export class ShootingSystem extends System {
                     const hit = hits[i];
 
                     if (hit.face) {
-                        const impact = new Entity();
-                        impact.id = uniqueId("impact");
-                        impact.putComponent(ImpactTag);
-                        impact.putComponent(PositionComponent);
-                        impact.putComponent(NormalComponent);
-
-                        const position = impact.getComponent(PositionComponent);
-                        position.x = hit.point.x;
-                        position.y = hit.point.y;
-                        position.z = hit.point.z;
-
-                        const normal = impact.getComponent(NormalComponent);
-                        normal.x = hit.face.normal.x;
-                        normal.y = hit.face.normal.y;
-                        normal.z = hit.face.normal.z;
-
-                        if (Math.abs(normal.x) !== 1) normal.x = 0;
-                        if (Math.abs(normal.y) !== 1) normal.y = 0;
-                        if (Math.abs(normal.z) !== 1) normal.z = 0;
-
-                        world.addEntity(impact);
+                        const hitPoint = hit.point;
+                        const hitNormal = hit.face.normal;
+                        this.spawnBulletDecal(hitPoint, hitNormal, world);
                     }
-
-                    // const geo = new BoxGeometry(0.05, 0.05, 0.05);
-                    // const mat = new MeshBasicMaterial({ color: 0xff00ff });
-                    // const impact = new Mesh(geo, mat);
-                    // impact.position.copy(hit.point);
-                    // world.scene.add(impact);
 
                     break;
                 }
             }
         }
+    }
+
+    private spawnBulletDecal(
+        hitPoint: Vector3,
+        hitNormal: Vector3,
+        world: World
+    ) {
+        const decal = new Entity();
+        decal.id = uniqueId("decal");
+        decal.putComponent(BulletDecalTag);
+        decal.putComponent(PositionComponent);
+        decal.putComponent(NormalComponent);
+
+        const position = decal.getComponent(PositionComponent);
+        position.x = hitPoint.x;
+        position.y = hitPoint.y;
+        position.z = hitPoint.z;
+
+        const normal = decal.getComponent(NormalComponent);
+        normal.x = hitNormal.x;
+        normal.y = hitNormal.y;
+        normal.z = hitNormal.z;
+
+        if (Math.abs(normal.x) !== 1) normal.x = 0;
+        if (Math.abs(normal.y) !== 1) normal.y = 0;
+        if (Math.abs(normal.z) !== 1) normal.z = 0;
+
+        world.addEntity(decal);
     }
 
     private hitscan(entity: Entity, world: World) {

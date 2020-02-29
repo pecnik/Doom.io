@@ -7,7 +7,7 @@ import {
     PositionalAudio
 } from "three";
 
-export class ImpactTag implements Component {
+export class BulletDecalTag implements Component {
     // Tag ...
 }
 
