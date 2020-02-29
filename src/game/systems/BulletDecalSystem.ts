@@ -11,7 +11,8 @@ import {
     MeshBasicMaterial,
     PlaneGeometry,
     TextureLoader,
-    NearestFilter
+    NearestFilter,
+    Vector3
 } from "three";
 import { degToRad } from "../core/Utils";
 
@@ -30,11 +31,15 @@ export class BulletDecalSystem extends System {
             .include(NormalComponent)
             .build();
 
-        const pixel = 1 / 64;
+        const PIXEL = 1 / 64;
+        const DECAL_SIZE = PIXEL * 8;
 
         new TextureLoader().load("/assets/sprites/bullet_decal.png", map => {
-            const size = pixel * 8;
-            const geometry = new PlaneGeometry(size, size, size);
+            const geometry = new PlaneGeometry(
+                DECAL_SIZE,
+                DECAL_SIZE,
+                DECAL_SIZE
+            );
 
             // Fill pool
             for (let i = 0; i < 16; i++) {
@@ -56,6 +61,25 @@ export class BulletDecalSystem extends System {
             if (!this.family.includesEntity(entity)) {
                 return;
             }
+
+            // Remove overlapping decals
+            const overlappingDecals = [];
+            const vec1 = new Vector3();
+            const vec2 = new Vector3();
+            for (let i = 0; i < this.family.entities.length; i++) {
+                const peer = this.family.entities[i];
+                if (peer.id === entity.id) continue;
+
+                const pos1 = peer.getComponent(PositionComponent);
+                const pos2 = entity.getComponent(PositionComponent);
+                vec1.set(pos1.x, pos1.y, pos1.z);
+                vec2.set(pos2.x, pos2.y, pos2.z);
+                if (vec1.distanceToSquared(vec2) < DECAL_SIZE ** 2) {
+                    overlappingDecals.push(peer);
+                }
+            }
+
+            world.removeEntities(...overlappingDecals);
 
             const mesh = this.group.children.find(m => !m.visible) as Mesh;
             if (mesh === undefined) return;
@@ -89,24 +113,21 @@ export class BulletDecalSystem extends System {
             }
 
             // Fit to pixel grid
-            const fitToPixelGrid = true;
-            if (fitToPixelGrid) {
-                const round = (x: number) => Math.round(x / pixel) * pixel;
+            const round = (x: number) => Math.round(x / PIXEL) * PIXEL;
 
-                if (normal.x !== 0) {
-                    mesh.position.z = round(mesh.position.z);
-                    mesh.position.y = round(mesh.position.y);
-                }
+            if (normal.x !== 0) {
+                mesh.position.z = round(mesh.position.z);
+                mesh.position.y = round(mesh.position.y);
+            }
 
-                if (normal.y !== 0) {
-                    mesh.position.x = round(mesh.position.x);
-                    mesh.position.z = round(mesh.position.z);
-                }
+            if (normal.y !== 0) {
+                mesh.position.x = round(mesh.position.x);
+                mesh.position.z = round(mesh.position.z);
+            }
 
-                if (normal.z === -1) {
-                    mesh.position.x = round(mesh.position.x);
-                    mesh.position.y = round(mesh.position.y);
-                }
+            if (normal.z === -1) {
+                mesh.position.x = round(mesh.position.x);
+                mesh.position.y = round(mesh.position.y);
             }
         };
 
@@ -130,7 +151,7 @@ export class BulletDecalSystem extends System {
 
             const lifetime = world.elapsedTime - decal.spawnTime;
             const material = decal.mesh.material as MeshBasicMaterial;
-            material.opacity = 1 - lifetime / 2;
+            material.opacity = 1 - lifetime / 3;
             if (material.opacity < 0.01) {
                 world.removeEntities(entity);
             }
