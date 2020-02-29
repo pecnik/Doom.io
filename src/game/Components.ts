@@ -39,6 +39,13 @@ export class BulletDecalComponent implements Component {
     public facing: -1 | 1 = 1;
 }
 
+export class ParticleEmitterComponent implements Component {
+    public interval = 1;
+    public emitTime = 0;
+    public count = 0;
+    public times = Number.MAX_SAFE_INTEGER;
+}
+
 export class PositionComponent implements Component {
     public x = 0;
     public y = 0;

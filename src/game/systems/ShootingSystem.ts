@@ -8,7 +8,8 @@ import {
     RotationComponent,
     ShooterComponent,
     SoundComponent,
-    BulletDecalComponent
+    BulletDecalComponent,
+    ParticleEmitterComponent
 } from "../Components";
 import { Input, MouseBtn } from "../core/Input";
 import { Vector3 } from "three";
@@ -73,14 +74,18 @@ export class ShootingSystem extends System {
         entity.id = uniqueId("decal");
         entity.putComponent(BulletDecalComponent);
         entity.putComponent(PositionComponent);
-
-        const decal = entity.getComponent(BulletDecalComponent);
-        decal.spawnTime = world.elapsedTime;
+        entity.putComponent(ParticleEmitterComponent);
 
         const position = entity.getComponent(PositionComponent);
         position.x = hitPoint.x;
         position.y = hitPoint.y;
         position.z = hitPoint.z;
+
+        const emitter = entity.getComponent(ParticleEmitterComponent);
+        emitter.times = 1;
+
+        const decal = entity.getComponent(BulletDecalComponent);
+        decal.spawnTime = world.elapsedTime;
 
         if (Math.abs(hitNormal.x) === 1) {
             decal.axis = "x";
