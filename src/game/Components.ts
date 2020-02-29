@@ -35,6 +35,8 @@ export class ShooterComponent implements Component {
 export class BulletDecalComponent implements Component {
     public spawnTime = 0;
     public mesh = new Mesh();
+    public axis: "x" | "y" | "z" = "x";
+    public facing: -1 | 1 = 1;
 }
 
 export class PositionComponent implements Component {
@@ -44,12 +46,6 @@ export class PositionComponent implements Component {
 }
 
 export class VelocityComponent implements Component {
-    public x = 0;
-    public y = 0;
-    public z = 0;
-}
-
-export class NormalComponent implements Component {
     public x = 0;
     public y = 0;
     public z = 0;

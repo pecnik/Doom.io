@@ -1,10 +1,6 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
 import { World } from "../World";
-import {
-    PositionComponent,
-    BulletDecalComponent,
-    NormalComponent
-} from "../Components";
+import { PositionComponent, BulletDecalComponent } from "../Components";
 import {
     Group,
     Mesh,
@@ -28,11 +24,14 @@ export class BulletDecalSystem extends System {
         this.family = new FamilyBuilder(world)
             .include(BulletDecalComponent)
             .include(PositionComponent)
-            .include(NormalComponent)
             .build();
 
         const PIXEL = 1 / 64;
         const DECAL_SIZE = PIXEL * 8;
+
+        const snapToPixelgrid = (x: number) => {
+            return Math.round(x / PIXEL) * PIXEL;
+        };
 
         new TextureLoader().load("/assets/sprites/bullet_decal.png", map => {
             const geometry = new PlaneGeometry(
@@ -42,7 +41,7 @@ export class BulletDecalSystem extends System {
             );
 
             // Fill pool
-            for (let i = 0; i < 16; i++) {
+            for (let i = 0; i < 4; i++) {
                 const material = new MeshBasicMaterial({
                     map,
                     opacity: 1,
@@ -84,50 +83,36 @@ export class BulletDecalSystem extends System {
             const mesh = this.group.children.find(m => !m.visible) as Mesh;
             if (mesh === undefined) return;
 
+            // Init decal data
             const decal = entity.getComponent(BulletDecalComponent);
             decal.mesh = mesh;
-            decal.mesh.visible = true;
             decal.spawnTime = world.elapsedTime;
 
-            const position = entity.getComponent(PositionComponent);
-            mesh.position.set(position.x, position.y, position.z);
+            // Reset mesh
+            mesh.visible = true;
             mesh.rotation.set(0, 0, 0);
 
-            const offset = 1 / 1024;
-            const normal = entity.getComponent(NormalComponent);
-            mesh.position.x += normal.x * offset;
-            mesh.position.y += normal.y * offset;
-            mesh.position.z += normal.z * offset;
+            // Clone position
+            const position = entity.getComponent(PositionComponent);
+            mesh.position.set(position.x, position.y, position.z);
 
-            // Rotate to match wall
-            if (normal.x !== 0) {
-                mesh.rotation.y = degToRad(90) * normal.x;
-            }
-
-            if (normal.y !== 0) {
-                mesh.rotation.x = degToRad(-90) * normal.y;
-            }
-
-            if (normal.z === -1) {
-                mesh.rotation.y = degToRad(180);
-            }
-
-            // Fit to pixel grid
-            const round = (x: number) => Math.round(x / PIXEL) * PIXEL;
-
-            if (normal.x !== 0) {
-                mesh.position.z = round(mesh.position.z);
-                mesh.position.y = round(mesh.position.y);
-            }
-
-            if (normal.y !== 0) {
-                mesh.position.x = round(mesh.position.x);
-                mesh.position.z = round(mesh.position.z);
-            }
-
-            if (normal.z === -1) {
-                mesh.position.x = round(mesh.position.x);
-                mesh.position.y = round(mesh.position.y);
+            // Match wall surface
+            const offset = (1 / 1024) * decal.facing;
+            if (decal.axis === "x") {
+                mesh.rotation.y = degToRad(90) * decal.facing;
+                mesh.position.z = snapToPixelgrid(mesh.position.z);
+                mesh.position.y = snapToPixelgrid(mesh.position.y);
+                mesh.position.x += offset;
+            } else if (decal.axis === "y") {
+                mesh.rotation.x = degToRad(-90) * decal.facing;
+                mesh.position.x = snapToPixelgrid(mesh.position.x);
+                mesh.position.z = snapToPixelgrid(mesh.position.z);
+                mesh.position.y += offset;
+            } else if (decal.axis === "z") {
+                mesh.rotation.y = decal.facing === 1 ? 0 : degToRad(180);
+                mesh.position.x = snapToPixelgrid(mesh.position.x);
+                mesh.position.y = snapToPixelgrid(mesh.position.y);
+                mesh.position.z += offset;
             }
         };
 

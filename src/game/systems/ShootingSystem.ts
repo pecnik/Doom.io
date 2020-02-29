@@ -8,7 +8,6 @@ import {
     RotationComponent,
     ShooterComponent,
     SoundComponent,
-    NormalComponent,
     BulletDecalComponent
 } from "../Components";
 import { Input, MouseBtn } from "../core/Input";
@@ -74,7 +73,6 @@ export class ShootingSystem extends System {
         entity.id = uniqueId("decal");
         entity.putComponent(BulletDecalComponent);
         entity.putComponent(PositionComponent);
-        entity.putComponent(NormalComponent);
 
         const decal = entity.getComponent(BulletDecalComponent);
         decal.spawnTime = world.elapsedTime;
@@ -84,14 +82,16 @@ export class ShootingSystem extends System {
         position.y = hitPoint.y;
         position.z = hitPoint.z;
 
-        const normal = entity.getComponent(NormalComponent);
-        normal.x = hitNormal.x;
-        normal.y = hitNormal.y;
-        normal.z = hitNormal.z;
-
-        if (Math.abs(normal.x) !== 1) normal.x = 0;
-        if (Math.abs(normal.y) !== 1) normal.y = 0;
-        if (Math.abs(normal.z) !== 1) normal.z = 0;
+        if (Math.abs(hitNormal.x) === 1) {
+            decal.axis = "x";
+            decal.facing = hitNormal.x as -1 | 1;
+        } else if (Math.abs(hitNormal.y) === 1) {
+            decal.axis = "y";
+            decal.facing = hitNormal.y as -1 | 1;
+        } else if (Math.abs(hitNormal.z) === 1) {
+            decal.axis = "z";
+            decal.facing = hitNormal.z as -1 | 1;
+        }
 
         world.addEntity(entity);
     }
