@@ -2,7 +2,7 @@ import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
 import { World } from "../World";
 import {
     PositionComponent,
-    BulletDecalTag,
+    BulletDecalComponent,
     NormalComponent
 } from "../Components";
 import {
@@ -11,15 +11,13 @@ import {
     MeshBasicMaterial,
     PlaneGeometry,
     TextureLoader,
-    NearestFilter,
-    MultiplyBlending
+    NearestFilter
 } from "three";
 import { degToRad } from "../core/Utils";
 
 export class BulletDecalSystem extends System {
     private readonly family: Family;
     private readonly group: Group;
-    private ringBufferIndex = 0;
 
     public constructor(world: World) {
         super();
@@ -27,7 +25,7 @@ export class BulletDecalSystem extends System {
         this.group = new Group();
 
         this.family = new FamilyBuilder(world)
-            .include(BulletDecalTag)
+            .include(BulletDecalComponent)
             .include(PositionComponent)
             .include(NormalComponent)
             .build();
@@ -37,15 +35,17 @@ export class BulletDecalSystem extends System {
         new TextureLoader().load("/assets/sprites/bullet_decal.png", map => {
             const size = pixel * 8;
             const geometry = new PlaneGeometry(size, size, size);
-            const material = new MeshBasicMaterial({
-                map,
-                blending: MultiplyBlending
-            });
-            map.minFilter = NearestFilter;
-            map.magFilter = NearestFilter;
 
             // Fill pool
-            for (let i = 0; i < 32; i++) {
+            for (let i = 0; i < 16; i++) {
+                const material = new MeshBasicMaterial({
+                    map,
+                    opacity: 1,
+                    transparent: true
+                });
+                map.minFilter = NearestFilter;
+                map.magFilter = NearestFilter;
+
                 const mesh = new Mesh(geometry, material);
                 mesh.visible = false;
                 this.group.add(mesh);
@@ -57,18 +57,20 @@ export class BulletDecalSystem extends System {
                 return;
             }
 
-            this.ringBufferIndex += 1;
-            this.ringBufferIndex %= this.group.children.length - 1;
+            const mesh = this.group.children.find(m => !m.visible) as Mesh;
+            if (mesh === undefined) return;
+
+            const decal = entity.getComponent(BulletDecalComponent);
+            decal.mesh = mesh;
+            decal.mesh.visible = true;
+            decal.spawnTime = world.elapsedTime;
 
             const position = entity.getComponent(PositionComponent);
-            const normal = entity.getComponent(NormalComponent);
-
-            const mesh = this.group.children[this.ringBufferIndex];
-            mesh.visible = true;
             mesh.position.set(position.x, position.y, position.z);
             mesh.rotation.set(0, 0, 0);
 
-            const offset = (1 / 256) * this.ringBufferIndex;
+            const offset = 1 / 1024;
+            const normal = entity.getComponent(NormalComponent);
             mesh.position.x += normal.x * offset;
             mesh.position.y += normal.y * offset;
             mesh.position.z += normal.z * offset;
@@ -112,13 +114,26 @@ export class BulletDecalSystem extends System {
             if (!this.family.includesEntity(entity)) {
                 return;
             }
+
+            const decal = entity.getComponent(BulletDecalComponent);
+            decal.mesh.visible = false;
         };
 
         world.addEntityListener({ onEntityAdded, onEntityRemoved });
         world.scene.add(this.group);
     }
 
-    public update() {
-        // ...
+    public update(world: World) {
+        for (let i = 0; i < this.family.entities.length; i++) {
+            const entity = this.family.entities[i];
+            const decal = entity.getComponent(BulletDecalComponent);
+
+            const lifetime = world.elapsedTime - decal.spawnTime;
+            const material = decal.mesh.material as MeshBasicMaterial;
+            material.opacity = 1 - lifetime / 2;
+            if (material.opacity < 0.01) {
+                world.removeEntities(entity);
+            }
+        }
     }
 }

@@ -9,7 +9,7 @@ import {
     ShooterComponent,
     SoundComponent,
     NormalComponent,
-    BulletDecalTag
+    BulletDecalComponent
 } from "../Components";
 import { Input, MouseBtn } from "../core/Input";
 import { Vector3 } from "three";
@@ -70,18 +70,21 @@ export class ShootingSystem extends System {
         hitNormal: Vector3,
         world: World
     ) {
-        const decal = new Entity();
-        decal.id = uniqueId("decal");
-        decal.putComponent(BulletDecalTag);
-        decal.putComponent(PositionComponent);
-        decal.putComponent(NormalComponent);
+        const entity = new Entity();
+        entity.id = uniqueId("decal");
+        entity.putComponent(BulletDecalComponent);
+        entity.putComponent(PositionComponent);
+        entity.putComponent(NormalComponent);
 
-        const position = decal.getComponent(PositionComponent);
+        const decal = entity.getComponent(BulletDecalComponent);
+        decal.spawnTime = world.elapsedTime;
+
+        const position = entity.getComponent(PositionComponent);
         position.x = hitPoint.x;
         position.y = hitPoint.y;
         position.z = hitPoint.z;
 
-        const normal = decal.getComponent(NormalComponent);
+        const normal = entity.getComponent(NormalComponent);
         normal.x = hitNormal.x;
         normal.y = hitNormal.y;
         normal.z = hitNormal.z;
@@ -90,7 +93,7 @@ export class ShootingSystem extends System {
         if (Math.abs(normal.y) !== 1) normal.y = 0;
         if (Math.abs(normal.z) !== 1) normal.z = 0;
 
-        world.addEntity(decal);
+        world.addEntity(entity);
     }
 
     private hitscan(entity: Entity, world: World) {

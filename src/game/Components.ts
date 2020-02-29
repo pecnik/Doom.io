@@ -4,12 +4,9 @@ import {
     PerspectiveCamera,
     Vector2,
     Object3D,
-    PositionalAudio
+    PositionalAudio,
+    Mesh
 } from "three";
-
-export class BulletDecalTag implements Component {
-    // Tag ...
-}
 
 export class LocalPlayerTag implements Component {
     // Tag ...
@@ -33,6 +30,11 @@ export class ShooterComponent implements Component {
     public camera = new PerspectiveCamera(45);
     public raycaster = new Raycaster();
     public shootTime = 0;
+}
+
+export class BulletDecalComponent implements Component {
+    public spawnTime = 0;
+    public mesh = new Mesh();
 }
 
 export class PositionComponent implements Component {
