@@ -1,3 +1,4 @@
+import GltfLoader from "three-gltf-loader";
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
 import { World } from "../World";
 import {
@@ -6,7 +7,7 @@ import {
     MeshComponent,
     Object3DComponent
 } from "../Components";
-import { Mesh, CylinderGeometry, MeshBasicMaterial } from "three";
+import { Mesh } from "three";
 
 export class MeshSystem extends System {
     private readonly family: Family;
@@ -22,23 +23,33 @@ export class MeshSystem extends System {
     }
 
     private initEntityMesh(world: World) {
-        const geo = new CylinderGeometry(0.25, 0.25, 1, 8);
-        const mat = new MeshBasicMaterial({ wireframe: true });
         const onEntityAdded = (entity: Entity) => {
             if (entity.hasComponent(Object3DComponent)) {
                 const object = entity.getComponent(Object3DComponent);
+
                 if (entity.hasComponent(MeshComponent)) {
-                    object.add(new Mesh(geo, mat));
+                    const mesh = entity.getComponent(MeshComponent);
+                    new GltfLoader().load(mesh.src, glb => {
+                        glb.scene.traverse(child => {
+                            if (child instanceof Mesh) {
+                                mesh.mesh = child;
+                            }
+                        });
+                        object.add(mesh.mesh);
+                    });
                 }
+
                 world.scene.add(object);
             }
         };
+
         const onEntityRemoved = (entity: Entity) => {
             if (entity.hasComponent(Object3DComponent)) {
                 const object = entity.getComponent(Object3DComponent);
                 world.scene.remove(object);
             }
         };
+
         world.addEntityListener({ onEntityAdded, onEntityRemoved });
     }
 

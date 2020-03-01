@@ -13,12 +13,13 @@ export class LocalPlayerTag implements Component {
     // Tag ...
 }
 
-export class MeshComponent implements Component {
-    // Tag ...
-}
-
 export class Object3DComponent extends Object3D implements Component {
     // ...
+}
+
+export class MeshComponent implements Component {
+    public src = "/assets/models/monkey.glb";
+    public mesh = new Mesh();
 }
 
 export class JumpComponent implements Component {
