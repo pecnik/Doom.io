@@ -11,7 +11,7 @@ import {
 import { Vector2 } from "three";
 import { RUN_SPEED } from "../Globals";
 
-export class ControllerSystem extends System {
+export class MovementSystem extends System {
     private readonly family: Family;
 
     public constructor(world: World) {

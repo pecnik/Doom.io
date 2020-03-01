@@ -1,7 +1,7 @@
 import SocketIOClient from "socket.io-client";
 import { Input } from "./core/Input";
 import { World } from "./World";
-import { ControllerSystem } from "./systems/ControllerSystem";
+import { MovementSystem } from "./systems/MovementSystem";
 import { PhysicsSystem } from "./systems/PhysicsSystem";
 import { CameraSystem } from "./systems/CameraSystem";
 import { MeshSystem } from "./systems/MeshSystem";
@@ -70,7 +70,7 @@ export class GameClient {
 
     public onStart() {
         this.world.addSystem(new InputSystem(this.world, this.input));
-        this.world.addSystem(new ControllerSystem(this.world));
+        this.world.addSystem(new MovementSystem(this.world));
         this.world.addSystem(new JumpingSystem(this.world));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new ShootingSystem(this.world));
