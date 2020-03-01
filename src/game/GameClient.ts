@@ -29,7 +29,6 @@ import { ParticleSystem } from "./systems/ParticleSystem";
 import { PovSystem } from "./systems/PovSystem";
 import { InputSystem } from "./systems/InputSystem";
 import { AiSystem } from "./systems/AiSystem";
-// import { AiSystem } from "./systems/AiSystem";
 
 export class GameClient {
     public readonly input: Input;
