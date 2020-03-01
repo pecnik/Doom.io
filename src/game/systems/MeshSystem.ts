@@ -7,7 +7,7 @@ import {
     MeshComponent,
     Object3DComponent
 } from "../Components";
-import { Mesh, Geometry, BufferGeometry, MeshBasicMaterial } from "three";
+import { Mesh, MeshBasicMaterial } from "three";
 
 export class MeshSystem extends System {
     private readonly family: Family;

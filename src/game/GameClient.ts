@@ -25,6 +25,7 @@ import { FootstepSystem } from "./systems/FootstepSystem";
 import { RUN_SPEED } from "./Globals";
 import { BulletDecalSystem } from "./systems/BulletDecalSystem";
 import { ParticleSystem } from "./systems/ParticleSystem";
+import { PovSystem } from "./systems/PovSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -75,6 +76,7 @@ export class GameClient {
         this.world.addSystem(new SoundSystem(this.world));
         this.world.addSystem(new BulletDecalSystem(this.world));
         this.world.addSystem(new ParticleSystem(this.world));
+        this.world.addSystem(new PovSystem(this.world));
 
         {
             // Spawn player
