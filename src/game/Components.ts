@@ -6,7 +6,8 @@ import {
     Object3D,
     PositionalAudio,
     Mesh,
-    Vector3
+    Vector3,
+    Color
 } from "three";
 
 export class LocalPlayerTag implements Component {
@@ -20,6 +21,7 @@ export class Object3DComponent extends Object3D implements Component {
 export class MeshComponent implements Component {
     public src = "/assets/models/monkey.glb";
     public mesh = new Mesh();
+    public color = new Color(0xffffff);
 }
 
 export class JumpComponent implements Component {

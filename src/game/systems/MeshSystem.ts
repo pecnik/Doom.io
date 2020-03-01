@@ -7,7 +7,7 @@ import {
     MeshComponent,
     Object3DComponent
 } from "../Components";
-import { Mesh } from "three";
+import { Mesh, Geometry, BufferGeometry, MeshBasicMaterial } from "three";
 
 export class MeshSystem extends System {
     private readonly family: Family;
@@ -17,6 +17,7 @@ export class MeshSystem extends System {
 
         this.family = new FamilyBuilder(world)
             .include(Object3DComponent)
+            .include(PositionComponent)
             .build();
 
         this.initEntityMesh(world);
@@ -53,19 +54,34 @@ export class MeshSystem extends System {
         world.addEntityListener({ onEntityAdded, onEntityRemoved });
     }
 
-    public update() {
+    public update(world: World) {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
             const object = entity.getComponent(Object3DComponent);
 
-            if (entity.hasComponent(PositionComponent)) {
-                const position = entity.getComponent(PositionComponent);
-                object.position.set(position.x, position.y, position.z);
-            }
+            const position = entity.getComponent(PositionComponent);
+            object.position.set(position.x, position.y, position.z);
 
             if (entity.hasComponent(RotationComponent)) {
                 const rotation = entity.getComponent(RotationComponent);
                 object.rotation.set(rotation.x, rotation.y, 0, "YXZ");
+            }
+
+            if (entity.hasComponent(MeshComponent)) {
+                const mesh = entity.getComponent(MeshComponent);
+                const cell = world.level.getCell(
+                    Math.round(position.x),
+                    Math.round(position.z)
+                );
+
+                if (cell !== undefined && !mesh.color.equals(cell.light)) {
+                    mesh.color.copy(cell.light);
+                    if (mesh.mesh.material instanceof MeshBasicMaterial) {
+                        mesh.mesh.material.color.copy(cell.light);
+                        mesh.mesh.material.needsUpdate = true;
+                        console.log("Update");
+                    }
+                }
             }
         }
     }
