@@ -9,20 +9,20 @@ import {
     ShooterComponent,
     SoundComponent,
     BulletDecalComponent,
-    ParticleEmitterComponent
+    ParticleEmitterComponent,
+    ControllerComponent
 } from "../Components";
-import { Input, MouseBtn } from "../core/Input";
 import { Vector3 } from "three";
 
 export class ShootingSystem extends System {
     private readonly family: Family;
-    private readonly input: Input;
 
-    public constructor(world: World, input: Input) {
+    public constructor(world: World) {
         super();
-        this.input = input;
+
         this.family = new FamilyBuilder(world)
             .include(LocalPlayerTag)
+            .include(ControllerComponent)
             .include(PositionComponent)
             .include(VelocityComponent)
             .include(RotationComponent)
@@ -34,12 +34,12 @@ export class ShootingSystem extends System {
         const { elapsedTime } = world;
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
+            const controller = entity.getComponent(ControllerComponent);
             const shooter = entity.getComponent(ShooterComponent);
 
             const fireRate = 1 / 8;
             const shootDelta = elapsedTime - shooter.shootTime;
-            const shootTriger = this.input.isMouseDown(MouseBtn.Left);
-            if (shootTriger && shootDelta > fireRate) {
+            if (controller.shoot && shootDelta > fireRate) {
                 shooter.shootTime = elapsedTime;
 
                 // Play sound
