@@ -17,7 +17,6 @@ export class MovementSystem extends System {
     public constructor(world: World) {
         super();
         this.family = new FamilyBuilder(world)
-            .include(LocalPlayerTag)
             .include(ControllerComponent)
             .include(VelocityComponent)
             .include(RotationComponent)

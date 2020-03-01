@@ -21,7 +21,6 @@ export class ShootingSystem extends System {
         super();
 
         this.family = new FamilyBuilder(world)
-            .include(LocalPlayerTag)
             .include(ControllerComponent)
             .include(PositionComponent)
             .include(VelocityComponent)
@@ -111,9 +110,10 @@ export class ShootingSystem extends System {
         shooter.origin.x = random(-spread, spread, true);
         shooter.origin.y = random(-spread, spread, true);
 
-        shooter.camera.copy(world.camera);
+        // shooter.camera.copy(world.camera);
         shooter.camera.position.set(position.x, position.y, position.z);
         shooter.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
+        shooter.camera.updateWorldMatrix(false, true);
 
         shooter.raycaster.setFromCamera(shooter.origin, shooter.camera);
 

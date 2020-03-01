@@ -24,11 +24,7 @@ export class CameraSystem extends System {
             const avatar = this.family.entities[i];
             const position = avatar.getComponent(PositionComponent);
             const rotation = avatar.getComponent(RotationComponent);
-            world.camera.position.set(
-                position.x,
-                position.y - 0.125,
-                position.z
-            );
+            world.camera.position.set(position.x, position.y, position.z);
             world.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
         }
     }

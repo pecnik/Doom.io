@@ -15,7 +15,6 @@ export class JumpingSystem extends System {
     public constructor(world: World) {
         super();
         this.family = new FamilyBuilder(world)
-            .include(LocalPlayerTag)
             .include(ControllerComponent)
             .include(PositionComponent)
             .include(VelocityComponent)

@@ -28,6 +28,7 @@ import { BulletDecalSystem } from "./systems/BulletDecalSystem";
 import { ParticleSystem } from "./systems/ParticleSystem";
 import { PovSystem } from "./systems/PovSystem";
 import { InputSystem } from "./systems/InputSystem";
+import { AiSystem } from "./systems/AiSystem";
 // import { AiSystem } from "./systems/AiSystem";
 
 export class GameClient {
@@ -70,6 +71,7 @@ export class GameClient {
 
     public onStart() {
         this.world.addSystem(new InputSystem(this.world, this.input));
+        this.world.addSystem(new AiSystem(this.world));
         this.world.addSystem(new MovementSystem(this.world));
         this.world.addSystem(new JumpingSystem(this.world));
         this.world.addSystem(new PhysicsSystem(this.world));
@@ -110,6 +112,7 @@ export class GameClient {
             bot.id = "bot";
 
             bot.putComponent(AiComponent);
+            bot.putComponent(ControllerComponent);
             bot.putComponent(ShooterComponent);
             bot.putComponent(PositionComponent);
             bot.putComponent(RotationComponent);
