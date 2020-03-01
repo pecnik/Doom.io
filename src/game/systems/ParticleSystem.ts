@@ -46,6 +46,11 @@ export class ParticleSystem extends System {
     }
 
     public update(world: World, dt: number) {
+        this.updateEmitters(world);
+        this.updateParticles(dt);
+    }
+
+    private updateEmitters(world: World) {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
             const emitter = entity.getComponent(ParticleEmitterComponent);
@@ -76,27 +81,30 @@ export class ParticleSystem extends System {
                 }
             }
         }
+    }
 
+    private updateParticles(dt: number) {
         this.particles.verticesNeedUpdate = false;
         for (let i = 0; i < this.particles.vertices.length; i++) {
             const particle = this.particles.vertices[i] as Particle;
-            if (particle.y < 1 && particle.y > -1) {
-                particle.velocity.x *= 0.9;
-                particle.velocity.z *= 0.9;
-                particle.velocity.y -= GRAVITY * dt * 0.01;
-                particle.add(particle.velocity);
+            if (particle.y < -1) continue;
 
-                if (particle.y <= -0.5) {
-                    particle.y = -0.5;
-                    particle.velocity.y *= -random(0.25, 0.5, true);
+            // Update velocity and position
+            particle.velocity.x *= 0.9;
+            particle.velocity.z *= 0.9;
+            particle.velocity.y -= GRAVITY * dt * 0.01;
+            particle.add(particle.velocity);
 
-                    if (particle.velocity.y < 0.001) {
-                        particle.y = -1000;
-                    }
+            // Bounce of floor
+            if (particle.y <= -0.5) {
+                particle.y = -0.5;
+                particle.velocity.y *= -random(0.25, 0.5, true);
+                if (particle.velocity.y < 0.001) {
+                    particle.y = -1000;
                 }
-
-                this.particles.verticesNeedUpdate = true;
             }
+
+            this.particles.verticesNeedUpdate = true;
         }
     }
 }
