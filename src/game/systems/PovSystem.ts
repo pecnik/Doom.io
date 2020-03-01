@@ -15,6 +15,7 @@ export class PovSystem extends System {
         new TextureLoader().load("/assets/sprites/crosshair.png", map => {
             const material = new SpriteMaterial({
                 depthTest: false,
+                depthWrite: false,
                 blending: AdditiveBlending,
                 map
             });
