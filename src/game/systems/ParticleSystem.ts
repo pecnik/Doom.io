@@ -85,6 +85,16 @@ export class ParticleSystem extends System {
                 particle.velocity.z *= 0.9;
                 particle.velocity.y -= GRAVITY * dt * 0.01;
                 particle.add(particle.velocity);
+
+                if (particle.y <= -0.5) {
+                    particle.y = -0.5;
+                    particle.velocity.y *= -random(0.25, 0.5, true);
+
+                    if (particle.velocity.y < 0.001) {
+                        particle.y = -1000;
+                    }
+                }
+
                 this.particles.verticesNeedUpdate = true;
             }
         }
