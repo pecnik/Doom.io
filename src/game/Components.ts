@@ -88,6 +88,6 @@ export class FootstepComponent {
 export class ControllerComponent {
     public move = new Vector2();
     public look = new Vector2();
-    public jump = false;
     public shoot = false;
+    public jump: -1 | 0 | 1 = 0;
 }

@@ -37,7 +37,9 @@ export class InputSystem extends System {
             controller.move.x = (left ? -1 : 0) + (right ? 1 : 0);
 
             // Jump
-            controller.jump = this.input.isKeyDown(KeyCode.SPACE);
+            controller.jump = 0;
+            if (this.input.isKeyPressed(KeyCode.SPACE)) controller.jump = 1;
+            if (this.input.isKeyReleased(KeyCode.SPACE)) controller.jump = -1;
 
             // Shoot
             controller.shoot = this.input.isMouseDown(MouseBtn.Left);

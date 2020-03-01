@@ -72,7 +72,7 @@ export class GameClient {
         // this.world.addSystem(new AiSystem(this.world));
         this.world.addSystem(new InputSystem(this.world, this.input));
         this.world.addSystem(new ControllerSystem(this.world));
-        this.world.addSystem(new JumpingSystem(this.world, this.input));
+        this.world.addSystem(new JumpingSystem(this.world));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new ShootingSystem(this.world, this.input));
         this.world.addSystem(new FootstepSystem(this.world));

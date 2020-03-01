@@ -4,20 +4,19 @@ import {
     PositionComponent,
     VelocityComponent,
     JumpComponent,
-    LocalPlayerTag
+    LocalPlayerTag,
+    ControllerComponent
 } from "../Components";
-import { Input, KeyCode } from "../core/Input";
 import { JUMP_SPEED, FLOOR } from "../Globals";
 
 export class JumpingSystem extends System {
     private readonly family: Family;
-    private readonly input: Input;
 
-    public constructor(world: World, input: Input) {
+    public constructor(world: World) {
         super();
-        this.input = input;
         this.family = new FamilyBuilder(world)
             .include(LocalPlayerTag)
+            .include(ControllerComponent)
             .include(PositionComponent)
             .include(VelocityComponent)
             .include(JumpComponent)
@@ -28,11 +27,12 @@ export class JumpingSystem extends System {
         const { elapsedTime } = world;
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
+            const controller = entity.getComponent(ControllerComponent);
             const position = entity.getComponent(PositionComponent);
             const velocity = entity.getComponent(VelocityComponent);
             const jump = entity.getComponent(JumpComponent);
 
-            if (this.input.isKeyPressed(KeyCode.SPACE)) {
+            if (controller.jump === 1) {
                 jump.triggerTime = elapsedTime;
             }
 
@@ -47,7 +47,7 @@ export class JumpingSystem extends System {
             }
 
             // Halt jump
-            if (this.input.isKeyReleased(KeyCode.SPACE) && velocity.y > 0) {
+            if (controller.jump === -1) {
                 velocity.y *= 0.5;
             }
         }
