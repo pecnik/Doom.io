@@ -4,7 +4,6 @@ import { World } from "../World";
 import {
     PositionComponent,
     VelocityComponent,
-    LocalPlayerTag,
     RotationComponent,
     ShooterComponent,
     SoundComponent,
@@ -110,10 +109,9 @@ export class ShootingSystem extends System {
         shooter.origin.x = random(-spread, spread, true);
         shooter.origin.y = random(-spread, spread, true);
 
-        // shooter.camera.copy(world.camera);
         shooter.camera.position.set(position.x, position.y, position.z);
         shooter.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
-        shooter.camera.updateWorldMatrix(false, true);
+        shooter.camera.updateWorldMatrix(false, false);
 
         shooter.raycaster.setFromCamera(shooter.origin, shooter.camera);
 
