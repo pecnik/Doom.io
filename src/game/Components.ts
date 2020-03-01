@@ -18,6 +18,10 @@ export class Object3DComponent extends Object3D implements Component {
     // ...
 }
 
+export class AiComponent implements Component {
+    // ...
+}
+
 export class MeshComponent implements Component {
     public src = "/assets/models/monkey.glb";
     public mesh = new Mesh();
@@ -51,19 +55,19 @@ export class ParticleEmitterComponent implements Component {
     public times = Number.MAX_SAFE_INTEGER;
 }
 
-export class PositionComponent implements Component {
+export class PositionComponent extends Vector3 implements Component {
     public x = 0;
     public y = 0;
     public z = 0;
 }
 
-export class VelocityComponent implements Component {
+export class VelocityComponent extends Vector3 implements Component {
     public x = 0;
     public y = 0;
     public z = 0;
 }
 
-export class RotationComponent implements Component {
+export class RotationComponent extends Vector2 implements Component {
     public x = 0; // Up-down
     public y = 0; // Left-right
 }
@@ -79,4 +83,11 @@ export class FootstepComponent {
     public prevy = 0;
     public prevz = 0;
     public traveled = 0;
+}
+
+export class ControllerComponent {
+    public move = new Vector2();
+    public look = new Vector2();
+    public jump = false;
+    public shoot = false;
 }

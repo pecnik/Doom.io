@@ -1,5 +1,5 @@
 import SocketIOClient from "socket.io-client";
-import { Input, KeyCode } from "./core/Input";
+import { Input } from "./core/Input";
 import { World } from "./World";
 import { ControllerSystem } from "./systems/ControllerSystem";
 import { PhysicsSystem } from "./systems/PhysicsSystem";
@@ -18,14 +18,17 @@ import {
     MeshComponent,
     SoundComponent,
     FootstepComponent,
-    Object3DComponent
+    Object3DComponent,
+    AiComponent,
+    ControllerComponent
 } from "./Components";
 import { SoundSystem } from "./systems/SoundSystem";
 import { FootstepSystem } from "./systems/FootstepSystem";
-import { RUN_SPEED } from "./Globals";
 import { BulletDecalSystem } from "./systems/BulletDecalSystem";
 import { ParticleSystem } from "./systems/ParticleSystem";
 import { PovSystem } from "./systems/PovSystem";
+import { InputSystem } from "./systems/InputSystem";
+// import { AiSystem } from "./systems/AiSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -66,7 +69,9 @@ export class GameClient {
     }
 
     public onStart() {
-        this.world.addSystem(new ControllerSystem(this.world, this.input));
+        // this.world.addSystem(new AiSystem(this.world));
+        this.world.addSystem(new InputSystem(this.world, this.input));
+        this.world.addSystem(new ControllerSystem(this.world));
         this.world.addSystem(new JumpingSystem(this.world, this.input));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new ShootingSystem(this.world, this.input));
@@ -83,6 +88,7 @@ export class GameClient {
             const player = new Entity();
             player.id = "player-1";
             player.putComponent(LocalPlayerTag);
+            player.putComponent(ControllerComponent);
             player.putComponent(Object3DComponent);
             player.putComponent(PositionComponent);
             player.putComponent(VelocityComponent);
@@ -104,6 +110,8 @@ export class GameClient {
             const bot = new Entity();
             bot.id = "bot";
 
+            bot.putComponent(AiComponent);
+            bot.putComponent(ShooterComponent);
             bot.putComponent(PositionComponent);
             bot.putComponent(RotationComponent);
             bot.putComponent(VelocityComponent);
@@ -115,30 +123,6 @@ export class GameClient {
             const position = bot.getComponent(PositionComponent);
             position.x = 3;
             position.z = 3;
-
-            const sound = bot.getComponent(SoundComponent);
-            sound.play = true;
-            sound.src = "/assets/sounds/fire.wav";
-
-            // TMP
-            setInterval(() => {
-                const speed = RUN_SPEED;
-                const velocity = bot.getComponent(VelocityComponent);
-                velocity.z = 0;
-                velocity.x = 0;
-                if (this.input.isKeyDown(KeyCode.UP)) {
-                    velocity.z = +speed;
-                }
-                if (this.input.isKeyDown(KeyCode.DOWN)) {
-                    velocity.z = -speed;
-                }
-                if (this.input.isKeyDown(KeyCode.LEFT)) {
-                    velocity.x = +speed;
-                }
-                if (this.input.isKeyDown(KeyCode.RIGHT)) {
-                    velocity.x = -speed;
-                }
-            }, 1000 / 60);
 
             this.world.addEntity(bot);
         }
