@@ -5,7 +5,6 @@ import { clamp } from "lodash";
 import {
     VelocityComponent,
     RotationComponent,
-    LocalPlayerTag,
     ControllerComponent
 } from "../Components";
 import { Vector2 } from "three";

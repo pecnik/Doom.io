@@ -1,5 +1,6 @@
 import { GameClient } from "../GameClient";
 import { Renderer } from "./Renderer";
+import { clamp } from "lodash";
 
 export class Engine {
     private readonly renderer: Renderer;
@@ -55,7 +56,8 @@ export class Engine {
         const lastTime = this.gameTime;
         this.gameTime = gameTime;
 
-        const delta = (this.gameTime - lastTime) * 0.001;
+        let delta = (this.gameTime - lastTime) * 0.001;
+        delta = clamp(delta, 1 / 120, 1);
         this.update(delta);
 
         requestAnimationFrame(this.loop.bind(this));

@@ -72,6 +72,20 @@ export class PhysicsSystem extends System {
                             .add(coll);
                         nextPos.x = body.x;
                         nextPos.z = body.y;
+
+                        if (
+                            body.x > cell.aabb.min.x &&
+                            body.x < cell.aabb.max.x
+                        ) {
+                            velocity.z = 0;
+                        }
+
+                        if (
+                            body.y > cell.aabb.min.y &&
+                            body.y < cell.aabb.max.y
+                        ) {
+                            velocity.x = 0;
+                        }
                     }
                 }
             }

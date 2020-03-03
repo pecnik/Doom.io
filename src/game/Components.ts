@@ -19,7 +19,8 @@ export class Object3DComponent extends Object3D implements Component {
 }
 
 export class AiComponent implements Component {
-    // ...
+    public hasDestination = false;
+    public destination = new Vector3();
 }
 
 export class MeshComponent implements Component {
