@@ -27,7 +27,6 @@ export class PovSystem extends System {
 
             sprite.position.z = -4;
             world.camera.add(sprite);
-            console.log({ sprite });
         });
     }
 

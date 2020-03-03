@@ -79,7 +79,6 @@ export class MeshSystem extends System {
                     if (mesh.mesh.material instanceof MeshBasicMaterial) {
                         mesh.mesh.material.color.copy(cell.light);
                         mesh.mesh.material.needsUpdate = true;
-                        console.log("Update");
                     }
                 }
             }
