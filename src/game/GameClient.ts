@@ -15,13 +15,10 @@ import {
     LocalPlayerTag,
     JumpComponent,
     ShooterComponent,
-    MeshComponent,
     SoundComponent,
     FootstepComponent,
     Object3DComponent,
-    AiComponent,
-    ControllerComponent,
-    HealthComponent
+    ControllerComponent
 } from "./Components";
 import { SoundSystem } from "./systems/SoundSystem";
 import { FootstepSystem } from "./systems/FootstepSystem";
@@ -30,6 +27,7 @@ import { ParticleSystem } from "./systems/ParticleSystem";
 import { PovSystem } from "./systems/PovSystem";
 import { InputSystem } from "./systems/InputSystem";
 import { AiSystem } from "./systems/AiSystem";
+import { BotSpawnSystem } from "./systems/BotSpawnSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -83,6 +81,7 @@ export class GameClient {
         this.world.addSystem(new BulletDecalSystem(this.world));
         this.world.addSystem(new ParticleSystem(this.world));
         this.world.addSystem(new PovSystem(this.world));
+        this.world.addSystem(new BotSpawnSystem(this.world));
 
         {
             // Spawn player
@@ -104,30 +103,6 @@ export class GameClient {
             position.z = 3;
 
             this.world.addEntity(player);
-        }
-
-        const BOT_COUNT = 3;
-        for (let i = 0; i < BOT_COUNT; i++) {
-            const bot = new Entity();
-            bot.id = `bot-${i}`;
-
-            bot.putComponent(AiComponent);
-            bot.putComponent(HealthComponent);
-            bot.putComponent(ControllerComponent);
-            bot.putComponent(ShooterComponent);
-            bot.putComponent(PositionComponent);
-            bot.putComponent(RotationComponent);
-            bot.putComponent(VelocityComponent);
-            // bot.putComponent(FootstepComponent);
-            bot.putComponent(Object3DComponent);
-            bot.putComponent(MeshComponent);
-            bot.putComponent(SoundComponent);
-
-            const position = bot.getComponent(PositionComponent);
-            position.x = 3 + Math.random() * 2;
-            position.z = 3 + Math.random() * 2;
-
-            this.world.addEntity(bot);
         }
     }
 
