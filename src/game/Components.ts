@@ -18,9 +18,16 @@ export class Object3DComponent extends Object3D implements Component {
     // ...
 }
 
+export enum AiState {
+    Idle,
+    Turning,
+    Roaming
+}
+
 export class AiComponent implements Component {
-    public hasDestination = false;
-    public destination = new Vector3();
+    public state = AiState.Idle;
+    public targetDestination = new Vector3();
+    public targetDirection = 0;
 }
 
 export class MeshComponent implements Component {

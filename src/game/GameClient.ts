@@ -116,7 +116,7 @@ export class GameClient {
             bot.putComponent(PositionComponent);
             bot.putComponent(RotationComponent);
             bot.putComponent(VelocityComponent);
-            bot.putComponent(FootstepComponent);
+            // bot.putComponent(FootstepComponent);
             bot.putComponent(Object3DComponent);
             bot.putComponent(MeshComponent);
             bot.putComponent(SoundComponent);

@@ -1,6 +1,5 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
 import { World } from "../World";
-import { clamp, random } from "lodash";
 import {
     PositionComponent,
     AiComponent,
@@ -8,8 +7,10 @@ import {
     RotationComponent,
     LocalPlayerTag,
     ShooterComponent,
-    ControllerComponent
+    ControllerComponent,
+    AiState
 } from "../Components";
+import { modulo, ease } from "../core/Utils";
 
 export class AiSystem extends System {
     private readonly players: Family;
@@ -37,41 +38,58 @@ export class AiSystem extends System {
         for (let i = 0; i < this.bots.entities.length; i++) {
             const bot = this.bots.entities[i];
             const ai = bot.getComponent(AiComponent);
-            const postion = bot.getComponent(PositionComponent);
-            const rotation = bot.getComponent(RotationComponent);
-            const controller = bot.getComponent(ControllerComponent);
 
-            const dist = postion.distanceToSquared(ai.destination);
-            if (dist < 1) {
-                ai.hasDestination = false;
-            }
+            switch (ai.state) {
+                case AiState.Idle: {
+                    const hit = this.findDestination(bot, world);
+                    if (hit !== undefined) {
+                        const position = bot.getComponent(PositionComponent);
+                        ai.state = AiState.Turning;
+                        ai.targetDestination.copy(hit.point);
+                        ai.targetDirection = Math.atan2(
+                            position.x - ai.targetDestination.x,
+                            position.z - ai.targetDestination.z
+                        );
+                        ai.targetDirection = modulo(
+                            ai.targetDirection,
+                            Math.PI * 2
+                        );
+                    }
+                    break;
+                }
 
-            if (ai.hasDestination === false) {
-                ai.hasDestination = this.setDestination(bot, world);
+                case AiState.Turning: {
+                    const rotation = bot.getComponent(RotationComponent);
+                    rotation.y = ease(rotation.y, ai.targetDirection, 0.1);
 
-                const angle = Math.atan2(
-                    postion.x - ai.destination.x,
-                    postion.z - ai.destination.z
-                );
+                    const delta = rotation.y - ai.targetDirection;
+                    if (Math.abs(delta) < 0.01) {
+                        ai.state = AiState.Roaming;
+                    }
+                    break;
+                }
 
-                controller.look.y = rotation.y - angle;
-            }
+                case AiState.Roaming: {
+                    const controller = bot.getComponent(ControllerComponent);
+                    controller.move.y = -1;
 
-            if (ai.hasDestination === true) {
-                const angle = Math.atan2(
-                    postion.x - ai.destination.x,
-                    postion.z - ai.destination.z
-                );
+                    const position = bot.getComponent(PositionComponent);
+                    const delta = ai.targetDestination.distanceToSquared(
+                        position
+                    );
 
-                controller.look.y = rotation.y - angle;
+                    if (Math.abs(delta) < 1) {
+                        ai.state = AiState.Idle;
+                        controller.move.y = 0;
+                    }
 
-                controller.move.y = -1;
+                    break;
+                }
             }
         }
     }
 
-    private setDestination(bot: Entity, world: World): boolean {
-        const ai = bot.getComponent(AiComponent);
+    private findDestination(bot: Entity, world: World) {
         const position = bot.getComponent(PositionComponent);
         const shooter = bot.getComponent(ShooterComponent);
 
@@ -85,11 +103,8 @@ export class AiSystem extends System {
 
         const hits = shooter.raycaster.intersectObject(world.level.scene, true);
         for (let i = 0; i < hits.length; i++) {
-            const hit = hits[i];
-            ai.destination.x = hit.point.x;
-            ai.destination.z = hit.point.z;
-            return true;
+            return hits[i];
         }
-        return false;
+        return;
     }
 }

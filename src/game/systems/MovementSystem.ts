@@ -8,7 +8,7 @@ import {
     ControllerComponent
 } from "../Components";
 import { Vector2 } from "three";
-import { RUN_SPEED } from "../Globals";
+import { RUN_SPEED, WALK_SPEED } from "../Globals";
 
 export class MovementSystem extends System {
     private readonly family: Family;
@@ -32,7 +32,7 @@ export class MovementSystem extends System {
             // Move
             const movement = controller.move.clone();
             movement.normalize();
-            movement.multiplyScalar(RUN_SPEED);
+            movement.multiplyScalar(WALK_SPEED);
             if (movement.x !== 0 || movement.y !== 0) {
                 movement.rotateAround(new Vector2(), -rotation.y);
             }
