@@ -1,7 +1,11 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
 import { World } from "../World";
 import { Input, KeyCode, MouseBtn } from "../core/Input";
-import { LocalPlayerTag, ControllerComponent } from "../Components";
+import {
+    LocalPlayerTag,
+    ControllerComponent,
+    RotationComponent
+} from "../Components";
 
 export class InputSystem extends System {
     private readonly family: Family;
@@ -20,13 +24,14 @@ export class InputSystem extends System {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
             const controller = entity.getComponent(ControllerComponent);
+            const rotation = entity.getComponent(RotationComponent);
 
             // Look input
             const mouseSensitivity = 0.1;
             const lookHor = this.input.mouse.dx;
             const lookVer = this.input.mouse.dy;
-            controller.look.y = lookHor * mouseSensitivity * dt;
-            controller.look.x = lookVer * mouseSensitivity * dt;
+            rotation.y -= lookHor * mouseSensitivity * dt;
+            rotation.x -= lookVer * mouseSensitivity * dt;
 
             // Move
             const forward = this.input.isKeyDown(KeyCode.W);
@@ -43,6 +48,9 @@ export class InputSystem extends System {
 
             // Shoot
             controller.shoot = this.input.isMouseDown(MouseBtn.Left);
+
+            // Walk
+            controller.walk = this.input.isKeyDown(KeyCode.SHIFT);
         }
     }
 }

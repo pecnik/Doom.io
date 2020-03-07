@@ -72,6 +72,7 @@ export class AiSystem extends System {
                 case AiState.Roaming: {
                     const controller = bot.getComponent(ControllerComponent);
                     controller.move.y = -1;
+                    controller.walk = true;
 
                     const position = bot.getComponent(PositionComponent);
                     const delta = ai.targetDestination.distanceToSquared(

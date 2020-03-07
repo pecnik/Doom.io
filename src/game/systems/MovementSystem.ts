@@ -32,7 +32,9 @@ export class MovementSystem extends System {
             // Move
             const movement = controller.move.clone();
             movement.normalize();
-            movement.multiplyScalar(WALK_SPEED);
+
+            const speed = controller.walk ? WALK_SPEED : RUN_SPEED;
+            movement.multiplyScalar(speed);
             if (movement.x !== 0 || movement.y !== 0) {
                 movement.rotateAround(new Vector2(), -rotation.y);
             }
@@ -41,8 +43,6 @@ export class MovementSystem extends System {
             velocity.z = lerp(velocity.z, movement.y, RUN_SPEED / 4);
 
             // Look
-            rotation.y -= controller.look.y;
-            rotation.x -= controller.look.x;
             rotation.y = modulo(rotation.y, Math.PI * 2);
             rotation.x = clamp(rotation.x, -Math.PI / 2, Math.PI / 2);
         }
