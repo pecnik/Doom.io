@@ -57,22 +57,25 @@ export class ShootingSystem extends System {
 
                 // Hitscan
                 const response = this.hitscan(entity, world);
-                if (response.ray === undefined) {
-                    continue;
-                }
+                if (!response.ray) continue;
+                if (!response.ray.face) continue;
 
                 if (response.entity) {
                     // Hit target - kill target
                     const entity = response.entity;
                     const health = entity.getComponent(HealthComponent);
                     health.value -= 10;
-                    console.log(`> Hit::${entity.id} : HP = ${health.value}`);
+                    this.spawnBlood(
+                        response.ray.point,
+                        response.ray.face.normal,
+                        world
+                    );
 
                     if (health.value <= 0) {
                         health.value = 0;
                         world.removeEntity(entity);
                     }
-                } else if (response.ray.face) {
+                } else {
                     // Hit level wall - spawn bullet decal
                     this.spawnBulletDecal(
                         response.ray.point,
@@ -82,6 +85,22 @@ export class ShootingSystem extends System {
                 }
             }
         }
+    }
+
+    private spawnBlood(hitPoint: Vector3, hitNormal: Vector3, world: World) {
+        const entity = new Entity();
+        entity.id = uniqueId("blood");
+        entity.putComponent(PositionComponent);
+        entity.putComponent(ParticleEmitterComponent);
+
+        const position = entity.getComponent(PositionComponent);
+        position.copy(hitPoint);
+
+        const emitter = entity.getComponent(ParticleEmitterComponent);
+        emitter.direction.copy(hitNormal);
+        emitter.times = 1;
+
+        world.addEntity(entity);
     }
 
     private spawnBulletDecal(
@@ -96,9 +115,7 @@ export class ShootingSystem extends System {
         entity.putComponent(ParticleEmitterComponent);
 
         const position = entity.getComponent(PositionComponent);
-        position.x = hitPoint.x;
-        position.y = hitPoint.y;
-        position.z = hitPoint.z;
+        position.copy(hitPoint);
 
         const emitter = entity.getComponent(ParticleEmitterComponent);
         emitter.direction.copy(hitNormal);
