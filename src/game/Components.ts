@@ -36,6 +36,10 @@ export class MeshComponent implements Component {
     public color = new Color(0xffffff);
 }
 
+export class HealthComponent implements Component {
+    public value = 100;
+}
+
 export class JumpComponent implements Component {
     public triggerTime = 0;
     public coyoteTime = 0;

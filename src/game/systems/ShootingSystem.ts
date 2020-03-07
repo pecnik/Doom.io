@@ -9,31 +9,39 @@ import {
     SoundComponent,
     BulletDecalComponent,
     ParticleEmitterComponent,
-    ControllerComponent
+    ControllerComponent,
+    HealthComponent,
+    Object3DComponent
 } from "../Components";
-import { Vector3 } from "three";
+import { Vector3, Intersection } from "three";
 
 export class ShootingSystem extends System {
-    private readonly family: Family;
+    private readonly shooterFamily: Family;
+    private readonly targetFamily: Family;
 
     public constructor(world: World) {
         super();
 
-        this.family = new FamilyBuilder(world)
+        this.shooterFamily = new FamilyBuilder(world)
             .include(ControllerComponent)
             .include(PositionComponent)
             .include(VelocityComponent)
             .include(RotationComponent)
             .include(ShooterComponent)
             .build();
+
+        this.targetFamily = new FamilyBuilder(world)
+            .include(HealthComponent)
+            .include(Object3DComponent)
+            .build();
     }
 
     public update(world: World) {
         const { elapsedTime } = world;
-        for (let i = 0; i < this.family.entities.length; i++) {
-            const entity = this.family.entities[i];
-            const controller = entity.getComponent(ControllerComponent);
+        for (let i = 0; i < this.shooterFamily.entities.length; i++) {
+            const entity = this.shooterFamily.entities[i];
             const shooter = entity.getComponent(ShooterComponent);
+            const controller = entity.getComponent(ControllerComponent);
 
             const fireRate = 1 / 8;
             const shootDelta = elapsedTime - shooter.shootTime;
@@ -47,18 +55,44 @@ export class ShootingSystem extends System {
                     sound.src = "/assets/sounds/fire.wav";
                 }
 
-                const hits = this.hitscan(entity, world);
-                for (let i = 0; i < hits.length; i++) {
-                    const hit = hits[i];
-
-                    if (hit.face) {
-                        const hitPoint = hit.point;
-                        const hitNormal = hit.face.normal;
-                        this.spawnBulletDecal(hitPoint, hitNormal, world);
-                    }
-
-                    break;
+                // Hitscan
+                const rsp = this.hitscan(entity, world);
+                if (rsp.intersection && rsp.intersection.face) {
+                    const hitPoint = rsp.intersection.point;
+                    const hitNormal = rsp.intersection.face.normal;
+                    this.spawnBulletDecal(hitPoint, hitNormal, world);
                 }
+
+                // // Find entity hit
+                // let targetEntity: Entity | undefined;
+                // let targetPoint = new Vector3().multiplyScalar(
+                //     Number.MAX_SAFE_INTEGER
+                // );
+
+                // for (let i = 0; i < this.targetFamily.entities.length; i++) {
+                //     const entity = this.targetFamily.entities[i];
+                //     const obj = entity.getComponent(Object3DComponent);
+                //     const [hit] = shooter.raycaster.intersectObject(obj, true);
+
+                //     const prevDist = targetPoint.distanceToSquared(position);
+                //     const nextDist = hit.point.distanceToSquared(position);
+                //     if (nextDist < prevDist) {
+                //         targetEntity = entity;
+                //         targetPoint.copy(hit.point);
+                //     }
+                // }
+
+                // // Level hitscan
+                // const [hit] = shooter.raycaster.intersectObject(
+                //     world.level.scene,
+                //     true
+                // );
+
+                // if (hit !== undefined && hit.face) {
+                //     const hitPoint = hit.point;
+                //     const hitNormal = hit.face.normal;
+                //     this.spawnBulletDecal(hitPoint, hitNormal, world);
+                // }
             }
         }
     }
@@ -101,6 +135,13 @@ export class ShootingSystem extends System {
     }
 
     private hitscan(entity: Entity, world: World) {
+        // Response data
+        const result: {
+            intersection?: Intersection;
+            entity?: Entity;
+        } = {};
+
+        // Update raycaster
         const position = entity.getComponent(PositionComponent);
         const rotation = entity.getComponent(RotationComponent);
         const shooter = entity.getComponent(ShooterComponent);
@@ -115,6 +156,11 @@ export class ShootingSystem extends System {
 
         shooter.raycaster.setFromCamera(shooter.origin, shooter.camera);
 
-        return shooter.raycaster.intersectObject(world.level.scene, true);
+        // Level hitscan
+        const level = world.level.scene;
+        const hits = shooter.raycaster.intersectObject(level, true);
+        result.intersection = hits[0];
+
+        return result;
     }
 }

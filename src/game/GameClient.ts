@@ -20,7 +20,8 @@ import {
     FootstepComponent,
     Object3DComponent,
     AiComponent,
-    ControllerComponent
+    ControllerComponent,
+    HealthComponent
 } from "./Components";
 import { SoundSystem } from "./systems/SoundSystem";
 import { FootstepSystem } from "./systems/FootstepSystem";
@@ -111,6 +112,7 @@ export class GameClient {
             bot.id = `bot-${i}`;
 
             bot.putComponent(AiComponent);
+            bot.putComponent(HealthComponent);
             bot.putComponent(ControllerComponent);
             bot.putComponent(ShooterComponent);
             bot.putComponent(PositionComponent);
