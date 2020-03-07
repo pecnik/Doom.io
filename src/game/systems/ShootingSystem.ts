@@ -56,43 +56,30 @@ export class ShootingSystem extends System {
                 }
 
                 // Hitscan
-                const rsp = this.hitscan(entity, world);
-                if (rsp.intersection && rsp.intersection.face) {
-                    const hitPoint = rsp.intersection.point;
-                    const hitNormal = rsp.intersection.face.normal;
-                    this.spawnBulletDecal(hitPoint, hitNormal, world);
+                const response = this.hitscan(entity, world);
+                if (response.ray === undefined) {
+                    continue;
                 }
 
-                // // Find entity hit
-                // let targetEntity: Entity | undefined;
-                // let targetPoint = new Vector3().multiplyScalar(
-                //     Number.MAX_SAFE_INTEGER
-                // );
+                if (response.entity) {
+                    // Hit target - kill target
+                    const entity = response.entity;
+                    const health = entity.getComponent(HealthComponent);
+                    health.value -= 10;
+                    console.log(`> Hit::${entity.id} : HP = ${health.value}`);
 
-                // for (let i = 0; i < this.targetFamily.entities.length; i++) {
-                //     const entity = this.targetFamily.entities[i];
-                //     const obj = entity.getComponent(Object3DComponent);
-                //     const [hit] = shooter.raycaster.intersectObject(obj, true);
-
-                //     const prevDist = targetPoint.distanceToSquared(position);
-                //     const nextDist = hit.point.distanceToSquared(position);
-                //     if (nextDist < prevDist) {
-                //         targetEntity = entity;
-                //         targetPoint.copy(hit.point);
-                //     }
-                // }
-
-                // // Level hitscan
-                // const [hit] = shooter.raycaster.intersectObject(
-                //     world.level.scene,
-                //     true
-                // );
-
-                // if (hit !== undefined && hit.face) {
-                //     const hitPoint = hit.point;
-                //     const hitNormal = hit.face.normal;
-                //     this.spawnBulletDecal(hitPoint, hitNormal, world);
-                // }
+                    if (health.value <= 0) {
+                        health.value = 0;
+                        world.removeEntity(entity);
+                    }
+                } else if (response.ray.face) {
+                    // Hit level wall - spawn bullet decal
+                    this.spawnBulletDecal(
+                        response.ray.point,
+                        response.ray.face.normal,
+                        world
+                    );
+                }
             }
         }
     }
@@ -136,8 +123,8 @@ export class ShootingSystem extends System {
 
     private hitscan(entity: Entity, world: World) {
         // Response data
-        const result: {
-            intersection?: Intersection;
+        const response: {
+            ray?: Intersection;
             entity?: Entity;
         } = {};
 
@@ -158,9 +145,35 @@ export class ShootingSystem extends System {
 
         // Level hitscan
         const level = world.level.scene;
-        const hits = shooter.raycaster.intersectObject(level, true);
-        result.intersection = hits[0];
+        const rays = shooter.raycaster.intersectObject(level, true);
+        response.ray = rays[0];
 
-        return result;
+        // Entity hitscan
+        for (let i = 0; i < this.targetFamily.entities.length; i++) {
+            const entity = this.targetFamily.entities[i];
+            const object3D = entity.getComponent(Object3DComponent);
+
+            const rays = shooter.raycaster.intersectObject(object3D, true);
+            for (let i = 0; i < rays.length; i++) {
+                const ray = rays[i];
+
+                if (response.ray === undefined) {
+                    response.ray = ray;
+                    response.entity = entity;
+                    continue;
+                }
+
+                if (
+                    ray.point.distanceToSquared(position) <
+                    response.ray.point.distanceToSquared(position)
+                ) {
+                    response.ray = ray;
+                    response.entity = entity;
+                    continue;
+                }
+            }
+        }
+
+        return response;
     }
 }
