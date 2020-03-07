@@ -2,7 +2,14 @@ import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
 import { World } from "../World";
 import { random } from "lodash";
 import { ParticleEmitterComponent, PositionComponent } from "../Components";
-import { Geometry, PointsMaterial, Vector3, Points } from "three";
+import {
+    Geometry,
+    PointsMaterial,
+    Vector3,
+    Points,
+    Color,
+    VertexColors
+} from "three";
 import { GRAVITY } from "../Globals";
 
 class Particle extends Vector3 {
@@ -22,12 +29,13 @@ export class ParticleSystem extends System {
 
         // create the particle variables
         const material = new PointsMaterial({
-            color: 0x000000,
-            size: 1 / 32
+            vertexColors: VertexColors,
+            size: 1 / 24
         });
         this.particles = new Geometry();
         for (let p = 0; p < 32; p++) {
             this.particles.vertices.push(new Particle(0, -2, 0));
+            this.particles.colors.push(new Color(1, 0, 1));
         }
 
         const particles = new Points(this.particles, material);
@@ -35,14 +43,14 @@ export class ParticleSystem extends System {
         world.scene.add(particles);
     }
 
-    private getFreeParticle() {
+    private getFreeParticleIndex(): number {
         for (let i = 0; i < this.particles.vertices.length; i++) {
             const particle = this.particles.vertices[i] as Particle;
             if (particle.y >= 1 || particle.y <= -1) {
-                return particle;
+                return i;
             }
         }
-        return;
+        return -1;
     }
 
     public update(world: World, dt: number) {
@@ -64,9 +72,18 @@ export class ParticleSystem extends System {
                 emitter.count++;
 
                 for (let i = 0; i < 3; i++) {
-                    const particle = this.getFreeParticle();
-                    if (particle === undefined) continue;
+                    const index = this.getFreeParticleIndex();
+                    if (index === -1) continue;
 
+                    // Set particle color
+                    const color = this.particles.colors[index];
+                    if (!color.equals(emitter.color)) {
+                        color.copy(emitter.color);
+                        this.particles.colorsNeedUpdate = true;
+                    }
+
+                    // Update particle
+                    const particle = this.particles.vertices[index] as Particle;
                     const position = entity.getComponent(PositionComponent);
                     particle.set(position.x, position.y, position.z);
 

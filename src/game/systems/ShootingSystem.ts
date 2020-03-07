@@ -99,6 +99,7 @@ export class ShootingSystem extends System {
         const emitter = entity.getComponent(ParticleEmitterComponent);
         emitter.direction.copy(hitNormal);
         emitter.times = 1;
+        emitter.color.set(0xff0000);
 
         world.addEntity(entity);
     }
@@ -119,6 +120,7 @@ export class ShootingSystem extends System {
 
         const emitter = entity.getComponent(ParticleEmitterComponent);
         emitter.direction.copy(hitNormal);
+        emitter.color.set(0x000000);
         emitter.times = 1;
 
         const decal = entity.getComponent(BulletDecalComponent);

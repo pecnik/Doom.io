@@ -65,6 +65,7 @@ export class ParticleEmitterComponent implements Component {
     public emitTime = 0;
     public count = 0;
     public times = Number.MAX_SAFE_INTEGER;
+    public color = new Color(0, 0, 0);
 }
 
 export class PositionComponent extends Vector3 implements Component {
