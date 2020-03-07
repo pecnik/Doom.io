@@ -105,10 +105,10 @@ export class GameClient {
             this.world.addEntity(player);
         }
 
-        {
-            // Spawn bot
+        const BOT_COUNT = 3;
+        for (let i = 0; i < BOT_COUNT; i++) {
             const bot = new Entity();
-            bot.id = "bot";
+            bot.id = `bot-${i}`;
 
             bot.putComponent(AiComponent);
             bot.putComponent(ControllerComponent);
@@ -122,8 +122,8 @@ export class GameClient {
             bot.putComponent(SoundComponent);
 
             const position = bot.getComponent(PositionComponent);
-            position.x = 3;
-            position.z = 3;
+            position.x = 3 + Math.random() * 2;
+            position.z = 3 + Math.random() * 2;
 
             this.world.addEntity(bot);
         }
