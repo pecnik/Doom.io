@@ -43,7 +43,7 @@ export class ShootingSystem extends System {
             const shooter = entity.getComponent(ShooterComponent);
             const controller = entity.getComponent(ControllerComponent);
 
-            const fireRate = 1 / 8;
+            const fireRate = 1 / 4;
             const shootDelta = elapsedTime - shooter.shootTime;
             if (controller.shoot && shootDelta > fireRate) {
                 shooter.shootTime = elapsedTime;

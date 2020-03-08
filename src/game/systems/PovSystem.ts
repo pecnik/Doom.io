@@ -12,7 +12,8 @@ import {
     PovComponent,
     PositionComponent,
     ControllerComponent,
-    PovAnimation
+    PovAnimation,
+    ShooterComponent
 } from "../Components";
 import { lerp, ease } from "../core/Utils";
 
@@ -26,6 +27,7 @@ export class PovSystem extends System {
             .include(PovComponent)
             .include(ControllerComponent)
             .include(PositionComponent)
+            .include(ShooterComponent)
             .build();
 
         world.addEntityListener({
@@ -91,6 +93,7 @@ export class PovSystem extends System {
             this.updateLight(entity, world);
 
             const pov = entity.getComponent(PovComponent);
+            const shooter = entity.getComponent(ShooterComponent);
             const controller = entity.getComponent(ControllerComponent);
 
             let prevState = pov.state;
@@ -112,11 +115,20 @@ export class PovSystem extends System {
 
             const frame = this.getAnimationFrame(pov, world.elapsedTime);
             if (pov.transition === 0) {
-                pov.weapon.position.copy(frame);
+                pov.weapon.position.x = frame.x;
+                pov.weapon.position.y = frame.y;
             } else {
                 const pos = pov.weapon.position;
                 pos.x = ease(pos.x, frame.x, 1 - pov.transition);
                 pos.y = ease(pos.y, frame.y, 1 - pov.transition);
+            }
+
+            // Shoot animation
+            pov.weapon.position.z = ease(pov.weapon.position.z, -1, 0.1);
+            if (shooter.shootTime === world.elapsedTime) {
+                pov.weapon.position.z = -0.75;
+                pov.weapon.position.x = 0.75;
+                pov.weapon.position.y = -0.625;
             }
         }
     }
