@@ -77,7 +77,7 @@ export class MeshSystem extends System {
                 if (cell !== undefined && !mesh.color.equals(cell.light)) {
                     mesh.color.copy(cell.light);
                     if (mesh.mesh.material instanceof MeshBasicMaterial) {
-                        mesh.mesh.material.color.copy(cell.light);
+                        mesh.mesh.material.color.lerp(cell.light, 0.125);
                         mesh.mesh.material.needsUpdate = true;
                     }
                 }

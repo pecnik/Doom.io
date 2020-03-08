@@ -7,7 +7,8 @@ import {
     PositionalAudio,
     Mesh,
     Vector3,
-    Color
+    Color,
+    Sprite
 } from "three";
 
 export class LocalPlayerTag implements Component {
@@ -28,6 +29,11 @@ export class AiComponent implements Component {
     public state = AiState.Idle;
     public targetDestination = new Vector3();
     public targetDirection = 0;
+}
+
+export class PovSpritesComponent implements Component {
+    public crosshair = new Sprite();
+    public weapon = new Sprite();
 }
 
 export class MeshComponent implements Component {
