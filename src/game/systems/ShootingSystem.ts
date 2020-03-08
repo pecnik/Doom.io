@@ -65,11 +65,7 @@ export class ShootingSystem extends System {
                     const entity = response.entity;
                     const health = entity.getComponent(HealthComponent);
                     health.value -= 10;
-                    this.spawnBlood(
-                        response.ray.point,
-                        response.ray.face.normal,
-                        world
-                    );
+                    this.spawnBlood(response.ray.point, world);
 
                     if (health.value <= 0) {
                         health.value = 0;
@@ -87,7 +83,7 @@ export class ShootingSystem extends System {
         }
     }
 
-    private spawnBlood(hitPoint: Vector3, hitNormal: Vector3, world: World) {
+    private spawnBlood(hitPoint: Vector3, world: World) {
         const entity = new Entity();
         entity.id = uniqueId("blood");
         entity.putComponent(PositionComponent);
@@ -97,9 +93,9 @@ export class ShootingSystem extends System {
         position.copy(hitPoint);
 
         const emitter = entity.getComponent(ParticleEmitterComponent);
-        emitter.direction.copy(hitNormal);
-        emitter.times = 1;
         emitter.color.set(0xff0000);
+        emitter.particles = 128;
+        emitter.times = 1;
 
         world.addEntity(entity);
     }
@@ -121,6 +117,7 @@ export class ShootingSystem extends System {
         const emitter = entity.getComponent(ParticleEmitterComponent);
         emitter.direction.copy(hitNormal);
         emitter.color.set(0x000000);
+        emitter.particles = 3;
         emitter.times = 1;
 
         const decal = entity.getComponent(BulletDecalComponent);

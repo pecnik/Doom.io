@@ -33,7 +33,7 @@ export class ParticleSystem extends System {
             size: 1 / 24
         });
         this.particles = new Geometry();
-        for (let p = 0; p < 32; p++) {
+        for (let p = 0; p < 1024; p++) {
             this.particles.vertices.push(new Particle(0, -2, 0));
             this.particles.colors.push(new Color(1, 0, 1));
         }
@@ -71,7 +71,7 @@ export class ParticleSystem extends System {
                 emitter.emitTime = world.elapsedTime;
                 emitter.count++;
 
-                for (let i = 0; i < 3; i++) {
+                for (let i = 0; i < emitter.particles; i++) {
                     const index = this.getFreeParticleIndex();
                     if (index === -1) continue;
 

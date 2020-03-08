@@ -76,6 +76,7 @@ export class ParticleEmitterComponent implements Component {
     public direction = new Vector3();
     public interval = 1;
     public emitTime = 0;
+    public particles = 3;
     public count = 0;
     public times = Number.MAX_SAFE_INTEGER;
     public color = new Color(0, 0, 0);
