@@ -228,6 +228,7 @@ export class Level {
             new Color(0x00ff00),
             new Color(0x0000ff)
         ];
+
         lightLayer.forEach((lightId, index) => {
             if (lightId > 0) {
                 const x = index % tilemap.width;
@@ -239,7 +240,7 @@ export class Level {
             }
         });
 
-        // Build lightmap
+        // Build light map
         const lightMap: Color[] = lightLayer.map(_ => shadowColor.clone());
         for (let y = 0; y < tilemap.height; y++) {
             for (let x = 0; x < tilemap.width; x++) {
@@ -290,28 +291,47 @@ export class Level {
             }
         }
 
-        // Soft shadows
-        const lightMapClone = lightMap.map(color => new Color(color));
-        lightMapClone.forEach((color, index) => {
-            if (color.getHex() !== shadowColor.getHex()) {
-                return;
-            }
-
+        // Blurred light map
+        const blurredMap = lightMap.map((_, index) => {
             const x = index % tilemap.width;
             const y = Math.floor(index / tilemap.width);
 
-            const shadowCell = lightMap[index];
-            for (let y1 = y - 1; y1 <= y + 1; y1++) {
-                for (let x1 = x - 1; x1 <= x + 1; x1++) {
-                    const index = y1 * tilemap.width + x1;
-                    const color = lightMapClone[index];
-                    if (color === undefined) continue;
-                    if (color.getHex() === shadowColor.getHex()) continue;
-                    shadowCell.r += color.r / 16;
-                    shadowCell.g += color.g / 16;
-                    shadowCell.b += color.b / 16;
+            const radius = 1;
+            const minX = x - radius;
+            const maxX = x + radius;
+            const minY = y - radius;
+            const maxY = y + radius;
+
+            const color = new Color(0x000000);
+            let count = 0;
+            for (let y = minY; y <= maxY; y++) {
+                for (let x = minX; x <= maxX; x++) {
+                    const index = y * tilemap.width + x;
+                    if (lightMap[index] === undefined) continue;
+                    if (wallLayer[index] > 0) continue;
+                    color.r += lightMap[index].r;
+                    color.g += lightMap[index].g;
+                    color.b += lightMap[index].b;
+                    count++;
                 }
             }
+
+            if (count > 0) {
+                color.r /= count;
+                color.g /= count;
+                color.b /= count;
+            }
+
+            return color;
+        });
+
+        // Composite layers
+        lightMap.forEach((color, index) => {
+            const weight = 0.75;
+            const blur = blurredMap[index];
+            color.r = color.r * (1 - weight) + blur.r * weight;
+            color.g = color.g * (1 - weight) + blur.g * weight;
+            color.b = color.b * (1 - weight) + blur.b * weight;
         });
 
         // Render
