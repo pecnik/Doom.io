@@ -5,9 +5,16 @@ import {
     Sprite,
     SpriteMaterial,
     AdditiveBlending,
-    NearestFilter
+    NearestFilter,
+    Vector3
 } from "three";
-import { PovSpritesComponent, PositionComponent } from "../Components";
+import {
+    PovComponent,
+    PositionComponent,
+    ControllerComponent,
+    PovAnimation
+} from "../Components";
+import { lerp, ease } from "../core/Utils";
 
 export class PovSystem extends System {
     public readonly family: Family;
@@ -16,7 +23,8 @@ export class PovSystem extends System {
         super();
 
         this.family = new FamilyBuilder(world)
-            .include(PovSpritesComponent)
+            .include(PovComponent)
+            .include(ControllerComponent)
             .include(PositionComponent)
             .build();
 
@@ -28,7 +36,7 @@ export class PovSystem extends System {
             },
             onEntityRemoved: entity => {
                 if (this.family.includesEntity(entity)) {
-                    const pov = entity.getComponent(PovSpritesComponent);
+                    const pov = entity.getComponent(PovComponent);
                     world.camera.remove(pov.crosshair);
                     world.camera.remove(pov.weapon);
                 }
@@ -37,7 +45,7 @@ export class PovSystem extends System {
     }
 
     private loadSprites(entity: Entity, world: World) {
-        const pov = entity.getComponent(PovSpritesComponent);
+        const pov = entity.getComponent(PovComponent);
 
         new TextureLoader().load("/assets/sprites/crosshair.png", map => {
             const material = new SpriteMaterial({
@@ -80,19 +88,71 @@ export class PovSystem extends System {
     public update(world: World) {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
-            const pov = entity.getComponent(PovSpritesComponent);
-            const position = entity.getComponent(PositionComponent);
+            this.updateLight(entity, world);
 
-            const weaponSprite = pov.weapon.material;
-            const cell = world.level.getCell(
-                Math.round(position.x),
-                Math.round(position.z)
-            );
+            const pov = entity.getComponent(PovComponent);
+            const controller = entity.getComponent(ControllerComponent);
 
-            if (cell !== undefined && !weaponSprite.color.equals(cell.light)) {
-                weaponSprite.color.lerp(cell.light, 0.125);
-                weaponSprite.needsUpdate = true;
+            let prevState = pov.state;
+            let nextState = pov.state;
+            if (controller.move.lengthSq() < 1) {
+                nextState = PovAnimation.Idle;
+            } else {
+                nextState = PovAnimation.Walk;
             }
+
+            if (pov.transition > 0) {
+                pov.transition = lerp(pov.transition, 0, 0.05);
+            }
+
+            if (prevState !== nextState) {
+                pov.state = nextState;
+                pov.transition = 1;
+            }
+
+            const frame = this.getAnimationFrame(pov, world.elapsedTime);
+            if (pov.transition === 0) {
+                pov.weapon.position.copy(frame);
+            } else {
+                const pos = pov.weapon.position;
+                pos.x = ease(pos.x, frame.x, 1 - pov.transition);
+                pos.y = ease(pos.y, frame.y, 1 - pov.transition);
+            }
+        }
+    }
+
+    private getAnimationFrame(pov: PovComponent, elapsed: number) {
+        const frame = new Vector3();
+        frame.x = 0.75;
+        frame.y = -0.625;
+        frame.z = -1;
+        switch (pov.state) {
+            case PovAnimation.Walk:
+                elapsed *= 10;
+                frame.y += Math.abs(Math.sin(elapsed) * 0.05);
+                frame.x += Math.cos(elapsed) * 0.05;
+                break;
+
+            case PovAnimation.Idle:
+            default:
+                frame.y += Math.sin(elapsed) * 0.05;
+                break;
+        }
+
+        return frame;
+    }
+
+    private updateLight(entity: Entity, world: World) {
+        const pov = entity.getComponent(PovComponent);
+        const position = entity.getComponent(PositionComponent);
+        const weaponSprite = pov.weapon.material;
+        const cell = world.level.getCell(
+            Math.round(position.x),
+            Math.round(position.z)
+        );
+        if (cell !== undefined && !weaponSprite.color.equals(cell.light)) {
+            weaponSprite.color.lerp(cell.light, 0.125);
+            weaponSprite.needsUpdate = true;
         }
     }
 }

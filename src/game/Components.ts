@@ -31,9 +31,16 @@ export class AiComponent implements Component {
     public targetDirection = 0;
 }
 
-export class PovSpritesComponent implements Component {
-    public crosshair = new Sprite();
+export enum PovAnimation {
+    Idle,
+    Walk
+}
+
+export class PovComponent implements Component {
+    public state = PovAnimation.Idle;
+    public transition = 0;
     public weapon = new Sprite();
+    public crosshair = new Sprite();
 }
 
 export class MeshComponent implements Component {

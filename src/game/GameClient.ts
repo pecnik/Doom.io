@@ -19,7 +19,7 @@ import {
     FootstepComponent,
     Object3DComponent,
     ControllerComponent,
-    PovSpritesComponent
+    PovComponent
 } from "./Components";
 import { SoundSystem } from "./systems/SoundSystem";
 import { FootstepSystem } from "./systems/FootstepSystem";
@@ -89,7 +89,7 @@ export class GameClient {
             const player = new Entity();
             player.id = "player-1";
             player.putComponent(LocalPlayerTag);
-            player.putComponent(PovSpritesComponent);
+            player.putComponent(PovComponent);
             player.putComponent(ControllerComponent);
             player.putComponent(Object3DComponent);
             player.putComponent(PositionComponent);
