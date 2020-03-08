@@ -64,7 +64,7 @@ export class ShootingSystem extends System {
                     // Hit target - kill target
                     const entity = response.entity;
                     const health = entity.getComponent(HealthComponent);
-                    health.value -= 10;
+                    health.value -= 35;
                     this.spawnBlood(response.ray.point, world);
 
                     if (health.value <= 0) {
