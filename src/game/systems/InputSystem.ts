@@ -26,12 +26,22 @@ export class InputSystem extends System {
             const controller = entity.getComponent(ControllerComponent);
             const rotation = entity.getComponent(RotationComponent);
 
+            // Action cotnrolls
+            controller.walk = this.input.isKeyDown(KeyCode.SHIFT);
+            controller.shoot = this.input.isMouseDown(MouseBtn.Left);
+            controller.scope = this.input.isMouseDown(MouseBtn.Right);
+            if (controller.scope) {
+                controller.walk = true;
+            }
+
             // Look input
             const mouseSensitivity = 0.1;
             const lookHor = this.input.mouse.dx;
             const lookVer = this.input.mouse.dy;
-            rotation.y -= lookHor * mouseSensitivity * dt;
-            rotation.x -= lookVer * mouseSensitivity * dt;
+
+            const str = controller.scope ? 0.5 : 1;
+            rotation.y -= lookHor * mouseSensitivity * dt * str;
+            rotation.x -= lookVer * mouseSensitivity * dt * str;
 
             // Move
             const forward = this.input.isKeyDown(KeyCode.W);
@@ -45,15 +55,6 @@ export class InputSystem extends System {
             controller.jump = 0;
             if (this.input.isKeyPressed(KeyCode.SPACE)) controller.jump = 1;
             if (this.input.isKeyReleased(KeyCode.SPACE)) controller.jump = -1;
-
-            // Shoot
-            controller.shoot = this.input.isMouseDown(MouseBtn.Left);
-
-            // Scope
-            controller.scope = this.input.isMouseDown(MouseBtn.Right);
-
-            // Walk
-            controller.walk = this.input.isKeyDown(KeyCode.SHIFT);
         }
     }
 }
