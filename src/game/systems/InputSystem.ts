@@ -49,6 +49,9 @@ export class InputSystem extends System {
             // Shoot
             controller.shoot = this.input.isMouseDown(MouseBtn.Left);
 
+            // Scope
+            controller.scope = this.input.isMouseDown(MouseBtn.Right);
+
             // Walk
             controller.walk = this.input.isKeyDown(KeyCode.SHIFT);
         }

@@ -4,7 +4,8 @@ import {
     VelocityComponent,
     RotationComponent,
     PositionComponent,
-    LocalPlayerTag
+    LocalPlayerTag,
+    ControllerComponent
 } from "../Components";
 
 export class CameraSystem extends System {
@@ -16,6 +17,7 @@ export class CameraSystem extends System {
             .include(LocalPlayerTag)
             .include(PositionComponent)
             .include(VelocityComponent)
+            .include(ControllerComponent)
             .build();
     }
 
@@ -26,6 +28,13 @@ export class CameraSystem extends System {
             const rotation = avatar.getComponent(RotationComponent);
             world.camera.position.set(position.x, position.y, position.z);
             world.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
+
+            const controller = avatar.getComponent(ControllerComponent);
+            const fov = controller.scope ? 60 : 90;
+            if (world.camera.fov !== fov) {
+                world.camera.fov = fov;
+                world.camera.updateProjectionMatrix();
+            }
         }
     }
 }
