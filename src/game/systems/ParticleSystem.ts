@@ -75,17 +75,22 @@ export class ParticleSystem extends System {
                     const index = this.getFreeParticleIndex();
                     if (index === -1) continue;
 
-                    // Set particle color
-                    const color = this.particles.colors[index];
-                    if (!color.equals(emitter.color)) {
-                        color.copy(emitter.color);
-                        this.particles.colorsNeedUpdate = true;
-                    }
-
                     // Update particle
                     const particle = this.particles.vertices[index] as Particle;
                     const position = entity.getComponent(PositionComponent);
                     particle.set(position.x, position.y, position.z);
+
+                    // Set particle color
+                    const color = this.particles.colors[index];
+                    const target = emitter.color.clone();
+                    const cell = world.level.getCellAt(position);
+                    if (cell !== undefined) {
+                        target.multiply(cell.light);
+                    }
+                    if (!color.equals(target)) {
+                        color.copy(target);
+                        this.particles.colorsNeedUpdate = true;
+                    }
 
                     const rand = 0.5;
                     particle.velocity.copy(emitter.direction);

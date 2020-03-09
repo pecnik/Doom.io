@@ -11,7 +11,8 @@ import {
     NearestFilter,
     Color,
     VertexColors,
-    Box3
+    Box3,
+    Vector3
 } from "three";
 import { clamp } from "lodash";
 import { degToRad } from "../core/Utils";
@@ -46,6 +47,12 @@ export class Level {
         const index = z * this.cols + x;
         const cell = this.cells[index];
         return cell;
+    }
+
+    public getCellAt(vec: Vector3): LevelCell | undefined {
+        const x = Math.round(vec.x);
+        const z = Math.round(vec.z);
+        return this.getCell(x, z);
     }
 
     private buildCells(tilemap: Tiled2D.Tilemap) {
