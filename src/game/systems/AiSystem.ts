@@ -11,15 +11,33 @@ import {
     AiState
 } from "../Components";
 import { modulo, ease } from "../core/Utils";
+import { Grid, AStarFinder } from "pathfinding";
 
 export class AiSystem extends System {
     private readonly players: Family;
     private readonly bots: Family;
+    private readonly grid: Grid;
 
     public constructor(world: World) {
         super();
 
         this.players = new FamilyBuilder(world).include(LocalPlayerTag).build();
+
+        this.grid = new Grid(
+            (() => {
+                const grid: number[][] = [];
+                world.level.cells.forEach(cell => {
+                    const { x, z, wall } = cell;
+                    const row = (grid[z] = grid[z] || []);
+                    row[x] = wall ? 1 : 0;
+                });
+                return grid;
+            })()
+        );
+
+        const finder = new AStarFinder();
+        const path = finder.findPath(12, 6, 2, 2, this.grid);
+        console.log({ path });
 
         this.bots = new FamilyBuilder(world)
             .include(AiComponent)
@@ -99,8 +117,6 @@ export class AiSystem extends System {
         shooter.camera.rotation.set(0, direction, 0, "YXZ");
         shooter.camera.updateWorldMatrix(false, false);
         shooter.raycaster.setFromCamera(shooter.origin, shooter.camera);
-
-        // console.log("New dir ", { direction });
 
         const hits = shooter.raycaster.intersectObject(world.level.scene, true);
         for (let i = 0; i < hits.length; i++) {
