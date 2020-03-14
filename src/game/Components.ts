@@ -21,9 +21,8 @@ export class Object3DComponent extends Object3D implements Component {
 
 export class AiComponent implements Component {
     public target = new Vector2();
-    public step = 0;
     public path = new Array<Vector2>();
-    public direction = 0;
+    public step = 0;
 }
 
 export enum PovAnimation {

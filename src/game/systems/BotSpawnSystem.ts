@@ -45,12 +45,12 @@ export class BotSpawnSystem extends System {
 
         bot.putComponent(AiComponent);
         bot.putComponent(HealthComponent);
-        bot.putComponent(ControllerComponent);
+        // bot.putComponent(ControllerComponent);
         bot.putComponent(ShooterComponent);
         bot.putComponent(PositionComponent);
         bot.putComponent(RotationComponent);
         bot.putComponent(VelocityComponent);
-        bot.putComponent(FootstepComponent);
+        // bot.putComponent(FootstepComponent);
         bot.putComponent(Object3DComponent);
         bot.putComponent(MeshComponent);
         bot.putComponent(SoundComponent);
@@ -58,6 +58,9 @@ export class BotSpawnSystem extends System {
         const position = bot.getComponent(PositionComponent);
         position.x = x;
         position.z = z;
+
+        position.x = 4;
+        position.z = 4;
 
         world.addEntity(bot);
         console.log(`> Spawn::bot(${x},${z})`);
