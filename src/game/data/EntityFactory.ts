@@ -1,4 +1,4 @@
-import { Entity } from "@nova-engine/ecs";
+import { Entity, Component } from "@nova-engine/ecs";
 import { uniqueId } from "lodash";
 import {
     LocalPlayerTag,
@@ -20,49 +20,32 @@ import {
 import { Vector3 } from "three";
 
 export module EntityFactory {
-    export function Player(id = uniqueId("e-")) {
-        const player = new Entity();
-        player.id = id;
-        player.putComponent(LocalPlayerTag);
-        player.putComponent(PovComponent);
-        player.putComponent(HealthComponent);
-        player.putComponent(InputComponent);
-        player.putComponent(Object3DComponent);
-        player.putComponent(PositionComponent);
-        player.putComponent(VelocityComponent);
-        player.putComponent(RotationComponent);
-        player.putComponent(FootstepComponent);
-        player.putComponent(ShooterComponent);
-        player.putComponent(SoundComponent);
-        player.putComponent(JumpComponent);
-        return player;
+    export function Player() {
+        return new EntityBuilder()
+            .setLocalPlayer()
+            .setFpsControls()
+            .setShooter()
+            .setPhysicsBody()
+            .setDestructible()
+            .build();
     }
 
-    export function Block(id = uniqueId("e-")) {
-        const entity = new Entity();
-        entity.id = id;
-        entity.putComponent(PositionComponent);
-        entity.putComponent(Object3DComponent);
-        entity.putComponent(MeshComponent);
-        return entity;
+    export function Block() {
+        return new EntityBuilder()
+            .addBody()
+            .setDestructible()
+            .build();
     }
 
-    export function Box(id = uniqueId("e-")) {
-        const entity = new Entity();
-        entity.id = id;
-        entity.putComponent(PositionComponent);
-        entity.putComponent(Object3DComponent);
-        entity.putComponent(MeshComponent);
-        return entity;
+    export function Box() {
+        return new EntityBuilder()
+            .addBody()
+            .setDestructible()
+            .build();
     }
 
-    export function MeatBox(id = uniqueId("e-")) {
-        const entity = new Entity();
-        entity.id = id;
-        entity.putComponent(PositionComponent);
-        entity.putComponent(Object3DComponent);
-        entity.putComponent(MeshComponent);
-        return entity;
+    export function MeatBox() {
+        return new EntityBuilder().addBody().build();
     }
 
     export function BloodSquirt(id = uniqueId("e-"), position: Vector3) {
@@ -109,5 +92,61 @@ export module EntityFactory {
         }
 
         return entity;
+    }
+}
+
+export class EntityBuilder {
+    private readonly entity = new Entity();
+    private readonly comps = new Array<new () => Component>();
+
+    public addBody() {
+        this.comps.push(PositionComponent, Object3DComponent, MeshComponent);
+        return this;
+    }
+
+    public setLocalPlayer() {
+        this.comps.push(LocalPlayerTag);
+        return this;
+    }
+
+    public setShooter() {
+        this.comps.push(ShooterComponent, SoundComponent);
+        return this;
+    }
+
+    public setFpsControls() {
+        this.comps.push(
+            PovComponent,
+            InputComponent,
+            JumpComponent,
+            PositionComponent,
+            VelocityComponent,
+            FootstepComponent
+        );
+        return this;
+    }
+
+    public setPhysicsBody() {
+        this.comps.push(
+            PositionComponent,
+            RotationComponent,
+            VelocityComponent
+        );
+        return this;
+    }
+
+    public setDestructible() {
+        this.comps.push(HealthComponent, Object3DComponent, MeshComponent);
+        return this;
+    }
+
+    public build() {
+        this.entity.id = uniqueId("e-");
+        this.comps.forEach(key => {
+            if (!this.entity.hasComponent(key)) {
+                this.entity.putComponent(key);
+            }
+        });
+        return this.entity;
     }
 }
