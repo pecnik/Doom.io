@@ -7,12 +7,11 @@ import {
     RotationComponent,
     ShooterComponent,
     SoundComponent,
-    ParticleEmitterComponent,
     InputComponent,
     HealthComponent,
     Object3DComponent
 } from "../data/Components";
-import { Vector3, Intersection } from "three";
+import { Intersection } from "three";
 import { EntityFactory } from "../data/EntityFactory";
 
 export class ShootingSystem extends System {
@@ -65,7 +64,13 @@ export class ShootingSystem extends System {
                     const entity = response.entity;
                     const health = entity.getComponent(HealthComponent);
                     health.value -= 35;
-                    this.spawnBlood(response.ray.point, world);
+
+                    world.addEntity(
+                        EntityFactory.BloodSquirt(
+                            uniqueId("blood"),
+                            response.ray.point
+                        )
+                    );
 
                     if (health.value <= 0) {
                         health.value = 0;
@@ -83,23 +88,6 @@ export class ShootingSystem extends System {
                 }
             }
         }
-    }
-
-    private spawnBlood(hitPoint: Vector3, world: World) {
-        const entity = new Entity();
-        entity.id = uniqueId("blood");
-        entity.putComponent(PositionComponent);
-        entity.putComponent(ParticleEmitterComponent);
-
-        const position = entity.getComponent(PositionComponent);
-        position.copy(hitPoint);
-
-        const emitter = entity.getComponent(ParticleEmitterComponent);
-        emitter.color.set(0xff0000);
-        emitter.particles = 128;
-        emitter.times = 1;
-
-        world.addEntity(entity);
     }
 
     private hitscan(entity: Entity, world: World) {

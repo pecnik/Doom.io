@@ -37,6 +37,20 @@ export module EntityFactory {
         return player;
     }
 
+    export function BloodSquirt(id = uniqueId("e-"), position: Vector3) {
+        const entity = new Entity();
+        entity.id = id;
+        entity.putComponent(PositionComponent).copy(position);
+        entity.putComponent(ParticleEmitterComponent);
+
+        const emitter = entity.getComponent(ParticleEmitterComponent);
+        emitter.color.set(0xff0000);
+        emitter.particles = 128;
+        emitter.times = 1;
+
+        return entity;
+    }
+
     export function BulletDecal(
         id = uniqueId("e-"),
         position: Vector3,
