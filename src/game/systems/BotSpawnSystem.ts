@@ -4,7 +4,6 @@ import { uniqueId } from "lodash";
 import {
     AiComponent,
     HealthComponent,
-    ControllerComponent,
     ShooterComponent,
     PositionComponent,
     RotationComponent,
@@ -45,12 +44,11 @@ export class BotSpawnSystem extends System {
 
         bot.putComponent(AiComponent);
         bot.putComponent(HealthComponent);
-        // bot.putComponent(ControllerComponent);
         bot.putComponent(ShooterComponent);
         bot.putComponent(PositionComponent);
         bot.putComponent(RotationComponent);
         bot.putComponent(VelocityComponent);
-        // bot.putComponent(FootstepComponent);
+        bot.putComponent(FootstepComponent);
         bot.putComponent(Object3DComponent);
         bot.putComponent(MeshComponent);
         bot.putComponent(SoundComponent);

@@ -10,8 +10,11 @@ import {
 } from "../Components";
 import { Grid, AStarFinder } from "pathfinding";
 import { Vector2 } from "three";
-import { WALK_SPEED } from "../Globals";
+import { WALK_SPEED, RUN_SPEED } from "../Globals";
 import { ease } from "../core/Utils";
+
+const MIN_PLAYER_DIST = 3;
+const MAX_PLAYER_DIST = 9;
 
 export class BotAiSystem extends System {
     private readonly players: Family;
@@ -71,10 +74,9 @@ export class BotAiSystem extends System {
         world: World,
         playerPos: PositionComponent
     ) {
-        const MIN_DIST = 4;
         const position = bot.getComponent(PositionComponent);
         const playerDist = position.distanceToSquared(playerPos);
-        if (playerDist > MIN_DIST) {
+        if (playerDist > MIN_PLAYER_DIST) {
             return false;
         }
 
@@ -137,9 +139,11 @@ export class BotAiSystem extends System {
             return;
         }
 
+        const playerDist = position.distanceToSquared(playerPos);
+        const speed = playerDist > MAX_PLAYER_DIST ? RUN_SPEED : WALK_SPEED;
         origin.sub(target);
         origin.normalize();
-        origin.multiplyScalar(-WALK_SPEED);
+        origin.multiplyScalar(-speed);
         velocity.x = origin.x;
         velocity.z = origin.y;
 
