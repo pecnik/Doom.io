@@ -19,7 +19,9 @@ import {
     FootstepComponent,
     Object3DComponent,
     InputComponent,
-    PovComponent
+    PovComponent,
+    HealthComponent,
+    MeshComponent
 } from "./Components";
 import { SoundSystem } from "./systems/SoundSystem";
 import { FootstepSystem } from "./systems/FootstepSystem";
@@ -90,6 +92,7 @@ export class GameClient {
             player.id = "player-1";
             player.putComponent(LocalPlayerTag);
             player.putComponent(PovComponent);
+            player.putComponent(HealthComponent);
             player.putComponent(InputComponent);
             player.putComponent(Object3DComponent);
             player.putComponent(PositionComponent);
@@ -99,6 +102,7 @@ export class GameClient {
             player.putComponent(ShooterComponent);
             player.putComponent(SoundComponent);
             player.putComponent(JumpComponent);
+            player.putComponent(MeshComponent);
 
             const position = player.getComponent(PositionComponent);
             position.x = 3;
