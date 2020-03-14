@@ -71,19 +71,16 @@ export class GameClient {
 
         // Spawn entities
         const player = EntityFactory.Player();
-        const box = EntityFactory.Box();
+        const barrel = EntityFactory.Barrel();
         const block = EntityFactory.Block();
-        const meatBox = EntityFactory.MeatBox();
 
         player.getComponent(PositionComponent).set(3, 0, 3);
-        meatBox.getComponent(PositionComponent).set(11, 0, 3);
         block.getComponent(PositionComponent).set(11, 0, 5);
-        box.getComponent(PositionComponent).set(11, 0, 7);
+        barrel.getComponent(PositionComponent).set(11, 0, 7);
 
         this.world.addEntity(player);
-        this.world.addEntity(meatBox);
         this.world.addEntity(block);
-        this.world.addEntity(box);
+        this.world.addEntity(barrel);
     }
 
     public update(dt: number) {

@@ -31,21 +31,18 @@ export module EntityFactory {
     }
 
     export function Block() {
-        return new EntityBuilder()
-            .addBody()
-            .setDestructible()
-            .build();
+        const entity = new EntityBuilder().setRenderMesh().build();
+        entity.getComponent(MeshComponent).src = "/assets/models/metal_box.glb";
+        return entity;
     }
 
-    export function Box() {
-        return new EntityBuilder()
-            .addBody()
+    export function Barrel() {
+        const barrel = new EntityBuilder()
+            .setRenderMesh()
             .setDestructible()
             .build();
-    }
-
-    export function MeatBox() {
-        return new EntityBuilder().addBody().build();
+        barrel.getComponent(MeshComponent).src = "/assets/models/barrel.glb";
+        return barrel;
     }
 
     export function BloodSquirt(id = uniqueId("e-"), position: Vector3) {
@@ -99,7 +96,7 @@ export class EntityBuilder {
     private readonly entity = new Entity();
     private readonly comps = new Array<new () => Component>();
 
-    public addBody() {
+    public setRenderMesh() {
         this.comps.push(PositionComponent, Object3DComponent, MeshComponent);
         return this;
     }

@@ -7,7 +7,7 @@ import {
     MeshComponent,
     Object3DComponent
 } from "../data/Components";
-import { Mesh, MeshBasicMaterial } from "three";
+import { Mesh, MeshBasicMaterial, NearestFilter } from "three";
 
 export class MeshSystem extends System {
     private readonly family: Family;
@@ -33,7 +33,15 @@ export class MeshSystem extends System {
                     new GltfLoader().load(mesh.src, glb => {
                         glb.scene.traverse(child => {
                             if (child instanceof Mesh) {
+                                const { material } = child;
                                 mesh.mesh = child;
+                                if (
+                                    material instanceof MeshBasicMaterial &&
+                                    material.map
+                                ) {
+                                    material.map.magFilter = NearestFilter;
+                                    material.map.minFilter = NearestFilter;
+                                }
                             }
                         });
                         object.add(mesh.mesh);
