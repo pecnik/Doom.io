@@ -25,8 +25,8 @@ export class BotSpawnSystem extends System {
     }
 
     public update(world: World) {
-        if (this.family.entities.length >= 3) return;
-        if (world.elapsedTime - this.spawnTime < 5) return;
+        if (this.family.entities.length >= 1) return;
+        if (world.elapsedTime - this.spawnTime < 2) return;
 
         if (this.spawnBot(world)) {
             this.spawnTime = world.elapsedTime;
