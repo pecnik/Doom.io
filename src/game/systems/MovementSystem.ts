@@ -1,11 +1,11 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
 import { World } from "../World";
-import { modulo, lerp } from "../core/Utils";
+import { lerp } from "../core/Utils";
 import { clamp } from "lodash";
 import {
     VelocityComponent,
     RotationComponent,
-    ControllerComponent
+    InputComponent
 } from "../Components";
 import { Vector2 } from "three";
 import { RUN_SPEED, WALK_SPEED } from "../Globals";
@@ -16,7 +16,7 @@ export class MovementSystem extends System {
     public constructor(world: World) {
         super();
         this.family = new FamilyBuilder(world)
-            .include(ControllerComponent)
+            .include(InputComponent)
             .include(VelocityComponent)
             .include(RotationComponent)
             .build();
@@ -25,15 +25,15 @@ export class MovementSystem extends System {
     public update() {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
-            const controller = entity.getComponent(ControllerComponent);
+            const input = entity.getComponent(InputComponent);
             const velocity = entity.getComponent(VelocityComponent);
             const rotation = entity.getComponent(RotationComponent);
 
             // Move
-            const movement = controller.move.clone();
+            const movement = input.move.clone();
             movement.normalize();
 
-            const speed = controller.walk ? WALK_SPEED : RUN_SPEED;
+            const speed = input.walk ? WALK_SPEED : RUN_SPEED;
             movement.multiplyScalar(speed);
             if (movement.x !== 0 || movement.y !== 0) {
                 movement.rotateAround(new Vector2(), -rotation.y);
@@ -42,8 +42,6 @@ export class MovementSystem extends System {
             velocity.x = lerp(velocity.x, movement.x, RUN_SPEED / 4);
             velocity.z = lerp(velocity.z, movement.y, RUN_SPEED / 4);
 
-            // Look
-            rotation.y = modulo(rotation.y, Math.PI * 2);
             rotation.x = clamp(rotation.x, -Math.PI / 2, Math.PI / 2);
         }
     }

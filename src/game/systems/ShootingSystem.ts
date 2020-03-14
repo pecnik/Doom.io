@@ -9,7 +9,7 @@ import {
     SoundComponent,
     BulletDecalComponent,
     ParticleEmitterComponent,
-    ControllerComponent,
+    InputComponent,
     HealthComponent,
     Object3DComponent
 } from "../Components";
@@ -23,7 +23,7 @@ export class ShootingSystem extends System {
         super();
 
         this.shooterFamily = new FamilyBuilder(world)
-            .include(ControllerComponent)
+            .include(InputComponent)
             .include(PositionComponent)
             .include(VelocityComponent)
             .include(RotationComponent)
@@ -41,11 +41,11 @@ export class ShootingSystem extends System {
         for (let i = 0; i < this.shooterFamily.entities.length; i++) {
             const entity = this.shooterFamily.entities[i];
             const shooter = entity.getComponent(ShooterComponent);
-            const controller = entity.getComponent(ControllerComponent);
+            const input = entity.getComponent(InputComponent);
 
             const fireRate = 1 / 4;
             const shootDelta = elapsedTime - shooter.shootTime;
-            if (controller.shoot && shootDelta > fireRate) {
+            if (input.shoot && shootDelta > fireRate) {
                 shooter.shootTime = elapsedTime;
 
                 // Play sound
@@ -166,8 +166,9 @@ export class ShootingSystem extends System {
 
         // Entity hitscan
         for (let i = 0; i < this.targetFamily.entities.length; i++) {
-            const entity = this.targetFamily.entities[i];
-            const object3D = entity.getComponent(Object3DComponent);
+            const target = this.targetFamily.entities[i];
+            const object3D = target.getComponent(Object3DComponent);
+            if (target === entity) continue;
 
             const rays = shooter.raycaster.intersectObject(object3D, true);
             for (let i = 0; i < rays.length; i++) {
@@ -175,7 +176,7 @@ export class ShootingSystem extends System {
 
                 if (response.ray === undefined) {
                     response.ray = ray;
-                    response.entity = entity;
+                    response.entity = target;
                     continue;
                 }
 
@@ -184,7 +185,7 @@ export class ShootingSystem extends System {
                     response.ray.point.distanceToSquared(position)
                 ) {
                     response.ray = ray;
-                    response.entity = entity;
+                    response.entity = target;
                     continue;
                 }
             }

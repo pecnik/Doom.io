@@ -11,7 +11,8 @@ import {
     Object3DComponent,
     MeshComponent,
     SoundComponent,
-    FootstepComponent
+    FootstepComponent,
+    InputComponent
 } from "../Components";
 
 export class BotSpawnSystem extends System {
@@ -43,6 +44,7 @@ export class BotSpawnSystem extends System {
         bot.id = uniqueId(`bot`);
 
         bot.putComponent(AiComponent);
+        bot.putComponent(InputComponent);
         bot.putComponent(HealthComponent);
         bot.putComponent(ShooterComponent);
         bot.putComponent(PositionComponent);

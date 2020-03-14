@@ -6,14 +6,15 @@ import {
     VelocityComponent,
     RotationComponent,
     LocalPlayerTag,
-    ShooterComponent
+    ShooterComponent,
+    InputComponent
 } from "../Components";
 import { Grid, AStarFinder } from "pathfinding";
 import { Vector2 } from "three";
 import { WALK_SPEED, RUN_SPEED } from "../Globals";
 import { ease } from "../core/Utils";
 
-const MIN_PLAYER_DIST = 3;
+const MIN_PLAYER_DIST = 5;
 const MAX_PLAYER_DIST = 9;
 
 export class BotAiSystem extends System {
@@ -32,6 +33,7 @@ export class BotAiSystem extends System {
 
         this.bots = new FamilyBuilder(world)
             .include(AiComponent)
+            .include(InputComponent)
             .include(PositionComponent)
             .include(VelocityComponent)
             .include(RotationComponent)
@@ -56,15 +58,28 @@ export class BotAiSystem extends System {
         for (let i = 0; i < this.bots.entities.length; i++) {
             const bot = this.bots.entities[i];
 
-            // Reset velocity
+            const input = bot.getComponent(InputComponent);
+            const position = bot.getComponent(PositionComponent);
             const velocity = bot.getComponent(VelocityComponent);
+            const rotation = bot.getComponent(RotationComponent);
+
+            // Reset velocity
             velocity.x = 0;
             velocity.z = 0;
 
-            if (this.isPlayerInsight(bot, world, playerPos)) {
-                this.attackPlayer(bot, playerPos);
-            } else {
+            if (!this.isPlayerInsight(bot, world, playerPos)) {
                 this.followPlayer(bot, playerPos);
+                input.shoot = false;
+            } else {
+                let targetRot = Math.atan2(
+                    position.z - playerPos.z,
+                    position.x - playerPos.x
+                );
+                targetRot -= Math.PI / 2;
+                targetRot *= -1;
+
+                rotation.y = ease(rotation.y, targetRot, 0.1);
+                input.shoot = true;
             }
         }
     }
@@ -94,10 +109,6 @@ export class BotAiSystem extends System {
 
         const wallDist = intersection.point.distanceToSquared(position);
         return wallDist > playerDist;
-    }
-
-    public attackPlayer(bot: Entity, playerPos: PositionComponent) {
-        // console.group("Attack");
     }
 
     public followPlayer(bot: Entity, playerPos: PositionComponent) {
@@ -147,7 +158,13 @@ export class BotAiSystem extends System {
         velocity.x = origin.x;
         velocity.z = origin.y;
 
-        let targetRot = Math.atan2(velocity.x, velocity.z);
+        let targetRot = Math.atan2(
+            position.z - target.y,
+            position.x - target.x
+        );
+        targetRot -= Math.PI / 2;
+        targetRot *= -1;
+
         rotation.y = ease(rotation.y, targetRot, 0.1);
     }
 }

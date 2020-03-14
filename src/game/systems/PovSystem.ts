@@ -11,7 +11,7 @@ import {
 import {
     PovComponent,
     PositionComponent,
-    ControllerComponent,
+    InputComponent,
     PovAnimation,
     ShooterComponent
 } from "../Components";
@@ -25,7 +25,7 @@ export class PovSystem extends System {
 
         this.family = new FamilyBuilder(world)
             .include(PovComponent)
-            .include(ControllerComponent)
+            .include(InputComponent)
             .include(PositionComponent)
             .include(ShooterComponent)
             .build();
@@ -94,11 +94,11 @@ export class PovSystem extends System {
 
             const pov = entity.getComponent(PovComponent);
             const shooter = entity.getComponent(ShooterComponent);
-            const controller = entity.getComponent(ControllerComponent);
+            const input = entity.getComponent(InputComponent);
 
             let prevState = pov.state;
             let nextState = pov.state;
-            if (controller.move.lengthSq() < 1) {
+            if (input.move.lengthSq() < 1) {
                 nextState = PovAnimation.Idle;
             } else {
                 nextState = PovAnimation.Walk;

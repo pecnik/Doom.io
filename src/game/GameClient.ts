@@ -18,7 +18,7 @@ import {
     SoundComponent,
     FootstepComponent,
     Object3DComponent,
-    ControllerComponent,
+    InputComponent,
     PovComponent
 } from "./Components";
 import { SoundSystem } from "./systems/SoundSystem";
@@ -90,7 +90,7 @@ export class GameClient {
             player.id = "player-1";
             player.putComponent(LocalPlayerTag);
             player.putComponent(PovComponent);
-            player.putComponent(ControllerComponent);
+            player.putComponent(InputComponent);
             player.putComponent(Object3DComponent);
             player.putComponent(PositionComponent);
             player.putComponent(VelocityComponent);

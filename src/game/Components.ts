@@ -106,7 +106,7 @@ export class FootstepComponent {
     public traveled = 0;
 }
 
-export class ControllerComponent {
+export class InputComponent {
     public move = new Vector2();
     public walk = false;
     public shoot = false;
