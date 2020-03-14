@@ -28,6 +28,7 @@ import { BulletDecalSystem } from "./systems/BulletDecalSystem";
 import { ParticleSystem } from "./systems/ParticleSystem";
 import { PovSystem } from "./systems/PovSystem";
 import { InputSystem } from "./systems/InputSystem";
+import { EntityFactory } from "./data/EntityFactory";
 
 export class GameClient {
     public readonly input: Input;
@@ -68,6 +69,7 @@ export class GameClient {
     }
 
     public onStart() {
+        // Set systems
         this.world.addSystem(new InputSystem(this.world, this.input));
         this.world.addSystem(new MovementSystem(this.world));
         this.world.addSystem(new JumpingSystem(this.world));
@@ -81,32 +83,12 @@ export class GameClient {
         this.world.addSystem(new ParticleSystem(this.world));
         this.world.addSystem(new PovSystem(this.world));
 
-        // this.world.addSystem(new BotAiSystem(this.world));
-        // this.world.addSystem(new BotSpawnSystem(this.world));
-
-        {
-            // Spawn player
-            const player = new Entity();
-            player.id = "player-1";
-            player.putComponent(LocalPlayerTag);
-            player.putComponent(PovComponent);
-            player.putComponent(HealthComponent);
-            player.putComponent(InputComponent);
-            player.putComponent(Object3DComponent);
-            player.putComponent(PositionComponent);
-            player.putComponent(VelocityComponent);
-            player.putComponent(RotationComponent);
-            player.putComponent(FootstepComponent);
-            player.putComponent(ShooterComponent);
-            player.putComponent(SoundComponent);
-            player.putComponent(JumpComponent);
-
-            const position = player.getComponent(PositionComponent);
-            position.x = 3;
-            position.z = 3;
-
-            this.world.addEntity(player);
-        }
+        // Spawn player
+        const player = EntityFactory.Player();
+        const position = player.getComponent(PositionComponent);
+        position.x = 3;
+        position.z = 3;
+        this.world.addEntity(player);
     }
 
     public update(dt: number) {
