@@ -117,7 +117,7 @@ export class ParticleSystem extends System {
             // Update velocity and position
             particle.velocity.x *= 0.9;
             particle.velocity.z *= 0.9;
-            particle.velocity.y -= GRAVITY * dt * 0.01;
+            particle.velocity.y -= GRAVITY * dt * 0.02;
             particle.add(particle.velocity);
 
             // Bounce of floor
