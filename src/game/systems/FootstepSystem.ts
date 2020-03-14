@@ -3,7 +3,8 @@ import { World } from "../data/World";
 import {
     SoundComponent,
     PositionComponent,
-    FootstepComponent
+    FootstepComponent,
+    VelocityComponent
 } from "../data/Components";
 import { Vector2 } from "three";
 import { FLOOR } from "../data/Globals";
@@ -15,6 +16,7 @@ export class FootstepSystem extends System {
         super();
         this.family = new FamilyBuilder(world)
             .include(PositionComponent)
+            .include(VelocityComponent)
             .include(FootstepComponent)
             .include(SoundComponent)
             .build();
@@ -36,6 +38,7 @@ export class FootstepSystem extends System {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
             const position = entity.getComponent(PositionComponent);
+            const velocity = entity.getComponent(VelocityComponent);
             const footstep = entity.getComponent(FootstepComponent);
             const sound = entity.getComponent(SoundComponent);
 
@@ -52,7 +55,12 @@ export class FootstepSystem extends System {
                 continue;
             }
 
-            if (position.y === FLOOR && delta > 0 && footstep.traveled === 0) {
+            if (
+                position.y === FLOOR &&
+                delta > 0 &&
+                footstep.traveled === 0 &&
+                velocity.lengthSq() > 15
+            ) {
                 sound.play = true;
                 sound.src = "/assets/sounds/footstep-1.wav";
             }

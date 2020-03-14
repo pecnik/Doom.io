@@ -39,8 +39,8 @@ export class MovementSystem extends System {
                 movement.rotateAround(new Vector2(), -rotation.y);
             }
 
-            velocity.x = lerp(velocity.x, movement.x, RUN_SPEED / 4);
-            velocity.z = lerp(velocity.z, movement.y, RUN_SPEED / 4);
+            velocity.x = lerp(velocity.x, movement.x, RUN_SPEED / 8);
+            velocity.z = lerp(velocity.z, movement.y, RUN_SPEED / 8);
 
             rotation.x = clamp(rotation.x, -Math.PI / 2, Math.PI / 2);
         }
