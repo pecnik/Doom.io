@@ -1,27 +1,13 @@
 import SocketIOClient from "socket.io-client";
 import { Input } from "./core/Input";
 import { World } from "./data/World";
+import { PositionComponent } from "./data/Components";
 import { MovementSystem } from "./systems/MovementSystem";
 import { PhysicsSystem } from "./systems/PhysicsSystem";
 import { CameraSystem } from "./systems/CameraSystem";
 import { MeshSystem } from "./systems/MeshSystem";
 import { JumpingSystem } from "./systems/JumpingSystem";
 import { ShootingSystem } from "./systems/ShootingSystem";
-import { Entity } from "@nova-engine/ecs";
-import {
-    PositionComponent,
-    VelocityComponent,
-    RotationComponent,
-    LocalPlayerTag,
-    JumpComponent,
-    ShooterComponent,
-    SoundComponent,
-    FootstepComponent,
-    Object3DComponent,
-    InputComponent,
-    PovComponent,
-    HealthComponent
-} from "./data/Components";
 import { SoundSystem } from "./systems/SoundSystem";
 import { FootstepSystem } from "./systems/FootstepSystem";
 import { BulletDecalSystem } from "./systems/BulletDecalSystem";

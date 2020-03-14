@@ -7,13 +7,13 @@ import {
     RotationComponent,
     ShooterComponent,
     SoundComponent,
-    BulletDecalComponent,
     ParticleEmitterComponent,
     InputComponent,
     HealthComponent,
     Object3DComponent
 } from "../data/Components";
 import { Vector3, Intersection } from "three";
+import { EntityFactory } from "../data/EntityFactory";
 
 export class ShootingSystem extends System {
     private readonly shooterFamily: Family;
@@ -73,10 +73,12 @@ export class ShootingSystem extends System {
                     }
                 } else {
                     // Hit level wall - spawn bullet decal
-                    this.spawnBulletDecal(
-                        response.ray.point,
-                        response.ray.face.normal,
-                        world
+                    world.addEntities(
+                        EntityFactory.BulletDecal(
+                            uniqueId("decal-"),
+                            response.ray.point,
+                            response.ray.face.normal
+                        )
                     );
                 }
             }
@@ -96,43 +98,6 @@ export class ShootingSystem extends System {
         emitter.color.set(0xff0000);
         emitter.particles = 128;
         emitter.times = 1;
-
-        world.addEntity(entity);
-    }
-
-    private spawnBulletDecal(
-        hitPoint: Vector3,
-        hitNormal: Vector3,
-        world: World
-    ) {
-        const entity = new Entity();
-        entity.id = uniqueId("decal");
-        entity.putComponent(BulletDecalComponent);
-        entity.putComponent(PositionComponent);
-        entity.putComponent(ParticleEmitterComponent);
-
-        const position = entity.getComponent(PositionComponent);
-        position.copy(hitPoint);
-
-        const emitter = entity.getComponent(ParticleEmitterComponent);
-        emitter.direction.copy(hitNormal);
-        emitter.color.set(0x000000);
-        emitter.particles = 3;
-        emitter.times = 1;
-
-        const decal = entity.getComponent(BulletDecalComponent);
-        decal.spawnTime = world.elapsedTime;
-
-        if (Math.abs(hitNormal.x) === 1) {
-            decal.axis = "x";
-            decal.facing = hitNormal.x as -1 | 1;
-        } else if (Math.abs(hitNormal.y) === 1) {
-            decal.axis = "y";
-            decal.facing = hitNormal.y as -1 | 1;
-        } else if (Math.abs(hitNormal.z) === 1) {
-            decal.axis = "z";
-            decal.facing = hitNormal.z as -1 | 1;
-        }
 
         world.addEntity(entity);
     }

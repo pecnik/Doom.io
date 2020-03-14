@@ -12,8 +12,11 @@ import {
     FootstepComponent,
     ShooterComponent,
     SoundComponent,
-    JumpComponent
+    JumpComponent,
+    BulletDecalComponent,
+    ParticleEmitterComponent
 } from "./Components";
+import { Vector3 } from "three";
 
 export module EntityFactory {
     export function Player(id = uniqueId("e-")) {
@@ -32,5 +35,37 @@ export module EntityFactory {
         player.putComponent(SoundComponent);
         player.putComponent(JumpComponent);
         return player;
+    }
+
+    export function BulletDecal(
+        id = uniqueId("e-"),
+        position: Vector3,
+        normal: Vector3
+    ) {
+        const entity = new Entity();
+        entity.id = id;
+        entity.putComponent(PositionComponent).copy(position);
+        entity.putComponent(BulletDecalComponent);
+        entity.putComponent(ParticleEmitterComponent);
+
+        const emitter = entity.getComponent(ParticleEmitterComponent);
+        emitter.direction.copy(normal);
+        emitter.color.set(0x000000);
+        emitter.particles = 3;
+        emitter.times = 1;
+
+        const decal = entity.getComponent(BulletDecalComponent);
+        if (Math.abs(normal.x) === 1) {
+            decal.axis = "x";
+            decal.facing = normal.x as -1 | 1;
+        } else if (Math.abs(normal.y) === 1) {
+            decal.axis = "y";
+            decal.facing = normal.y as -1 | 1;
+        } else if (Math.abs(normal.z) === 1) {
+            decal.axis = "z";
+            decal.facing = normal.z as -1 | 1;
+        }
+
+        return entity;
     }
 }
