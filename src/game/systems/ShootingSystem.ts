@@ -9,7 +9,8 @@ import {
     SoundComponent,
     InputComponent,
     HealthComponent,
-    Object3DComponent
+    Object3DComponent,
+    MeshComponent
 } from "../data/Components";
 import { Intersection } from "three";
 import { EntityFactory } from "../data/EntityFactory";
@@ -30,8 +31,8 @@ export class ShootingSystem extends System {
             .build();
 
         this.targetFamily = new FamilyBuilder(world)
-            .include(HealthComponent)
             .include(Object3DComponent)
+            .include(MeshComponent)
             .build();
     }
 
@@ -59,8 +60,19 @@ export class ShootingSystem extends System {
                 if (!response.ray) continue;
                 if (!response.ray.face) continue;
 
-                if (response.entity) {
-                    // Hit target - kill target
+                // Hit wall
+                if (response.entity === undefined) {
+                    world.addEntities(
+                        EntityFactory.BulletDecal(
+                            uniqueId("decal-"),
+                            response.ray.point,
+                            response.ray.face.normal
+                        )
+                    );
+                    continue;
+                }
+
+                if (response.entity.hasComponent(HealthComponent)) {
                     const entity = response.entity;
                     const health = entity.getComponent(HealthComponent);
                     health.value -= 35;
@@ -77,7 +89,6 @@ export class ShootingSystem extends System {
                         world.removeEntity(entity);
                     }
                 } else {
-                    // Hit level wall - spawn bullet decal
                     world.addEntities(
                         EntityFactory.BulletDecal(
                             uniqueId("decal-"),
