@@ -20,8 +20,7 @@ import {
     Object3DComponent,
     InputComponent,
     PovComponent,
-    HealthComponent,
-    MeshComponent
+    HealthComponent
 } from "./Components";
 import { SoundSystem } from "./systems/SoundSystem";
 import { FootstepSystem } from "./systems/FootstepSystem";
@@ -29,8 +28,6 @@ import { BulletDecalSystem } from "./systems/BulletDecalSystem";
 import { ParticleSystem } from "./systems/ParticleSystem";
 import { PovSystem } from "./systems/PovSystem";
 import { InputSystem } from "./systems/InputSystem";
-import { BotAiSystem } from "./systems/BotAiSystem";
-import { BotSpawnSystem } from "./systems/BotSpawnSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -74,7 +71,6 @@ export class GameClient {
         this.world.addSystem(new InputSystem(this.world, this.input));
         this.world.addSystem(new MovementSystem(this.world));
         this.world.addSystem(new JumpingSystem(this.world));
-        this.world.addSystem(new BotAiSystem(this.world));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new ShootingSystem(this.world));
         this.world.addSystem(new FootstepSystem(this.world));
@@ -84,7 +80,9 @@ export class GameClient {
         this.world.addSystem(new BulletDecalSystem(this.world));
         this.world.addSystem(new ParticleSystem(this.world));
         this.world.addSystem(new PovSystem(this.world));
-        this.world.addSystem(new BotSpawnSystem(this.world));
+
+        // this.world.addSystem(new BotAiSystem(this.world));
+        // this.world.addSystem(new BotSpawnSystem(this.world));
 
         {
             // Spawn player
@@ -102,7 +100,6 @@ export class GameClient {
             player.putComponent(ShooterComponent);
             player.putComponent(SoundComponent);
             player.putComponent(JumpComponent);
-            player.putComponent(MeshComponent);
 
             const position = player.getComponent(PositionComponent);
             position.x = 3;
