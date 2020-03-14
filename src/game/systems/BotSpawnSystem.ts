@@ -1,5 +1,5 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
-import { World } from "../World";
+import { World } from "../data/World";
 import { uniqueId } from "lodash";
 import {
     AiComponent,
@@ -13,7 +13,7 @@ import {
     SoundComponent,
     FootstepComponent,
     InputComponent
-} from "../Components";
+} from "../data/Components";
 
 export class BotSpawnSystem extends System {
     private readonly family: Family;

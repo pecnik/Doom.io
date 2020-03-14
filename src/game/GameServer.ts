@@ -1,7 +1,7 @@
 import SocketIO from "socket.io";
 import { uniqueId } from "lodash";
 import { Clock } from "three";
-import { World } from "./World";
+import { World } from "./data/World";
 
 export class GameServer {
     private readonly io: SocketIO.Server;

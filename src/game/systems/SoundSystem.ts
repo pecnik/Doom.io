@@ -1,7 +1,7 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
 import { memoize } from "lodash";
-import { World } from "../World";
-import { SoundComponent, Object3DComponent } from "../Components";
+import { World } from "../data/World";
+import { SoundComponent, Object3DComponent } from "../data/Components";
 import { AudioListener, AudioLoader, PositionalAudio } from "three";
 
 export class SoundSystem extends System {

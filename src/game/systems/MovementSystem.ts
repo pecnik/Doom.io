@@ -1,14 +1,14 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
-import { World } from "../World";
+import { World } from "../data/World";
 import { lerp } from "../core/Utils";
 import { clamp } from "lodash";
 import {
     VelocityComponent,
     RotationComponent,
     InputComponent
-} from "../Components";
+} from "../data/Components";
 import { Vector2 } from "three";
-import { RUN_SPEED, WALK_SPEED } from "../Globals";
+import { RUN_SPEED, WALK_SPEED } from "../data/Globals";
 
 export class MovementSystem extends System {
     private readonly family: Family;

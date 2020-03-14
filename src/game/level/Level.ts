@@ -16,11 +16,25 @@ import {
 } from "three";
 import { clamp } from "lodash";
 import { degToRad } from "../core/Utils";
-import { LevelCell } from "./LevelCell";
+
+export interface Cell {
+    readonly index: number;
+    readonly x: number;
+    readonly y: number;
+    readonly z: number;
+    readonly ceil: boolean;
+    readonly wall: boolean;
+    readonly floor: boolean;
+    readonly ceilId: number;
+    readonly wallId: number;
+    readonly floorId: number;
+    readonly light: Color;
+    readonly aabb: Box3;
+}
 
 export class Level {
     public readonly scene = new Scene();
-    public readonly cells: LevelCell[] = [];
+    public readonly cells: Cell[] = [];
     public rows = 0;
     public cols = 0;
 
@@ -43,13 +57,13 @@ export class Level {
         });
     }
 
-    public getCell(x: number, z: number): LevelCell | undefined {
+    public getCell(x: number, z: number): Cell | undefined {
         const index = z * this.cols + x;
         const cell = this.cells[index];
         return cell;
     }
 
-    public getCellAt(vec: Vector3): LevelCell | undefined {
+    public getCellAt(vec: Vector3): Cell | undefined {
         const x = Math.round(vec.x);
         const z = Math.round(vec.z);
         return this.getCell(x, z);
@@ -63,7 +77,7 @@ export class Level {
         const length = this.rows * this.cols;
         this.cells.length = 0;
         for (let i = 0; i < length; i++) {
-            const cell: LevelCell = {
+            const cell: Cell = {
                 index: i,
                 x: i % this.cols,
                 y: 0,

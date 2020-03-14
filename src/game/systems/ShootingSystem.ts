@@ -1,6 +1,6 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
 import { random, uniqueId } from "lodash";
-import { World } from "../World";
+import { World } from "../data/World";
 import {
     PositionComponent,
     VelocityComponent,
@@ -12,7 +12,7 @@ import {
     InputComponent,
     HealthComponent,
     Object3DComponent
-} from "../Components";
+} from "../data/Components";
 import { Vector3, Intersection } from "three";
 
 export class ShootingSystem extends System {

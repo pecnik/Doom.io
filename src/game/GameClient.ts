@@ -1,6 +1,6 @@
 import SocketIOClient from "socket.io-client";
 import { Input } from "./core/Input";
-import { World } from "./World";
+import { World } from "./data/World";
 import { MovementSystem } from "./systems/MovementSystem";
 import { PhysicsSystem } from "./systems/PhysicsSystem";
 import { CameraSystem } from "./systems/CameraSystem";
@@ -21,7 +21,7 @@ import {
     InputComponent,
     PovComponent,
     HealthComponent
-} from "./Components";
+} from "./data/Components";
 import { SoundSystem } from "./systems/SoundSystem";
 import { FootstepSystem } from "./systems/FootstepSystem";
 import { BulletDecalSystem } from "./systems/BulletDecalSystem";

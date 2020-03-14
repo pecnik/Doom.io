@@ -1,12 +1,12 @@
 import GltfLoader from "three-gltf-loader";
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
-import { World } from "../World";
+import { World } from "../data/World";
 import {
     RotationComponent,
     PositionComponent,
     MeshComponent,
     Object3DComponent
-} from "../Components";
+} from "../data/Components";
 import { Mesh, MeshBasicMaterial } from "three";
 
 export class MeshSystem extends System {

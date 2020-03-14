@@ -1,11 +1,11 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
-import { World } from "../World";
+import { World } from "../data/World";
 import { Input, KeyCode, MouseBtn } from "../core/Input";
 import {
     LocalPlayerTag,
     InputComponent,
     RotationComponent
-} from "../Components";
+} from "../data/Components";
 
 export class InputSystem extends System {
     private readonly family: Family;

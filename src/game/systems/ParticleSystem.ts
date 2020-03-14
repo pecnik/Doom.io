@@ -1,7 +1,10 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
-import { World } from "../World";
+import { World } from "../data/World";
 import { random } from "lodash";
-import { ParticleEmitterComponent, PositionComponent } from "../Components";
+import {
+    ParticleEmitterComponent,
+    PositionComponent
+} from "../data/Components";
 import {
     Geometry,
     PointsMaterial,
@@ -10,7 +13,7 @@ import {
     Color,
     VertexColors
 } from "three";
-import { GRAVITY } from "../Globals";
+import { GRAVITY } from "../data/Globals";
 
 class Particle extends Vector3 {
     public readonly velocity = new Vector3();

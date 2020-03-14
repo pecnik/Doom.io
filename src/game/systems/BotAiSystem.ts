@@ -1,5 +1,5 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
-import { World } from "../World";
+import { World } from "../data/World";
 import {
     PositionComponent,
     AiComponent,
@@ -8,10 +8,10 @@ import {
     LocalPlayerTag,
     ShooterComponent,
     InputComponent
-} from "../Components";
+} from "../data/Components";
 import { Grid, AStarFinder } from "pathfinding";
 import { Vector2 } from "three";
-import { WALK_SPEED, RUN_SPEED } from "../Globals";
+import { WALK_SPEED, RUN_SPEED } from "../data/Globals";
 import { ease } from "../core/Utils";
 
 const MIN_PLAYER_DIST = 5;

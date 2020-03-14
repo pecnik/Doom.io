@@ -1,12 +1,12 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
-import { World } from "../World";
+import { World } from "../data/World";
 import {
     SoundComponent,
     PositionComponent,
     FootstepComponent
-} from "../Components";
+} from "../data/Components";
 import { Vector2 } from "three";
-import { FLOOR } from "../Globals";
+import { FLOOR } from "../data/Globals";
 
 export class FootstepSystem extends System {
     private readonly family: Family;

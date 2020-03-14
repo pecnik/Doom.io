@@ -1,12 +1,12 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
-import { World } from "../World";
+import { World } from "../data/World";
 import {
     VelocityComponent,
     RotationComponent,
     PositionComponent,
     LocalPlayerTag,
     InputComponent
-} from "../Components";
+} from "../data/Components";
 
 export class CameraSystem extends System {
     private readonly family: Family;

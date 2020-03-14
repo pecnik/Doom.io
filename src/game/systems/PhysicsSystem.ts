@@ -1,9 +1,9 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
-import { World } from "../World";
-import { VelocityComponent, PositionComponent } from "../Components";
+import { World } from "../data/World";
+import { VelocityComponent, PositionComponent } from "../data/Components";
 import { Vector2 } from "three";
 import { clamp } from "lodash";
-import { GRAVITY, FLOOR, CEIL } from "../Globals";
+import { GRAVITY, FLOOR, CEIL } from "../data/Globals";
 
 export class PhysicsSystem extends System {
     private readonly family: Family;

@@ -1,5 +1,5 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
-import { World } from "../World";
+import { World } from "../data/World";
 import {
     TextureLoader,
     Sprite,
@@ -14,7 +14,7 @@ import {
     InputComponent,
     PovAnimation,
     ShooterComponent
-} from "../Components";
+} from "../data/Components";
 import { lerp, ease } from "../core/Utils";
 
 export class PovSystem extends System {

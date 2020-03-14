@@ -1,12 +1,12 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
-import { World } from "../World";
+import { World } from "../data/World";
 import {
     PositionComponent,
     VelocityComponent,
     JumpComponent,
     InputComponent
-} from "../Components";
-import { JUMP_SPEED, FLOOR } from "../Globals";
+} from "../data/Components";
+import { JUMP_SPEED, FLOOR } from "../data/Globals";
 
 export class JumpingSystem extends System {
     private readonly family: Family;

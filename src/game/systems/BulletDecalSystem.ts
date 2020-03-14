@@ -1,6 +1,6 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
-import { World } from "../World";
-import { PositionComponent, BulletDecalComponent } from "../Components";
+import { World } from "../data/World";
+import { PositionComponent, BulletDecalComponent } from "../data/Components";
 import {
     Group,
     Mesh,
