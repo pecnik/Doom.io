@@ -8,7 +8,8 @@ import {
     Mesh,
     Vector3,
     Color,
-    Sprite
+    Sprite,
+    Box3
 } from "three";
 
 export class LocalPlayerTag implements Component {
@@ -114,4 +115,8 @@ export class InputComponent {
     public shoot = false;
     public scope = false;
     public jump: -1 | 0 | 1 = 0;
+}
+
+export class ColliderComponent {
+    public box = new Box3();
 }

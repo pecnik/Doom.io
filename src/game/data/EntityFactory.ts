@@ -15,15 +15,15 @@ import {
     JumpComponent,
     BulletDecalComponent,
     ParticleEmitterComponent,
-    MeshComponent
+    MeshComponent,
+    ColliderComponent
 } from "./Components";
 import { Vector3 } from "three";
 
 export module EntityFactory {
     export function Player() {
         return new EntityBuilder()
-            .setLocalPlayer()
-            .setFpsControls()
+            .setPlayer()
             .setShooter()
             .setPhysicsBody()
             .setDestructible()
@@ -96,23 +96,9 @@ export class EntityBuilder {
     private readonly entity = new Entity();
     private readonly comps = new Array<new () => Component>();
 
-    public setRenderMesh() {
-        this.comps.push(PositionComponent, Object3DComponent, MeshComponent);
-        return this;
-    }
-
-    public setLocalPlayer() {
-        this.comps.push(LocalPlayerTag);
-        return this;
-    }
-
-    public setShooter() {
-        this.comps.push(ShooterComponent, SoundComponent);
-        return this;
-    }
-
-    public setFpsControls() {
+    public setPlayer() {
         this.comps.push(
+            LocalPlayerTag,
             PovComponent,
             InputComponent,
             JumpComponent,
@@ -120,6 +106,26 @@ export class EntityBuilder {
             VelocityComponent,
             FootstepComponent
         );
+        return this;
+    }
+
+    public setCollidable() {
+        this.comps.push(
+            PositionComponent,
+            Object3DComponent,
+            ColliderComponent,
+            MeshComponent
+        );
+        return this;
+    }
+
+    public setRenderMesh() {
+        this.comps.push(PositionComponent, Object3DComponent, MeshComponent);
+        return this;
+    }
+
+    public setShooter() {
+        this.comps.push(ShooterComponent, SoundComponent);
         return this;
     }
 

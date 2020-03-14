@@ -1,18 +1,31 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
 import { World } from "../data/World";
-import { VelocityComponent, PositionComponent } from "../data/Components";
-import { Vector2 } from "three";
+import {
+    VelocityComponent,
+    PositionComponent,
+    ColliderComponent,
+    MeshComponent
+} from "../data/Components";
+import { Vector2, Vector3 } from "three";
 import { clamp } from "lodash";
 import { GRAVITY, FLOOR, CEIL } from "../data/Globals";
 
 export class PhysicsSystem extends System {
     private readonly family: Family;
+    private readonly blocks: Family;
 
     public constructor(world: World) {
         super();
+
         this.family = new FamilyBuilder(world)
             .include(PositionComponent)
             .include(VelocityComponent)
+            .build();
+
+        this.blocks = new FamilyBuilder(world)
+            .include(PositionComponent)
+            .include(ColliderComponent)
+            .include(MeshComponent)
             .build();
     }
 
@@ -26,8 +39,8 @@ export class PhysicsSystem extends System {
             velocity.y -= GRAVITY * dt;
 
             // Apply velocity
-            const prevPos = { ...position };
-            const nextPos = { ...position };
+            const prevPos = new Vector3().copy(position);
+            const nextPos = new Vector3().copy(position);
             nextPos.x += velocity.x * dt;
             nextPos.y += velocity.y * dt;
             nextPos.z += velocity.z * dt;
@@ -54,14 +67,16 @@ export class PhysicsSystem extends System {
                     if (cell === undefined) continue;
                     if (cell.wall === false) continue;
 
+                    const { aabb } = cell;
+
                     // Test horizontal collision
                     const body = new Vector2();
                     body.x = nextPos.x;
                     body.y = nextPos.z;
 
                     const coll = new Vector2();
-                    coll.x = clamp(body.x, cell.aabb.min.x, cell.aabb.max.x);
-                    coll.y = clamp(body.y, cell.aabb.min.z, cell.aabb.max.z);
+                    coll.x = clamp(body.x, aabb.min.x, aabb.max.x);
+                    coll.y = clamp(body.y, aabb.min.z, aabb.max.z);
 
                     // Resolve horizontal collision
                     const radius = 0.2;
@@ -73,17 +88,11 @@ export class PhysicsSystem extends System {
                         nextPos.x = body.x;
                         nextPos.z = body.y;
 
-                        if (
-                            body.x > cell.aabb.min.x &&
-                            body.x < cell.aabb.max.x
-                        ) {
+                        if (body.x > aabb.min.x && body.x < aabb.max.x) {
                             velocity.z = 0;
                         }
 
-                        if (
-                            body.y > cell.aabb.min.y &&
-                            body.y < cell.aabb.max.y
-                        ) {
+                        if (body.y > aabb.min.y && body.y < aabb.max.y) {
                             velocity.x = 0;
                         }
                     }

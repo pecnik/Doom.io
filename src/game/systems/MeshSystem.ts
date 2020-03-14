@@ -5,7 +5,8 @@ import {
     RotationComponent,
     PositionComponent,
     MeshComponent,
-    Object3DComponent
+    Object3DComponent,
+    ColliderComponent
 } from "../data/Components";
 import { Mesh, MeshBasicMaterial, NearestFilter } from "three";
 
@@ -46,6 +47,17 @@ export class MeshSystem extends System {
                         });
 
                         mesh.mesh.position.y = -0.5;
+
+                        if (entity.hasComponent(ColliderComponent)) {
+                            const collider = entity.getComponent(
+                                ColliderComponent
+                            );
+
+                            mesh.mesh.geometry.computeBoundingBox();
+                            collider.box = mesh.mesh.geometry.boundingBox.clone();
+                            collider.box.min.add(object.position);
+                            collider.box.max.add(object.position);
+                        }
 
                         object.add(mesh.mesh);
                     });
