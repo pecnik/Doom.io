@@ -118,5 +118,5 @@ export class InputComponent {
 }
 
 export class ColliderComponent {
-    public box = new Box3();
+    public aabb = new Box3();
 }

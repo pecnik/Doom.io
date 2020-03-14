@@ -31,7 +31,10 @@ export module EntityFactory {
     }
 
     export function Block() {
-        const entity = new EntityBuilder().setRenderMesh().build();
+        const entity = new EntityBuilder()
+            .setCollidable()
+            .setRenderMesh()
+            .build();
         entity.getComponent(MeshComponent).src = "/assets/models/metal_box.glb";
         return entity;
     }
@@ -39,6 +42,7 @@ export module EntityFactory {
     export function Barrel() {
         const barrel = new EntityBuilder()
             .setRenderMesh()
+            .setCollidable()
             .setDestructible()
             .build();
         barrel.getComponent(MeshComponent).src = "/assets/models/barrel.glb";

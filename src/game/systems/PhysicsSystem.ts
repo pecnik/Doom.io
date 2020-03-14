@@ -6,7 +6,7 @@ import {
     ColliderComponent,
     MeshComponent
 } from "../data/Components";
-import { Vector2, Vector3 } from "three";
+import { Vector2, Vector3, Box3 } from "three";
 import { clamp } from "lodash";
 import { GRAVITY, FLOOR, CEIL } from "../data/Globals";
 
@@ -56,6 +56,13 @@ export class PhysicsSystem extends System {
                 velocity.y = 0;
             }
 
+            // Block collision
+            for (let i = 0; i < this.blocks.entities.length; i++) {
+                const block = this.blocks.entities[i];
+                const collider = block.getComponent(ColliderComponent);
+                this.resolveCollision(collider.aabb, nextPos, velocity);
+            }
+
             // Level collision
             const minX = Math.floor(Math.min(prevPos.x, nextPos.x)) - 1;
             const minZ = Math.floor(Math.min(prevPos.z, nextPos.z)) - 1;
@@ -64,37 +71,8 @@ export class PhysicsSystem extends System {
             for (let z = minZ; z < maxZ; z++) {
                 for (let x = minX; x < maxX; x++) {
                     const cell = world.level.getCell(x, z);
-                    if (cell === undefined) continue;
-                    if (cell.wall === false) continue;
-
-                    const { aabb } = cell;
-
-                    // Test horizontal collision
-                    const body = new Vector2();
-                    body.x = nextPos.x;
-                    body.y = nextPos.z;
-
-                    const coll = new Vector2();
-                    coll.x = clamp(body.x, aabb.min.x, aabb.max.x);
-                    coll.y = clamp(body.y, aabb.min.z, aabb.max.z);
-
-                    // Resolve horizontal collision
-                    const radius = 0.2;
-                    if (body.distanceToSquared(coll) < radius ** 2) {
-                        body.sub(coll)
-                            .normalize()
-                            .multiplyScalar(radius)
-                            .add(coll);
-                        nextPos.x = body.x;
-                        nextPos.z = body.y;
-
-                        if (body.x > aabb.min.x && body.x < aabb.max.x) {
-                            velocity.z = 0;
-                        }
-
-                        if (body.y > aabb.min.y && body.y < aabb.max.y) {
-                            velocity.x = 0;
-                        }
+                    if (cell !== undefined && cell.wall) {
+                        this.resolveCollision(cell.aabb, nextPos, velocity);
                     }
                 }
             }
@@ -103,6 +81,41 @@ export class PhysicsSystem extends System {
             position.x = nextPos.x;
             position.y = nextPos.y;
             position.z = nextPos.z;
+        }
+    }
+
+    private resolveCollision(
+        aabb: Box3,
+        nextPos: Vector3,
+        velocity: VelocityComponent
+    ) {
+        // Test horizontal collision
+        const body = new Vector2();
+        body.x = nextPos.x;
+        body.y = nextPos.z;
+
+        const coll = new Vector2();
+        coll.x = clamp(body.x, aabb.min.x, aabb.max.x);
+        coll.y = clamp(body.y, aabb.min.z, aabb.max.z);
+
+        // Resolve horizontal collision
+        const radius = 0.2;
+        if (body.distanceToSquared(coll) < radius ** 2) {
+            body.sub(coll)
+                .normalize()
+                .multiplyScalar(radius)
+                .add(coll);
+
+            nextPos.x = body.x;
+            nextPos.z = body.y;
+
+            if (body.x > aabb.min.x && body.x < aabb.max.x) {
+                velocity.z = 0;
+            }
+
+            if (body.y > aabb.min.y && body.y < aabb.max.y) {
+                velocity.x = 0;
+            }
         }
     }
 }

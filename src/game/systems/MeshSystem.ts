@@ -54,9 +54,11 @@ export class MeshSystem extends System {
                             );
 
                             mesh.mesh.geometry.computeBoundingBox();
-                            collider.box = mesh.mesh.geometry.boundingBox.clone();
-                            collider.box.min.add(object.position);
-                            collider.box.max.add(object.position);
+                            collider.aabb = mesh.mesh.geometry.boundingBox.clone();
+                            collider.aabb.min.add(object.position);
+                            collider.aabb.max.add(object.position);
+
+                            console.log(collider.aabb);
                         }
 
                         object.add(mesh.mesh);
