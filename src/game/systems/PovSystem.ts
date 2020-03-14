@@ -13,7 +13,8 @@ import {
     PositionComponent,
     InputComponent,
     PovAnimation,
-    ShooterComponent
+    ShooterComponent,
+    VelocityComponent
 } from "../data/Components";
 import { lerp, ease } from "../core/Utils";
 
@@ -93,16 +94,12 @@ export class PovSystem extends System {
             this.updateLight(entity, world);
 
             const pov = entity.getComponent(PovComponent);
-            const shooter = entity.getComponent(ShooterComponent);
             const input = entity.getComponent(InputComponent);
+            const velocity = entity.getComponent(VelocityComponent);
+            const shooter = entity.getComponent(ShooterComponent);
 
-            let prevState = pov.state;
-            let nextState = pov.state;
-            if (input.move.lengthSq() < 1) {
-                nextState = PovAnimation.Idle;
-            } else {
-                nextState = PovAnimation.Walk;
-            }
+            const prevState = pov.state;
+            const nextState = this.getNextState(pov, input, velocity);
 
             if (pov.transition > 0) {
                 pov.transition = lerp(pov.transition, 0, 0.05);
@@ -133,6 +130,27 @@ export class PovSystem extends System {
         }
     }
 
+    private getNextState(
+        pov: PovComponent,
+        input: InputComponent,
+        velocity: VelocityComponent
+    ) {
+        let nextState = pov.state;
+        if (input.move.lengthSq() < 1) {
+            nextState = PovAnimation.Idle;
+        } else {
+            nextState = PovAnimation.Walk;
+        }
+
+        if (velocity.y > 0) {
+            nextState = PovAnimation.Jump;
+        } else if (velocity.y < 0) {
+            nextState = PovAnimation.Fall;
+        }
+
+        return nextState;
+    }
+
     private getAnimationFrame(pov: PovComponent, elapsed: number) {
         const frame = new Vector3();
         frame.x = 0.75;
@@ -143,6 +161,11 @@ export class PovSystem extends System {
                 elapsed *= 10;
                 frame.y += Math.abs(Math.sin(elapsed) * 0.05);
                 frame.x += Math.cos(elapsed) * 0.05;
+                break;
+
+            case PovAnimation.Jump:
+            case PovAnimation.Fall:
+                frame.y += 0.125;
                 break;
 
             case PovAnimation.Idle:

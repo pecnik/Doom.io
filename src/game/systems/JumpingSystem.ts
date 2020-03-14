@@ -44,10 +44,10 @@ export class JumpingSystem extends System {
                 velocity.y = JUMP_SPEED;
             }
 
-            // Halt jump
-            if (input.jump === -1) {
-                velocity.y *= 0.5;
-            }
+            // // Halt jump
+            // if (input.jump === -1) {
+            //     velocity.y *= 0.5;
+            // }
         }
     }
 }

@@ -27,7 +27,9 @@ export class AiComponent implements Component {
 
 export enum PovAnimation {
     Idle,
-    Walk
+    Walk,
+    Jump,
+    Fall
 }
 
 export class PovComponent implements Component {
