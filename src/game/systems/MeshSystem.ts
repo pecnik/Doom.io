@@ -44,6 +44,9 @@ export class MeshSystem extends System {
                                 }
                             }
                         });
+
+                        mesh.mesh.position.y = -0.5;
+
                         object.add(mesh.mesh);
                     });
                 }
