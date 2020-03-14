@@ -14,7 +14,8 @@ import {
     SoundComponent,
     JumpComponent,
     BulletDecalComponent,
-    ParticleEmitterComponent
+    ParticleEmitterComponent,
+    MeshComponent
 } from "./Components";
 import { Vector3 } from "three";
 
@@ -35,6 +36,33 @@ export module EntityFactory {
         player.putComponent(SoundComponent);
         player.putComponent(JumpComponent);
         return player;
+    }
+
+    export function Block(id = uniqueId("e-")) {
+        const entity = new Entity();
+        entity.id = id;
+        entity.putComponent(PositionComponent);
+        entity.putComponent(Object3DComponent);
+        entity.putComponent(MeshComponent);
+        return entity;
+    }
+
+    export function Box(id = uniqueId("e-")) {
+        const entity = new Entity();
+        entity.id = id;
+        entity.putComponent(PositionComponent);
+        entity.putComponent(Object3DComponent);
+        entity.putComponent(MeshComponent);
+        return entity;
+    }
+
+    export function MeatBox(id = uniqueId("e-")) {
+        const entity = new Entity();
+        entity.id = id;
+        entity.putComponent(PositionComponent);
+        entity.putComponent(Object3DComponent);
+        entity.putComponent(MeshComponent);
+        return entity;
     }
 
     export function BloodSquirt(id = uniqueId("e-"), position: Vector3) {
