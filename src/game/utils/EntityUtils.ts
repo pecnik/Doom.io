@@ -45,9 +45,9 @@ export function loadRenderMesh(entity: Entity, src: string) {
 
                 if (child instanceof Mesh) {
                     if (child.material instanceof MeshBasicMaterial) {
-                        render.obj.add(child);
                         render.mat = child.material;
                         render.geo = child.geometry;
+                        render.obj.add(child);
                     }
                 }
             });

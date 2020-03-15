@@ -31,12 +31,22 @@ export class RenderSystem extends System {
         });
     }
 
-    public update() {
+    public update(world: World) {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
             const render = entity.getComponent(Comp.Render);
             const position = entity.getComponent(Comp.Position2D);
             render.obj.position.set(position.x, -0.5, position.y);
+
+            const cell = world.level.getCell(
+                Math.round(position.x),
+                Math.round(position.y)
+            );
+
+            if (cell !== undefined && !render.mat.color.equals(cell.light)) {
+                render.mat.color.lerp(cell.light, 0.125);
+                render.mat.needsUpdate = true;
+            }
         }
     }
 }

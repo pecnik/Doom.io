@@ -69,9 +69,13 @@ export class GameClient {
         player.getComponent(Comp.Position2D).set(3, 3);
         this.world.addEntity(player);
 
-        const wall = EntityFactory.Wall();
-        wall.getComponent(Comp.Position2D).set(11, 3);
-        this.world.addEntity(wall);
+        const wall1 = EntityFactory.Wall();
+        wall1.getComponent(Comp.Position2D).set(11, 3);
+        this.world.addEntity(wall1);
+
+        const wall2 = EntityFactory.Wall();
+        wall2.getComponent(Comp.Position2D).set(3, 4);
+        this.world.addEntity(wall2);
     }
 
     public update(dt: number) {

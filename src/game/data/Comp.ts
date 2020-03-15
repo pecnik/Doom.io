@@ -6,7 +6,9 @@ import {
     MeshBasicMaterial,
     BufferGeometry,
     Box2,
-    PositionalAudio
+    PositionalAudio,
+    Mesh,
+    Color
 } from "three";
 
 export module Comp {
@@ -40,12 +42,11 @@ export module Comp {
     }
 
     export class Render implements Component {
-        public static NULL_OBJ: Object3D = new Object3D();
-        public static NULL_GEO: Geometry | BufferGeometry = new Geometry();
-        public static NULL_MAT: MeshBasicMaterial = new MeshBasicMaterial();
-        public obj = Render.NULL_OBJ;
-        public geo = Render.NULL_GEO;
-        public mat = Render.NULL_MAT;
+        public static Geo: Geometry | BufferGeometry = new Geometry();
+        public static Mat: MeshBasicMaterial = new MeshBasicMaterial();
+        public obj = new Object3D();
+        public geo = Render.Geo;
+        public mat = Render.Mat;
     }
 
     export class Footstep implements Component {
