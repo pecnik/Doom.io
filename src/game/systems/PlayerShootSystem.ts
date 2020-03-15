@@ -2,6 +2,7 @@ import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { Hitscan } from "../utils/EntityUtils";
+import { Color } from "three";
 
 export class PlayerShootSystem extends System {
     private readonly targets: Family;
@@ -49,9 +50,14 @@ export class PlayerShootSystem extends System {
                     return;
                 }
 
-                if (rsp.entity === undefined && rsp.intersection.face) {
+                if (rsp.intersection.face) {
                     const { point, face } = rsp.intersection;
                     world.decals.spawn(point, face.normal);
+                    world.particles.emit(
+                        point,
+                        face.normal,
+                        new Color(0, 0, 0)
+                    );
                     return;
                 }
             }
