@@ -1,20 +1,6 @@
 import SocketIOClient from "socket.io-client";
 import { Input } from "./core/Input";
 import { World } from "./data/World";
-import { PositionComponent } from "./data/Components";
-import { MovementSystem } from "./systems/MovementSystem";
-import { PhysicsSystem } from "./systems/PhysicsSystem";
-import { CameraSystem } from "./systems/CameraSystem";
-import { MeshSystem } from "./systems/MeshSystem";
-import { JumpingSystem } from "./systems/JumpingSystem";
-import { ShootingSystem } from "./systems/ShootingSystem";
-import { SoundSystem } from "./systems/SoundSystem";
-import { FootstepSystem } from "./systems/FootstepSystem";
-import { BulletDecalSystem } from "./systems/BulletDecalSystem";
-import { ParticleSystem } from "./systems/ParticleSystem";
-import { PovSystem } from "./systems/PovSystem";
-import { InputSystem } from "./systems/InputSystem";
-import { EntityFactory } from "./data/EntityFactory";
 
 export class GameClient {
     public readonly input: Input;
@@ -55,32 +41,7 @@ export class GameClient {
     }
 
     public onStart() {
-        // Set systems
-        this.world.addSystem(new InputSystem(this.world, this.input));
-        this.world.addSystem(new MovementSystem(this.world));
-        this.world.addSystem(new JumpingSystem(this.world));
-        this.world.addSystem(new PhysicsSystem(this.world));
-        this.world.addSystem(new ShootingSystem(this.world));
-        this.world.addSystem(new FootstepSystem(this.world));
-        this.world.addSystem(new MeshSystem(this.world));
-        this.world.addSystem(new CameraSystem(this.world));
-        this.world.addSystem(new SoundSystem(this.world));
-        this.world.addSystem(new BulletDecalSystem(this.world));
-        this.world.addSystem(new ParticleSystem(this.world));
-        this.world.addSystem(new PovSystem(this.world));
-
-        // Spawn entities
-        const player = EntityFactory.Player();
-        const barrel = EntityFactory.Barrel();
-        const block = EntityFactory.Block();
-
-        player.getComponent(PositionComponent).set(3, 0, 3);
-        block.getComponent(PositionComponent).set(11, 0, 5);
-        barrel.getComponent(PositionComponent).set(11, 0, 7);
-
-        this.world.addEntity(player);
-        this.world.addEntity(block);
-        this.world.addEntity(barrel);
+        // ...
     }
 
     public update(dt: number) {
