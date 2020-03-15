@@ -1,6 +1,6 @@
 import GLTFLoader from "three-gltf-loader";
 import { Entity, Family, EngineEntityListener } from "@nova-engine/ecs";
-import { Comp } from "./Comp";
+import { Comp } from "../data/Comp";
 import {
     Mesh,
     MeshBasicMaterial,
@@ -10,7 +10,7 @@ import {
     Vector2,
     Intersection
 } from "three";
-import { World } from "./World";
+import { World } from "../data/World";
 
 export function onFamilyChange(
     world: World,

@@ -3,7 +3,7 @@ import { Input } from "./core/Input";
 import { World } from "./data/World";
 import { PlayerInputSystem } from "./systems/PlayerInputSystem";
 import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
-import { EntityFactory } from "./data/EntityFactory";
+import { EntityFactory } from "./utils/EntityFactory";
 import { Comp } from "./data/Comp";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
 import { CollisionSystem } from "./systems/CollisionSystem";

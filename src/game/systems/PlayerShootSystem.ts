@@ -1,7 +1,7 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
-import { Hitscan } from "../data/EntityUtils";
+import { Hitscan } from "../utils/EntityUtils";
 
 export class PlayerShootSystem extends System {
     private readonly targets: Family;

@@ -1,4 +1,4 @@
-import { Tiled2D } from "./Tiled2D";
+import { Tiled2D } from "../utils/Tiled2D";
 import {
     Scene,
     PlaneGeometry,

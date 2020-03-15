@@ -3,7 +3,7 @@ import { AudioListener, Group, PositionalAudio, AudioLoader } from "three";
 import { random } from "lodash";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
-import { onFamilyChange } from "../data/EntityUtils";
+import { onFamilyChange } from "../utils/EntityUtils";
 
 export class FootstepSystem extends System {
     private readonly family: Family;

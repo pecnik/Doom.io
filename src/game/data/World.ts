@@ -1,6 +1,6 @@
 import { Engine } from "@nova-engine/ecs";
 import { Scene, PerspectiveCamera } from "three";
-import { Level } from "../level/Level";
+import { Level } from "./Level";
 
 export class World extends Engine {
     public readonly level = new Level();

@@ -2,7 +2,7 @@ import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
 import { Group } from "three";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
-import { onFamilyChange } from "../data/EntityUtils";
+import { onFamilyChange } from "../utils/EntityUtils";
 
 export class RenderSystem extends System {
     private readonly family: Family;
