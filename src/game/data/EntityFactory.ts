@@ -1,6 +1,7 @@
 import { Entity } from "@nova-engine/ecs";
 import { uniqueId } from "lodash";
 import { Comp } from "./Comp";
+import { setRenderMesh } from "./EntityUtils";
 
 export module EntityFactory {
     const nextID = () => uniqueId("e");
@@ -22,5 +23,15 @@ export module EntityFactory {
 
     export function Decal() {}
 
-    export function Wall() {}
+    export function Wall() {
+        const entity = new Entity();
+        entity.id = nextID();
+
+        entity.putComponent(Comp.Position2D);
+        entity.putComponent(Comp.Render);
+
+        setRenderMesh(entity, "/assets/models/metal_box.glb");
+
+        return entity;
+    }
 }

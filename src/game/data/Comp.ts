@@ -1,5 +1,11 @@
 import { Component } from "@nova-engine/ecs";
-import { Vector2, Object3D, Geometry, MeshBasicMaterial } from "three";
+import {
+    Vector2,
+    Object3D,
+    Geometry,
+    MeshBasicMaterial,
+    BufferGeometry
+} from "three";
 
 export module Comp {
     export class Position2D extends Vector2 implements Component {}
@@ -30,10 +36,10 @@ export module Comp {
     }
 
     export class Render implements Component {
-        public static NULL_OBJ = new Object3D();
-        public static NULL_GEO = new Geometry();
-        public static NULL_MAT = new MeshBasicMaterial();
-        public obj = Render.NULL_GEO;
+        public static NULL_OBJ: Object3D = new Object3D();
+        public static NULL_GEO: Geometry | BufferGeometry = new Geometry();
+        public static NULL_MAT: MeshBasicMaterial = new MeshBasicMaterial();
+        public obj = Render.NULL_OBJ;
         public geo = Render.NULL_GEO;
         public mat = Render.NULL_MAT;
     }

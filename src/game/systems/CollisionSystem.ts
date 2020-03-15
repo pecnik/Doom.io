@@ -10,7 +10,11 @@ export class CollisionSystem extends System {
     public constructor(world: World) {
         super();
 
-        this.bodies = new FamilyBuilder(world).build();
+        this.bodies = new FamilyBuilder(world)
+            .include(Comp.Collision)
+            .include(Comp.Position2D)
+            .include(Comp.Velocity2D)
+            .build();
     }
 
     public update(world: World) {

@@ -7,6 +7,7 @@ import { EntityFactory } from "./data/EntityFactory";
 import { Comp } from "./data/Comp";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
 import { CollisionSystem } from "./systems/CollisionSystem";
+import { RenderSystem } from "./systems/RenderSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -52,11 +53,16 @@ export class GameClient {
         this.world.addSystem(new PlayerMoveSystem(this.world));
         this.world.addSystem(new CollisionSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
+        this.world.addSystem(new RenderSystem(this.world));
 
         // Entities
         const player = EntityFactory.Player();
         player.getComponent(Comp.Position2D).set(3, 3);
         this.world.addEntity(player);
+
+        const wall = EntityFactory.Wall();
+        wall.getComponent(Comp.Position2D).set(11, 3);
+        this.world.addEntity(wall);
     }
 
     public update(dt: number) {
