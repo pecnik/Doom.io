@@ -35,6 +35,10 @@ export module Comp {
         public scope = false;
     }
 
+    export class Shooter implements Component {
+        public shootTime = 0;
+    }
+
     export class Footstep implements Component {
         public audio?: PositionalAudio;
     }

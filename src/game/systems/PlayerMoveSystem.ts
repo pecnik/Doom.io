@@ -12,6 +12,7 @@ export class PlayerMoveSystem extends System {
         super();
         this.family = new FamilyBuilder(world)
             .include(Comp.PlayerInput)
+            .include(Comp.Position2D)
             .include(Comp.Velocity2D)
             .include(Comp.Rotation2D)
             .build();
