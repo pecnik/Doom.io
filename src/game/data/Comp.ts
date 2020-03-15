@@ -39,10 +39,6 @@ export module Comp {
         public shootTime = 0;
     }
 
-    export class Footstep implements Component {
-        public audio?: PositionalAudio;
-    }
-
     export class Render implements Component {
         public static NULL_OBJ: Object3D = new Object3D();
         public static NULL_GEO: Geometry | BufferGeometry = new Geometry();
@@ -50,5 +46,14 @@ export module Comp {
         public obj = Render.NULL_OBJ;
         public geo = Render.NULL_GEO;
         public mat = Render.NULL_MAT;
+    }
+
+    export class Footstep implements Component {
+        public audio?: PositionalAudio;
+    }
+
+    export class Gunshot implements Component {
+        public audio?: PositionalAudio;
+        public origin = new Object3D();
     }
 }

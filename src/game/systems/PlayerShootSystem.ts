@@ -30,12 +30,10 @@ export class PlayerShootSystem extends System {
             const rotation = entity.getComponent(Comp.Rotation2D);
             const shooter = entity.getComponent(Comp.Shooter);
 
-            const fireRate = 1 / 4;
+            const fireRate = 1 / 8;
             const shootDelta = elapsedTime - shooter.shootTime;
             if (input.shoot && shootDelta > fireRate) {
                 shooter.shootTime = elapsedTime;
-
-                console.log("> TODO: Play shoot sound");
 
                 // Init hitscan
                 Hitscan.caster.entity = entity;

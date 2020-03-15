@@ -5,7 +5,7 @@ import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { onFamilyChange } from "../utils/EntityUtils";
 
-export class FootstepSystem extends System {
+export class AudioFootstepSystem extends System {
     private readonly family: Family;
     private readonly group: Group;
     private listener?: AudioListener;

@@ -16,7 +16,7 @@ const snapToPixelgrid = (x: number) => {
 };
 
 export class BulletDecals {
-    public readonly scene = this.createDecalMeshPool();
+    public readonly scene = new Group();
     public readonly pool = this.scene.children as Mesh[];
 
     public spawn(point: Vector3, normal: Vector3) {
@@ -79,8 +79,7 @@ export class BulletDecals {
         }
     }
 
-    private createDecalMeshPool() {
-        const group = new Group();
+    public load() {
         const geometry = new PlaneGeometry(DECAL_SIZE, DECAL_SIZE, DECAL_SIZE);
 
         new TextureLoader().load("/assets/sprites/bullet_decal.png", map => {
@@ -96,10 +95,8 @@ export class BulletDecals {
 
                 const mesh = new Mesh(geometry, material);
                 mesh.visible = false;
-                group.add(mesh);
+                this.scene.add(mesh);
             }
         });
-
-        return group;
     }
 }

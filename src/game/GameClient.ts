@@ -8,8 +8,9 @@ import { Comp } from "./data/Comp";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
 import { CollisionSystem } from "./systems/CollisionSystem";
 import { RenderSystem } from "./systems/RenderSystem";
-import { FootstepSystem } from "./systems/FootstepSystem";
+import { AudioFootstepSystem } from "./systems/AudioFootstepSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
+import { AudioGunshotSystem } from "./systems/AudioGunshotSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -38,6 +39,9 @@ export class GameClient {
             // Load level
             this.world.level.load(),
 
+            // Load bullet decal assets
+            this.world.decals.load(),
+
             // Connect to the server
             new Promise(resolve => {
                 this.socket.connect();
@@ -57,7 +61,8 @@ export class GameClient {
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new PlayerShootSystem(this.world));
         this.world.addSystem(new RenderSystem(this.world));
-        this.world.addSystem(new FootstepSystem(this.world));
+        this.world.addSystem(new AudioGunshotSystem(this.world));
+        this.world.addSystem(new AudioFootstepSystem(this.world));
 
         // Entities
         const player = EntityFactory.Player();
