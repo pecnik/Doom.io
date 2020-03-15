@@ -17,6 +17,7 @@ export enum PovState {
 
 export class Pov {
     public readonly scene = new Group();
+    public muzzleflash = new Sprite();
     public crosshair = new Sprite();
     public weapon = new Sprite();
     public state = PovState.Idle;
@@ -54,10 +55,27 @@ export class Pov {
             this.weapon = new Sprite(material);
             this.weapon.renderOrder = 100;
 
-            this.weapon.position.x = 0.75;
-            this.weapon.position.y = -0.5;
-            this.weapon.position.z = -1;
+            this.weapon.position.set(0.75, -0.5, -1);
             this.scene.add(this.weapon);
+        });
+
+        new TextureLoader().load("/assets/sprites/muzzleflash.png", map => {
+            const material = new SpriteMaterial({
+                depthTest: false,
+                depthWrite: false,
+                blending: AdditiveBlending,
+                map
+            });
+
+            map.magFilter = NearestFilter;
+            map.minFilter = NearestFilter;
+
+            this.muzzleflash = new Sprite(material);
+            this.muzzleflash.renderOrder = 90;
+
+            this.muzzleflash.position.set(0.7, -0.7, -1.5);
+            this.muzzleflash.material.opacity = 0;
+            this.scene.add(this.muzzleflash);
         });
     }
 }

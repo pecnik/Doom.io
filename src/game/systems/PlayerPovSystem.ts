@@ -51,6 +51,15 @@ export class PlayerPovSystem extends System {
             const frame = this.getFrame(world.pov, world.elapsedTime);
             if (world.pov.state === PovState.Shoot) {
                 world.pov.transition = 0;
+                world.pov.muzzleflash.material.opacity = 1;
+            }
+
+            if (world.pov.muzzleflash.material.opacity > 0) {
+                world.pov.muzzleflash.material.opacity = lerp(
+                    world.pov.muzzleflash.material.opacity,
+                    0,
+                    0.3
+                );
             }
 
             if (world.pov.transition === 0) {
