@@ -25,7 +25,6 @@ export class World extends Engine {
 
     public update(dt: number) {
         super.update(dt);
-        this.pov.update(dt);
         this.decals.update(dt);
         this.particles.update(dt);
     }
