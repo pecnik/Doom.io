@@ -1,6 +1,7 @@
 import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
+import { lerp } from "../core/Utils";
 
 export class PlayerCameraSystem extends System {
     private readonly family: Family;
@@ -25,7 +26,7 @@ export class PlayerCameraSystem extends System {
 
             const fov = input.scope ? 60 : 90;
             if (world.camera.fov !== fov) {
-                world.camera.fov = fov;
+                world.camera.fov = lerp(world.camera.fov, fov, 10);
                 world.camera.updateProjectionMatrix();
             }
         }
