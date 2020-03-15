@@ -1,6 +1,10 @@
 import SocketIOClient from "socket.io-client";
 import { Input } from "./core/Input";
 import { World } from "./data/World";
+import { PlayerInputSystem } from "./systems/PlayerInputSystem";
+import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
+import { EntityFactory } from "./data/EntityFactory";
+import { Comp } from "./data/Comp";
 
 export class GameClient {
     public readonly input: Input;
@@ -41,7 +45,14 @@ export class GameClient {
     }
 
     public onStart() {
-        // ...
+        // Systems
+        this.world.addSystem(new PlayerInputSystem(this.world, this.input));
+        this.world.addSystem(new PlayerCameraSystem(this.world));
+
+        // Entities
+        const player = EntityFactory.Player();
+        player.getComponent(Comp.Position2D).set(3, 3);
+        this.world.addEntity(player);
     }
 
     public update(dt: number) {
