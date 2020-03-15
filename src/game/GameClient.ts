@@ -5,6 +5,7 @@ import { PlayerInputSystem } from "./systems/PlayerInputSystem";
 import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
 import { EntityFactory } from "./data/EntityFactory";
 import { Comp } from "./data/Comp";
+import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -47,6 +48,7 @@ export class GameClient {
     public onStart() {
         // Systems
         this.world.addSystem(new PlayerInputSystem(this.world, this.input));
+        this.world.addSystem(new PlayerMoveSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
 
         // Entities
