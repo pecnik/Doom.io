@@ -1,7 +1,7 @@
 import { Entity } from "@nova-engine/ecs";
 import { uniqueId } from "lodash";
 import { Comp } from "./Comp";
-import { setRenderMesh } from "./EntityUtils";
+import { loadRenderMesh, setColliderFromMesh } from "./EntityUtils";
 
 export module EntityFactory {
     const nextID = () => uniqueId("e");
@@ -28,9 +28,12 @@ export module EntityFactory {
         entity.id = nextID();
 
         entity.putComponent(Comp.Position2D);
+        entity.putComponent(Comp.Collider);
         entity.putComponent(Comp.Render);
 
-        setRenderMesh(entity, "/assets/models/metal_box.glb");
+        loadRenderMesh(entity, "/assets/models/metal_box.glb").then(() => {
+            setColliderFromMesh(entity);
+        });
 
         return entity;
     }

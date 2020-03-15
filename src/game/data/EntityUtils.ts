@@ -26,27 +26,44 @@ export function onFamilyChange(
     world.addEntityListener(listener);
 }
 
-export function setRenderMesh(entity: Entity, src: string) {
-    new GLTFLoader().load(src, glb => {
-        const render = entity.getComponent(Comp.Render);
-        render.obj.remove(...render.obj.children);
-        glb.scene.traverse(child => {
-            if (render.obj.children.length > 0) {
-                return;
-            }
-
-            if (child instanceof Mesh) {
-                if (child.material instanceof MeshBasicMaterial) {
-                    render.obj.add(child);
-                    render.mat = child.material;
-                    render.geo = child.geometry;
+export function loadRenderMesh(entity: Entity, src: string) {
+    return new Promise(resolve => {
+        new GLTFLoader().load(src, glb => {
+            const render = entity.getComponent(Comp.Render);
+            render.obj.remove(...render.obj.children);
+            glb.scene.traverse(child => {
+                if (render.obj.children.length > 0) {
+                    return;
                 }
-            }
-        });
 
-        if (render.mat.map) {
-            render.mat.map.magFilter = NearestFilter;
-            render.mat.map.minFilter = NearestFilter;
-        }
+                if (child instanceof Mesh) {
+                    if (child.material instanceof MeshBasicMaterial) {
+                        render.obj.add(child);
+                        render.mat = child.material;
+                        render.geo = child.geometry;
+                    }
+                }
+            });
+
+            if (render.mat.map) {
+                render.mat.map.magFilter = NearestFilter;
+                render.mat.map.minFilter = NearestFilter;
+            }
+
+            resolve();
+        });
     });
+}
+
+export function setColliderFromMesh(entity: Entity) {
+    const render = entity.getComponent(Comp.Render);
+    const collider = entity.getComponent(Comp.Collider);
+
+    render.geo.computeBoundingBox();
+
+    collider.min.x = render.geo.boundingBox.min.x;
+    collider.min.y = render.geo.boundingBox.min.z;
+
+    collider.max.x = render.geo.boundingBox.max.x;
+    collider.max.y = render.geo.boundingBox.max.z;
 }

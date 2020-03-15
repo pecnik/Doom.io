@@ -6,6 +6,7 @@ import { Vector2, Box2 } from "three";
 
 export class CollisionSystem extends System {
     private readonly bodies: Family;
+    private readonly colliders: Family;
 
     public constructor(world: World) {
         super();
@@ -14,6 +15,11 @@ export class CollisionSystem extends System {
             .include(Comp.Collision)
             .include(Comp.Position2D)
             .include(Comp.Velocity2D)
+            .build();
+
+        this.colliders = new FamilyBuilder(world)
+            .include(Comp.Collider)
+            .include(Comp.Position2D)
             .build();
     }
 
@@ -26,6 +32,17 @@ export class CollisionSystem extends System {
 
             const { prev, next } = collision;
             next.copy(position);
+
+            // Resolve entity collisions
+            const aabb = new Box2();
+            for (let j = 0; j < this.colliders.entities.length; j++) {
+                const entity = this.colliders.entities[j];
+                const collider = entity.getComponent(Comp.Collider);
+                const position = entity.getComponent(Comp.Position2D);
+                aabb.min.copy(collider.min).add(position);
+                aabb.max.copy(collider.max).add(position);
+                this.resolve(aabb, collision, velocity);
+            }
 
             // Resolve level collision
             const minX = Math.floor(Math.min(prev.x, next.x)) - 1;
@@ -60,19 +77,21 @@ export class CollisionSystem extends System {
         coll.y = clamp(next.y, aabb.min.y, aabb.max.y);
 
         // Resolve horizontal collision
-        if (next.distanceToSquared(coll) < radius ** 2) {
-            next.sub(coll)
-                .normalize()
-                .multiplyScalar(radius)
-                .add(coll);
+        if (next.distanceToSquared(coll) >= radius ** 2) {
+            return;
+        }
 
-            if (next.x > aabb.min.x && next.x < aabb.max.x) {
-                velocity.y = 0;
-            }
+        next.sub(coll)
+            .normalize()
+            .multiplyScalar(radius)
+            .add(coll);
 
-            if (next.y > aabb.min.y && next.y < aabb.max.y) {
-                velocity.x = 0;
-            }
+        if (next.x > aabb.min.x && next.x < aabb.max.x) {
+            velocity.y = 0;
+        }
+
+        if (next.y > aabb.min.y && next.y < aabb.max.y) {
+            velocity.x = 0;
         }
     }
 }

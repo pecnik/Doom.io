@@ -4,7 +4,8 @@ import {
     Object3D,
     Geometry,
     MeshBasicMaterial,
-    BufferGeometry
+    BufferGeometry,
+    Box2
 } from "three";
 
 export module Comp {
@@ -13,6 +14,8 @@ export module Comp {
     export class Velocity2D extends Vector2 implements Component {}
 
     export class Rotation2D extends Vector2 implements Component {}
+
+    export class Collider extends Box2 implements Component {}
 
     export class Collision implements Component {
         public readonly prev = new Vector2();
