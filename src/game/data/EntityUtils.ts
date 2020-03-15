@@ -30,7 +30,6 @@ export function loadRenderMesh(entity: Entity, src: string) {
     return new Promise(resolve => {
         new GLTFLoader().load(src, glb => {
             const render = entity.getComponent(Comp.Render);
-            render.obj.remove(...render.obj.children);
             glb.scene.traverse(child => {
                 if (render.obj.children.length > 0) {
                     return;

@@ -5,7 +5,8 @@ import {
     Geometry,
     MeshBasicMaterial,
     BufferGeometry,
-    Box2
+    Box2,
+    PositionalAudio
 } from "three";
 
 export module Comp {
@@ -34,8 +35,8 @@ export module Comp {
         public scope = false;
     }
 
-    export class Health implements Component {
-        public value = 100;
+    export class Footstep implements Component {
+        public audio?: PositionalAudio;
     }
 
     export class Render implements Component {

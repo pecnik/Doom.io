@@ -15,6 +15,7 @@ export module EntityFactory {
         entity.putComponent(Comp.Velocity2D);
         entity.putComponent(Comp.Rotation2D);
         entity.putComponent(Comp.Collision);
+        entity.putComponent(Comp.Footstep);
 
         return entity;
     }

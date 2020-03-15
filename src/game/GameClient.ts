@@ -8,6 +8,7 @@ import { Comp } from "./data/Comp";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
 import { CollisionSystem } from "./systems/CollisionSystem";
 import { RenderSystem } from "./systems/RenderSystem";
+import { FootstepSystem } from "./systems/FootstepSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -54,6 +55,7 @@ export class GameClient {
         this.world.addSystem(new CollisionSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new RenderSystem(this.world));
+        this.world.addSystem(new FootstepSystem(this.world));
 
         // Entities
         const player = EntityFactory.Player();
