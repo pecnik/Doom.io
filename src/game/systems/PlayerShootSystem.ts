@@ -49,7 +49,11 @@ export class PlayerShootSystem extends System {
                     return;
                 }
 
-                console.log({ rsp });
+                if (rsp.entity === undefined && rsp.intersection.face) {
+                    const { point, face } = rsp.intersection;
+                    world.decals.spawn(point, face.normal);
+                    return;
+                }
             }
         }
     }
