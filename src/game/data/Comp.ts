@@ -8,6 +8,12 @@ export module Comp {
 
     export class Rotation2D extends Vector2 implements Component {}
 
+    export class Collision implements Component {
+        public readonly prev = new Vector2();
+        public readonly next = new Vector2();
+        public radius = 0.2;
+    }
+
     export class PlayerInput implements Component {
         public movey = 0;
         public movex = 0;

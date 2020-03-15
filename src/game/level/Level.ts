@@ -11,8 +11,7 @@ import {
     NearestFilter,
     Color,
     VertexColors,
-    Box3,
-    Vector3
+    Box2
 } from "three";
 import { clamp } from "lodash";
 import { degToRad } from "../core/Utils";
@@ -21,7 +20,6 @@ export interface Cell {
     readonly index: number;
     readonly x: number;
     readonly y: number;
-    readonly z: number;
     readonly ceil: boolean;
     readonly wall: boolean;
     readonly floor: boolean;
@@ -29,7 +27,7 @@ export interface Cell {
     readonly wallId: number;
     readonly floorId: number;
     readonly light: Color;
-    readonly aabb: Box3;
+    readonly aabb: Box2;
 }
 
 export class Level {
@@ -57,16 +55,10 @@ export class Level {
         });
     }
 
-    public getCell(x: number, z: number): Cell | undefined {
-        const index = z * this.cols + x;
+    public getCell(x: number, y: number): Cell | undefined {
+        const index = y * this.cols + x;
         const cell = this.cells[index];
         return cell;
-    }
-
-    public getCellAt(vec: Vector3): Cell | undefined {
-        const x = Math.round(vec.x);
-        const z = Math.round(vec.z);
-        return this.getCell(x, z);
     }
 
     private buildCells(tilemap: Tiled2D.Tilemap) {
@@ -80,8 +72,7 @@ export class Level {
             const cell: Cell = {
                 index: i,
                 x: i % this.cols,
-                y: 0,
-                z: Math.floor(i / this.cols),
+                y: Math.floor(i / this.cols),
 
                 ceilId: ceil[i],
                 wallId: wall[i],
@@ -92,16 +83,14 @@ export class Level {
                 floor: floor[i] > 0,
 
                 light: lightMap[i],
-                aabb: new Box3()
+                aabb: new Box2()
             };
 
             cell.aabb.min.x = cell.x - 0.5;
             cell.aabb.min.y = cell.y - 0.5;
-            cell.aabb.min.z = cell.z - 0.5;
 
             cell.aabb.max.x = cell.x + 0.5;
             cell.aabb.max.y = cell.y + 0.5;
-            cell.aabb.max.z = cell.z + 0.5;
 
             Object.freeze(cell.aabb.min);
             Object.freeze(cell.aabb.max);
@@ -153,65 +142,65 @@ export class Level {
             return plane;
         };
 
-        const getLight = (x: number, z: number) => {
-            const cell = this.getCell(x, z);
+        const getLight = (x: number, y: number) => {
+            const cell = this.getCell(x, y);
             return cell ? cell.light : new Color(0x000000);
         };
 
-        const isWallCell = (x: number, z: number) => {
-            const cell = this.getCell(x, z);
+        const isWallCell = (x: number, y: number) => {
+            const cell = this.getCell(x, y);
             return cell === undefined || cell.wall;
         };
 
         const planes: PlaneGeometry[] = [];
         this.cells.forEach(cell => {
-            const { x, z, ceilId, wallId, floorId } = cell;
-            const color = getLight(x, z);
+            const { x, y, ceilId, wallId, floorId } = cell;
+            const color = getLight(x, y);
 
             if (ceilId > 0) {
                 const plane = createPlane(ceilId, color);
                 plane.rotateX(degToRad(90));
-                plane.translate(x, 0.5, z);
+                plane.translate(x, 0.5, y);
                 planes.push(plane);
             }
 
             if (floorId > 0) {
                 const plane = createPlane(floorId, color);
                 plane.rotateX(degToRad(-90));
-                plane.translate(x, -0.5, z);
+                plane.translate(x, -0.5, y);
                 planes.push(plane);
             }
 
             if (wallId > 0) {
                 // Front wall
-                if (!isWallCell(x, z + 1)) {
-                    const frontWall = createPlane(wallId, getLight(x, z + 1));
+                if (!isWallCell(x, y + 1)) {
+                    const frontWall = createPlane(wallId, getLight(x, y + 1));
                     frontWall.rotateY(degToRad(0));
-                    frontWall.translate(x, 0, z + 0.5);
+                    frontWall.translate(x, 0, y + 0.5);
                     planes.push(frontWall);
                 }
 
                 // Back wall
-                if (!isWallCell(x, z - 1)) {
-                    const backWall = createPlane(wallId, getLight(x, z - 1));
+                if (!isWallCell(x, y - 1)) {
+                    const backWall = createPlane(wallId, getLight(x, y - 1));
                     backWall.rotateY(degToRad(180));
-                    backWall.translate(x, 0, z - 0.5);
+                    backWall.translate(x, 0, y - 0.5);
                     planes.push(backWall);
                 }
 
                 // Right wall
-                if (!isWallCell(x - 1, z)) {
-                    const rightWall = createPlane(wallId, getLight(x - 1, z));
+                if (!isWallCell(x - 1, y)) {
+                    const rightWall = createPlane(wallId, getLight(x - 1, y));
                     rightWall.rotateY(degToRad(-90));
-                    rightWall.translate(x - 0.5, 0, z);
+                    rightWall.translate(x - 0.5, 0, y);
                     planes.push(rightWall);
                 }
 
                 // Left wall
-                if (!isWallCell(x + 1, z)) {
-                    const leftWall = createPlane(wallId, getLight(x + 1, z));
+                if (!isWallCell(x + 1, y)) {
+                    const leftWall = createPlane(wallId, getLight(x + 1, y));
                     leftWall.rotateY(degToRad(90));
-                    leftWall.translate(x + 0.5, 0, z);
+                    leftWall.translate(x + 0.5, 0, y);
                     planes.push(leftWall);
                 }
             }
