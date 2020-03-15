@@ -76,7 +76,6 @@ export class CollisionSystem extends System {
         coll.x = clamp(next.x, aabb.min.x, aabb.max.x);
         coll.y = clamp(next.y, aabb.min.y, aabb.max.y);
 
-        // Resolve horizontal collision
         if (next.distanceToSquared(coll) >= radius ** 2) {
             return;
         }
