@@ -46,30 +46,46 @@ export class Weapon extends Object3D {
 
 export class PlayerPovSystem extends System {
     private readonly family: Family;
-    private readonly weapon: Weapon;
+    private readonly weapons: Weapon[];
+
     private state = State.Idle;
     private transition = 0;
 
     public constructor(world: World) {
         super();
 
-        this.weapon = new Weapon("/assets/sprites/pov-gun.png");
-        world.camera.add(this.weapon);
-
         this.family = new FamilyBuilder(world)
             .include(Comp.PlayerInput)
             .include(Comp.Velocity2D)
             .include(Comp.Shooter)
             .build();
+
+        this.weapons = [
+            new Weapon("/assets/sprites/pov-gun.png"),
+            new Weapon("/assets/sprites/pov-shotgun.png"),
+            new Weapon("/assets/sprites/pov-machine-gun.png")
+        ];
+
+        world.camera.add(...this.weapons);
     }
 
     public update(world: World) {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
+            const shooter = entity.getComponent(Comp.Shooter);
             const position = entity.getComponent(Comp.Position2D);
 
+            const weapon = this.weapons[shooter.weaponIndex];
+            for (let i = 0; i < this.weapons.length; i++) {
+                this.weapons[i].visible = i === shooter.weaponIndex;
+            }
+
+            if (weapon === undefined) {
+                return;
+            }
+
             // Update light color tint
-            const sprite = this.weapon.material;
+            const sprite = weapon.material;
             const cell = world.level.getCell(
                 Math.round(position.x),
                 Math.round(position.y)
@@ -99,11 +115,11 @@ export class PlayerPovSystem extends System {
             }
 
             if (this.transition === 0) {
-                this.weapon.position.x = frame.x;
-                this.weapon.position.y = frame.y;
-                this.weapon.position.z = frame.z;
+                weapon.position.x = frame.x;
+                weapon.position.y = frame.y;
+                weapon.position.z = frame.z;
             } else {
-                const pos = this.weapon.position;
+                const pos = weapon.position;
                 pos.x = ease(pos.x, frame.x, 1 - this.transition);
                 pos.y = ease(pos.y, frame.y, 1 - this.transition);
                 pos.z = ease(pos.z, frame.z, 1 - this.transition);

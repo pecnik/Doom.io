@@ -22,6 +22,7 @@ export class PlayerInputSystem extends System {
         const mouseSensitivity = 0.1;
         const lookHor = this.input.mouse.dx;
         const lookVer = this.input.mouse.dy;
+        const scroll = this.input.mouse.scroll;
 
         // Move
         const forward = this.input.isKeyDown(KeyCode.W);
@@ -49,6 +50,13 @@ export class PlayerInputSystem extends System {
             input.walk = walk;
             input.shoot = shoot;
             input.scope = scope;
+
+            input.nextWeapon = 0;
+            if (scroll > 0) {
+                input.nextWeapon = 1;
+            } else if (scroll < 0) {
+                input.nextWeapon = -1;
+            }
 
             if (entity.hasComponent(Comp.Rotation2D)) {
                 const str = input.scope ? 0.5 : 1;

@@ -3,6 +3,7 @@ import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { Hitscan } from "../utils/EntityUtils";
 import { Color } from "three";
+import { modulo } from "../core/Utils";
 
 export class PlayerShootSystem extends System {
     private readonly targets: Family;
@@ -30,6 +31,14 @@ export class PlayerShootSystem extends System {
             const rotation = entity.getComponent(Comp.Rotation2D);
             const shooter = entity.getComponent(Comp.Shooter);
 
+            // Swap weapon
+            if (input.nextWeapon !== 0) {
+                console.log("next weapon", input.nextWeapon);
+                shooter.weaponIndex += input.nextWeapon;
+                shooter.weaponIndex = modulo(shooter.weaponIndex, 3);
+            }
+
+            // Fire bullet
             const fireRate = 1 / 8;
             const shootDelta = elapsedTime - shooter.shootTime;
             if (input.shoot && shootDelta > fireRate) {

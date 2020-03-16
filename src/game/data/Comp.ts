@@ -31,6 +31,7 @@ export module Comp {
         public movex = 0;
         public lookHor = 0;
         public lookVer = 0;
+        public nextWeapon: -1 | 0 | 1 = 0;
         public jump = false;
         public walk = false;
         public shoot = false;
@@ -39,6 +40,7 @@ export module Comp {
 
     export class Shooter implements Component {
         public shootTime = 0;
+        public weaponIndex = 0;
     }
 
     export class Render implements Component {
