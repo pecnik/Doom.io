@@ -37,7 +37,6 @@ export class GameClient {
 
     public initialize() {
         return Promise.all([
-            this.world.pov.load(),
             this.world.level.load(),
             this.world.decals.load(),
 

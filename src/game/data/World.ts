@@ -3,10 +3,8 @@ import { Scene, PerspectiveCamera } from "three";
 import { Level } from "./Level";
 import { BulletDecals } from "../utils/BulletDecals";
 import { Particles } from "../utils/Particles";
-import { Pov } from "../utils/Pov";
 
 export class World extends Engine {
-    public readonly pov = new Pov();
     public readonly level = new Level();
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
@@ -20,7 +18,6 @@ export class World extends Engine {
         this.scene.add(this.decals.scene);
         this.scene.add(this.particles.scene);
         this.scene.add(this.camera);
-        this.camera.add(this.pov.scene);
     }
 
     public update(dt: number) {

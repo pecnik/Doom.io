@@ -1,15 +1,60 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
-import { PovState, Pov } from "../utils/Pov";
 import { lerp, ease } from "../core/Utils";
-import { Vector3 } from "three";
+import {
+    Vector3,
+    Object3D,
+    TextureLoader,
+    NearestFilter,
+    Sprite,
+    SpriteMaterial
+} from "three";
+
+export enum State {
+    Walk,
+    Idle,
+    Jump,
+    Fall,
+    Shoot
+}
+
+export class Weapon extends Object3D {
+    public material = new SpriteMaterial();
+
+    public constructor(speite: string) {
+        super();
+
+        new TextureLoader().load(speite, map => {
+            this.material = new SpriteMaterial({
+                depthTest: false,
+                depthWrite: false,
+                map
+            });
+
+            map.magFilter = NearestFilter;
+            map.minFilter = NearestFilter;
+
+            const sprite = new Sprite(this.material);
+            sprite.scale.x = 2;
+            sprite.renderOrder = 100;
+            sprite.position.set(0.75, -0.625, -1);
+            this.add(sprite);
+        });
+    }
+}
 
 export class PlayerPovSystem extends System {
-    public readonly family: Family;
+    private readonly family: Family;
+    private readonly weapon: Weapon;
+    private state = State.Idle;
+    private transition = 0;
 
     public constructor(world: World) {
         super();
+
+        this.weapon = new Weapon("/assets/sprites/pov-gun.png");
+        world.camera.add(this.weapon);
 
         this.family = new FamilyBuilder(world)
             .include(Comp.PlayerInput)
@@ -24,7 +69,7 @@ export class PlayerPovSystem extends System {
             const position = entity.getComponent(Comp.Position2D);
 
             // Update light color tint
-            const sprite = world.pov.weapon.material;
+            const sprite = this.weapon.material;
             const cell = world.level.getCell(
                 Math.round(position.x),
                 Math.round(position.y)
@@ -36,41 +81,32 @@ export class PlayerPovSystem extends System {
             }
 
             // Update pov state
-            const prevState = world.pov.state;
+            const prevState = this.state;
             const nextState = this.getState(world, entity);
 
-            if (world.pov.transition > 0) {
-                world.pov.transition = lerp(world.pov.transition, 0, 0.05);
+            if (this.transition > 0) {
+                this.transition = lerp(this.transition, 0, 0.05);
             }
 
             if (prevState !== nextState) {
-                world.pov.state = nextState;
-                world.pov.transition = 1;
+                this.state = nextState;
+                this.transition = 1;
             }
 
-            const frame = this.getFrame(world.pov, world.elapsedTime);
-            if (world.pov.state === PovState.Shoot) {
-                world.pov.transition = 0;
-                world.pov.muzzleflash.material.opacity = 1;
+            const frame = this.getFrame(world.elapsedTime);
+            if (this.state === State.Shoot) {
+                this.transition = 0;
             }
 
-            if (world.pov.muzzleflash.material.opacity > 0) {
-                world.pov.muzzleflash.material.opacity = lerp(
-                    world.pov.muzzleflash.material.opacity,
-                    0,
-                    0.3
-                );
-            }
-
-            if (world.pov.transition === 0) {
-                world.pov.weapon.position.x = frame.x;
-                world.pov.weapon.position.y = frame.y;
-                world.pov.weapon.position.z = frame.z;
+            if (this.transition === 0) {
+                this.weapon.position.x = frame.x;
+                this.weapon.position.y = frame.y;
+                this.weapon.position.z = frame.z;
             } else {
-                const pos = world.pov.weapon.position;
-                pos.x = ease(pos.x, frame.x, 1 - world.pov.transition);
-                pos.y = ease(pos.y, frame.y, 1 - world.pov.transition);
-                pos.z = ease(pos.z, frame.z, 1 - world.pov.transition);
+                const pos = this.weapon.position;
+                pos.x = ease(pos.x, frame.x, 1 - this.transition);
+                pos.y = ease(pos.y, frame.y, 1 - this.transition);
+                pos.z = ease(pos.z, frame.z, 1 - this.transition);
             }
         }
     }
@@ -78,41 +114,37 @@ export class PlayerPovSystem extends System {
     private getState(world: World, entity: Entity) {
         const shooter = entity.getComponent(Comp.Shooter);
         if (shooter.shootTime === world.elapsedTime) {
-            return PovState.Shoot;
+            return State.Shoot;
         }
 
         const velocity = entity.getComponent(Comp.Velocity2D);
         if (velocity.lengthSq() > 0) {
-            return PovState.Walk;
+            return State.Walk;
         }
 
-        return PovState.Idle;
+        return State.Idle;
     }
 
-    private getFrame(pov: Pov, elapsed: number) {
+    private getFrame(elapsed: number) {
         const frame = new Vector3();
-        frame.x = 0.75;
-        frame.y = -0.625;
-        frame.z = -1;
 
-        switch (pov.state) {
-            case PovState.Walk:
+        switch (this.state) {
+            case State.Walk:
                 elapsed *= 10;
                 frame.y += Math.abs(Math.sin(elapsed) * 0.05);
                 frame.x += Math.cos(elapsed) * 0.05;
                 return frame;
 
-            case PovState.Jump:
-            case PovState.Fall:
+            case State.Jump:
+            case State.Fall:
                 frame.y += 0.125;
                 return frame;
 
-            case PovState.Shoot:
-                frame.copy(pov.weapon.position);
-                frame.z = -0.825;
+            case State.Shoot:
+                frame.z += 0.125;
                 return frame;
 
-            case PovState.Idle:
+            case State.Idle:
             default:
                 frame.y += Math.sin(elapsed) * 0.05;
                 return frame;
