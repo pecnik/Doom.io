@@ -83,7 +83,16 @@ export class PlayerShootSystem extends System {
                 const { point, face } = rsp.intersection;
                 world.decals.spawn(point, face.normal);
                 world.particles.emit(point, face.normal, new Color(0, 0, 0));
-                continue;
+            }
+
+            const target = rsp.entity;
+            if (target !== undefined && target.hasComponent(Comp.Health)) {
+                const health = target.getComponent(Comp.Health);
+                health.value -= 25;
+
+                if (health.value <= 0) {
+                    world.removeEntity(target);
+                }
             }
         }
     }

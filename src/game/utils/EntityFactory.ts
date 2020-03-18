@@ -22,9 +22,21 @@ export module EntityFactory {
         return entity;
     }
 
-    export function Barrel() {}
+    export function Barrel() {
+        const entity = new Entity();
+        entity.id = nextID();
 
-    export function Decal() {}
+        entity.putComponent(Comp.Position2D);
+        entity.putComponent(Comp.Collider);
+        entity.putComponent(Comp.Render);
+        entity.putComponent(Comp.Health);
+
+        loadRenderMesh(entity, "/assets/models/barrel.glb").then(() => {
+            setColliderFromMesh(entity);
+        });
+
+        return entity;
+    }
 
     export function Wall() {
         const entity = new Entity();

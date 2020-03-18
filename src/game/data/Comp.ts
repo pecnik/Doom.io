@@ -58,4 +58,8 @@ export module Comp {
         public audio?: PositionalAudio;
         public origin = new Object3D();
     }
+
+    export class Health implements Component {
+        public value = 100;
+    }
 }
