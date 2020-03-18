@@ -4,6 +4,7 @@ import { Comp } from "../data/Comp";
 import { Hitscan } from "../utils/EntityUtils";
 import { Color } from "three";
 import { modulo } from "../core/Utils";
+import { SWAP_SPEED } from "../data/Globals";
 
 export class PlayerShootSystem extends System {
     private readonly targets: Family;
@@ -39,8 +40,14 @@ export class PlayerShootSystem extends System {
             // Swap weapon
             if (input.nextWeapon !== 0) {
                 console.log("next weapon", input.nextWeapon);
+                shooter.swapTime = elapsedTime;
                 shooter.weaponIndex += input.nextWeapon;
                 shooter.weaponIndex = modulo(shooter.weaponIndex, 3);
+            }
+
+            const swapDelta = elapsedTime - shooter.swapTime;
+            if (swapDelta < SWAP_SPEED) {
+                continue;
             }
 
             // Fire bullet
@@ -59,7 +66,7 @@ export class PlayerShootSystem extends System {
                 const rsp = Hitscan.cast(world, this.targets);
 
                 if (rsp.intersection === undefined) {
-                    return;
+                    continue;
                 }
 
                 if (rsp.intersection.face) {
@@ -70,7 +77,7 @@ export class PlayerShootSystem extends System {
                         face.normal,
                         new Color(0, 0, 0)
                     );
-                    return;
+                    continue;
                 }
             }
         }

@@ -6,9 +6,7 @@ import {
     MeshBasicMaterial,
     BufferGeometry,
     Box2,
-    PositionalAudio,
-    Mesh,
-    Color
+    PositionalAudio
 } from "three";
 
 export module Comp {
@@ -39,6 +37,7 @@ export module Comp {
     }
 
     export class Shooter implements Component {
+        public swapTime = 0;
         public shootTime = 0;
         public weaponIndex = 0;
     }

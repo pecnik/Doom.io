@@ -10,6 +10,7 @@ import {
     SpriteMaterial,
     Texture
 } from "three";
+import { SWAP_SPEED } from "../data/Globals";
 
 export enum State {
     Walk,
@@ -66,6 +67,7 @@ export class PlayerPovSystem extends System {
     }
 
     public update(world: World) {
+        const { elapsedTime } = world;
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
             const shooter = entity.getComponent(Comp.Shooter);
@@ -119,6 +121,13 @@ export class PlayerPovSystem extends System {
                 pos.x = ease(pos.x, frame.x, 1 - this.transition);
                 pos.y = ease(pos.y, frame.y, 1 - this.transition);
                 pos.z = ease(pos.z, frame.z, 1 - this.transition);
+            }
+
+            const swapDelta = elapsedTime - shooter.swapTime;
+            if (swapDelta < SWAP_SPEED) {
+                weapon.position.y = swapDelta / SWAP_SPEED - 1;
+
+                continue;
             }
         }
     }
