@@ -3,16 +3,32 @@ import { Scene, PerspectiveCamera, AudioListener } from "three";
 import { Level } from "./Level";
 import { BulletDecals } from "../utils/BulletDecals";
 import { Particles } from "../utils/Particles";
+import { Weapon } from "./Weapon";
 
 export class World extends Engine {
-    public readonly level = new Level();
+    public elapsedTime = 0;
+
     public readonly scene = new Scene();
+    public readonly level = new Level();
     public readonly camera = new PerspectiveCamera(90);
     public readonly decals = new BulletDecals();
     public readonly particles = new Particles();
-    public elapsedTime = 0;
-
     public listener?: AudioListener;
+
+    public readonly weapons: Weapon[] = [
+        {
+            povSpriteSrc: "/assets/sprites/pov-gun.png",
+            fireSoundSrc: "/assets/sounds/fire.wav"
+        },
+        {
+            povSpriteSrc: "/assets/sprites/pov-shotgun.png",
+            fireSoundSrc: "/assets/sounds/fire.wav"
+        },
+        {
+            povSpriteSrc: "/assets/sprites/pov-machine-gun.png",
+            fireSoundSrc: "/assets/sounds/fire.wav"
+        }
+    ];
 
     public constructor() {
         super();

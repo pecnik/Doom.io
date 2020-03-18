@@ -12,7 +12,7 @@ import { AudioFootstepSystem } from "./systems/AudioFootstepSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { AudioGunshotSystem } from "./systems/AudioGunshotSystem";
 import { PlayerPovSystem } from "./systems/PlayerPovSystem";
-import { AudioListener } from "three";
+import { AudioListener, AudioLoader, TextureLoader } from "three";
 
 export class GameClient {
     public readonly input: Input;
@@ -47,6 +47,26 @@ export class GameClient {
                 this.socket.on("connect", () => {
                     console.log(`> Connection::${this.socket.id}`);
                     resolve();
+                });
+            }),
+
+            // Preload weapon sprite
+            ...this.world.weapons.map(weapon => {
+                return new Promise(resolve => {
+                    new TextureLoader().load(weapon.povSpriteSrc, texture => {
+                        weapon.povSpriteTexture = texture;
+                        resolve();
+                    });
+                });
+            }),
+
+            // Preload weapon audio
+            ...this.world.weapons.map(weapon => {
+                return new Promise(resolve => {
+                    new AudioLoader().load(weapon.fireSoundSrc, buffer => {
+                        weapon.fireSoundBuffer = buffer;
+                        resolve();
+                    });
                 });
             })
         ]);

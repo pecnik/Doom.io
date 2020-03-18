@@ -1,5 +1,5 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
-import { Group, PositionalAudio, AudioLoader } from "three";
+import { Group, PositionalAudio } from "three";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { onFamilyChange } from "../utils/EntityUtils";
@@ -7,7 +7,6 @@ import { onFamilyChange } from "../utils/EntityUtils";
 export class AudioGunshotSystem extends System {
     private readonly family: Family;
     private readonly group: Group;
-    private buffer?: AudioBuffer;
 
     public constructor(world: World) {
         super();
@@ -30,18 +29,10 @@ export class AudioGunshotSystem extends System {
                 }
             }
         });
-
-        new AudioLoader().load("/assets/sounds/fire.wav", buffer => {
-            this.buffer = buffer;
-        });
     }
 
     public update(world: World) {
         if (world.listener === undefined) {
-            return;
-        }
-
-        if (this.buffer === undefined) {
             return;
         }
 
@@ -52,15 +43,22 @@ export class AudioGunshotSystem extends System {
             const shooter = entity.getComponent(Comp.Shooter);
             const gunshot = entity.getComponent(Comp.Gunshot);
 
+            const weapon = world.weapons[shooter.weaponIndex];
+            if (weapon === undefined) continue;
+            if (weapon.fireSoundBuffer === undefined) continue;
+
             if (gunshot.audio === undefined) {
                 gunshot.audio = new PositionalAudio(world.listener);
-                gunshot.audio.setBuffer(this.buffer);
                 gunshot.audio.position.z = -0.25;
                 gunshot.origin.add(gunshot.audio);
                 this.group.add(gunshot.origin);
             }
 
             if (shooter.shootTime === world.elapsedTime) {
+                if (gunshot.audio.buffer !== weapon.fireSoundBuffer) {
+                    gunshot.audio.setBuffer(weapon.fireSoundBuffer);
+                }
+
                 if (gunshot.audio.isPlaying) {
                     gunshot.audio.stop();
                 }

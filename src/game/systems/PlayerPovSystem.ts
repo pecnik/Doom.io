@@ -5,10 +5,10 @@ import { lerp, ease } from "../core/Utils";
 import {
     Vector3,
     Object3D,
-    TextureLoader,
     NearestFilter,
     Sprite,
-    SpriteMaterial
+    SpriteMaterial,
+    Texture
 } from "three";
 
 export enum State {
@@ -19,34 +19,32 @@ export enum State {
     Shoot
 }
 
-export class Weapon extends Object3D {
+export class WeaponPovSprite extends Object3D {
     public material = new SpriteMaterial();
 
-    public constructor(speite: string) {
+    public constructor(map: Texture) {
         super();
 
-        new TextureLoader().load(speite, map => {
-            this.material = new SpriteMaterial({
-                depthTest: false,
-                depthWrite: false,
-                map
-            });
-
-            map.magFilter = NearestFilter;
-            map.minFilter = NearestFilter;
-
-            const sprite = new Sprite(this.material);
-            sprite.scale.x = 2;
-            sprite.renderOrder = 100;
-            sprite.position.set(0.75, -0.625, -1);
-            this.add(sprite);
+        this.material = new SpriteMaterial({
+            depthTest: false,
+            depthWrite: false,
+            map
         });
+
+        map.magFilter = NearestFilter;
+        map.minFilter = NearestFilter;
+
+        const sprite = new Sprite(this.material);
+        sprite.scale.x = 2;
+        sprite.renderOrder = 100;
+        sprite.position.set(0.75, -0.625, -1);
+        this.add(sprite);
     }
 }
 
 export class PlayerPovSystem extends System {
     private readonly family: Family;
-    private readonly weapons: Weapon[];
+    private readonly weapons: WeaponPovSprite[];
 
     private state = State.Idle;
     private transition = 0;
@@ -60,11 +58,9 @@ export class PlayerPovSystem extends System {
             .include(Comp.Shooter)
             .build();
 
-        this.weapons = [
-            new Weapon("/assets/sprites/pov-gun.png"),
-            new Weapon("/assets/sprites/pov-shotgun.png"),
-            new Weapon("/assets/sprites/pov-machine-gun.png")
-        ];
+        this.weapons = world.weapons.map(weapon => {
+            return new WeaponPovSprite(weapon.povSpriteTexture as Texture);
+        });
 
         world.camera.add(...this.weapons);
     }
