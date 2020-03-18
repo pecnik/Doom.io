@@ -1,4 +1,4 @@
-import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
+import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { Hitscan } from "../utils/EntityUtils";
@@ -25,71 +25,65 @@ export class PlayerShootSystem extends System {
     }
 
     public update(world: World) {
-        const { elapsedTime } = world;
         for (let i = 0; i < this.shooters.entities.length; i++) {
             const entity = this.shooters.entities[i];
             const input = entity.getComponent(Comp.PlayerInput);
-            const position = entity.getComponent(Comp.Position2D);
-            const rotation = entity.getComponent(Comp.Rotation2D);
             const shooter = entity.getComponent(Comp.Shooter);
             const weapon = world.weapons[shooter.weaponIndex];
-
-            if (weapon === undefined) {
-                continue;
-            }
 
             // Swap weapon
             if (input.nextWeapon !== 0) {
                 console.log("next weapon", input.nextWeapon);
-                shooter.swapTime = elapsedTime;
+                shooter.swapTime = world.elapsedTime;
                 shooter.weaponIndex += input.nextWeapon;
                 shooter.weaponIndex = modulo(shooter.weaponIndex, 3);
             }
 
-            const swapDelta = elapsedTime - shooter.swapTime;
+            const swapDelta = world.elapsedTime - shooter.swapTime;
             if (swapDelta < SWAP_SPEED) {
                 continue;
             }
 
             // Fire bullet
             const fireRate = weapon.firerate;
-            const shootDelta = elapsedTime - shooter.shootTime;
+            const shootDelta = world.elapsedTime - shooter.shootTime;
             if (input.shoot && shootDelta > fireRate) {
-                shooter.shootTime = elapsedTime;
+                shooter.shootTime = world.elapsedTime;
+                this.fireBullets(world, entity);
+            }
+        }
+    }
 
-                // Init hitscan
-                Hitscan.caster.entity = entity;
-                Hitscan.camera.position.set(position.x, 0, position.y);
-                Hitscan.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
-                Hitscan.camera.updateWorldMatrix(false, false);
+    private fireBullets(world: World, entity: Entity) {
+        const position = entity.getComponent(Comp.Position2D);
+        const rotation = entity.getComponent(Comp.Rotation2D);
+        const shooter = entity.getComponent(Comp.Shooter);
+        const weapon = world.weapons[shooter.weaponIndex];
 
-                for (let j = 0; j < weapon.bulletsPerShot; j++) {
-                    Hitscan.origin.set(
-                        random(-weapon.spread, weapon.spread, true),
-                        random(-weapon.spread, weapon.spread, true)
-                    );
+        // Init hitscan
+        Hitscan.caster.entity = entity;
+        Hitscan.camera.position.set(position.x, 0, position.y);
+        Hitscan.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
+        Hitscan.camera.updateWorldMatrix(false, false);
 
-                    Hitscan.raycaster.setFromCamera(
-                        Hitscan.origin,
-                        Hitscan.camera
-                    );
+        for (let j = 0; j < weapon.bulletsPerShot; j++) {
+            Hitscan.origin.set(
+                random(-weapon.spread, weapon.spread, true),
+                random(-weapon.spread, weapon.spread, true)
+            );
 
-                    const rsp = Hitscan.cast(world, this.targets);
-                    if (rsp.intersection === undefined) {
-                        continue;
-                    }
+            Hitscan.raycaster.setFromCamera(Hitscan.origin, Hitscan.camera);
 
-                    if (rsp.intersection.face) {
-                        const { point, face } = rsp.intersection;
-                        world.decals.spawn(point, face.normal);
-                        world.particles.emit(
-                            point,
-                            face.normal,
-                            new Color(0, 0, 0)
-                        );
-                        continue;
-                    }
-                }
+            const rsp = Hitscan.cast(world, this.targets);
+            if (rsp.intersection === undefined) {
+                continue;
+            }
+
+            if (rsp.intersection.face) {
+                const { point, face } = rsp.intersection;
+                world.decals.spawn(point, face.normal);
+                world.particles.emit(point, face.normal, new Color(0, 0, 0));
+                continue;
             }
         }
     }
