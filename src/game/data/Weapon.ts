@@ -1,6 +1,7 @@
 import { Texture } from "three";
 
 export interface Weapon {
+    scope: boolean;
     spread: number;
     firerate: number;
     knockback: number;

@@ -17,6 +17,7 @@ export class World extends Engine {
 
     public readonly weapons: Weapon[] = [
         {
+            scope: true,
             spread: 0.1,
             povSpriteSrc: "/assets/sprites/pov-gun.png",
             fireSoundSrc: "/assets/sounds/fire-gun.wav",
@@ -25,6 +26,7 @@ export class World extends Engine {
             bulletsPerShot: 1
         },
         {
+            scope: false,
             spread: 0.25,
             povSpriteSrc: "/assets/sprites/pov-shotgun.png",
             fireSoundSrc: "/assets/sounds/fire-shotgun.wav",
@@ -33,6 +35,7 @@ export class World extends Engine {
             bulletsPerShot: 4
         },
         {
+            scope: false,
             spread: 0.125,
             povSpriteSrc: "/assets/sprites/pov-machine-gun.png",
             fireSoundSrc: "/assets/sounds/fire-machine-gun.wav",
