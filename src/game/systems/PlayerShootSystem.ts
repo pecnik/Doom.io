@@ -3,6 +3,7 @@ import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { Hitscan } from "../utils/EntityUtils";
 import { Color } from "three";
+import { random } from "lodash";
 import { modulo } from "../core/Utils";
 import { SWAP_SPEED } from "../data/Globals";
 
@@ -58,26 +59,36 @@ export class PlayerShootSystem extends System {
 
                 // Init hitscan
                 Hitscan.caster.entity = entity;
-                Hitscan.origin.set(0, 0);
                 Hitscan.camera.position.set(position.x, 0, position.y);
                 Hitscan.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
                 Hitscan.camera.updateWorldMatrix(false, false);
-                Hitscan.raycaster.setFromCamera(Hitscan.origin, Hitscan.camera);
-                const rsp = Hitscan.cast(world, this.targets);
 
-                if (rsp.intersection === undefined) {
-                    continue;
-                }
-
-                if (rsp.intersection.face) {
-                    const { point, face } = rsp.intersection;
-                    world.decals.spawn(point, face.normal);
-                    world.particles.emit(
-                        point,
-                        face.normal,
-                        new Color(0, 0, 0)
+                for (let j = 0; j < weapon.bulletsPerShot; j++) {
+                    Hitscan.origin.set(
+                        random(-weapon.spread, weapon.spread, true),
+                        random(-weapon.spread, weapon.spread, true)
                     );
-                    continue;
+
+                    Hitscan.raycaster.setFromCamera(
+                        Hitscan.origin,
+                        Hitscan.camera
+                    );
+
+                    const rsp = Hitscan.cast(world, this.targets);
+                    if (rsp.intersection === undefined) {
+                        continue;
+                    }
+
+                    if (rsp.intersection.face) {
+                        const { point, face } = rsp.intersection;
+                        world.decals.spawn(point, face.normal);
+                        world.particles.emit(
+                            point,
+                            face.normal,
+                            new Color(0, 0, 0)
+                        );
+                        continue;
+                    }
                 }
             }
         }
