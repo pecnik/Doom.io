@@ -126,7 +126,6 @@ export class PlayerPovSystem extends System {
             const swapDelta = elapsedTime - shooter.swapTime;
             if (swapDelta < SWAP_SPEED) {
                 weapon.position.y = swapDelta / SWAP_SPEED - 1;
-
                 continue;
             }
         }
