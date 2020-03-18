@@ -1,5 +1,5 @@
 import { Engine } from "@nova-engine/ecs";
-import { Scene, PerspectiveCamera } from "three";
+import { Scene, PerspectiveCamera, AudioListener } from "three";
 import { Level } from "./Level";
 import { BulletDecals } from "../utils/BulletDecals";
 import { Particles } from "../utils/Particles";
@@ -11,6 +11,8 @@ export class World extends Engine {
     public readonly decals = new BulletDecals();
     public readonly particles = new Particles();
     public elapsedTime = 0;
+
+    public listener?: AudioListener;
 
     public constructor() {
         super();

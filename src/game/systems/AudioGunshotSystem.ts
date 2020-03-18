@@ -1,5 +1,5 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
-import { AudioListener, Group, PositionalAudio, AudioLoader } from "three";
+import { Group, PositionalAudio, AudioLoader } from "three";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { onFamilyChange } from "../utils/EntityUtils";
@@ -7,7 +7,6 @@ import { onFamilyChange } from "../utils/EntityUtils";
 export class AudioGunshotSystem extends System {
     private readonly family: Family;
     private readonly group: Group;
-    private listener?: AudioListener;
     private buffer?: AudioBuffer;
 
     public constructor(world: World) {
@@ -31,20 +30,14 @@ export class AudioGunshotSystem extends System {
                 }
             }
         });
+
+        new AudioLoader().load("/assets/sounds/fire.wav", buffer => {
+            this.buffer = buffer;
+        });
     }
 
     public update(world: World) {
-        if (!(document as any).pointerLockElement) {
-            return;
-        }
-
-        // Await user interaction before initializing audio context
-        if (this.listener === undefined) {
-            this.listener = new AudioListener();
-            world.camera.add(this.listener);
-            new AudioLoader().load("/assets/sounds/fire.wav", buffer => {
-                this.buffer = buffer;
-            });
+        if (world.listener === undefined) {
             return;
         }
 
@@ -60,7 +53,7 @@ export class AudioGunshotSystem extends System {
             const gunshot = entity.getComponent(Comp.Gunshot);
 
             if (gunshot.audio === undefined) {
-                gunshot.audio = new PositionalAudio(this.listener);
+                gunshot.audio = new PositionalAudio(world.listener);
                 gunshot.audio.setBuffer(this.buffer);
                 gunshot.audio.position.z = -0.25;
                 gunshot.origin.add(gunshot.audio);

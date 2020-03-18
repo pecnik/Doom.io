@@ -1,5 +1,5 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
-import { AudioListener, Group, PositionalAudio, AudioLoader } from "three";
+import { Group, PositionalAudio, AudioLoader } from "three";
 import { random } from "lodash";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
@@ -8,7 +8,6 @@ import { onFamilyChange } from "../utils/EntityUtils";
 export class AudioFootstepSystem extends System {
     private readonly family: Family;
     private readonly group: Group;
-    private listener?: AudioListener;
     private buffer?: AudioBuffer;
 
     public constructor(world: World) {
@@ -31,20 +30,14 @@ export class AudioFootstepSystem extends System {
                 }
             }
         });
+
+        new AudioLoader().load("/assets/sounds/footstep.wav", buffer => {
+            this.buffer = buffer;
+        });
     }
 
     public update(world: World) {
-        if (!(document as any).pointerLockElement) {
-            return;
-        }
-
-        // Await user interaction before initializing audio context
-        if (this.listener === undefined) {
-            this.listener = new AudioListener();
-            world.camera.add(this.listener);
-            new AudioLoader().load("/assets/sounds/footstep.wav", buffer => {
-                this.buffer = buffer;
-            });
+        if (world.listener === undefined) {
             return;
         }
 
@@ -59,7 +52,7 @@ export class AudioFootstepSystem extends System {
             const footstep = entity.getComponent(Comp.Footstep);
 
             if (footstep.audio === undefined) {
-                footstep.audio = new PositionalAudio(this.listener);
+                footstep.audio = new PositionalAudio(world.listener);
                 footstep.audio.setBuffer(this.buffer);
                 this.group.add(footstep.audio);
             }

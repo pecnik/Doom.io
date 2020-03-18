@@ -12,6 +12,7 @@ import { AudioFootstepSystem } from "./systems/AudioFootstepSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { AudioGunshotSystem } from "./systems/AudioGunshotSystem";
 import { PlayerPovSystem } from "./systems/PlayerPovSystem";
+import { AudioListener } from "three";
 
 export class GameClient {
     public readonly input: Input;
@@ -52,6 +53,10 @@ export class GameClient {
     }
 
     public onStart() {
+        // Audio listener
+        this.world.listener = new AudioListener();
+        this.world.camera.add(this.world.listener);
+
         // Systems
         this.world.addSystem(new PlayerInputSystem(this.world, this.input));
         this.world.addSystem(new PlayerMoveSystem(this.world));
