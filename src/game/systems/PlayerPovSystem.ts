@@ -11,6 +11,7 @@ import {
     Texture
 } from "three";
 import { SWAP_SPEED } from "../data/Globals";
+import { Weapon } from "../data/Weapon";
 
 export enum State {
     Walk,
@@ -73,17 +74,17 @@ export class PlayerPovSystem extends System {
             const shooter = entity.getComponent(Comp.Shooter);
             const position = entity.getComponent(Comp.Position2D);
 
-            const weapon = this.weapons[shooter.weaponIndex];
+            const weaponSprite = this.weapons[shooter.weaponIndex];
             for (let i = 0; i < this.weapons.length; i++) {
                 this.weapons[i].visible = i === shooter.weaponIndex;
             }
 
-            if (weapon === undefined) {
+            if (weaponSprite === undefined) {
                 return;
             }
 
             // Update light color tint
-            const sprite = weapon.material;
+            const sprite = weaponSprite.material;
             const cell = world.level.getCell(
                 Math.round(position.x),
                 Math.round(position.y)
@@ -107,17 +108,18 @@ export class PlayerPovSystem extends System {
                 this.transition = 1;
             }
 
-            const frame = this.getFrame(world.elapsedTime);
+            const weapon = world.weapons[shooter.weaponIndex];
+            const frame = this.getFrame(world, weapon);
             if (this.state === State.Shoot) {
                 this.transition = 0;
             }
 
             if (this.transition === 0) {
-                weapon.position.x = frame.x;
-                weapon.position.y = frame.y;
-                weapon.position.z = frame.z;
+                weaponSprite.position.x = frame.x;
+                weaponSprite.position.y = frame.y;
+                weaponSprite.position.z = frame.z;
             } else {
-                const pos = weapon.position;
+                const pos = weaponSprite.position;
                 pos.x = ease(pos.x, frame.x, 1 - this.transition);
                 pos.y = ease(pos.y, frame.y, 1 - this.transition);
                 pos.z = ease(pos.z, frame.z, 1 - this.transition);
@@ -125,7 +127,7 @@ export class PlayerPovSystem extends System {
 
             const swapDelta = elapsedTime - shooter.swapTime;
             if (swapDelta < SWAP_SPEED) {
-                weapon.position.y = swapDelta / SWAP_SPEED - 1;
+                weaponSprite.position.y = swapDelta / SWAP_SPEED - 1;
                 continue;
             }
         }
@@ -145,9 +147,10 @@ export class PlayerPovSystem extends System {
         return State.Idle;
     }
 
-    private getFrame(elapsed: number) {
+    private getFrame(world: World, weapon: Weapon) {
         const frame = new Vector3();
 
+        let elapsed = world.elapsedTime;
         switch (this.state) {
             case State.Walk:
                 elapsed *= 10;
@@ -161,7 +164,7 @@ export class PlayerPovSystem extends System {
                 return frame;
 
             case State.Shoot:
-                frame.z += 0.125;
+                frame.z += weapon.knockback;
                 return frame;
 
             case State.Idle:
