@@ -30,6 +30,11 @@ export class PlayerShootSystem extends System {
             const position = entity.getComponent(Comp.Position2D);
             const rotation = entity.getComponent(Comp.Rotation2D);
             const shooter = entity.getComponent(Comp.Shooter);
+            const weapon = world.weapons[shooter.weaponIndex];
+
+            if (weapon === undefined) {
+                continue;
+            }
 
             // Swap weapon
             if (input.nextWeapon !== 0) {
@@ -39,7 +44,7 @@ export class PlayerShootSystem extends System {
             }
 
             // Fire bullet
-            const fireRate = 1 / 8;
+            const fireRate = weapon.firerate;
             const shootDelta = elapsedTime - shooter.shootTime;
             if (input.shoot && shootDelta > fireRate) {
                 shooter.shootTime = elapsedTime;

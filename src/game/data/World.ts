@@ -19,12 +19,12 @@ export class World extends Engine {
         {
             povSpriteSrc: "/assets/sprites/pov-gun.png",
             fireSoundSrc: "/assets/sounds/fire-gun.wav",
-            firerate: 1 / 4
+            firerate: 1 / 3
         },
         {
             povSpriteSrc: "/assets/sprites/pov-shotgun.png",
             fireSoundSrc: "/assets/sounds/fire-shotgun.wav",
-            firerate: 1 / 2
+            firerate: 1
         },
         {
             povSpriteSrc: "/assets/sprites/pov-machine-gun.png",
