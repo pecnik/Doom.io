@@ -18,15 +18,18 @@ export class World extends Engine {
     public readonly weapons: Weapon[] = [
         {
             povSpriteSrc: "/assets/sprites/pov-gun.png",
-            fireSoundSrc: "/assets/sounds/fire.wav"
+            fireSoundSrc: "/assets/sounds/fire-gun.wav",
+            firerate: 1 / 4
         },
         {
             povSpriteSrc: "/assets/sprites/pov-shotgun.png",
-            fireSoundSrc: "/assets/sounds/fire.wav"
+            fireSoundSrc: "/assets/sounds/fire-shotgun.wav",
+            firerate: 1 / 2
         },
         {
             povSpriteSrc: "/assets/sprites/pov-machine-gun.png",
-            fireSoundSrc: "/assets/sounds/fire.wav"
+            fireSoundSrc: "/assets/sounds/fire-machine-gun.wav",
+            firerate: 1 / 8
         }
     ];
 
