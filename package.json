@@ -7,7 +7,7 @@
     "dev:client": "parcel src/www/index.html --no-hmr",
     "dev:server": "nodemon --watch ./src/game/server ./src/server/index.ts",
     "dev": "npm-run-all --parallel dev:*",
-    "build": "parcel build src/www/index.html --no-source-maps",
+    "build": "parcel build src/www/index.html",
     "start": "ts-node ./src/server/index.ts",
     "test": "mocha -r ts-node/register tests/**/*.test.ts",
     "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
