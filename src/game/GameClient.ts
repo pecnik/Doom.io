@@ -12,9 +12,9 @@ import { RenderSystem } from "./systems/RenderSystem";
 import { AudioFootstepSystem } from "./systems/AudioFootstepSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { AudioGunshotSystem } from "./systems/AudioGunshotSystem";
-import { PlayerPovSystem } from "./systems/PlayerPovSystem";
+import { HudWeaponSystem } from "./systems/HudWeaponSystem";
 import { AudioListener, AudioLoader, TextureLoader } from "three";
-import { PlayerHudSystem } from "./systems/PlayerHudSystem";
+import { HudUiSystem } from "./systems/HudUiSystem";
 
 export class GameClient {
     public readonly input: Input;
@@ -78,9 +78,11 @@ export class GameClient {
         this.world.addSystem(new CollisionSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new PlayerShootSystem(this.world));
-        this.world.addSystem(new PlayerPovSystem(this.world));
         this.world.addSystem(new RenderSystem(this.world));
-        this.world.addSystem(new PlayerHudSystem(this.world, this.hud));
+
+        this.world.addSystem(new HudUiSystem(this.world, this.hud));
+        this.world.addSystem(new HudWeaponSystem(this.world));
+
         this.world.addSystem(new AudioGunshotSystem(this.world));
         this.world.addSystem(new AudioFootstepSystem(this.world));
 

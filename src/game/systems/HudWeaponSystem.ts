@@ -44,7 +44,7 @@ export class WeaponPovSprite extends Object3D {
     }
 }
 
-export class PlayerPovSystem extends System {
+export class HudWeaponSystem extends System {
     private readonly family: Family;
     private readonly weapons: WeaponPovSprite[];
 

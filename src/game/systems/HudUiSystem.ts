@@ -9,7 +9,7 @@ import {
     NearestFilter
 } from "three";
 
-export class PlayerHudSystem extends System {
+export class HudUiSystem extends System {
     public constructor(_: World, hud: Hud) {
         super();
 
