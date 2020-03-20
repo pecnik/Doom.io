@@ -45,11 +45,10 @@ export class Engine {
     }
 
     private update(dt: number) {
+        const { world, hud } = this.game;
         this.game.update(dt);
-        this.renderer.webgl.render(
-            this.game.getActiveScene(),
-            this.game.getActiveCamera()
-        );
+        this.renderer.webgl.render(world.scene, world.camera);
+        this.renderer.webgl.render(hud.scene, hud.camera);
     }
 
     private loop(gameTime: number) {
@@ -79,7 +78,7 @@ export class Engine {
         }
 
         // Update camera
-        const camera = this.game.getActiveCamera();
+        const camera = this.game.world.camera;
         camera.aspect = this.aspect;
         camera.near = 0.1;
         camera.far = 1000;

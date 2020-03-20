@@ -1,4 +1,5 @@
 import SocketIOClient from "socket.io-client";
+import { Hud } from "./data/Hud";
 import { Input } from "./core/Input";
 import { World } from "./data/World";
 import { PlayerInputSystem } from "./systems/PlayerInputSystem";
@@ -18,6 +19,7 @@ export class GameClient {
     public readonly input: Input;
     public readonly socket: SocketIOClient.Socket;
     public readonly world = new World();
+    public readonly hud = new Hud();
 
     public constructor() {
         const url = location.origin.replace(location.port, "8080");
@@ -26,14 +28,6 @@ export class GameClient {
             reconnection: false,
             autoConnect: false
         });
-    }
-
-    public getActiveScene() {
-        return this.world.scene;
-    }
-
-    public getActiveCamera() {
-        return this.world.camera;
     }
 
     public initialize() {

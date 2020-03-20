@@ -5,6 +5,7 @@ export class Renderer {
 
     public constructor(canvas: HTMLCanvasElement) {
         this.webgl = new WebGLRenderer({ canvas });
+        this.webgl.autoClear = false;
         this.webgl.setClearColor(0x6495ed);
     }
 
