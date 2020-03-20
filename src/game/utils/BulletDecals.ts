@@ -16,19 +16,26 @@ const snapToPixelgrid = (x: number) => {
 };
 
 export class BulletDecals {
+    private index = 0;
+
     public readonly scene = new Group();
     public readonly pool = this.scene.children as Mesh[];
 
     public spawn(point: Vector3, normal: Vector3) {
-        const mesh = this.pool.find(m => !m.visible) as Mesh;
-        if (mesh === undefined) return;
+        this.index += 1;
+        this.index %= this.pool.length;
 
         // Reset mesh
-        mesh.visible = true;
-        mesh.rotation.set(0, 0, 0);
+        const decal = this.pool[this.index];
+        decal.visible = true;
+        decal.rotation.set(0, 0, 0);
+
+        // Reset material opacity
+        const material = decal.material as MeshBasicMaterial;
+        material.opacity = 1;
 
         // Clone position
-        mesh.position.set(point.x, point.y, point.z);
+        decal.position.copy(point);
 
         let axis: "x" | "y" | "z" = "x";
         let facing = 1;
@@ -47,20 +54,20 @@ export class BulletDecals {
         // Match wall surface
         const offset = (1 / 1024) * facing;
         if (axis === "x") {
-            mesh.rotation.y = degToRad(90) * facing;
-            mesh.position.z = snapToPixelgrid(mesh.position.z);
-            mesh.position.y = snapToPixelgrid(mesh.position.y);
-            mesh.position.x += offset;
+            decal.rotation.y = degToRad(90) * facing;
+            decal.position.z = snapToPixelgrid(decal.position.z);
+            decal.position.y = snapToPixelgrid(decal.position.y);
+            decal.position.x += offset;
         } else if (axis === "y") {
-            mesh.rotation.x = degToRad(-90) * facing;
-            mesh.position.x = snapToPixelgrid(mesh.position.x);
-            mesh.position.z = snapToPixelgrid(mesh.position.z);
-            mesh.position.y += offset;
+            decal.rotation.x = degToRad(-90) * facing;
+            decal.position.x = snapToPixelgrid(decal.position.x);
+            decal.position.z = snapToPixelgrid(decal.position.z);
+            decal.position.y += offset;
         } else if (axis === "z") {
-            mesh.rotation.y = facing === 1 ? 0 : degToRad(180);
-            mesh.position.x = snapToPixelgrid(mesh.position.x);
-            mesh.position.y = snapToPixelgrid(mesh.position.y);
-            mesh.position.z += offset;
+            decal.rotation.y = facing === 1 ? 0 : degToRad(180);
+            decal.position.x = snapToPixelgrid(decal.position.x);
+            decal.position.y = snapToPixelgrid(decal.position.y);
+            decal.position.z += offset;
         }
     }
 
