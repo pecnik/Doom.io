@@ -1,9 +1,9 @@
+import { WebGLRenderer } from "three";
 import { GameClient } from "../GameClient";
-import { Renderer } from "./Renderer";
 import { clamp } from "lodash";
 
 export class Engine {
-    private readonly renderer: Renderer;
+    private readonly renderer: WebGLRenderer;
     private readonly gamearea: HTMLDivElement;
     private readonly viewport: HTMLCanvasElement;
 
@@ -14,7 +14,9 @@ export class Engine {
     public constructor(canvas: HTMLCanvasElement, gamearea: HTMLDivElement) {
         this.viewport = canvas;
         this.gamearea = gamearea;
-        this.renderer = new Renderer(this.viewport);
+        this.renderer = new WebGLRenderer({ canvas: this.viewport });
+        this.renderer.autoClear = false;
+        this.renderer.setClearColor(0x6495ed);
         this.game = new GameClient();
     }
 
@@ -47,8 +49,8 @@ export class Engine {
     private update(dt: number) {
         const { world, hud } = this.game;
         this.game.update(dt);
-        this.renderer.webgl.render(world.scene, world.camera);
-        this.renderer.webgl.render(hud.scene, hud.camera);
+        this.renderer.render(world.scene, world.camera);
+        this.renderer.render(hud.scene, hud.camera);
     }
 
     private loop(gameTime: number) {
@@ -91,6 +93,6 @@ export class Engine {
         this.gamearea.style.marginTop = -(height / 2) + "px";
 
         // Update renderer
-        this.renderer.onResize(width, height);
+        this.renderer.setSize(width, height);
     }
 }
