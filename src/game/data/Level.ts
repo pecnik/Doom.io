@@ -345,7 +345,7 @@ export class Level {
         });
 
         // Render
-        const renderDebug = true;
+        const renderDebug = false;
         if (renderDebug) {
             const canvas = document.createElement("canvas");
             const tilesize = 8;
