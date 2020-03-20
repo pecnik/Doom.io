@@ -114,17 +114,21 @@ export class HudWeaponSystem extends System {
             const frame = this.getFrame(world, weapon);
             if (this.state === State.Shoot) {
                 this.transition = 0;
+                weaponSprite.scale.x = 1.25;
+            }
+
+            if (weaponSprite.scale.x > 1) {
+                weaponSprite.scale.x = ease(weaponSprite.scale.x, 1, 0.1);
+                weaponSprite.scale.y = weaponSprite.scale.x;
             }
 
             if (this.transition === 0) {
                 weaponSprite.position.x = frame.x;
                 weaponSprite.position.y = frame.y;
-                weaponSprite.position.z = frame.z;
             } else {
                 const pos = weaponSprite.position;
                 pos.x = ease(pos.x, frame.x, 1 - this.transition);
                 pos.y = ease(pos.y, frame.y, 1 - this.transition);
-                pos.z = ease(pos.z, frame.z, 1 - this.transition);
             }
 
             const swapDelta = elapsedTime - shooter.swapTime;
