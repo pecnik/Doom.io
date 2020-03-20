@@ -40,6 +40,7 @@ export module Comp {
         public swapTime = 0;
         public shootTime = 0;
         public weaponIndex = 0;
+        public loadedAmmo = 32;
     }
 
     export class Render implements Component {
