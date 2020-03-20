@@ -8,10 +8,12 @@ import {
     NearestFilter,
     Sprite,
     SpriteMaterial,
-    Texture
+    Texture,
+    Group
 } from "three";
-import { SWAP_SPEED } from "../data/Globals";
+import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
 import { Weapon } from "../data/Weapon";
+import { Hud } from "../data/Hud";
 
 export enum State {
     Walk,
@@ -27,19 +29,12 @@ export class WeaponPovSprite extends Object3D {
     public constructor(map: Texture) {
         super();
 
-        this.material = new SpriteMaterial({
-            depthTest: false,
-            depthWrite: false,
-            map
-        });
-
+        this.material = new SpriteMaterial({ map });
         map.magFilter = NearestFilter;
         map.minFilter = NearestFilter;
 
         const sprite = new Sprite(this.material);
-        sprite.scale.x = 2;
-        sprite.renderOrder = 100;
-        sprite.position.set(0.75, -0.625, -1);
+        sprite.scale.set(2, 1, 1);
         this.add(sprite);
     }
 }
@@ -51,7 +46,7 @@ export class HudWeaponSystem extends System {
     private state = State.Idle;
     private transition = 0;
 
-    public constructor(world: World) {
+    public constructor(world: World, hud: Hud) {
         super();
 
         this.family = new FamilyBuilder(world)
@@ -64,11 +59,18 @@ export class HudWeaponSystem extends System {
             return new WeaponPovSprite(weapon.povSpriteTexture as Texture);
         });
 
-        world.camera.add(...this.weapons);
+        const group = new Group();
+        group.add(...this.weapons);
+        group.position.x = HUD_WIDTH / 4;
+        group.position.y = -HUD_HEIGHT / 3;
+        group.scale.multiplyScalar(3);
+
+        hud.scene.add(group);
     }
 
     public update(world: World) {
         const { elapsedTime } = world;
+
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
             const shooter = entity.getComponent(Comp.Shooter);
@@ -148,8 +150,7 @@ export class HudWeaponSystem extends System {
     }
 
     private getFrame(world: World, weapon: Weapon) {
-        const frame = new Vector3();
-
+        const frame = new Vector3(0, 0, 0);
         let elapsed = world.elapsedTime;
         switch (this.state) {
             case State.Walk:

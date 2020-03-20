@@ -23,8 +23,6 @@ export class HudUiSystem extends System {
             map.minFilter = NearestFilter;
 
             const crosshair = new Sprite(material);
-            crosshair.position.z = 0;
-            crosshair.scale.multiplyScalar(128);
             hud.scene.add(crosshair);
         });
     }

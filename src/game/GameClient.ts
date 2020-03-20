@@ -81,7 +81,7 @@ export class GameClient {
         this.world.addSystem(new RenderSystem(this.world));
 
         this.world.addSystem(new HudUiSystem(this.world, this.hud));
-        this.world.addSystem(new HudWeaponSystem(this.world));
+        this.world.addSystem(new HudWeaponSystem(this.world, this.hud));
 
         this.world.addSystem(new AudioGunshotSystem(this.world));
         this.world.addSystem(new AudioFootstepSystem(this.world));

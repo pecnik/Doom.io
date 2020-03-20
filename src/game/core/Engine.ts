@@ -86,15 +86,6 @@ export class Engine {
         camera.far = 1000;
         camera.updateProjectionMatrix();
 
-        // Update hud camera
-        const cameraHud = this.game.hud.camera;
-        cameraHud.left = -width / 2;
-        cameraHud.right = width / 2;
-        cameraHud.top = height / 2;
-        cameraHud.bottom = -height / 2;
-        cameraHud.updateProjectionMatrix();
-        console.log("OK");
-
         // Update gamearea to center the viewport
         this.gamearea.style.width = width + "px";
         this.gamearea.style.height = height + "px";
