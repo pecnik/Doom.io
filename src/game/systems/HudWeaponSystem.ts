@@ -112,14 +112,9 @@ export class HudWeaponSystem extends System {
 
             const weapon = world.weapons[shooter.weaponIndex];
             const frame = this.getFrame(world, weapon);
+
             if (this.state === State.Shoot) {
                 this.transition = 0;
-                weaponSprite.scale.x = 1.25;
-            }
-
-            if (weaponSprite.scale.x > 1) {
-                weaponSprite.scale.x = ease(weaponSprite.scale.x, 1, 0.1);
-                weaponSprite.scale.y = weaponSprite.scale.x;
             }
 
             if (this.transition === 0) {
@@ -169,7 +164,8 @@ export class HudWeaponSystem extends System {
                 return frame;
 
             case State.Shoot:
-                frame.z += weapon.knockback;
+                frame.x += weapon.knockback;
+                frame.y -= weapon.knockback;
                 return frame;
 
             case State.Idle:
