@@ -1,7 +1,7 @@
 export const SCREEN_WIDTH = 800;
 export const SCREEN_HEIGHT = 600;
-export const HUD_WIDTH = 800 / 100;
-export const HUD_HEIGHT = 600 / 100;
+export const HUD_WIDTH = 800;
+export const HUD_HEIGHT = 600;
 
 export const RUN_SPEED = 4;
 export const WALK_SPEED = 1.5;
