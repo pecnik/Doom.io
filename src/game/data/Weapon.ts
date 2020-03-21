@@ -1,15 +1,15 @@
 import { Texture } from "three";
 
 export interface Weapon {
-    scope: boolean;
-    spread: number;
-    firerate: number;
-    knockback: number;
-    bulletsPerShot: number;
+    readonly scope: boolean;
+    readonly spread: number;
+    readonly firerate: number;
+    readonly knockback: number;
+    readonly bulletsPerShot: number;
 
-    povSpriteSrc: string;
+    readonly povSpriteSrc: string;
     povSpriteTexture?: Texture;
 
-    fireSoundSrc: string;
+    readonly fireSoundSrc: string;
     fireSoundBuffer?: AudioBuffer;
 }

@@ -1,7 +1,7 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
-import { Hitscan } from "../utils/EntityUtils";
+import { Hitscan, isScopeActive } from "../utils/EntityUtils";
 import { Color } from "three";
 import { random } from "lodash";
 import { modulo } from "../core/Utils";
@@ -67,10 +67,15 @@ export class PlayerShootSystem extends System {
         Hitscan.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
         Hitscan.camera.updateWorldMatrix(false, false);
 
+        // Get spread
+        const steady = isScopeActive(world, entity) ? 0.25 : 1;
+        const spread = weapon.spread * steady;
+
+        // Fire off all bullets
         for (let j = 0; j < weapon.bulletsPerShot; j++) {
             Hitscan.origin.set(
-                random(-weapon.spread, weapon.spread, true),
-                random(-weapon.spread, weapon.spread, true)
+                random(-spread, spread, true),
+                random(-spread, spread, true)
             );
 
             Hitscan.raycaster.setFromCamera(Hitscan.origin, Hitscan.camera);
