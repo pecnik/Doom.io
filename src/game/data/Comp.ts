@@ -66,6 +66,10 @@ export module Comp {
         public mat = Render.Mat;
     }
 
+    export class RenderDecalTag implements Component {
+        public static readonly tag = NEXT_TAG();
+    }
+
     export class Footstep implements Component {
         public static readonly tag = NEXT_TAG();
         public audio?: PositionalAudio;

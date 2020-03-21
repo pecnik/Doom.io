@@ -80,12 +80,24 @@ export class PlayerShootSystem extends System {
                 continue;
             }
 
-            if (rsp.intersection.face) {
-                const { point, face } = rsp.intersection;
-                world.decals.spawn(point, face.normal);
-                world.particles.emit(point, face.normal, new Color(0, 0, 0));
+            if (!rsp.intersection.face) {
+                continue;
             }
 
+            const { point, face } = rsp.intersection;
+
+            // Emit particles
+            world.particles.emit(point, face.normal, new Color(0, 0, 0));
+
+            // Bullet decal
+            if (
+                rsp.entity === undefined ||
+                rsp.entity.hasComponent(Comp.RenderDecalTag)
+            ) {
+                world.decals.spawn(point, face.normal);
+            }
+
+            // Apply damage
             const target = rsp.entity;
             if (target !== undefined && target.hasComponent(Comp.Health)) {
                 const health = target.getComponent(Comp.Health);

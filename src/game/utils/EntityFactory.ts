@@ -45,6 +45,7 @@ export module EntityFactory {
         entity.putComponent(Comp.Position2D);
         entity.putComponent(Comp.Collider);
         entity.putComponent(Comp.Render);
+        entity.putComponent(Comp.RenderDecalTag);
 
         loadRenderMesh(entity, "/assets/models/metal_box.glb").then(() => {
             setColliderFromMesh(entity);
