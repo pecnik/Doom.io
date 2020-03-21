@@ -11,8 +11,10 @@ import {
     Texture,
     MeshBasicMaterial,
     PlaneGeometry,
-    Mesh
+    Mesh,
+    Plane
 } from "three";
+import { HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
 
 export interface TextParams<T> {
     readonly width: number;
@@ -90,15 +92,16 @@ export class HudDisplaySystem extends System {
             .include(Comp.Shooter)
             .build();
 
-        // this.loadedAmmo = new HudText(256, 128);
-        // this.loadedAmmo.root.position.x = HUD_WIDTH / 3;
-        // this.loadedAmmo.root.position.y = -HUD_HEIGHT / 3;
-        // this.loadedAmmo.root.renderOrder = 100;
+        this.ammoText.plane.position.set(
+            HUD_WIDTH / 2 - this.ammoText.width / 2,
+            -(HUD_HEIGHT / 2 - this.ammoText.height / 2),
+            0
+        );
         hud.scene.add(this.ammoText.plane);
 
         // Load crosshair srpite
         new TextureLoader().load("/assets/sprites/crosshair.png", map => {
-            const material = new SpriteMaterial({
+            const material = new MeshBasicMaterial({
                 map,
                 blending: AdditiveBlending
             });
@@ -106,7 +109,8 @@ export class HudDisplaySystem extends System {
             map.magFilter = NearestFilter;
             map.minFilter = NearestFilter;
 
-            const crosshair = new Sprite(material);
+            const geometry = new PlaneGeometry(64, 64);
+            const crosshair = new Mesh(geometry, material);
             hud.scene.add(crosshair);
         });
     }
@@ -120,11 +124,6 @@ export class HudDisplaySystem extends System {
                 this.ammoText.props.loadedAmmo = shooter.loadedAmmo;
                 this.ammoText.render();
             }
-
-            // if (this.loadedAmmo.value !== shooter.loadedAmmo) {
-            //     this.loadedAmmo.value = shooter.loadedAmmo;
-            //     this.loadedAmmo.update();
-            // }
         }
     }
 }
