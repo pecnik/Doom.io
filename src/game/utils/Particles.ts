@@ -21,7 +21,7 @@ export class Particles {
         // create the particle variables
         const material = new PointsMaterial({
             vertexColors: VertexColors,
-            size: 1 / 24
+            size: 1 / 24 // TODO - resize based on camera FOV
         });
 
         this.particles = new Geometry();
