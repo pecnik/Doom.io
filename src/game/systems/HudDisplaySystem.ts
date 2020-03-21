@@ -17,31 +17,31 @@ import { HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
 import { Comp } from "../data/Comp";
 
 export class HudText {
-    public readonly root = new Object3D();
-    public readonly texture: Texture;
-    public readonly canvas: HTMLCanvasElement;
-    public readonly ctx: CanvasRenderingContext2D;
+    private readonly ctx: CanvasRenderingContext2D;
+    private readonly texture: Texture;
 
+    public readonly root = new Object3D();
+    public readonly width: number;
+    public readonly height: number;
     public value = 0;
 
-    public constructor() {
-        this.canvas = document.createElement("canvas");
-        this.canvas.width = 256;
-        this.canvas.height = 256;
+    public constructor(width: number, height: number) {
+        this.width = width;
+        this.height = height;
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
 
         // Get 2D context and draw something supercool.
-        this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+        this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
         this.ctx.font = "Normal 40px Arial";
         this.ctx.textAlign = "center";
         this.ctx.fillStyle = "rgba(245,245,245,0.75)";
-        this.ctx.fillText(
-            "Initializing...",
-            this.canvas.width / 2,
-            this.canvas.height / 2
-        );
+        this.ctx.fillText("Initializing...", this.width / 2, this.height / 2);
 
         // Create texture from rendered graphics.
-        this.texture = new Texture(this.canvas);
+        this.texture = new Texture(canvas);
         this.texture.needsUpdate = true;
 
         // Create HUD material.
@@ -60,11 +60,11 @@ export class HudText {
     public update() {
         console.log("Rerender");
 
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.clearRect(0, 0, this.width, this.height);
         this.ctx.fillText(
             this.value.toString(),
-            this.canvas.width / 2,
-            this.canvas.height / 2
+            this.width / 2,
+            this.height / 2
         );
 
         this.texture.needsUpdate = true;
@@ -83,7 +83,7 @@ export class HudDisplaySystem extends System {
             .include(Comp.Shooter)
             .build();
 
-        this.loadedAmmo = new HudText();
+        this.loadedAmmo = new HudText(256, 128);
         this.loadedAmmo.root.position.x = HUD_WIDTH / 3;
         this.loadedAmmo.root.position.y = -HUD_HEIGHT / 3;
         this.loadedAmmo.root.renderOrder = 100;
