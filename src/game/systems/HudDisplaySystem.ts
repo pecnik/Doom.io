@@ -71,7 +71,7 @@ export class HudText {
     }
 }
 
-export class HudUiSystem extends System {
+export class HudDisplaySystem extends System {
     private readonly family: Family;
     private readonly loadedAmmo: HudText;
 
