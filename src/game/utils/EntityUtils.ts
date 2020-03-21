@@ -34,6 +34,17 @@ export function onFamilyChange(
     world.addEntityListener(listener);
 }
 
+export function isScopeActive(world: World, entity: Entity) {
+    if (!entity.getComponent(Comp.Shooter)) {
+        return false;
+    }
+
+    const input = entity.getComponent(Comp.PlayerInput);
+    const shooter = entity.getComponent(Comp.Shooter);
+    const weapon = world.weapons[shooter.weaponIndex];
+    return input.scope && weapon.scope;
+}
+
 export function loadRenderMesh(entity: Entity, src: string) {
     return new Promise(resolve => {
         new GLTFLoader().load(src, glb => {
