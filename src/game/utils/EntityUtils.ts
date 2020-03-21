@@ -49,16 +49,12 @@ export function loadRenderMesh(entity: Entity, src: string) {
     return new Promise(resolve => {
         new GLTFLoader().load(src, glb => {
             const render = entity.getComponent(Comp.Render);
-            glb.scene.traverse(child => {
-                if (render.obj.children.length > 0) {
-                    return;
-                }
-
+            render.obj.add(glb.scene);
+            render.obj.traverse(child => {
                 if (child instanceof Mesh) {
                     if (child.material instanceof MeshBasicMaterial) {
                         render.mat = child.material;
                         render.geo = child.geometry;
-                        render.obj.add(child);
                     }
                 }
             });
