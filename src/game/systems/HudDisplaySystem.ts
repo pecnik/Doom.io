@@ -4,15 +4,12 @@ import { Hud } from "../data/Hud";
 import { Comp } from "../data/Comp";
 import {
     TextureLoader,
-    SpriteMaterial,
-    Sprite,
     AdditiveBlending,
     NearestFilter,
     Texture,
     MeshBasicMaterial,
     PlaneGeometry,
-    Mesh,
-    Plane
+    Mesh
 } from "three";
 import { HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
 
@@ -35,9 +32,6 @@ export class HudDisplaySystem extends System {
 
             ctx.clearRect(0, 0, width, height);
 
-            ctx.fillStyle = "black";
-            ctx.fillRect(0, 0, width, height);
-
             ctx.fillStyle = "white";
             ctx.fillText(loadedAmmo.toString(), width / 2, height / 2);
         }
@@ -50,6 +44,11 @@ export class HudDisplaySystem extends System {
         canvas.width = width;
         canvas.height = height;
 
+        const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+        ctx.font = "Normal 40px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
         const texture = new Texture(canvas);
         texture.minFilter = NearestFilter;
         texture.magFilter = NearestFilter;
@@ -57,20 +56,9 @@ export class HudDisplaySystem extends System {
 
         const material = new MeshBasicMaterial({ map: texture });
         const geometry = new PlaneGeometry(width, height);
-        const plane = new Mesh(geometry, material);
-
-        // First render
-        const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-        ctx.font = "Normal 40px Arial";
-        ctx.textAlign = "center";
-
-        ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, width, height);
-
-        ctx.fillStyle = "white";
-        ctx.fillText("Initializing...", width / 2, height / 2);
-
         material.transparent = true;
+
+        const plane = new Mesh(geometry, material);
 
         return {
             width,
@@ -92,6 +80,7 @@ export class HudDisplaySystem extends System {
             .include(Comp.Shooter)
             .build();
 
+        this.ammoText.plane.renderOrder = 100;
         this.ammoText.plane.position.set(
             HUD_WIDTH / 2 - this.ammoText.width / 2,
             -(HUD_HEIGHT / 2 - this.ammoText.height / 2),

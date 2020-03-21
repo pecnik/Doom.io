@@ -63,7 +63,8 @@ export class HudWeaponSystem extends System {
         group.add(...this.weapons);
         group.position.x = HUD_WIDTH / 4;
         group.position.y = -HUD_HEIGHT / 3;
-        group.scale.multiplyScalar(3);
+        group.renderOrder = 0;
+        group.scale.multiplyScalar(256);
 
         hud.scene.add(group);
     }
