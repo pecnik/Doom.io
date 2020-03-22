@@ -92,21 +92,21 @@ export class GameClient {
         player.getComponent(Comp.Position2D).set(3, 3);
         this.world.addEntity(player);
 
-        const wall1 = EntityFactory.Wall();
-        wall1.getComponent(Comp.Position2D).set(11, 3);
-        this.world.addEntity(wall1);
+        // const wall1 = EntityFactory.Wall();
+        // wall1.getComponent(Comp.Position2D).set(11, 3);
+        // this.world.addEntity(wall1);
 
-        const wall2 = EntityFactory.Wall();
-        wall2.getComponent(Comp.Position2D).set(3, 4);
-        this.world.addEntity(wall2);
+        // const wall2 = EntityFactory.Wall();
+        // wall2.getComponent(Comp.Position2D).set(3, 4);
+        // this.world.addEntity(wall2);
 
-        const barrel1 = EntityFactory.Barrel();
-        barrel1.getComponent(Comp.Position2D).set(11, 5);
-        this.world.addEntity(barrel1);
+        // const barrel1 = EntityFactory.Barrel();
+        // barrel1.getComponent(Comp.Position2D).set(11, 5);
+        // this.world.addEntity(barrel1);
 
-        const barrel2 = EntityFactory.Barrel();
-        barrel2.getComponent(Comp.Position2D).set(11.25, 5.5);
-        this.world.addEntity(barrel2);
+        // const barrel2 = EntityFactory.Barrel();
+        // barrel2.getComponent(Comp.Position2D).set(11.25, 5.5);
+        // this.world.addEntity(barrel2);
     }
 
     public update(dt: number) {
