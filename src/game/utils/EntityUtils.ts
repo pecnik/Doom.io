@@ -11,7 +11,7 @@ import {
     Intersection
 } from "three";
 import { World } from "../data/World";
-import { WeaponSpecs } from "../data/Weapon";
+import { WeaponSpecs, WeaponState } from "../data/Weapon";
 
 export function onFamilyChange(
     world: World,
@@ -35,13 +35,16 @@ export function onFamilyChange(
     world.addEntityListener(listener);
 }
 
-export function isScopeActive(entity: Entity) {
+export function isScopeActive(entity: Entity): boolean {
     if (!entity.getComponent(Comp.Shooter)) {
         return false;
     }
 
-    const input = entity.getComponent(Comp.PlayerInput);
     const shooter = entity.getComponent(Comp.Shooter);
+    if (shooter.state == WeaponState.Reload) return false;
+    if (shooter.state == WeaponState.Swap) return false;
+
+    const input = entity.getComponent(Comp.PlayerInput);
     const weapon = WeaponSpecs[shooter.weaponIndex];
     return input.scope && weapon.scope;
 }

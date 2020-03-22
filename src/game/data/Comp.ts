@@ -48,6 +48,7 @@ export module Comp {
         public walk = false;
         public shoot = false;
         public scope = false;
+        public reload = false;
     }
 
     export class Shooter implements Component {
