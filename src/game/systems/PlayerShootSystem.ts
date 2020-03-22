@@ -6,7 +6,12 @@ import { Color } from "three";
 import { random } from "lodash";
 import { modulo } from "../core/Utils";
 import { SWAP_SPEED } from "../data/Globals";
-import { WeaponSpecs, WeaponState } from "../data/Weapon";
+import {
+    WeaponSpecs,
+    WeaponState,
+    WeaponAmmo,
+    WeaponSpec
+} from "../data/Weapon";
 
 export class PlayerShootSystem extends System {
     private readonly targets: Family;
@@ -78,10 +83,11 @@ export class PlayerShootSystem extends System {
             const entity = this.shooters.entities[i];
             const input = entity.getComponent(Comp.PlayerInput);
             const shooter = entity.getComponent(Comp.Shooter);
+            const weapon = WeaponSpecs[shooter.weaponIndex];
             const ammo = shooter.ammo[shooter.weaponIndex];
 
             const swap = input.weaponIndex !== shooter.weaponIndex;
-            const reload = ammo.loaded < 1;
+            const reload = this.getReload(ammo, weapon, input);
 
             if (shooter.state === WeaponState.Idle) {
                 if (swap) {
@@ -121,7 +127,6 @@ export class PlayerShootSystem extends System {
             }
 
             if (shooter.state === WeaponState.Cooldown) {
-                const weapon = WeaponSpecs[shooter.weaponIndex];
                 const fireRate = weapon.firerate;
                 const shootDelta = world.elapsedTime - shooter.shootTime;
                 if (shootDelta > fireRate) {
@@ -213,6 +218,16 @@ export class PlayerShootSystem extends System {
             //     this.fireBullets(world, entity);
             // }
         }
+    }
+
+    private getReload(
+        ammo: WeaponAmmo,
+        weapon: WeaponSpec,
+        input: Comp.PlayerInput
+    ) {
+        if (ammo.loaded >= weapon.maxLoadedAmmo) return false;
+        if (ammo.reserved < 1) return false;
+        return input.reload || ammo.loaded < 1;
     }
 
     private fireBullets(world: World, entity: Entity) {

@@ -33,6 +33,7 @@ export class PlayerInputSystem extends System {
         const walk = this.input.isKeyDown(KeyCode.SHIFT);
         const shoot = this.input.isMouseDown(MouseBtn.Left);
         const scope = this.input.isMouseDown(MouseBtn.Right);
+        const reload = this.input.isKeyDown(KeyCode.R);
 
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
@@ -50,6 +51,7 @@ export class PlayerInputSystem extends System {
             input.walk = walk;
             input.shoot = shoot;
             input.scope = scope;
+            input.reload = reload;
             input.weaponIndex = this.getWeaponIndex(input);
 
             if (entity.hasComponent(Comp.Rotation2D)) {
