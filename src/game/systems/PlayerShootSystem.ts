@@ -142,81 +142,17 @@ export class PlayerShootSystem extends System {
                 const weapon = WeaponSpecs[shooter.weaponIndex];
                 const reloadDelta = world.elapsedTime - shooter.reloadTime;
                 if (reloadDelta > weapon.reloadSpeed) {
-                    ammo.loaded = weapon.maxLoadedAmmo;
+                    const reload = Math.min(
+                        weapon.maxLoadedAmmo - ammo.loaded,
+                        ammo.reserved
+                    );
+
+                    ammo.loaded += reload;
+                    ammo.reserved -= reload;
                     // TODO - reduce reserved
                     return this.transition(WeaponState.Idle, entity, world);
                 }
             }
-
-            /**
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             *
-             */
-
-            // // Swap weapon
-            // if (input.nextWeapon !== 0) {
-            //     console.log("next weapon", input.nextWeapon);
-            //     shooter.swapTime = world.elapsedTime;
-            //     shooter.weaponIndex += input.nextWeapon;
-            //     shooter.weaponIndex = modulo(shooter.weaponIndex, 3);
-            // }
-
-            // const swapDelta = world.elapsedTime - shooter.swapTime;
-            // if (swapDelta < SWAP_SPEED) {
-            //     continue;
-            // }
-
-            // // Fire bullet
-            // const fireRate = weapon.firerate;
-            // const shootDelta = world.elapsedTime - shooter.shootTime;
-            // if (input.shoot && shootDelta > fireRate) {
-            //     const ammo = shooter.ammo[shooter.weaponIndex];
-            //     ammo.loaded--;
-            //     shooter.shootTime = world.elapsedTime;
-            //     this.fireBullets(world, entity);
-            // }
         }
     }
 
