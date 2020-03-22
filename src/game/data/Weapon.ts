@@ -1,5 +1,10 @@
 import { Texture } from "three";
 
+export interface WeaponAmmo {
+    loaded: number;
+    reserved: number;
+}
+
 export interface WeaponSpec {
     readonly scope: boolean;
     readonly spread: number;

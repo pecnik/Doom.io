@@ -9,6 +9,7 @@ import {
     Box2,
     PositionalAudio
 } from "three";
+import { WeaponSpecs, WeaponAmmo } from "./Weapon";
 
 export module Comp {
     const NEXT_TAG = () => uniqueId("comp-tag");
@@ -54,7 +55,12 @@ export module Comp {
         public swapTime = 0;
         public shootTime = 0;
         public weaponIndex = 0;
-        public loadedAmmo = 32;
+        public ammo: WeaponAmmo[] = WeaponSpecs.map(spec => {
+            return {
+                loaded: spec.maxLoadedAmmo,
+                reserved: spec.maxReservedAmmo
+            };
+        });
     }
 
     export class Render implements Component {

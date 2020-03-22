@@ -49,8 +49,9 @@ export class PlayerShootSystem extends System {
             const fireRate = weapon.firerate;
             const shootDelta = world.elapsedTime - shooter.shootTime;
             if (input.shoot && shootDelta > fireRate) {
+                const ammo = shooter.ammo[shooter.weaponIndex];
+                ammo.loaded--;
                 shooter.shootTime = world.elapsedTime;
-                shooter.loadedAmmo -= weapon.bulletsPerShot;
                 this.fireBullets(world, entity);
             }
         }

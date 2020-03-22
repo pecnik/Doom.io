@@ -53,7 +53,7 @@ export class HudDisplaySystem extends System {
     private readonly ammoText = new HudElement({
         width: 256,
         height: 128,
-        props: { loadedAmmo: 0 }
+        props: { loadedAmmo: 0, reservedAmmo: 0 }
     });
 
     public constructor(world: World, hud: Hud) {
@@ -99,14 +99,20 @@ export class HudDisplaySystem extends System {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
             const shooter = entity.getComponent(Comp.Shooter);
+            const ammo = shooter.ammo[shooter.weaponIndex];
 
-            if (this.ammoText.props.loadedAmmo !== shooter.loadedAmmo) {
-                this.ammoText.props.loadedAmmo = shooter.loadedAmmo;
+            if (
+                this.ammoText.props.loadedAmmo !== ammo.loaded ||
+                this.ammoText.props.reservedAmmo !== ammo.reserved
+            ) {
+                this.ammoText.props.loadedAmmo = ammo.loaded;
+                this.ammoText.props.reservedAmmo = ammo.reserved;
+
                 const { ctx, width, height, props, texture } = this.ammoText;
                 texture.needsUpdate = true;
                 ctx.clearRect(0, 0, width, height);
                 ctx.fillText(
-                    props.loadedAmmo.toString(),
+                    [props.loadedAmmo, props.reservedAmmo].join("/"),
                     width / 2,
                     height / 2
                 );
