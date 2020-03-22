@@ -12,11 +12,11 @@ import {
     Group
 } from "three";
 import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
-import { WeaponSpec, WeaponSpecs, WeaponState } from "../data/Weapon";
+import { WeaponSpecs, WeaponState } from "../data/Weapon";
 import { Hud } from "../data/Hud";
 import { isScopeActive } from "../utils/EntityUtils";
 
-export enum State {
+enum Animation {
     Walk,
     Idle,
     Jump,
@@ -46,7 +46,7 @@ export class HudWeaponSystem extends System {
     private readonly family: Family;
     private readonly weapons: WeaponPovSprite[];
 
-    private state = State.Idle;
+    private animation = Animation.Idle;
     private transition = 0;
 
     public constructor(world: World, hud: Hud) {
@@ -87,26 +87,17 @@ export class HudWeaponSystem extends System {
                 return;
             }
 
-            // Update light color tint
-            const sprite = weaponSprite.material;
-            const cell = world.level.getCell(
-                Math.round(position.x),
-                Math.round(position.y)
-            );
-
-            if (cell !== undefined && !sprite.color.equals(cell.light)) {
-                sprite.color.lerp(cell.light, 0.125);
-                sprite.needsUpdate = true;
-            }
-
             // Scale sprite up when scope is active
             const scale = isScopeActive(entity) ? 2 : 1;
             if (weaponSprite.scale.x !== scale) {
                 weaponSprite.scale.lerp(new Vector3(scale, scale, scale), 0.25);
             }
 
+            // Update light color tint
+            this.setLightColor(weaponSprite, world, position);
+
             // Update pov state
-            const prevState = this.state;
+            const prevState = this.animation;
             const nextState = this.getState(entity);
 
             if (this.transition > 0) {
@@ -114,11 +105,14 @@ export class HudWeaponSystem extends System {
             }
 
             if (prevState !== nextState) {
-                this.state = nextState;
+                this.animation = nextState;
                 this.transition = 1;
             }
 
-            if (this.state === State.Shoot || this.state === State.Swap) {
+            if (
+                this.animation === Animation.Shoot ||
+                this.animation === Animation.Swap
+            ) {
                 this.transition = 0;
             }
 
@@ -134,18 +128,35 @@ export class HudWeaponSystem extends System {
         }
     }
 
-    private getState(entity: Entity): State {
+    private setLightColor(
+        weaponSprite: WeaponPovSprite,
+        world: World,
+        position: Comp.Position2D
+    ) {
+        const sprite = weaponSprite.material;
+        const cell = world.level.getCell(
+            Math.round(position.x),
+            Math.round(position.y)
+        );
+
+        if (cell !== undefined && !sprite.color.equals(cell.light)) {
+            sprite.color.lerp(cell.light, 0.125);
+            sprite.needsUpdate = true;
+        }
+    }
+
+    private getState(entity: Entity): Animation {
         const shooter = entity.getComponent(Comp.Shooter);
-        if (shooter.state === WeaponState.Swap) return State.Swap;
-        if (shooter.state === WeaponState.Shoot) return State.Shoot;
-        if (shooter.state === WeaponState.Reload) return State.Reload;
+        if (shooter.state === WeaponState.Swap) return Animation.Swap;
+        if (shooter.state === WeaponState.Shoot) return Animation.Shoot;
+        if (shooter.state === WeaponState.Reload) return Animation.Reload;
 
         const velocity = entity.getComponent(Comp.Velocity2D);
         if (velocity.lengthSq() > 0) {
-            return State.Walk;
+            return Animation.Walk;
         }
 
-        return State.Idle;
+        return Animation.Idle;
     }
 
     private getFrame(world: World, shooter: Comp.Shooter): Vector3 {
@@ -153,33 +164,33 @@ export class HudWeaponSystem extends System {
         const frame = new Vector3(0, 0, 0);
         let elapsed = world.elapsedTime;
 
-        switch (this.state) {
-            case State.Walk:
+        switch (this.animation) {
+            case Animation.Walk:
                 elapsed *= 10;
                 frame.y += Math.abs(Math.sin(elapsed) * 0.05);
                 frame.x += Math.cos(elapsed) * 0.05;
                 return frame;
 
-            case State.Jump:
-            case State.Fall:
+            case Animation.Jump:
+            case Animation.Fall:
                 frame.y += 0.125;
                 return frame;
 
-            case State.Reload:
+            case Animation.Reload:
                 frame.y -= 0.5;
                 return frame;
 
-            case State.Shoot:
+            case Animation.Shoot:
                 frame.x += weapon.knockback;
                 frame.y -= weapon.knockback;
                 return frame;
 
-            case State.Swap:
+            case Animation.Swap:
                 const swapDelta = world.elapsedTime - shooter.swapTime;
                 frame.y = swapDelta / SWAP_SPEED - 1;
                 return frame;
 
-            case State.Idle:
+            case Animation.Idle:
             default:
                 frame.y += Math.sin(elapsed) * 0.05;
                 return frame;
