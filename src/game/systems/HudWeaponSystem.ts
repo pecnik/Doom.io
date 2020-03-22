@@ -21,6 +21,7 @@ export enum State {
     Idle,
     Jump,
     Fall,
+    Swap,
     Shoot,
     Reload
 }
@@ -72,8 +73,6 @@ export class HudWeaponSystem extends System {
     }
 
     public update(world: World) {
-        const { elapsedTime } = world;
-
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
             const shooter = entity.getComponent(Comp.Shooter);
@@ -119,13 +118,11 @@ export class HudWeaponSystem extends System {
                 this.transition = 1;
             }
 
-            const weapon = WeaponSpecs[shooter.weaponIndex];
-            const frame = this.getFrame(world, weapon);
-
-            if (this.state === State.Shoot) {
+            if (this.state === State.Shoot || this.state === State.Swap) {
                 this.transition = 0;
             }
 
+            const frame = this.getFrame(world, shooter);
             if (this.transition === 0) {
                 weaponSprite.position.x = frame.x;
                 weaponSprite.position.y = frame.y;
@@ -134,17 +131,12 @@ export class HudWeaponSystem extends System {
                 pos.x = ease(pos.x, frame.x, 1 - this.transition);
                 pos.y = ease(pos.y, frame.y, 1 - this.transition);
             }
-
-            const swapDelta = elapsedTime - shooter.swapTime;
-            if (swapDelta < SWAP_SPEED) {
-                weaponSprite.position.y = swapDelta / SWAP_SPEED - 1;
-                continue;
-            }
         }
     }
 
     private getState(entity: Entity): State {
         const shooter = entity.getComponent(Comp.Shooter);
+        if (shooter.state === WeaponState.Swap) return State.Swap;
         if (shooter.state === WeaponState.Shoot) return State.Shoot;
         if (shooter.state === WeaponState.Reload) return State.Reload;
 
@@ -156,9 +148,11 @@ export class HudWeaponSystem extends System {
         return State.Idle;
     }
 
-    private getFrame(world: World, weapon: WeaponSpec): Vector3 {
+    private getFrame(world: World, shooter: Comp.Shooter): Vector3 {
+        const weapon = WeaponSpecs[shooter.weaponIndex];
         const frame = new Vector3(0, 0, 0);
         let elapsed = world.elapsedTime;
+
         switch (this.state) {
             case State.Walk:
                 elapsed *= 10;
@@ -178,6 +172,11 @@ export class HudWeaponSystem extends System {
             case State.Shoot:
                 frame.x += weapon.knockback;
                 frame.y -= weapon.knockback;
+                return frame;
+
+            case State.Swap:
+                const swapDelta = world.elapsedTime - shooter.swapTime;
+                frame.y = swapDelta / SWAP_SPEED - 1;
                 return frame;
 
             case State.Idle:
