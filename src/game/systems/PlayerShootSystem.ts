@@ -6,7 +6,7 @@ import { Color } from "three";
 import { random } from "lodash";
 import { modulo } from "../core/Utils";
 import { SWAP_SPEED } from "../data/Globals";
-import { WeaponSpecs } from "../data/Weapon";
+import { WeaponSpecs, WeaponState } from "../data/Weapon";
 
 export class PlayerShootSystem extends System {
     private readonly targets: Family;
@@ -25,35 +25,155 @@ export class PlayerShootSystem extends System {
             .build();
     }
 
+    private transition(state: WeaponState, entity: Entity, world: World) {
+        const input = entity.getComponent(Comp.PlayerInput);
+        const shooter = entity.getComponent(Comp.Shooter);
+
+        if (state === WeaponState.Idle) {
+            console.log("> IDLE");
+            shooter.state = WeaponState.Idle;
+            return;
+        }
+
+        if (state === WeaponState.Shoot) {
+            console.log("> Shoot");
+            shooter.state = WeaponState.Shoot;
+            shooter.shootTime = world.elapsedTime;
+
+            const ammo = shooter.ammo[shooter.weaponIndex];
+            ammo.loaded--;
+            shooter.shootTime = world.elapsedTime;
+            this.fireBullets(world, entity);
+
+            return;
+        }
+
+        if (state === WeaponState.Swap) {
+            console.log("> SWAP");
+            shooter.state = WeaponState.Swap;
+            shooter.swapTime = world.elapsedTime;
+            shooter.weaponIndex += input.nextWeapon;
+            shooter.weaponIndex = modulo(shooter.weaponIndex, 3);
+            return;
+        }
+
+        if (state === WeaponState.Cooldown) {
+            shooter.state = WeaponState.Cooldown;
+            return;
+        }
+
+        console.warn(`> No state transition for ${state}`);
+    }
+
     public update(world: World) {
         for (let i = 0; i < this.shooters.entities.length; i++) {
             const entity = this.shooters.entities[i];
             const input = entity.getComponent(Comp.PlayerInput);
             const shooter = entity.getComponent(Comp.Shooter);
-            const weapon = WeaponSpecs[shooter.weaponIndex];
 
-            // Swap weapon
-            if (input.nextWeapon !== 0) {
-                console.log("next weapon", input.nextWeapon);
-                shooter.swapTime = world.elapsedTime;
-                shooter.weaponIndex += input.nextWeapon;
-                shooter.weaponIndex = modulo(shooter.weaponIndex, 3);
+            if (shooter.state === WeaponState.Idle) {
+                if (input.nextWeapon !== 0) {
+                    return this.transition(WeaponState.Swap, entity, world);
+                }
+
+                if (input.shoot) {
+                    return this.transition(WeaponState.Shoot, entity, world);
+                }
             }
 
-            const swapDelta = world.elapsedTime - shooter.swapTime;
-            if (swapDelta < SWAP_SPEED) {
-                continue;
+            if (shooter.state === WeaponState.Swap) {
+                const swapDelta = world.elapsedTime - shooter.swapTime;
+                if (swapDelta > SWAP_SPEED) {
+                    return this.transition(WeaponState.Idle, entity, world);
+                }
+
+                if (input.nextWeapon !== 0) {
+                    return this.transition(WeaponState.Swap, entity, world);
+                }
             }
 
-            // Fire bullet
-            const fireRate = weapon.firerate;
-            const shootDelta = world.elapsedTime - shooter.shootTime;
-            if (input.shoot && shootDelta > fireRate) {
-                const ammo = shooter.ammo[shooter.weaponIndex];
-                ammo.loaded--;
-                shooter.shootTime = world.elapsedTime;
-                this.fireBullets(world, entity);
+            if (shooter.state === WeaponState.Shoot) {
+                return this.transition(WeaponState.Cooldown, entity, world);
             }
+
+            if (shooter.state === WeaponState.Cooldown) {
+                const weapon = WeaponSpecs[shooter.weaponIndex];
+                const fireRate = weapon.firerate;
+                const shootDelta = world.elapsedTime - shooter.shootTime;
+                if (shootDelta > fireRate) {
+                    this.transition(WeaponState.Idle, entity, world);
+                }
+            }
+
+            /**
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             *
+             */
+
+            // // Swap weapon
+            // if (input.nextWeapon !== 0) {
+            //     console.log("next weapon", input.nextWeapon);
+            //     shooter.swapTime = world.elapsedTime;
+            //     shooter.weaponIndex += input.nextWeapon;
+            //     shooter.weaponIndex = modulo(shooter.weaponIndex, 3);
+            // }
+
+            // const swapDelta = world.elapsedTime - shooter.swapTime;
+            // if (swapDelta < SWAP_SPEED) {
+            //     continue;
+            // }
+
+            // // Fire bullet
+            // const fireRate = weapon.firerate;
+            // const shootDelta = world.elapsedTime - shooter.shootTime;
+            // if (input.shoot && shootDelta > fireRate) {
+            //     const ammo = shooter.ammo[shooter.weaponIndex];
+            //     ammo.loaded--;
+            //     shooter.shootTime = world.elapsedTime;
+            //     this.fireBullets(world, entity);
+            // }
         }
     }
 

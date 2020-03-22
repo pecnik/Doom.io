@@ -1,5 +1,12 @@
 import { Texture } from "three";
 
+export enum WeaponState {
+    Idle,
+    Swap,
+    Shoot,
+    Cooldown
+}
+
 export interface WeaponAmmo {
     loaded: number;
     reserved: number;

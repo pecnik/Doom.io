@@ -9,7 +9,7 @@ import {
     Box2,
     PositionalAudio
 } from "three";
-import { WeaponSpecs, WeaponAmmo } from "./Weapon";
+import { WeaponSpecs, WeaponState, WeaponAmmo } from "./Weapon";
 
 export module Comp {
     const NEXT_TAG = () => uniqueId("comp-tag");
@@ -52,6 +52,7 @@ export module Comp {
 
     export class Shooter implements Component {
         public static readonly tag = NEXT_TAG();
+        public state = WeaponState.Idle;
         public swapTime = 0;
         public shootTime = 0;
         public weaponIndex = 0;
