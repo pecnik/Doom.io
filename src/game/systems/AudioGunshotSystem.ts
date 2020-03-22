@@ -3,6 +3,7 @@ import { Group, PositionalAudio } from "three";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { onFamilyChange } from "../utils/EntityUtils";
+import { WeaponSpecs } from "../data/Weapon";
 
 export class AudioGunshotSystem extends System {
     private readonly family: Family;
@@ -43,7 +44,7 @@ export class AudioGunshotSystem extends System {
             const shooter = entity.getComponent(Comp.Shooter);
             const gunshot = entity.getComponent(Comp.Gunshot);
 
-            const weapon = world.weapons[shooter.weaponIndex];
+            const weapon = WeaponSpecs[shooter.weaponIndex];
             if (weapon === undefined) continue;
             if (weapon.fireSoundBuffer === undefined) continue;
 

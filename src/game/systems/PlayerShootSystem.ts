@@ -6,6 +6,7 @@ import { Color } from "three";
 import { random } from "lodash";
 import { modulo } from "../core/Utils";
 import { SWAP_SPEED } from "../data/Globals";
+import { WeaponSpecs } from "../data/Weapon";
 
 export class PlayerShootSystem extends System {
     private readonly targets: Family;
@@ -29,7 +30,7 @@ export class PlayerShootSystem extends System {
             const entity = this.shooters.entities[i];
             const input = entity.getComponent(Comp.PlayerInput);
             const shooter = entity.getComponent(Comp.Shooter);
-            const weapon = world.weapons[shooter.weaponIndex];
+            const weapon = WeaponSpecs[shooter.weaponIndex];
 
             // Swap weapon
             if (input.nextWeapon !== 0) {
@@ -59,7 +60,7 @@ export class PlayerShootSystem extends System {
         const position = entity.getComponent(Comp.Position2D);
         const rotation = entity.getComponent(Comp.Rotation2D);
         const shooter = entity.getComponent(Comp.Shooter);
-        const weapon = world.weapons[shooter.weaponIndex];
+        const weapon = WeaponSpecs[shooter.weaponIndex];
 
         // Init hitscan
         Hitscan.caster.entity = entity;

@@ -15,6 +15,7 @@ import { AudioGunshotSystem } from "./systems/AudioGunshotSystem";
 import { HudWeaponSystem } from "./systems/HudWeaponSystem";
 import { AudioListener, AudioLoader, TextureLoader } from "three";
 import { HudDisplaySystem } from "./systems/HudDisplaySystem";
+import { WeaponSpecs } from "./data/Weapon";
 
 export class GameClient {
     public readonly input: Input;
@@ -46,7 +47,7 @@ export class GameClient {
             }),
 
             // Preload weapon sprite
-            ...this.world.weapons.map(weapon => {
+            ...WeaponSpecs.map(weapon => {
                 return new Promise(resolve => {
                     new TextureLoader().load(weapon.povSpriteSrc, texture => {
                         weapon.povSpriteTexture = texture;
@@ -56,7 +57,7 @@ export class GameClient {
             }),
 
             // Preload weapon audio
-            ...this.world.weapons.map(weapon => {
+            ...WeaponSpecs.map(weapon => {
                 return new Promise(resolve => {
                     new AudioLoader().load(weapon.fireSoundSrc, buffer => {
                         weapon.fireSoundBuffer = buffer;

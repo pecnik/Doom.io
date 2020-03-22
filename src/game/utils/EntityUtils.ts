@@ -11,6 +11,7 @@ import {
     Intersection
 } from "three";
 import { World } from "../data/World";
+import { WeaponSpecs } from "../data/Weapon";
 
 export function onFamilyChange(
     world: World,
@@ -41,7 +42,7 @@ export function isScopeActive(world: World, entity: Entity) {
 
     const input = entity.getComponent(Comp.PlayerInput);
     const shooter = entity.getComponent(Comp.Shooter);
-    const weapon = world.weapons[shooter.weaponIndex];
+    const weapon = WeaponSpecs[shooter.weaponIndex];
     return input.scope && weapon.scope;
 }
 

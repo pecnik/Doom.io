@@ -12,7 +12,7 @@ import {
     Group
 } from "three";
 import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
-import { Weapon } from "../data/Weapon";
+import { WeaponSpec, WeaponSpecs } from "../data/Weapon";
 import { Hud } from "../data/Hud";
 import { isScopeActive } from "../utils/EntityUtils";
 
@@ -56,7 +56,7 @@ export class HudWeaponSystem extends System {
             .include(Comp.Shooter)
             .build();
 
-        this.weapons = world.weapons.map(weapon => {
+        this.weapons = WeaponSpecs.map(weapon => {
             return new WeaponPovSprite(weapon.povSpriteTexture as Texture);
         });
 
@@ -118,7 +118,7 @@ export class HudWeaponSystem extends System {
                 this.transition = 1;
             }
 
-            const weapon = world.weapons[shooter.weaponIndex];
+            const weapon = WeaponSpecs[shooter.weaponIndex];
             const frame = this.getFrame(world, weapon);
 
             if (this.state === State.Shoot) {
@@ -156,7 +156,7 @@ export class HudWeaponSystem extends System {
         return State.Idle;
     }
 
-    private getFrame(world: World, weapon: Weapon) {
+    private getFrame(world: World, weapon: WeaponSpec) {
         const frame = new Vector3(0, 0, 0);
         let elapsed = world.elapsedTime;
         switch (this.state) {
