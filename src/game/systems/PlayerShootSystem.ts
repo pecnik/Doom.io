@@ -35,13 +35,11 @@ export class PlayerShootSystem extends System {
         const shooter = entity.getComponent(Comp.Shooter);
 
         if (state === WeaponState.Idle) {
-            console.log("> Idle");
             shooter.state = WeaponState.Idle;
             return;
         }
 
         if (state === WeaponState.Shoot) {
-            console.log("> Shoot");
             shooter.state = WeaponState.Shoot;
             shooter.shootTime = world.elapsedTime;
 
@@ -54,7 +52,6 @@ export class PlayerShootSystem extends System {
         }
 
         if (state === WeaponState.Swap) {
-            console.log("> Swap");
             shooter.state = WeaponState.Swap;
             shooter.swapTime = world.elapsedTime;
             shooter.weaponIndex = input.weaponIndex;
@@ -63,13 +60,11 @@ export class PlayerShootSystem extends System {
         }
 
         if (state === WeaponState.Cooldown) {
-            console.log("> Cooldown");
             shooter.state = WeaponState.Cooldown;
             return;
         }
 
         if (state === WeaponState.Reload) {
-            console.log("> Reload");
             shooter.state = WeaponState.Reload;
             shooter.reloadTime = world.elapsedTime;
             return;
