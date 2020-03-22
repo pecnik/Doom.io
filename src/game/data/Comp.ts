@@ -55,6 +55,7 @@ export module Comp {
         public state = WeaponState.Idle;
         public swapTime = 0;
         public shootTime = 0;
+        public reloadTime = 0;
         public weaponIndex = 0;
         public ammo: WeaponAmmo[] = WeaponSpecs.map(spec => {
             return {

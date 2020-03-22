@@ -30,7 +30,7 @@ export class PlayerShootSystem extends System {
         const shooter = entity.getComponent(Comp.Shooter);
 
         if (state === WeaponState.Idle) {
-            console.log("> IDLE");
+            console.log("> Idle");
             shooter.state = WeaponState.Idle;
             return;
         }
@@ -49,7 +49,7 @@ export class PlayerShootSystem extends System {
         }
 
         if (state === WeaponState.Swap) {
-            console.log("> SWAP");
+            console.log("> Swap");
             shooter.state = WeaponState.Swap;
             shooter.swapTime = world.elapsedTime;
             shooter.weaponIndex = input.weaponIndex;
@@ -58,7 +58,15 @@ export class PlayerShootSystem extends System {
         }
 
         if (state === WeaponState.Cooldown) {
+            console.log("> Cooldown");
             shooter.state = WeaponState.Cooldown;
+            return;
+        }
+
+        if (state === WeaponState.Reload) {
+            console.log("> Reload");
+            shooter.state = WeaponState.Reload;
+            shooter.reloadTime = world.elapsedTime;
             return;
         }
 
@@ -70,10 +78,18 @@ export class PlayerShootSystem extends System {
             const entity = this.shooters.entities[i];
             const input = entity.getComponent(Comp.PlayerInput);
             const shooter = entity.getComponent(Comp.Shooter);
+            const ammo = shooter.ammo[shooter.weaponIndex];
+
+            const swap = input.weaponIndex !== shooter.weaponIndex;
+            const reload = ammo.loaded < 1;
 
             if (shooter.state === WeaponState.Idle) {
-                if (input.weaponIndex !== shooter.weaponIndex) {
+                if (swap) {
                     return this.transition(WeaponState.Swap, entity, world);
+                }
+
+                if (reload) {
+                    return this.transition(WeaponState.Reload, entity, world);
                 }
 
                 if (input.shoot) {
@@ -87,7 +103,7 @@ export class PlayerShootSystem extends System {
                     return this.transition(WeaponState.Idle, entity, world);
                 }
 
-                if (input.weaponIndex !== shooter.weaponIndex) {
+                if (swap) {
                     return this.transition(WeaponState.Swap, entity, world);
                 }
             }
@@ -102,6 +118,20 @@ export class PlayerShootSystem extends System {
                 const shootDelta = world.elapsedTime - shooter.shootTime;
                 if (shootDelta > fireRate) {
                     this.transition(WeaponState.Idle, entity, world);
+                }
+            }
+
+            if (shooter.state === WeaponState.Reload) {
+                if (swap) {
+                    return this.transition(WeaponState.Swap, entity, world);
+                }
+
+                const weapon = WeaponSpecs[shooter.weaponIndex];
+                const reloadDelta = world.elapsedTime - shooter.reloadTime;
+                if (reloadDelta > weapon.reloadSpeed) {
+                    ammo.loaded = weapon.maxLoadedAmmo;
+                    // TODO - reduce reserved
+                    return this.transition(WeaponState.Idle, entity, world);
                 }
             }
 
