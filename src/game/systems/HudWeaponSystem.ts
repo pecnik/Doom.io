@@ -100,7 +100,7 @@ export class HudWeaponSystem extends System {
             }
 
             // Scale sprite up when scope is active
-            const scale = isScopeActive(world, entity) ? 2 : 1;
+            const scale = isScopeActive(entity) ? 2 : 1;
             if (weaponSprite.scale.x !== scale) {
                 weaponSprite.scale.lerp(new Vector3(scale, scale, scale), 0.25);
             }

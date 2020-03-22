@@ -24,7 +24,7 @@ export class PlayerCameraSystem extends System {
             world.camera.position.set(position.x, 0, position.y);
             world.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
 
-            const fov = isScopeActive(world, entity) ? 60 : 90;
+            const fov = isScopeActive(entity) ? 60 : 90;
             if (world.camera.fov !== fov) {
                 world.camera.fov = lerp(world.camera.fov, fov, 10);
                 world.camera.updateProjectionMatrix();

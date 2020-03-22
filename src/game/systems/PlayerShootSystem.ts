@@ -70,7 +70,7 @@ export class PlayerShootSystem extends System {
         Hitscan.camera.updateWorldMatrix(false, false);
 
         // Get spread
-        const steady = isScopeActive(world, entity) ? 0.25 : 1;
+        const steady = isScopeActive(entity) ? 0.25 : 1;
         const spread = weapon.spread * steady;
 
         // Fire off all bullets

@@ -35,7 +35,7 @@ export function onFamilyChange(
     world.addEntityListener(listener);
 }
 
-export function isScopeActive(world: World, entity: Entity) {
+export function isScopeActive(entity: Entity) {
     if (!entity.getComponent(Comp.Shooter)) {
         return false;
     }
