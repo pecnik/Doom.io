@@ -103,13 +103,21 @@ export class PlayerShootSystem extends System {
                     return this.transition(WeaponState.Idle, entity, world);
                 }
 
+                if (reload) {
+                    return this.transition(WeaponState.Reload, entity, world);
+                }
+
                 if (swap) {
                     return this.transition(WeaponState.Swap, entity, world);
                 }
             }
 
             if (shooter.state === WeaponState.Shoot) {
-                return this.transition(WeaponState.Cooldown, entity, world);
+                if (reload) {
+                    return this.transition(WeaponState.Reload, entity, world);
+                } else {
+                    return this.transition(WeaponState.Cooldown, entity, world);
+                }
             }
 
             if (shooter.state === WeaponState.Cooldown) {

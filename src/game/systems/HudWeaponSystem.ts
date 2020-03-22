@@ -12,7 +12,7 @@ import {
     Group
 } from "three";
 import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
-import { WeaponSpec, WeaponSpecs } from "../data/Weapon";
+import { WeaponSpec, WeaponSpecs, WeaponState } from "../data/Weapon";
 import { Hud } from "../data/Hud";
 import { isScopeActive } from "../utils/EntityUtils";
 
@@ -21,7 +21,8 @@ export enum State {
     Idle,
     Jump,
     Fall,
-    Shoot
+    Shoot,
+    Reload
 }
 
 export class WeaponPovSprite extends Object3D {
@@ -107,7 +108,7 @@ export class HudWeaponSystem extends System {
 
             // Update pov state
             const prevState = this.state;
-            const nextState = this.getState(world, entity);
+            const nextState = this.getState(entity);
 
             if (this.transition > 0) {
                 this.transition = lerp(this.transition, 0, 0.05);
@@ -142,11 +143,10 @@ export class HudWeaponSystem extends System {
         }
     }
 
-    private getState(world: World, entity: Entity) {
+    private getState(entity: Entity): State {
         const shooter = entity.getComponent(Comp.Shooter);
-        if (shooter.shootTime === world.elapsedTime) {
-            return State.Shoot;
-        }
+        if (shooter.state === WeaponState.Shoot) return State.Shoot;
+        if (shooter.state === WeaponState.Reload) return State.Reload;
 
         const velocity = entity.getComponent(Comp.Velocity2D);
         if (velocity.lengthSq() > 0) {
@@ -156,7 +156,7 @@ export class HudWeaponSystem extends System {
         return State.Idle;
     }
 
-    private getFrame(world: World, weapon: WeaponSpec) {
+    private getFrame(world: World, weapon: WeaponSpec): Vector3 {
         const frame = new Vector3(0, 0, 0);
         let elapsed = world.elapsedTime;
         switch (this.state) {
@@ -169,6 +169,10 @@ export class HudWeaponSystem extends System {
             case State.Jump:
             case State.Fall:
                 frame.y += 0.125;
+                return frame;
+
+            case State.Reload:
+                frame.y -= 0.5;
                 return frame;
 
             case State.Shoot:

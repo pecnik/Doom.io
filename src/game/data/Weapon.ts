@@ -37,7 +37,7 @@ export const WeaponSpecs: Readonly<WeaponSpec[]> = Object.freeze([
         povSpriteSrc: "/assets/sprites/pov-gun.png",
         fireSoundSrc: "/assets/sounds/fire-gun.wav",
         firerate: 1 / 3,
-        reloadSpeed: 0.5,
+        reloadSpeed: 2,
 
         knockback: 0.125,
         maxLoadedAmmo: 8,
@@ -50,7 +50,7 @@ export const WeaponSpecs: Readonly<WeaponSpec[]> = Object.freeze([
         povSpriteSrc: "/assets/sprites/pov-shotgun.png",
         fireSoundSrc: "/assets/sounds/fire-shotgun.wav",
         firerate: 1,
-        reloadSpeed: 1,
+        reloadSpeed: 3,
 
         knockback: 0.3,
         maxLoadedAmmo: 3,
@@ -63,7 +63,7 @@ export const WeaponSpecs: Readonly<WeaponSpec[]> = Object.freeze([
         povSpriteSrc: "/assets/sprites/pov-machine-gun.png",
         fireSoundSrc: "/assets/sounds/fire-machine-gun.wav",
         firerate: 1 / 8,
-        reloadSpeed: 1.5,
+        reloadSpeed: 5,
 
         maxLoadedAmmo: 32,
         maxReservedAmmo: 128,
