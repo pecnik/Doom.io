@@ -98,7 +98,7 @@ export class PlayerShootSystem extends System {
                     return this.transition(WeaponState.Reload, entity, world);
                 }
 
-                if (input.shoot) {
+                if (input.shoot && ammo.loaded > 0) {
                     return this.transition(WeaponState.Shoot, entity, world);
                 }
             }
@@ -130,7 +130,7 @@ export class PlayerShootSystem extends System {
                 const fireRate = weapon.firerate;
                 const shootDelta = world.elapsedTime - shooter.shootTime;
                 if (shootDelta > fireRate) {
-                    this.transition(WeaponState.Idle, entity, world);
+                    return this.transition(WeaponState.Idle, entity, world);
                 }
             }
 
@@ -149,7 +149,6 @@ export class PlayerShootSystem extends System {
 
                     ammo.loaded += reload;
                     ammo.reserved -= reload;
-                    // TODO - reduce reserved
                     return this.transition(WeaponState.Idle, entity, world);
                 }
             }
