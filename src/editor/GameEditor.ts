@@ -59,8 +59,9 @@ export class GameEditor implements Game {
 
     public update(dt: number) {
         this.cameraController(dt);
-        this.updateBrush();
+        // this.updateBrush();
         this.placeBrush();
+        this.removeVoxel();
         this.input.clear();
     }
 
@@ -130,7 +131,51 @@ export class GameEditor implements Game {
 
     private placeBrush() {
         const place = this.input.isMousePresed(MouseBtn.Left);
-        if (place && this.world.brush.visible) {
+        if (!place) {
+            return;
+        }
+
+        const [hit] = this.hitscan();
+        if (!hit) return;
+        if (!hit.face) return;
+
+        const point = hit.point.clone();
+        const normal = hit.face.normal.clone().multiplyScalar(0.1);
+        point.add(normal);
+
+        const voxel = this.world.level.getVoxel(point);
+        if (voxel === undefined) return;
+
+        voxel.solid = true;
+
+        // Reconstruct level mesh
+        const geo = new BoxGeometry(1, 1, 1);
+        const mat = new MeshBasicMaterial({
+            color: 0x00ff22,
+            wireframe: true
+        });
+        this.world.level.scene.remove(...this.world.level.scene.children);
+        this.world.level.forEachVoxel(voxel => {
+            if (voxel.solid) {
+                const block = new Mesh(geo, mat);
+                block.position.copy(voxel.origin);
+                console.log(voxel.origin);
+                this.world.level.scene.add(block);
+            }
+        });
+    }
+
+    private hitscan() {
+        const buffer: Intersection[] = [];
+        Hitscan.raycaster.setFromCamera(Hitscan.origin, this.world.camera);
+        Hitscan.raycaster.intersectObject(this.world.floor, true, buffer);
+        Hitscan.raycaster.intersectObject(this.world.level.scene, true, buffer);
+        return buffer;
+    }
+
+    private removeVoxel() {
+        const remove = this.input.isMousePresed(MouseBtn.Right);
+        if (remove && this.world.brush.visible) {
             const point = this.world.brush.position;
             const voxel = this.world.level.getVoxel(point);
             if (voxel === undefined) return;

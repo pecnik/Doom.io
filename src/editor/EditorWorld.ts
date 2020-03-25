@@ -40,12 +40,10 @@ export class EditorWorld {
             this.level.depth
         );
 
-        const floor = new Mesh(geo, mat);
-        floor.translateY(-0.5);
-        floor.translateX(this.level.width / 2 - 0.5);
-        floor.translateZ(this.level.depth / 2 - 0.5);
-        floor.rotateX(-Math.PI / 2);
-        return floor;
+        geo.rotateX(-Math.PI / 2);
+        geo.translate(-0.5, -0.5, -0.5);
+        geo.translate(this.level.width / 2, 0, this.level.depth / 2);
+        return new Mesh(geo, mat);
     }
 
     private createBrush() {
