@@ -3,7 +3,7 @@ import { clamp } from "lodash";
 
 export interface Game {
     readonly world: { scene: Scene; camera: PerspectiveCamera };
-    readonly hud?: { scene: Scene; camera: Camera };
+    readonly hud: { scene: Scene; camera: Camera };
     preload(): Promise<any>;
     create(): void;
     update(dt: number): void;
@@ -55,16 +55,9 @@ export class Engine {
 
     private update(dt: number) {
         const { world, hud } = this.game;
-
         this.game.update(dt);
-
-        if (world !== undefined) {
-            this.renderer.render(world.scene, world.camera);
-        }
-
-        if (hud !== undefined) {
-            this.renderer.render(hud.scene, hud.camera);
-        }
+        this.renderer.render(world.scene, world.camera);
+        this.renderer.render(hud.scene, hud.camera);
     }
 
     private loop(gameTime: number) {

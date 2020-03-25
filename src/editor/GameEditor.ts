@@ -3,12 +3,36 @@ import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { GameEditorWorld } from "./GameEditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
-import { Vector3, Vector2, MeshBasicMaterial, BoxGeometry, Mesh } from "three";
+import {
+    Vector3,
+    Vector2,
+    MeshBasicMaterial,
+    BoxGeometry,
+    Mesh,
+    Scene,
+    OrthographicCamera,
+    AdditiveBlending,
+    TextureLoader,
+    NearestFilter,
+    PlaneGeometry
+} from "three";
 import { Hitscan } from "../game/utils/EntityUtils";
+import { HUD_WIDTH, HUD_HEIGHT } from "../game/data/Globals";
 
 export class GameEditor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
     public readonly world = new GameEditorWorld();
+    public readonly hud = {
+        scene: new Scene(),
+        camera: new OrthographicCamera(
+            -HUD_WIDTH / 2,
+            HUD_WIDTH / 2,
+            HUD_HEIGHT / 2,
+            -HUD_HEIGHT / 2,
+            0,
+            30
+        )
+    };
 
     public preload(): Promise<any> {
         return Promise.resolve();
@@ -16,6 +40,20 @@ export class GameEditor implements Game {
 
     public create() {
         console.log(`> Editor::created`);
+
+        new TextureLoader().load("/assets/sprites/crosshair.png", map => {
+            const material = new MeshBasicMaterial({
+                map,
+                blending: AdditiveBlending
+            });
+
+            map.magFilter = NearestFilter;
+            map.minFilter = NearestFilter;
+
+            const geometry = new PlaneGeometry(64, 64);
+            const crosshair = new Mesh(geometry, material);
+            this.hud.scene.add(crosshair);
+        });
     }
 
     public update(dt: number) {
@@ -69,11 +107,14 @@ export class GameEditor implements Game {
 
         for (let i = 0; i < rsps.length; i++) {
             const rsp = rsps[i];
+            if (!rsp.face) continue;
+
+            const normal = rsp.face.normal.clone().multiplyScalar(0.5);
             this.world.brush.visible = true;
             this.world.brush.position.set(
-                Math.round(rsp.point.x),
-                Math.round(rsp.point.y),
-                Math.round(rsp.point.z)
+                Math.round(rsp.point.x + normal.x),
+                Math.round(rsp.point.y + normal.y),
+                Math.round(rsp.point.z + normal.z)
             );
 
             if (this.world.brush.position.y < 0) {
