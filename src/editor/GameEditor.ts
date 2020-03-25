@@ -74,6 +74,11 @@ export class GameEditor implements Game {
                 Math.round(rsp.point.y),
                 Math.round(rsp.point.z)
             );
+
+            if (this.world.brush.position.y < 0) {
+                this.world.brush.position.y = 0;
+            }
+
             break;
         }
     }

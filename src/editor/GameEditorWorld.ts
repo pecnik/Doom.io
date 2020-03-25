@@ -47,12 +47,22 @@ export class GameEditorWorld {
     }
 
     private createBrush() {
-        const mat = new MeshBasicMaterial({
+        const geo = new BoxGeometry(1, 1, 1);
+
+        const fill = new MeshBasicMaterial({
+            color: 0xff00ff,
+            opacity: 0.25,
+            transparent: true
+        });
+
+        const stroke = new MeshBasicMaterial({
             color: 0xff00ff,
             wireframe: true
         });
 
-        const geo = new BoxGeometry(1, 1, 1);
-        return new Mesh(geo, mat);
+        const brush = new Object3D();
+        brush.add(new Mesh(geo, fill));
+        brush.add(new Mesh(geo, stroke));
+        return brush;
     }
 }
