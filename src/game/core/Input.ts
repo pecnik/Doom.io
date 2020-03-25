@@ -30,7 +30,8 @@ export class Input {
     private readonly keys: boolean[] = [];
     private readonly prev: boolean[] = [];
     public readonly mouse = {
-        btn: [false, false, false],
+        btns: [false, false, false],
+        prev: [false, false, false],
         dx: 0,
         dy: 0,
         scroll: 0
@@ -71,11 +72,11 @@ export class Input {
         });
 
         const onmousedown = handler((ev: MouseEvent) => {
-            this.mouse.btn[ev.button] = true;
+            this.mouse.btns[ev.button] = true;
         });
 
         const onmouseup = handler((ev: MouseEvent) => {
-            this.mouse.btn[ev.button] = false;
+            this.mouse.btns[ev.button] = false;
         });
 
         const onkeydown = handler((ev: KeyboardEvent) => {
@@ -122,7 +123,7 @@ export class Input {
         }
 
         for (let i = 0; i < 3; i++) {
-            this.mouse.btn[i] = false;
+            this.mouse.btns[i] = false;
         }
     }
 
@@ -143,7 +144,15 @@ export class Input {
     }
 
     public isMouseDown(btn: MouseBtn): boolean {
-        return this.mouse.btn[btn] === true;
+        return this.mouse.btns[btn] === true;
+    }
+
+    public isMousePresed(btn: MouseBtn): boolean {
+        return this.mouse.btns[btn] === true && this.mouse.prev[btn] === false;
+    }
+
+    public isMouseReleased(btn: MouseBtn): boolean {
+        return this.mouse.btns[btn] === false && this.mouse.prev[btn] === true;
     }
 
     public clear() {
@@ -151,5 +160,6 @@ export class Input {
         this.mouse.dy = 0;
         this.mouse.scroll = 0;
         Object.assign(this.prev, this.keys);
+        Object.assign(this.mouse.prev, this.mouse.btns);
     }
 }

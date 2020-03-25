@@ -20,8 +20,8 @@ export class GameEditorWorld {
     public readonly floor = this.createFloor();
 
     public constructor() {
-        this.camera.position.z = 5;
-        this.camera.position.y = 2;
+        this.camera.position.set(0, 4, this.depth * 0.25);
+        this.camera.rotation.set(Math.PI * -0.25, 0, 0, "YXZ");
 
         this.level.add(this.floor);
         this.scene.add(this.camera, this.brush, this.level);

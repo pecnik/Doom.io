@@ -1,9 +1,9 @@
 import { Game } from "../game/core/Engine";
-import { Input, KeyCode } from "../game/core/Input";
+import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { GameEditorWorld } from "./GameEditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
-import { Vector3, Vector2 } from "three";
+import { Vector3, Vector2, MeshBasicMaterial, BoxGeometry, Mesh } from "three";
 import { Hitscan } from "../game/utils/EntityUtils";
 
 export class GameEditor implements Game {
@@ -20,7 +20,8 @@ export class GameEditor implements Game {
 
     public update(dt: number) {
         this.cameraController(dt);
-        this.updatePreview(dt);
+        this.updateBrush();
+        this.placeBrush();
         this.input.clear();
     }
 
@@ -60,15 +61,15 @@ export class GameEditor implements Game {
         this.world.camera.position.add(velocity);
     }
 
-    private updatePreview(_: number) {
-        const { dx, dy } = this.input.mouse;
-        if (dx === 0 && dy === 0) return;
-
+    private updateBrush() {
         Hitscan.raycaster.setFromCamera(Hitscan.origin, this.world.camera);
 
         const rsps = Hitscan.raycaster.intersectObject(this.world.level, true);
+        this.world.brush.visible = false;
+
         for (let i = 0; i < rsps.length; i++) {
             const rsp = rsps[i];
+            this.world.brush.visible = true;
             this.world.brush.position.set(
                 Math.round(rsp.point.x),
                 Math.round(rsp.point.y),
@@ -80,6 +81,18 @@ export class GameEditor implements Game {
             }
 
             break;
+        }
+    }
+
+    private placeBrush() {
+        const place = this.input.isMousePresed(MouseBtn.Left);
+        if (place && this.world.brush.visible) {
+            console.log("Place brush");
+            const geo = new BoxGeometry(1, 1, 1);
+            const mat = new MeshBasicMaterial({ color: 0x00ff22 });
+            const block = new Mesh(geo, mat);
+            block.position.copy(this.world.brush.position);
+            this.world.level.add(block);
         }
     }
 }
