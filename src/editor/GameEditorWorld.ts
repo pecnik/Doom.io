@@ -22,7 +22,7 @@ export class GameEditorWorld {
     }
 
     private createFloor() {
-        const mat = new MeshBasicMaterial({ color: 0xff00ff, wireframe: true });
+        const mat = new MeshBasicMaterial({ color: 0xffffff, wireframe: true });
         const geo = new PlaneGeometry(
             this.width,
             this.depth,
