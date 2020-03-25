@@ -9,7 +9,7 @@ import {
 } from "three";
 import { Level } from "./Level";
 
-export class GameEditorWorld {
+export class EditorWorld {
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
 

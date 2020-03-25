@@ -1,6 +1,6 @@
 import { Game } from "../game/core/Engine";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
-import { GameEditorWorld } from "./GameEditorWorld";
+import { EditorWorld } from "./EditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import {
@@ -22,7 +22,7 @@ import { HUD_WIDTH, HUD_HEIGHT } from "../game/data/Globals";
 
 export class GameEditor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
-    public readonly world = new GameEditorWorld();
+    public readonly world = new EditorWorld();
     public readonly hud = {
         scene: new Scene(),
         camera: new OrthographicCamera(
