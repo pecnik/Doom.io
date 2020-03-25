@@ -1,13 +1,21 @@
-import { WebGLRenderer } from "three";
+import { WebGLRenderer, Scene, Camera, PerspectiveCamera } from "three";
 import { GameClient } from "../GameClient";
 import { clamp } from "lodash";
+
+export interface GameApp {
+    readonly world: { scene: Scene; camera: PerspectiveCamera };
+    readonly hud: { scene: Scene; camera: Camera };
+    preload(): Promise<any>;
+    create(): void;
+    update(dt: number): void;
+}
 
 export class Engine {
     private readonly renderer: WebGLRenderer;
     private readonly gamearea: HTMLDivElement;
     private readonly viewport: HTMLCanvasElement;
 
-    private readonly game: GameClient;
+    private readonly app: GameApp;
     private gameTime = 0;
     private aspect = 1;
 
@@ -17,7 +25,7 @@ export class Engine {
         this.renderer = new WebGLRenderer({ canvas: this.viewport });
         this.renderer.autoClear = false;
         this.renderer.setClearColor(0x6495ed);
-        this.game = new GameClient();
+        this.app = new GameClient();
     }
 
     public start(width: number, height: number) {
@@ -37,18 +45,15 @@ export class Engine {
         // Call resize manually once
         this.onWindowResize();
 
-        this.game.initialize().then(() => {
-            // Start game
-            this.game.onStart();
-
-            // Start game loop
-            this.loop(0);
+        this.app.preload().then(() => {
+            this.app.create(); // Start game
+            this.loop(0); // Start game loop
         });
     }
 
     private update(dt: number) {
-        const { world, hud } = this.game;
-        this.game.update(dt);
+        const { world, hud } = this.app;
+        this.app.update(dt);
         this.renderer.render(world.scene, world.camera);
         this.renderer.render(hud.scene, hud.camera);
     }
@@ -80,7 +85,7 @@ export class Engine {
         }
 
         // Update camera
-        const camera = this.game.world.camera;
+        const camera = this.app.world.camera;
         camera.aspect = this.aspect;
         camera.near = 0.1;
         camera.far = 1000;

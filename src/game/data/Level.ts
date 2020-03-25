@@ -101,7 +101,7 @@ export class Level {
 
     private buildMesh(tileset: Tiled2D.Tileset, texture: Texture) {
         const setTextureUV = (cords: Vector2[][], tileId: number) => {
-            // Initialize UV
+            // preload UV
             const tileU = tileset.tilewidth / tileset.imagewidth;
             const tileV = tileset.tileheight / tileset.imageheight;
 

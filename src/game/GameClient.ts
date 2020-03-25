@@ -16,10 +16,11 @@ import { HudWeaponSystem } from "./systems/HudWeaponSystem";
 import { AudioListener, AudioLoader, TextureLoader } from "three";
 import { HudDisplaySystem } from "./systems/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Weapon";
+import { GameApp } from "./core/Engine";
 
-export class GameClient {
-    public readonly input: Input;
-    public readonly socket: SocketIOClient.Socket;
+export class GameClient implements GameApp {
+    private readonly socket: SocketIOClient.Socket;
+    private readonly input: Input;
     public readonly world = new World();
     public readonly hud = new Hud();
 
@@ -32,7 +33,7 @@ export class GameClient {
         });
     }
 
-    public initialize() {
+    public preload() {
         return Promise.all([
             this.world.level.load(),
             this.world.decals.load(),
@@ -68,7 +69,7 @@ export class GameClient {
         ]);
     }
 
-    public onStart() {
+    public create() {
         // Audio listener
         this.world.listener = new AudioListener();
         this.world.camera.add(this.world.listener);
@@ -91,22 +92,6 @@ export class GameClient {
         const player = EntityFactory.Player();
         player.getComponent(Comp.Position2D).set(3, 3);
         this.world.addEntity(player);
-
-        // const wall1 = EntityFactory.Wall();
-        // wall1.getComponent(Comp.Position2D).set(11, 3);
-        // this.world.addEntity(wall1);
-
-        // const wall2 = EntityFactory.Wall();
-        // wall2.getComponent(Comp.Position2D).set(3, 4);
-        // this.world.addEntity(wall2);
-
-        // const barrel1 = EntityFactory.Barrel();
-        // barrel1.getComponent(Comp.Position2D).set(11, 5);
-        // this.world.addEntity(barrel1);
-
-        // const barrel2 = EntityFactory.Barrel();
-        // barrel2.getComponent(Comp.Position2D).set(11.25, 5.5);
-        // this.world.addEntity(barrel2);
     }
 
     public update(dt: number) {
