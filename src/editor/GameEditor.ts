@@ -109,7 +109,7 @@ export class GameEditor implements Game {
             const rsp = rsps[i];
             if (!rsp.face) continue;
 
-            const normal = rsp.face.normal.clone().multiplyScalar(0.5);
+            const normal = rsp.face.normal.clone().multiplyScalar(0.1);
             this.world.brush.visible = true;
             this.world.brush.position.set(
                 Math.round(rsp.point.x + normal.x),
@@ -130,7 +130,10 @@ export class GameEditor implements Game {
         if (place && this.world.brush.visible) {
             console.log("Place brush");
             const geo = new BoxGeometry(1, 1, 1);
-            const mat = new MeshBasicMaterial({ color: 0x00ff22 });
+            const mat = new MeshBasicMaterial({
+                color: 0x00ff22,
+                wireframe: true
+            });
             const block = new Mesh(geo, mat);
             block.position.copy(this.world.brush.position);
             this.world.level.add(block);
