@@ -7,24 +7,21 @@ import {
     BoxGeometry,
     Object3D
 } from "three";
+import { Level } from "./Level";
 
 export class GameEditorWorld {
-    public readonly width = 17;
-    public readonly depth = 17;
-
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
 
-    public readonly level = new Object3D();
+    public readonly level = new Level(17, 17, 4);
     public readonly brush = this.createBrush();
     public readonly floor = this.createFloor();
 
     public constructor() {
-        this.camera.position.set(0, 4, this.depth * 0.25);
+        this.camera.position.set(0, 4, this.level.depth * 0.25);
         this.camera.rotation.set(Math.PI * -0.25, 0, 0, "YXZ");
 
-        this.level.add(this.floor);
-        this.scene.add(this.camera, this.brush, this.level);
+        this.scene.add(this.camera, this.brush, this.floor, this.level.scene);
     }
 
     private createFloor() {
@@ -34,10 +31,10 @@ export class GameEditorWorld {
         });
 
         const geo = new PlaneGeometry(
-            this.width,
-            this.depth,
-            this.width,
-            this.depth
+            this.level.width,
+            this.level.depth,
+            this.level.width,
+            this.level.depth
         );
 
         const floor = new Mesh(geo, mat);

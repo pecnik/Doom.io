@@ -14,7 +14,8 @@ import {
     AdditiveBlending,
     TextureLoader,
     NearestFilter,
-    PlaneGeometry
+    PlaneGeometry,
+    Intersection
 } from "three";
 import { Hitscan } from "../game/utils/EntityUtils";
 import { HUD_WIDTH, HUD_HEIGHT } from "../game/data/Globals";
@@ -100,13 +101,15 @@ export class GameEditor implements Game {
     }
 
     private updateBrush() {
+        const buffer: Intersection[] = [];
         Hitscan.raycaster.setFromCamera(Hitscan.origin, this.world.camera);
+        Hitscan.raycaster.intersectObject(this.world.floor, true, buffer);
+        Hitscan.raycaster.intersectObject(this.world.level.scene, true, buffer);
 
-        const rsps = Hitscan.raycaster.intersectObject(this.world.level, true);
         this.world.brush.visible = false;
 
-        for (let i = 0; i < rsps.length; i++) {
-            const rsp = rsps[i];
+        for (let i = 0; i < buffer.length; i++) {
+            const rsp = buffer[i];
             if (!rsp.face) continue;
 
             const normal = rsp.face.normal.clone().multiplyScalar(0.1);
@@ -136,7 +139,7 @@ export class GameEditor implements Game {
             });
             const block = new Mesh(geo, mat);
             block.position.copy(this.world.brush.position);
-            this.world.level.add(block);
+            this.world.level.scene.add(block);
         }
     }
 }
