@@ -4,6 +4,7 @@ import { GameEditorWorld } from "./GameEditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import { Vector3, Vector2 } from "three";
+import { Hitscan } from "../game/utils/EntityUtils";
 
 export class GameEditor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
@@ -15,14 +16,15 @@ export class GameEditor implements Game {
 
     public create() {
         console.log(`> Editor::created`);
-        console.log(this.world);
     }
 
     public update(dt: number) {
-        this.updateInput(dt);
+        this.cameraController(dt);
+        this.updatePreview(dt);
+        this.input.clear();
     }
 
-    private updateInput(dt: number) {
+    private cameraController(dt: number) {
         // Mouse look
         const str = 0.1;
         const dx = this.input.mouse.dx;
@@ -56,8 +58,23 @@ export class GameEditor implements Game {
             .multiplyScalar(5)
             .multiplyScalar(dt);
         this.world.camera.position.add(velocity);
+    }
 
-        // Reset input
-        this.input.clear();
+    private updatePreview(_: number) {
+        const { dx, dy } = this.input.mouse;
+        if (dx === 0 && dy === 0) return;
+
+        Hitscan.raycaster.setFromCamera(Hitscan.origin, this.world.camera);
+
+        const rsps = Hitscan.raycaster.intersectObject(this.world.level, true);
+        for (let i = 0; i < rsps.length; i++) {
+            const rsp = rsps[i];
+            this.world.brush.position.set(
+                Math.round(rsp.point.x),
+                Math.round(rsp.point.y),
+                Math.round(rsp.point.z)
+            );
+            break;
+        }
     }
 }
