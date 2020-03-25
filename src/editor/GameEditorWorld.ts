@@ -13,14 +13,17 @@ export class GameEditorWorld {
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
 
-    public readonly level = new Level(17, 17, 4);
+    public readonly level = new Level(9, 6, 4);
     public readonly brush = this.createBrush();
     public readonly floor = this.createFloor();
 
     public constructor() {
-        this.camera.position.set(0, 4, this.level.depth * 0.25);
+        this.camera.position.set(
+            this.level.width / 2,
+            this.level.height / 2,
+            this.level.depth
+        );
         this.camera.rotation.set(Math.PI * -0.25, 0, 0, "YXZ");
-
         this.scene.add(this.camera, this.brush, this.floor, this.level.scene);
     }
 
@@ -39,6 +42,8 @@ export class GameEditorWorld {
 
         const floor = new Mesh(geo, mat);
         floor.translateY(-0.5);
+        floor.translateX(this.level.width / 2 - 0.5);
+        floor.translateZ(this.level.depth / 2 - 0.5);
         floor.rotateX(-Math.PI / 2);
         return floor;
     }

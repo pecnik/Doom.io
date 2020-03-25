@@ -131,15 +131,27 @@ export class GameEditor implements Game {
     private placeBrush() {
         const place = this.input.isMousePresed(MouseBtn.Left);
         if (place && this.world.brush.visible) {
-            console.log("Place brush");
+            const point = this.world.brush.position;
+            const voxel = this.world.level.getVoxel(point);
+            if (voxel === undefined) return;
+
+            voxel.solid = true;
+
+            // Reconstruct level mesh
             const geo = new BoxGeometry(1, 1, 1);
             const mat = new MeshBasicMaterial({
                 color: 0x00ff22,
                 wireframe: true
             });
-            const block = new Mesh(geo, mat);
-            block.position.copy(this.world.brush.position);
-            this.world.level.scene.add(block);
+            this.world.level.scene.remove(...this.world.level.scene.children);
+            this.world.level.forEachVoxel(voxel => {
+                if (voxel.solid) {
+                    const block = new Mesh(geo, mat);
+                    block.position.copy(voxel.origin);
+                    console.log(voxel.origin);
+                    this.world.level.scene.add(block);
+                }
+            });
         }
     }
 }
