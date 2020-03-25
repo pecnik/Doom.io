@@ -59,8 +59,7 @@ export class GameEditor implements Game {
 
     public update(dt: number) {
         this.cameraController(dt);
-        // this.updateBrush();
-        this.placeBrush();
+        this.placeVoxel();
         this.removeVoxel();
         this.input.clear();
     }
@@ -101,39 +100,9 @@ export class GameEditor implements Game {
         this.world.camera.position.add(velocity);
     }
 
-    private updateBrush() {
-        const buffer: Intersection[] = [];
-        Hitscan.raycaster.setFromCamera(Hitscan.origin, this.world.camera);
-        Hitscan.raycaster.intersectObject(this.world.floor, true, buffer);
-        Hitscan.raycaster.intersectObject(this.world.level.scene, true, buffer);
-
-        this.world.brush.visible = false;
-
-        for (let i = 0; i < buffer.length; i++) {
-            const rsp = buffer[i];
-            if (!rsp.face) continue;
-
-            const normal = rsp.face.normal.clone().multiplyScalar(0.1);
-            this.world.brush.visible = true;
-            this.world.brush.position.set(
-                Math.round(rsp.point.x + normal.x),
-                Math.round(rsp.point.y + normal.y),
-                Math.round(rsp.point.z + normal.z)
-            );
-
-            if (this.world.brush.position.y < 0) {
-                this.world.brush.position.y = 0;
-            }
-
-            break;
-        }
-    }
-
-    private placeBrush() {
-        const place = this.input.isMousePresed(MouseBtn.Left);
-        if (!place) {
-            return;
-        }
+    private placeVoxel() {
+        const placeInput = this.input.isMousePresed(MouseBtn.Left);
+        if (!placeInput) return;
 
         const [hit] = this.hitscan();
         if (!hit) return;
@@ -144,25 +113,29 @@ export class GameEditor implements Game {
         point.add(normal);
 
         const voxel = this.world.level.getVoxel(point);
-        if (voxel === undefined) return;
+        if (voxel !== undefined) {
+            voxel.solid = true;
+            this.buildLevelMesh();
+        }
+    }
 
-        voxel.solid = true;
+    private removeVoxel() {
+        const removeInput = this.input.isMousePresed(MouseBtn.Right);
+        if (!removeInput) return;
 
-        // Reconstruct level mesh
-        const geo = new BoxGeometry(1, 1, 1);
-        const mat = new MeshBasicMaterial({
-            color: 0x00ff22,
-            wireframe: true
-        });
-        this.world.level.scene.remove(...this.world.level.scene.children);
-        this.world.level.forEachVoxel(voxel => {
-            if (voxel.solid) {
-                const block = new Mesh(geo, mat);
-                block.position.copy(voxel.origin);
-                console.log(voxel.origin);
-                this.world.level.scene.add(block);
-            }
-        });
+        const [hit] = this.hitscan();
+        if (!hit) return;
+        if (!hit.face) return;
+
+        const point = hit.point.clone();
+        const normal = hit.face.normal.clone().multiplyScalar(0.1);
+        point.sub(normal);
+
+        const voxel = this.world.level.getVoxel(point);
+        if (voxel !== undefined) {
+            voxel.solid = false;
+            this.buildLevelMesh();
+        }
     }
 
     private hitscan() {
@@ -173,30 +146,21 @@ export class GameEditor implements Game {
         return buffer;
     }
 
-    private removeVoxel() {
-        const remove = this.input.isMousePresed(MouseBtn.Right);
-        if (remove && this.world.brush.visible) {
-            const point = this.world.brush.position;
-            const voxel = this.world.level.getVoxel(point);
-            if (voxel === undefined) return;
+    private buildLevelMesh() {
+        const geo = new BoxGeometry(1, 1, 1);
+        const mat = new MeshBasicMaterial({
+            color: 0x00ff22,
+            wireframe: true
+        });
 
-            voxel.solid = true;
+        this.world.level.scene.remove(...this.world.level.scene.children);
 
-            // Reconstruct level mesh
-            const geo = new BoxGeometry(1, 1, 1);
-            const mat = new MeshBasicMaterial({
-                color: 0x00ff22,
-                wireframe: true
-            });
-            this.world.level.scene.remove(...this.world.level.scene.children);
-            this.world.level.forEachVoxel(voxel => {
-                if (voxel.solid) {
-                    const block = new Mesh(geo, mat);
-                    block.position.copy(voxel.origin);
-                    console.log(voxel.origin);
-                    this.world.level.scene.add(block);
-                }
-            });
-        }
+        this.world.level.forEachVoxel(voxel => {
+            if (voxel.solid) {
+                const block = new Mesh(geo, mat);
+                block.position.copy(voxel.origin);
+                this.world.level.scene.add(block);
+            }
+        });
     }
 }
