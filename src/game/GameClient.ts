@@ -16,9 +16,9 @@ import { HudWeaponSystem } from "./systems/HudWeaponSystem";
 import { AudioListener, AudioLoader, TextureLoader } from "three";
 import { HudDisplaySystem } from "./systems/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Weapon";
-import { GameApp } from "./core/Engine";
+import { Game } from "./core/Engine";
 
-export class GameClient implements GameApp {
+export class GameClient implements Game {
     private readonly socket: SocketIOClient.Socket;
     private readonly input: Input;
     public readonly world = new World();

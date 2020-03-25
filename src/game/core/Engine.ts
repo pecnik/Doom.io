@@ -1,8 +1,7 @@
 import { WebGLRenderer, Scene, Camera, PerspectiveCamera } from "three";
-import { GameClient } from "../GameClient";
 import { clamp } from "lodash";
 
-export interface GameApp {
+export interface Game {
     readonly world: { scene: Scene; camera: PerspectiveCamera };
     readonly hud: { scene: Scene; camera: Camera };
     preload(): Promise<any>;
@@ -14,18 +13,21 @@ export class Engine {
     private readonly renderer: WebGLRenderer;
     private readonly gamearea: HTMLDivElement;
     private readonly viewport: HTMLCanvasElement;
-
-    private readonly app: GameApp;
+    private readonly game: Game;
     private gameTime = 0;
     private aspect = 1;
 
-    public constructor(canvas: HTMLCanvasElement, gamearea: HTMLDivElement) {
+    public constructor(
+        game: Game,
+        canvas: HTMLCanvasElement,
+        gamearea: HTMLDivElement
+    ) {
+        this.game = game;
         this.viewport = canvas;
         this.gamearea = gamearea;
         this.renderer = new WebGLRenderer({ canvas: this.viewport });
         this.renderer.autoClear = false;
         this.renderer.setClearColor(0x6495ed);
-        this.app = new GameClient();
     }
 
     public start(width: number, height: number) {
@@ -45,15 +47,15 @@ export class Engine {
         // Call resize manually once
         this.onWindowResize();
 
-        this.app.preload().then(() => {
-            this.app.create(); // Start game
+        this.game.preload().then(() => {
+            this.game.create(); // Start game
             this.loop(0); // Start game loop
         });
     }
 
     private update(dt: number) {
-        const { world, hud } = this.app;
-        this.app.update(dt);
+        const { world, hud } = this.game;
+        this.game.update(dt);
         this.renderer.render(world.scene, world.camera);
         this.renderer.render(hud.scene, hud.camera);
     }
@@ -85,7 +87,7 @@ export class Engine {
         }
 
         // Update camera
-        const camera = this.app.world.camera;
+        const camera = this.game.world.camera;
         camera.aspect = this.aspect;
         camera.near = 0.1;
         camera.far = 1000;
