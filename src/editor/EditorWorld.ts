@@ -14,6 +14,8 @@ export class EditorWorld {
     public readonly level = new Level(9, 6, 4);
     public readonly floor = this.createFloor();
 
+    public texutreIndex = 0;
+
     public constructor() {
         this.camera.position.set(
             this.level.width / 2,

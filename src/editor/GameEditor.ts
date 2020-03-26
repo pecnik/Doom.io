@@ -19,6 +19,7 @@ import {
 import { Hitscan } from "../game/utils/EntityUtils";
 import { HUD_WIDTH, HUD_HEIGHT } from "../game/data/Globals";
 import { buildLevelMesh } from "./LevelUtils";
+import { TextureSelector } from "./TextureSelector";
 
 export class GameEditor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
@@ -34,6 +35,10 @@ export class GameEditor implements Game {
             30
         )
     };
+
+    public readonly systems = [
+        new TextureSelector(this)
+    ];
 
     public preload(): Promise<any> {
         return new Promise(resolve => {
@@ -66,6 +71,9 @@ export class GameEditor implements Game {
         this.cameraController(dt);
         this.placeVoxel();
         this.removeVoxel();
+
+        this.systems.forEach(system => system.update());
+
         this.input.clear();
     }
 
@@ -120,7 +128,11 @@ export class GameEditor implements Game {
         const voxel = this.world.level.getVoxel(point);
         if (voxel !== undefined) {
             voxel.solid = true;
-            Object.assign(voxel.faces, [9, 9, 10, 10, 9, 9]);
+
+            for (let i = 0; i < 6; i++) {
+                voxel.faces[i] = this.world.texutreIndex;
+            }
+
             buildLevelMesh(this.world.level);
         }
     }
