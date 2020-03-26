@@ -84,8 +84,6 @@ export class GameEditor implements Game {
     }
 
     public update(dt: number) {
-        this.updateControlls(dt);
-
         // Select active tool
         for (let i = 0; i < this.toolArray.length; i++) {
             const tool = this.toolArray[i];
@@ -97,6 +95,8 @@ export class GameEditor implements Game {
 
         // Update active tool
         this.toolArray[this.toolIndex].update();
+
+        this.updateControlls(dt);
 
         this.input.clear();
     }
@@ -145,9 +145,14 @@ export class GameEditor implements Game {
         ctx.textAlign = "left";
 
         this.toolArray.forEach((tool, index) => {
+            const key = KeyCode[tool.hotkey];
             const active = index === this.toolIndex;
+            const offsety = (index + 1) * 32;
+
             ctx.fillStyle = active ? "orange" : "white";
-            ctx.fillText(tool.name, 16, (index + 1) * 32);
+
+            ctx.fillText(`[${key}]`, 16, offsety);
+            ctx.fillText(tool.name, 64, offsety);
         });
     }
 }
