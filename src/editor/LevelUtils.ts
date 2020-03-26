@@ -12,7 +12,7 @@ export function buildLevelMesh(level: Level) {
     const planes = new Array<PlaneGeometry>();
     level.forEachVoxel(voxel => {
         if (voxel.solid) {
-            const tileId = 1;
+            const tileId = 9;
             planes.push(...createVoxelPlanes(voxel, tileId));
         }
     });
@@ -32,6 +32,8 @@ export function buildLevelMesh(level: Level) {
     level.scene.remove(...level.scene.children);
     level.scene.add(mesh);
 
+    const wireframe = new Mesh(geometry, new MeshBasicMaterial({ wireframe: true, color: 0x00ff00 }));
+    level.scene.add(wireframe);
 }
 
 export function createVoxelPlanes(voxel: Voxel, tileId: number) {
