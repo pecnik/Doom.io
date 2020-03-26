@@ -120,6 +120,7 @@ export class GameEditor implements Game {
         const voxel = this.world.level.getVoxel(point);
         if (voxel !== undefined) {
             voxel.solid = true;
+            Object.assign(voxel.faces, [9, 9, 10, 10, 9, 9]);
             buildLevelMesh(this.world.level);
         }
     }

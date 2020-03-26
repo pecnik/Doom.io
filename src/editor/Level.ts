@@ -2,6 +2,7 @@ import { Scene, Vector3, Texture } from "three";
 
 export class Voxel {
     public readonly origin = new Vector3();
+    public readonly faces = [0, 0, 0, 0, 0, 0];
     public solid = false;
 }
 
