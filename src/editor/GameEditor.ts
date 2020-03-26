@@ -7,7 +7,6 @@ import {
     Vector3,
     Vector2,
     MeshBasicMaterial,
-    BoxGeometry,
     Mesh,
     Scene,
     OrthographicCamera,
@@ -19,6 +18,7 @@ import {
 } from "three";
 import { Hitscan } from "../game/utils/EntityUtils";
 import { HUD_WIDTH, HUD_HEIGHT } from "../game/data/Globals";
+import { buildLevelMesh } from "./LevelUtils";
 
 export class GameEditor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
@@ -36,7 +36,12 @@ export class GameEditor implements Game {
     };
 
     public preload(): Promise<any> {
-        return Promise.resolve();
+        return new Promise(resolve => {
+            new TextureLoader().load("/assets/tileset.png", map => {
+                this.world.level.textrue = map;
+                resolve();
+            });
+        });
     }
 
     public create() {
@@ -115,7 +120,7 @@ export class GameEditor implements Game {
         const voxel = this.world.level.getVoxel(point);
         if (voxel !== undefined) {
             voxel.solid = true;
-            this.buildLevelMesh();
+            buildLevelMesh(this.world.level);
         }
     }
 
@@ -134,7 +139,7 @@ export class GameEditor implements Game {
         const voxel = this.world.level.getVoxel(point);
         if (voxel !== undefined) {
             voxel.solid = false;
-            this.buildLevelMesh();
+            buildLevelMesh(this.world.level);
         }
     }
 
@@ -144,23 +149,5 @@ export class GameEditor implements Game {
         Hitscan.raycaster.intersectObject(this.world.floor, true, buffer);
         Hitscan.raycaster.intersectObject(this.world.level.scene, true, buffer);
         return buffer;
-    }
-
-    private buildLevelMesh() {
-        const geo = new BoxGeometry(1, 1, 1);
-        const mat = new MeshBasicMaterial({
-            color: 0x00ff22,
-            wireframe: true
-        });
-
-        this.world.level.scene.remove(...this.world.level.scene.children);
-
-        this.world.level.forEachVoxel(voxel => {
-            if (voxel.solid) {
-                const block = new Mesh(geo, mat);
-                block.position.copy(voxel.origin);
-                this.world.level.scene.add(block);
-            }
-        });
     }
 }

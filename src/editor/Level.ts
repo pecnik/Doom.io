@@ -1,4 +1,4 @@
-import { Scene, Vector3 } from "three";
+import { Scene, Vector3, Texture } from "three";
 
 export class Voxel {
     public readonly origin = new Vector3();
@@ -11,6 +11,7 @@ export class Level {
     public readonly width: number;
     public readonly depth: number;
     public readonly height: number;
+    public textrue?: Texture;
 
     public constructor(width: number, depth: number, height: number) {
         this.width = width;
