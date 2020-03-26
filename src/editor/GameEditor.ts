@@ -17,6 +17,7 @@ import {
 } from "three";
 import { HUD_WIDTH, HUD_HEIGHT } from "../game/data/Globals";
 import { BlockTool } from "./tools/BlockTool";
+import { TextureSelectTool } from "./tools/TextureSelectTool";
 
 export class GameEditor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
@@ -33,51 +34,74 @@ export class GameEditor implements Game {
         )
     };
 
-    public activeTool = 0;
-    public readonly tools = [
-        new BlockTool(this)
+    public toolIndex = 0;
+    public readonly toolPanel = document.createElement("canvas");
+    public readonly toolArray = [
+        new BlockTool(this),
+        new TextureSelectTool(this)
     ];
 
     public preload(): Promise<any> {
-        return new Promise(resolve => {
-            new TextureLoader().load("/assets/tileset.png", map => {
-                this.world.level.textrue = map;
-                resolve();
-            });
-        });
+        return Promise.all([
+
+            // Load level tileset texture
+            new Promise(resolve => {
+                new TextureLoader().load("/assets/tileset.png", map => {
+                    this.world.level.textrue = map;
+                    resolve();
+                });
+            }),
+
+            // Load crosshair cursor
+            new Promise(resolve => {
+                new TextureLoader().load("/assets/sprites/crosshair.png", map => {
+                    const material = new MeshBasicMaterial({
+                        map,
+                        blending: AdditiveBlending
+                    });
+
+                    map.magFilter = NearestFilter;
+                    map.minFilter = NearestFilter;
+
+                    const geometry = new PlaneGeometry(64, 64);
+                    const crosshair = new Mesh(geometry, material);
+                    this.hud.scene.add(crosshair);
+                    resolve();
+                });
+            })
+        ]);
     }
 
     public create() {
         console.log(`> Editor::created`);
 
-        new TextureLoader().load("/assets/sprites/crosshair.png", map => {
-            const material = new MeshBasicMaterial({
-                map,
-                blending: AdditiveBlending
-            });
-
-            map.magFilter = NearestFilter;
-            map.minFilter = NearestFilter;
-
-            const geometry = new PlaneGeometry(64, 64);
-            const crosshair = new Mesh(geometry, material);
-            this.hud.scene.add(crosshair);
-        });
+        // Create toolpanel
+        this.toolPanel.width = 256;
+        this.toolPanel.height = 124;
+        this.toolPanel.style.position = "absolute";
+        this.renderToolPanel();
+        document.body.appendChild(this.toolPanel);
     }
 
     public update(dt: number) {
-        this.cameraController(dt);
+        this.updateControlls(dt);
 
-        for (let i = 0; i < this.tools.length; i++) {
-            if (this.activeTool === i) {
-                this.tools[i].update();
+        // Select active tool
+        for (let i = 0; i < this.toolArray.length; i++) {
+            const tool = this.toolArray[i];
+            if (this.toolIndex !== i && this.input.isKeyDown(tool.hotkey)) {
+                this.toolIndex = i;
+                this.renderToolPanel();
             }
         }
+
+        // Update active tool
+        this.toolArray[this.toolIndex].update();
 
         this.input.clear();
     }
 
-    private cameraController(dt: number) {
+    private updateControlls(dt: number) {
         // Mouse look
         const str = 0.1;
         const dx = this.input.mouse.dx;
@@ -113,4 +137,17 @@ export class GameEditor implements Game {
         this.world.camera.position.add(velocity);
     }
 
+    private renderToolPanel() {
+        const ctx = this.toolPanel.getContext("2d");
+        if (ctx === null) return;
+
+        ctx.font = "24px Arial";
+        ctx.textAlign = "left";
+
+        this.toolArray.forEach((tool, index) => {
+            const active = index === this.toolIndex;
+            ctx.fillStyle = active ? "orange" : "white";
+            ctx.fillText(tool.name, 16, (index + 1) * 32);
+        });
+    }
 }

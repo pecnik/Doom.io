@@ -12,6 +12,7 @@ export enum KeyCode {
     R = 82,
     F = 70,
     Q = 81,
+    T = 84,
     SHIFT = 16,
     SPACE = 32,
     CTRL = 17,
@@ -39,7 +40,7 @@ export class Input {
 
     public readonly destroy: () => void;
 
-    public constructor(config: { requestPointerLock: boolean }) {
+    public constructor(config: { requestPointerLock: boolean; }) {
         const { requestPointerLock } = config;
 
         const handler = <T extends Event>(handler: (ev: T) => void) => {
