@@ -12,8 +12,7 @@ export function buildLevelMesh(level: Level) {
     const planes = new Array<PlaneGeometry>();
     level.forEachVoxel(voxel => {
         if (voxel.solid) {
-            const tileId = 9;
-            planes.push(...createVoxelPlanes(voxel, tileId));
+            planes.push(...createVoxelPlanes(voxel, level));
         }
     });
 
@@ -36,28 +35,23 @@ export function buildLevelMesh(level: Level) {
     level.scene.add(wireframe);
 }
 
-export function createVoxelPlanes(voxel: Voxel, tileId: number) {
+export function createVoxelPlanes(voxel: Voxel, level: Level) {
+    const tileId: number = 9;
     const planes: PlaneGeometry[] = [];
 
-    {
-        const ymin = new PlaneGeometry(1, 1, 1, 1);
-        ymin.rotateX(Math.PI * 0.5);
-        ymin.translate(voxel.origin.x, voxel.origin.y, voxel.origin.z);
-        ymin.translate(0, -0.5, 0);
-        setTextureUV(ymin, tileId);
-        planes.push(ymin);
-    }
 
-    {
-        const ymax = new PlaneGeometry(1, 1, 1, 1);
-        ymax.rotateX(Math.PI * -0.5);
-        ymax.translate(voxel.origin.x, voxel.origin.y, voxel.origin.z);
-        ymax.translate(0, 0.5, 0);
-        setTextureUV(ymax, tileId);
-        planes.push(ymax);
-    }
+    const hasSolidNeighbor = (x: number, y: number, z: number) => {
+        const origin = voxel.origin.clone();
+        origin.x += x;
+        origin.y += y;
+        origin.z += z;
 
-    {
+        const neighbor = level.getVoxel(origin);
+        if (neighbor === undefined) return false;
+        else return neighbor.solid;
+    };
+
+    if (!hasSolidNeighbor(-1, 0, 0)) {
         const xmin = new PlaneGeometry(1, 1, 1, 1);
         xmin.rotateY(Math.PI * -0.5);
         xmin.translate(voxel.origin.x, voxel.origin.y, voxel.origin.z);
@@ -66,7 +60,7 @@ export function createVoxelPlanes(voxel: Voxel, tileId: number) {
         planes.push(xmin);
     }
 
-    {
+    if (!hasSolidNeighbor(1, 0, 0)) {
         const xmax = new PlaneGeometry(1, 1, 1, 1);
         xmax.rotateY(Math.PI * 0.5);
         xmax.translate(voxel.origin.x, voxel.origin.y, voxel.origin.z);
@@ -75,7 +69,25 @@ export function createVoxelPlanes(voxel: Voxel, tileId: number) {
         planes.push(xmax);
     }
 
-    {
+    if (!hasSolidNeighbor(0, -1, 0)) {
+        const ymin = new PlaneGeometry(1, 1, 1, 1);
+        ymin.rotateX(Math.PI * 0.5);
+        ymin.translate(voxel.origin.x, voxel.origin.y, voxel.origin.z);
+        ymin.translate(0, -0.5, 0);
+        setTextureUV(ymin, tileId);
+        planes.push(ymin);
+    }
+
+    if (!hasSolidNeighbor(0, 1, 0)) {
+        const ymax = new PlaneGeometry(1, 1, 1, 1);
+        ymax.rotateX(Math.PI * -0.5);
+        ymax.translate(voxel.origin.x, voxel.origin.y, voxel.origin.z);
+        ymax.translate(0, 0.5, 0);
+        setTextureUV(ymax, tileId);
+        planes.push(ymax);
+    }
+
+    if (!hasSolidNeighbor(0, 0, -1)) {
         const zmin = new PlaneGeometry(1, 1, 1, 1);
         zmin.rotateY(Math.PI);
         zmin.translate(voxel.origin.x, voxel.origin.y, voxel.origin.z);
@@ -84,14 +96,13 @@ export function createVoxelPlanes(voxel: Voxel, tileId: number) {
         planes.push(zmin);
     }
 
-    {
+    if (!hasSolidNeighbor(0, 0, 1)) {
         const zmax = new PlaneGeometry(1, 1, 1, 1);
         zmax.translate(voxel.origin.x, voxel.origin.y, voxel.origin.z);
         zmax.translate(0, 0, 0.5);
         setTextureUV(zmax, tileId);
         planes.push(zmax);
     }
-
 
     return planes;
 }
