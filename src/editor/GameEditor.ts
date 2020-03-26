@@ -1,5 +1,5 @@
 import { Game } from "../game/core/Engine";
-import { Input, KeyCode, MouseBtn } from "../game/core/Input";
+import { Input, KeyCode } from "../game/core/Input";
 import { EditorWorld } from "./EditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
@@ -14,12 +14,9 @@ import {
     TextureLoader,
     NearestFilter,
     PlaneGeometry,
-    Intersection
 } from "three";
-import { Hitscan } from "../game/utils/EntityUtils";
 import { HUD_WIDTH, HUD_HEIGHT } from "../game/data/Globals";
-import { buildLevelMesh } from "./LevelUtils";
-import { TextureSelector } from "./TextureSelector";
+import { BlockTool } from "./tools/BlockTool";
 
 export class GameEditor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
@@ -36,8 +33,9 @@ export class GameEditor implements Game {
         )
     };
 
-    public readonly systems = [
-        new TextureSelector(this)
+    public activeTool = 0;
+    public readonly tools = [
+        new BlockTool(this)
     ];
 
     public preload(): Promise<any> {
@@ -69,10 +67,12 @@ export class GameEditor implements Game {
 
     public update(dt: number) {
         this.cameraController(dt);
-        this.placeVoxel();
-        this.removeVoxel();
 
-        this.systems.forEach(system => system.update());
+        for (let i = 0; i < this.tools.length; i++) {
+            if (this.activeTool === i) {
+                this.tools[i].update();
+            }
+        }
 
         this.input.clear();
     }
@@ -113,54 +113,4 @@ export class GameEditor implements Game {
         this.world.camera.position.add(velocity);
     }
 
-    private placeVoxel() {
-        const placeInput = this.input.isMousePresed(MouseBtn.Left);
-        if (!placeInput) return;
-
-        const [hit] = this.hitscan();
-        if (!hit) return;
-        if (!hit.face) return;
-
-        const point = hit.point.clone();
-        const normal = hit.face.normal.clone().multiplyScalar(0.1);
-        point.add(normal);
-
-        const voxel = this.world.level.getVoxel(point);
-        if (voxel !== undefined) {
-            voxel.solid = true;
-
-            for (let i = 0; i < 6; i++) {
-                voxel.faces[i] = this.world.texutreIndex;
-            }
-
-            buildLevelMesh(this.world.level);
-        }
-    }
-
-    private removeVoxel() {
-        const removeInput = this.input.isMousePresed(MouseBtn.Right);
-        if (!removeInput) return;
-
-        const [hit] = this.hitscan();
-        if (!hit) return;
-        if (!hit.face) return;
-
-        const point = hit.point.clone();
-        const normal = hit.face.normal.clone().multiplyScalar(0.1);
-        point.sub(normal);
-
-        const voxel = this.world.level.getVoxel(point);
-        if (voxel !== undefined) {
-            voxel.solid = false;
-            buildLevelMesh(this.world.level);
-        }
-    }
-
-    private hitscan() {
-        const buffer: Intersection[] = [];
-        Hitscan.raycaster.setFromCamera(Hitscan.origin, this.world.camera);
-        Hitscan.raycaster.intersectObject(this.world.floor, true, buffer);
-        Hitscan.raycaster.intersectObject(this.world.level.scene, true, buffer);
-        return buffer;
-    }
 }
