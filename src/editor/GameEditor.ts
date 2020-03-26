@@ -16,8 +16,9 @@ import {
     PlaneGeometry,
 } from "three";
 import { HUD_WIDTH, HUD_HEIGHT } from "../game/data/Globals";
-import { BlockTool } from "./tools/BlockTool";
+import { PlaceBlockTool } from "./tools/PlaceBlockTool";
 import { TextureSelectTool } from "./tools/TextureSelectTool";
+import { FillBlockTool } from "./tools/FillBlockTool";
 
 export class GameEditor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
@@ -34,10 +35,12 @@ export class GameEditor implements Game {
         )
     };
 
-    public toolIndex = 0;
+    public currTool = 0;
+    public prevTool = 0;
     public readonly toolPanel = document.createElement("canvas");
     public readonly toolArray = [
-        new BlockTool(this),
+        new PlaceBlockTool(this),
+        new FillBlockTool(this),
         new TextureSelectTool(this)
     ];
 
@@ -84,17 +87,21 @@ export class GameEditor implements Game {
     }
 
     public update(dt: number) {
-        // Select active tool
+        const prevIndex = this.currTool;
+        this.toolArray[this.currTool].update();
+
         for (let i = 0; i < this.toolArray.length; i++) {
             const tool = this.toolArray[i];
-            if (this.toolIndex !== i && this.input.isKeyDown(tool.hotkey)) {
-                this.toolIndex = i;
-                this.renderToolPanel();
+            if (this.input.isKeyPressed(tool.hotkey)) {
+                this.currTool = i;
             }
         }
 
-        // Update active tool
-        this.toolArray[this.toolIndex].update();
+        if (this.currTool !== prevIndex) {
+            this.prevTool = prevIndex;
+            this.toolArray[this.currTool].selected();
+            this.renderToolPanel();
+        }
 
         this.updateControlls(dt);
 
@@ -146,7 +153,7 @@ export class GameEditor implements Game {
 
         this.toolArray.forEach((tool, index) => {
             const key = KeyCode[tool.hotkey];
-            const active = index === this.toolIndex;
+            const active = index === this.currTool;
             const offsety = (index + 1) * 32;
 
             ctx.fillStyle = active ? "orange" : "white";

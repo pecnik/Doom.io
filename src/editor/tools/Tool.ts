@@ -11,4 +11,8 @@ export abstract class Tool {
     public constructor(editor: GameEditor) {
         this.editor = editor;
     }
+
+    public selected() {
+        // ...
+    }
 }
