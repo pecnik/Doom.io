@@ -1,6 +1,6 @@
 import { Game } from "../game/core/Engine";
 import { Input, KeyCode } from "../game/core/Input";
-import { EditorWorld } from "./EditorWorld";
+import { EditorWorld } from "./data/EditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import {

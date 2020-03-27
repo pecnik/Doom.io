@@ -1,6 +1,6 @@
 import { MeshBasicMaterial, Mesh, NearestFilter, Vector2, PlaneGeometry, Geometry } from "three";
-import { Level, Voxel } from "./Level";
-import { TILE_W, TEXTURE_W, TILE_H, TEXTURE_H, TILE_COLS } from "./Constants";
+import { Level, Voxel } from "./data/Level";
+import { TILE_W, TEXTURE_W, TILE_H, TEXTURE_H, TILE_COLS } from "./data/Constants";
 
 export function buildLevelMesh(level: Level) {
     const planes = new Array<PlaneGeometry>();
