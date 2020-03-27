@@ -54,6 +54,7 @@ export class BlockTool extends Tool {
 
     private hitscan() {
         const buffer: Intersection[] = [];
+        Hitscan.origin.set(0, 0);
         Hitscan.raycaster.setFromCamera(Hitscan.origin, this.world.camera);
         Hitscan.raycaster.intersectObject(this.world.floor, true, buffer);
         Hitscan.raycaster.intersectObject(this.world.level.scene, true, buffer);

@@ -33,6 +33,9 @@ export class GameEditor implements Game {
             // Load level tileset texture
             new Promise(resolve => {
                 new TextureLoader().load("/assets/tileset.png", map => {
+                    const material = new MeshBasicMaterial({ map });
+                    const geometry = new PlaneGeometry(512, 512);
+                    this.hud.texture.add(new Mesh(geometry, material));
                     this.world.level.textrue = map;
                     resolve();
                 });
@@ -49,7 +52,7 @@ export class GameEditor implements Game {
                     map.magFilter = NearestFilter;
                     map.minFilter = NearestFilter;
 
-                    const geometry = new PlaneGeometry(64, 64);
+                    const geometry = new PlaneGeometry(48, 48);
                     const crosshair = new Mesh(geometry, material);
                     this.hud.cursor.add(crosshair);
                     resolve();
