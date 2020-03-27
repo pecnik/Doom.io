@@ -17,4 +17,8 @@ export abstract class Tool {
         this.world = editor.world;
         this.hud = editor.hud;
     }
+
+    public start() { }
+
+    public end() { }
 }

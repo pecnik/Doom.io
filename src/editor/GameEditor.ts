@@ -15,6 +15,8 @@ import {
 } from "three";
 import { EditorHud } from "./data/EditorHud";
 import { BlockTool } from "./tools/BlockTool";
+import { TileTool } from "./tools/TileTool";
+import { Tool } from "./tools/Tool";
 
 export class GameEditor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
@@ -22,6 +24,8 @@ export class GameEditor implements Game {
     public readonly hud = new EditorHud();
 
     public readonly blockTool = new BlockTool(this);
+    public readonly tileTool = new TileTool(this);
+    public tool: Tool = this.blockTool;
 
     public preload(): Promise<any> {
         return Promise.all([
@@ -47,7 +51,7 @@ export class GameEditor implements Game {
 
                     const geometry = new PlaneGeometry(64, 64);
                     const crosshair = new Mesh(geometry, material);
-                    this.hud.scene.add(crosshair);
+                    this.hud.cursor.add(crosshair);
                     resolve();
                 });
             })
@@ -59,9 +63,26 @@ export class GameEditor implements Game {
     }
 
     public update(dt: number) {
+        const prevTool = this.tool;
+        const nextTool = this.getActiveTool();
+        if (prevTool !== nextTool) {
+            prevTool.end();
+            nextTool.start();
+            this.tool = nextTool;
+        }
+
+        this.tool.update();
+
         this.updateControlls(dt);
-        this.blockTool.update();
+
         this.input.clear();
+    }
+
+    private getActiveTool() {
+        if (this.input.isKeyDown(KeyCode.TAB)) {
+            return this.tileTool;
+        }
+        return this.blockTool;
     }
 
     private updateControlls(dt: number) {
