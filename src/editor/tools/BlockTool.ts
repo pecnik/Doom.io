@@ -4,19 +4,18 @@ import { buildLevelMesh } from "../LevelUtils";
 import { Intersection } from "three";
 import { Hitscan } from "../../game/utils/EntityUtils";
 
-export class PlaceBlockTool extends Tool {
-    public readonly name = "block";
+export class BlockTool extends Tool {
+    public readonly title = "Block tool";
     public readonly hotkey = KeyCode.R;
 
     public update() {
-        this.placeVoxel();
-        this.removeVoxel();
+        const mousebtn1 = this.input.isMousePresed(MouseBtn.Left);
+        const mousebtn2 = this.input.isMousePresed(MouseBtn.Right);
+        if (mousebtn1) this.placeVoxel();
+        if (mousebtn2) this.removeVoxel();
     }
 
     private placeVoxel() {
-        const placeInput = this.input.isMousePresed(MouseBtn.Left);
-        if (!placeInput) return;
-
         const [hit] = this.hitscan();
         if (!hit) return;
         if (!hit.face) return;
@@ -38,9 +37,6 @@ export class PlaceBlockTool extends Tool {
     }
 
     private removeVoxel() {
-        const removeInput = this.input.isMousePresed(MouseBtn.Right);
-        if (!removeInput) return;
-
         const [hit] = this.hitscan();
         if (!hit) return;
         if (!hit.face) return;

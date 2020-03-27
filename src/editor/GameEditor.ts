@@ -1,5 +1,5 @@
 import { Game } from "../game/core/Engine";
-import { Input, KeyCode } from "../game/core/Input";
+import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { EditorWorld } from "./data/EditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
@@ -13,22 +13,15 @@ import {
     NearestFilter,
     PlaneGeometry,
 } from "three";
-import { PlaceBlockTool } from "./tools/PlaceBlockTool";
-import { FillBlockTool } from "./tools/FillBlockTool";
 import { EditorHud } from "./data/EditorHud";
+import { BlockTool } from "./tools/BlockTool";
 
 export class GameEditor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
     public readonly world = new EditorWorld();
     public readonly hud = new EditorHud();
 
-    public currTool = 0;
-    public prevTool = 0;
-    public readonly toolPanel = document.createElement("canvas");
-    public readonly toolArray = [
-        new PlaceBlockTool(this),
-        new FillBlockTool(this),
-    ];
+    public readonly blockTool = new BlockTool(this);
 
     public preload(): Promise<any> {
         return Promise.all([
@@ -63,33 +56,11 @@ export class GameEditor implements Game {
 
     public create() {
         console.log(`> Editor::created`);
-
-        // Create toolpanel
-        this.toolPanel.width = 256;
-        this.toolPanel.height = 124;
-        this.toolPanel.style.position = "absolute";
-        this.renderToolPanel();
-        document.body.appendChild(this.toolPanel);
     }
 
     public update(dt: number) {
-        const prevIndex = this.currTool;
-        this.toolArray[this.currTool].update();
-
-        for (let i = 0; i < this.toolArray.length; i++) {
-            const tool = this.toolArray[i];
-            if (this.input.isKeyPressed(tool.hotkey)) {
-                this.currTool = i;
-            }
-        }
-
-        if (this.currTool !== prevIndex) {
-            this.prevTool = prevIndex;
-            this.renderToolPanel();
-        }
-
         this.updateControlls(dt);
-
+        this.blockTool.update();
         this.input.clear();
     }
 
@@ -127,24 +98,5 @@ export class GameEditor implements Game {
             .multiplyScalar(5)
             .multiplyScalar(dt);
         this.world.camera.position.add(velocity);
-    }
-
-    private renderToolPanel() {
-        const ctx = this.toolPanel.getContext("2d");
-        if (ctx === null) return;
-
-        ctx.font = "24px Arial";
-        ctx.textAlign = "left";
-
-        this.toolArray.forEach((tool, index) => {
-            const key = KeyCode[tool.hotkey];
-            const active = index === this.currTool;
-            const offsety = (index + 1) * 32;
-
-            ctx.fillStyle = active ? "orange" : "white";
-
-            ctx.fillText(`[${key}]`, 16, offsety);
-            ctx.fillText(tool.name, 64, offsety);
-        });
     }
 }

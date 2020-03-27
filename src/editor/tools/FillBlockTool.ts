@@ -5,7 +5,7 @@ import { Intersection } from "three";
 import { Hitscan } from "../../game/utils/EntityUtils";
 
 export class FillBlockTool extends Tool {
-    public readonly name = "fill-select";
+    public readonly title = "fill-select";
     public readonly hotkey = KeyCode.F;
 
     public update() {

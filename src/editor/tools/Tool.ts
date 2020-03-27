@@ -8,7 +8,7 @@ export abstract class Tool {
     protected readonly world: EditorWorld;
     protected readonly hud: EditorHud;
 
-    public abstract readonly name: string;
+    public abstract readonly title: string;
     public abstract readonly hotkey: KeyCode;
     public abstract update(): void;
 
