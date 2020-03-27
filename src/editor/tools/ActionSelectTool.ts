@@ -48,8 +48,8 @@ export class ActionSelectTool extends Tool {
 
         new TextureLoader().load("/assets/tileset.png", map => {
             const geometry = new PlaneGeometry(
-                HUD_WIDTH * 0.25,
-                HUD_WIDTH * 0.25
+                HUD_WIDTH * 0.5,
+                HUD_WIDTH * 0.5
             );
 
             const material = new MeshBasicMaterial({
@@ -67,6 +67,7 @@ export class ActionSelectTool extends Tool {
     public start() {
         this.scene.visible = true;
         this.cursor.position.set(0, 0, 0);
+        this.texturePlanel.position.set(HUD_WIDTH * 0.25, 0, -1);
     }
 
     public end() {
