@@ -15,24 +15,36 @@ import { HUD_WIDTH, HUD_HEIGHT } from "../../game/data/Globals";
 import { TILE_COLS, TILE_ROWS } from "../data/Constants";
 import { GameEditor } from "../GameEditor";
 
+const PANEL_SIZE = HUD_WIDTH / 2;
+const PANEL_TILE_SIZE = PANEL_SIZE / TILE_COLS;
+
 export class ActionSelectTool extends Tool {
     private readonly scene = new Scene();
     private readonly cursor = new Object3D();
+    private readonly border = new Object3D();
     private readonly texturePlanel = new Object3D();
+
+    private lastUpdate = 0;
 
     public constructor(editor: GameEditor) {
         super(editor);
 
-        this.cursor.renderOrder = 20;
-        this.cursor.position.set(0, 0, 0);
+        let order = 1;
 
-        this.texturePlanel.renderOrder = 10;
+        this.texturePlanel.renderOrder = order++;
         this.texturePlanel.position.set(0, 0, -1);
 
+        this.border.renderOrder = order++;
+        this.border.position.set(0, 0, -1);
+
+        this.cursor.renderOrder = order++;
+        this.cursor.position.set(0, 0, 0);
+
         this.scene.visible = false;
-        this.scene.add(this.texturePlanel, this.cursor);
+        this.scene.add(this.texturePlanel, this.cursor, this.border);
         this.hud.scene.add(this.scene);
 
+        // Load cursor
         new TextureLoader().load("/assets/sprites/crosshair.png", map => {
             const geometry = new PlaneGeometry(48, 48);
             const material = new MeshBasicMaterial({
@@ -47,12 +59,27 @@ export class ActionSelectTool extends Tool {
             this.cursor.add(sprite);
         });
 
-        new TextureLoader().load("/assets/tileset.png", map => {
+        // Load border
+        new TextureLoader().load("/assets/sprites/editor_border.png", map => {
             const geometry = new PlaneGeometry(
-                HUD_WIDTH * 0.5,
-                HUD_WIDTH * 0.5
+                PANEL_TILE_SIZE,
+                PANEL_TILE_SIZE
             );
+            const material = new MeshBasicMaterial({
+                map,
+                depthTest: false,
+                depthWrite: false,
+                blending: AdditiveBlending
+            });
 
+            const sprite = new Mesh(geometry, material);
+            sprite.renderOrder = this.border.renderOrder;
+            this.border.add(sprite);
+        });
+
+        // Load texture panel
+        new TextureLoader().load("/assets/tileset.png", map => {
+            const geometry = new PlaneGeometry(PANEL_SIZE, PANEL_SIZE);
             const material = new MeshBasicMaterial({
                 map,
                 depthTest: false,
@@ -61,6 +88,8 @@ export class ActionSelectTool extends Tool {
 
             const sprite = new Mesh(geometry, material);
             sprite.renderOrder = this.texturePlanel.renderOrder;
+            sprite.translateX(PANEL_TILE_SIZE / 2);
+            sprite.translateY(PANEL_TILE_SIZE / 2);
             this.texturePlanel.add(sprite);
         });
     }
@@ -72,7 +101,7 @@ export class ActionSelectTool extends Tool {
     }
 
     public end() {
-        const rsp = this.sampleTexture();
+        const rsp = this.sampleTextureTile();
         if (rsp !== undefined) {
             this.world.texutreIndex = rsp.index + 1;
         }
@@ -89,9 +118,24 @@ export class ActionSelectTool extends Tool {
         // A bit hacky ... prevents FPS mouse look, when this tool is active
         this.input.mouse.dx = 0;
         this.input.mouse.dy = 0;
+
+        const updateDelta = this.world.elapsedTime - this.lastUpdate;
+        if (updateDelta > 0.1) {
+            this.lastUpdate = this.world.elapsedTime;
+            const rsp = this.sampleTextureTile();
+            if (rsp !== undefined) {
+                this.border.position.copy(this.texturePlanel.position);
+
+                this.border.position.x -= PANEL_SIZE / 2;
+                this.border.position.y += PANEL_SIZE / 2;
+
+                this.border.position.x += (rsp.point.x + 1) * PANEL_TILE_SIZE;
+                this.border.position.y -= rsp.point.y * PANEL_TILE_SIZE;
+            }
+        }
     }
 
-    private sampleTexture() {
+    private sampleTextureTile() {
         // Hitscan
         const cursor = this.cursor.position;
         const buffer: Intersection[] = [];

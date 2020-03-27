@@ -8,6 +8,8 @@ import {
 import { Level } from "./Level";
 
 export class EditorWorld {
+    public elapsedTime = 0;
+
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
 

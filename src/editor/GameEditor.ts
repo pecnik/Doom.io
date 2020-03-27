@@ -75,10 +75,9 @@ export class GameEditor implements Game {
             this.tool = nextTool;
         }
 
+        this.world.elapsedTime += dt;
         this.tool.update();
-
         this.updateControlls(dt);
-
         this.input.clear();
     }
 
