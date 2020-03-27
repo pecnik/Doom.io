@@ -11,11 +11,11 @@ import {
     AdditiveBlending,
     TextureLoader,
     NearestFilter,
-    PlaneGeometry,
+    PlaneGeometry
 } from "three";
 import { EditorHud } from "./data/EditorHud";
 import { BlockTool } from "./tools/BlockTool";
-import { TileTool } from "./tools/TileTool";
+import { ActionSelectTool } from "./tools/ActionSelectTool";
 import { Tool } from "./tools/Tool";
 
 export class GameEditor implements Game {
@@ -23,19 +23,15 @@ export class GameEditor implements Game {
     public readonly world = new EditorWorld();
     public readonly hud = new EditorHud();
 
+    public readonly actionSelectTool = new ActionSelectTool(this);
     public readonly blockTool = new BlockTool(this);
-    public readonly tileTool = new TileTool(this);
     public tool: Tool = this.blockTool;
 
     public preload(): Promise<any> {
         return Promise.all([
-
             // Load level tileset texture
             new Promise(resolve => {
                 new TextureLoader().load("/assets/tileset.png", map => {
-                    const material = new MeshBasicMaterial({ map });
-                    const geometry = new PlaneGeometry(512, 512);
-                    this.hud.texture.add(new Mesh(geometry, material));
                     this.world.level.textrue = map;
                     resolve();
                 });
@@ -43,20 +39,25 @@ export class GameEditor implements Game {
 
             // Load crosshair cursor
             new Promise(resolve => {
-                new TextureLoader().load("/assets/sprites/crosshair.png", map => {
-                    const material = new MeshBasicMaterial({
-                        map,
-                        blending: AdditiveBlending
-                    });
+                new TextureLoader().load(
+                    "/assets/sprites/crosshair.png",
+                    map => {
+                        const material = new MeshBasicMaterial({
+                            map,
+                            blending: AdditiveBlending,
+                            depthTest: false,
+                            depthWrite: false
+                        });
 
-                    map.magFilter = NearestFilter;
-                    map.minFilter = NearestFilter;
+                        map.magFilter = NearestFilter;
+                        map.minFilter = NearestFilter;
 
-                    const geometry = new PlaneGeometry(48, 48);
-                    const crosshair = new Mesh(geometry, material);
-                    this.hud.cursor.add(crosshair);
-                    resolve();
-                });
+                        const geometry = new PlaneGeometry(48, 48);
+                        const crosshair = new Mesh(geometry, material);
+                        this.hud.cursor.add(crosshair);
+                        resolve();
+                    }
+                );
             })
         ]);
     }
@@ -83,7 +84,7 @@ export class GameEditor implements Game {
 
     private getActiveTool() {
         if (this.input.isKeyDown(KeyCode.TAB)) {
-            return this.tileTool;
+            return this.actionSelectTool;
         }
         return this.blockTool;
     }

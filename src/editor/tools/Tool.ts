@@ -1,5 +1,5 @@
 import { GameEditor } from "../GameEditor";
-import { KeyCode, Input } from "../../game/core/Input";
+import { Input } from "../../game/core/Input";
 import { EditorWorld } from "../data/EditorWorld";
 import { EditorHud } from "../data/EditorHud";
 
@@ -8,8 +8,6 @@ export abstract class Tool {
     protected readonly world: EditorWorld;
     protected readonly hud: EditorHud;
 
-    public abstract readonly title: string;
-    public abstract readonly hotkey: KeyCode;
     public abstract update(): void;
 
     public constructor(editor: GameEditor) {
@@ -18,7 +16,7 @@ export abstract class Tool {
         this.hud = editor.hud;
     }
 
-    public start() { }
+    public start() {}
 
-    public end() { }
+    public end() {}
 }

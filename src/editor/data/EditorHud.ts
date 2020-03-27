@@ -13,12 +13,9 @@ export class EditorHud {
     );
 
     public readonly cursor = new Object3D();
-    public readonly texture = new Object3D();
 
     public constructor() {
-        this.texture.visible = false;
-        this.scene.add(this.cursor, this.texture, this.camera);
+        this.scene.add(this.cursor, this.camera);
         this.cursor.renderOrder = 1;
-        this.texture.renderOrder = 2;
     }
 }
