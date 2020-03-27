@@ -1,18 +1,20 @@
 import { GameEditor } from "../GameEditor";
-import { KeyCode } from "../../game/core/Input";
+import { KeyCode, Input } from "../../game/core/Input";
+import { EditorWorld } from "../data/EditorWorld";
+import { EditorHud } from "../data/EditorHud";
 
 export abstract class Tool {
-    protected readonly editor: GameEditor;
+    protected readonly input: Input;
+    protected readonly world: EditorWorld;
+    protected readonly hud: EditorHud;
 
     public abstract readonly name: string;
     public abstract readonly hotkey: KeyCode;
     public abstract update(): void;
 
     public constructor(editor: GameEditor) {
-        this.editor = editor;
-    }
-
-    public selected() {
-        // ...
+        this.input = editor.input;
+        this.world = editor.world;
+        this.hud = editor.hud;
     }
 }

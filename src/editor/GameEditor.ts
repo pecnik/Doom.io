@@ -8,32 +8,19 @@ import {
     Vector2,
     MeshBasicMaterial,
     Mesh,
-    Scene,
-    OrthographicCamera,
     AdditiveBlending,
     TextureLoader,
     NearestFilter,
     PlaneGeometry,
 } from "three";
-import { HUD_WIDTH, HUD_HEIGHT } from "../game/data/Globals";
 import { PlaceBlockTool } from "./tools/PlaceBlockTool";
-import { TextureSelectTool } from "./tools/TextureSelectTool";
 import { FillBlockTool } from "./tools/FillBlockTool";
+import { EditorHud } from "./data/EditorHud";
 
 export class GameEditor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
     public readonly world = new EditorWorld();
-    public readonly hud = {
-        scene: new Scene(),
-        camera: new OrthographicCamera(
-            -HUD_WIDTH / 2,
-            HUD_WIDTH / 2,
-            HUD_HEIGHT / 2,
-            -HUD_HEIGHT / 2,
-            0,
-            30
-        )
-    };
+    public readonly hud = new EditorHud();
 
     public currTool = 0;
     public prevTool = 0;
@@ -41,7 +28,6 @@ export class GameEditor implements Game {
     public readonly toolArray = [
         new PlaceBlockTool(this),
         new FillBlockTool(this),
-        new TextureSelectTool(this)
     ];
 
     public preload(): Promise<any> {
@@ -99,7 +85,6 @@ export class GameEditor implements Game {
 
         if (this.currTool !== prevIndex) {
             this.prevTool = prevIndex;
-            this.toolArray[this.currTool].selected();
             this.renderToolPanel();
         }
 

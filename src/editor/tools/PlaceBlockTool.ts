@@ -5,9 +5,6 @@ import { Intersection } from "three";
 import { Hitscan } from "../../game/utils/EntityUtils";
 
 export class PlaceBlockTool extends Tool {
-    private readonly world = this.editor.world;
-    private readonly input = this.editor.input;
-
     public readonly name = "block";
     public readonly hotkey = KeyCode.R;
 
@@ -15,7 +12,6 @@ export class PlaceBlockTool extends Tool {
         this.placeVoxel();
         this.removeVoxel();
     }
-
 
     private placeVoxel() {
         const placeInput = this.input.isMousePresed(MouseBtn.Left);
