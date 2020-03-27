@@ -1,5 +1,5 @@
 import { Game } from "../game/core/Engine";
-import { Input, KeyCode, MouseBtn } from "../game/core/Input";
+import { Input, KeyCode } from "../game/core/Input";
 import { EditorWorld } from "./data/EditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
