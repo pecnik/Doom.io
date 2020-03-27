@@ -5,19 +5,46 @@ import {
     MeshBasicMaterial,
     PlaneGeometry,
     Object3D,
-    TextureLoader
+    TextureLoader,
+    Scene,
+    AdditiveBlending
 } from "three";
 import { Hitscan } from "../../game/utils/EntityUtils";
 import { HUD_WIDTH, HUD_HEIGHT } from "../../game/data/Globals";
 import { TILE_COLS, TILE_ROWS } from "../data/Constants";
+import { GameEditor } from "../GameEditor";
 
 export class ActionSelectTool extends Tool {
-    private readonly texturePlanel = this.createTexturePanel();
+    private readonly scene = new Scene();
+    private readonly cursor = new Object3D();
+    private readonly texturePlanel = new Object3D();
 
-    private createTexturePanel() {
-        const texturePlanel = new Object3D();
-        texturePlanel.visible = false;
-        this.hud.scene.add(texturePlanel);
+    public constructor(editor: GameEditor) {
+        super(editor);
+
+        this.cursor.renderOrder = 20;
+        this.cursor.position.set(0, 0, 0);
+
+        this.texturePlanel.renderOrder = 10;
+        this.texturePlanel.position.set(0, 0, -1);
+
+        this.scene.visible = false;
+        this.scene.add(this.texturePlanel, this.cursor);
+        this.hud.scene.add(this.scene);
+
+        new TextureLoader().load("/assets/sprites/crosshair.png", map => {
+            const geometry = new PlaneGeometry(48, 48);
+            const material = new MeshBasicMaterial({
+                map,
+                depthTest: false,
+                depthWrite: false,
+                blending: AdditiveBlending
+            });
+
+            const sprite = new Mesh(geometry, material);
+            sprite.renderOrder = this.cursor.renderOrder;
+            this.cursor.add(sprite);
+        });
 
         new TextureLoader().load("/assets/tileset.png", map => {
             const geometry = new PlaneGeometry(
@@ -31,20 +58,20 @@ export class ActionSelectTool extends Tool {
                 depthWrite: false
             });
 
-            texturePlanel.add(new Mesh(geometry, material));
+            const sprite = new Mesh(geometry, material);
+            sprite.renderOrder = this.texturePlanel.renderOrder;
+            this.texturePlanel.add(sprite);
         });
-
-        return texturePlanel;
     }
 
     public start() {
-        this.texturePlanel.visible = true;
-        this.texturePlanel.position.set(0, 0, -1);
+        this.scene.visible = true;
+        this.cursor.position.set(0, 0, 0);
     }
 
     public end() {
         // Hitscan
-        const cursor = this.hud.cursor.position;
+        const cursor = this.cursor.position;
         const buffer: Intersection[] = [];
         Hitscan.origin.set(
             cursor.x / (HUD_WIDTH / 2),
@@ -64,14 +91,13 @@ export class ActionSelectTool extends Tool {
         }
 
         // Clear hud cursor
-        this.texturePlanel.visible = false;
-        this.hud.cursor.position.setScalar(0);
+        this.scene.visible = false;
     }
 
     public update() {
         const { dx, dy } = this.input.mouse;
-        this.hud.cursor.position.x += dx;
-        this.hud.cursor.position.y -= dy;
+        this.cursor.position.x += dx * 0.5;
+        this.cursor.position.y -= dy * 0.5;
 
         // A bit hacky ... prevents FPS mouse look, when this tool is active
         this.input.mouse.dx = 0;
