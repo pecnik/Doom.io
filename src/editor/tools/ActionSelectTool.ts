@@ -7,7 +7,8 @@ import {
     Object3D,
     TextureLoader,
     Scene,
-    AdditiveBlending
+    AdditiveBlending,
+    Vector2
 } from "three";
 import { Hitscan } from "../../game/utils/EntityUtils";
 import { HUD_WIDTH, HUD_HEIGHT } from "../../game/data/Globals";
@@ -71,6 +72,26 @@ export class ActionSelectTool extends Tool {
     }
 
     public end() {
+        const rsp = this.sampleTexture();
+        if (rsp !== undefined) {
+            this.world.texutreIndex = rsp.index + 1;
+        }
+
+        // Clear hud cursor
+        this.scene.visible = false;
+    }
+
+    public update() {
+        const { dx, dy } = this.input.mouse;
+        this.cursor.position.x += dx * 0.5;
+        this.cursor.position.y -= dy * 0.5;
+
+        // A bit hacky ... prevents FPS mouse look, when this tool is active
+        this.input.mouse.dx = 0;
+        this.input.mouse.dy = 0;
+    }
+
+    private sampleTexture() {
         // Hitscan
         const cursor = this.cursor.position;
         const buffer: Intersection[] = [];
@@ -87,21 +108,13 @@ export class ActionSelectTool extends Tool {
                 const x = Math.floor(rsp.uv.x * TILE_COLS);
                 const y = Math.floor((1 - rsp.uv.y) * TILE_ROWS);
                 const index = y * TILE_COLS + x;
-                this.world.texutreIndex = index + 1;
+                return {
+                    point: new Vector2(x, y),
+                    index
+                };
             }
         }
 
-        // Clear hud cursor
-        this.scene.visible = false;
-    }
-
-    public update() {
-        const { dx, dy } = this.input.mouse;
-        this.cursor.position.x += dx * 0.5;
-        this.cursor.position.y -= dy * 0.5;
-
-        // A bit hacky ... prevents FPS mouse look, when this tool is active
-        this.input.mouse.dx = 0;
-        this.input.mouse.dy = 0;
+        return;
     }
 }
