@@ -11,8 +11,25 @@ export class BlockTool extends Tool {
     public update() {
         const mousebtn1 = this.input.isMousePresed(MouseBtn.Left);
         const mousebtn2 = this.input.isMousePresed(MouseBtn.Right);
-        if (mousebtn1) this.placeVoxel();
+        const alt = this.input.isKeyDown(KeyCode.ALT);
+
+        if (mousebtn1) {
+            if (alt) this.fillVoxel();
+            else this.placeVoxel();
+        }
+
         if (mousebtn2) this.removeVoxel();
+    }
+
+    private fillVoxel() {
+        const voxel = this.getVoxel(-1);
+        if (voxel !== undefined) {
+            voxel.solid = true;
+            for (let i = 0; i < 6; i++) {
+                voxel.faces[i] = this.world.texutreIndex;
+            }
+            buildLevelMesh(this.world.level);
+        }
     }
 
     private placeVoxel() {
