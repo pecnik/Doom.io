@@ -24,7 +24,6 @@ export const VIEW_HEIGHT = 1080;
 
 export enum EditorState {
     Editor,
-    ToolSelect,
     TextureSelect
 }
 
@@ -108,10 +107,6 @@ export class Editor implements Game {
             this.hud.cursor.position.set(0, 0, 0);
         }
 
-        if (this.state === EditorState.ToolSelect) {
-            // ...
-        }
-
         if (this.state === EditorState.TextureSelect) {
             // ...
         }
@@ -143,26 +138,19 @@ export class Editor implements Game {
 
     private stateMachine(dt: number) {
         if (this.state === EditorState.Editor) {
-            if (this.input.isMousePresed(MouseBtn.Right)) {
+            if (this.input.isKeyPressed(KeyCode.TAB)) {
                 return this.setState(EditorState.TextureSelect);
             }
 
-            if (this.input.isKeyPressed(KeyCode.TAB)) {
-                return this.setState(EditorState.ToolSelect);
-            }
-
             this.movementSystem(dt);
-        }
-
-        if (this.state === EditorState.ToolSelect) {
-            if (this.input.isMouseDown(MouseBtn.Left)) {
-                return this.setState(EditorState.Editor);
-            }
-
-            this.cursorSystem(dt);
+            this.slotScrollSystem(dt);
         }
 
         if (this.state === EditorState.TextureSelect) {
+            if (this.input.isKeyPressed(KeyCode.TAB)) {
+                return this.setState(EditorState.Editor);
+            }
+
             if (this.input.isMouseDown(MouseBtn.Left)) {
                 const { x, y } = this.hud.cursor.position;
                 const slots = this.hud.textrueBar.slots.children;
@@ -187,6 +175,7 @@ export class Editor implements Game {
             }
 
             this.cursorSystem(dt);
+            this.slotScrollSystem(dt);
         }
     }
 
@@ -231,5 +220,14 @@ export class Editor implements Game {
         const { dx, dy } = this.input.mouse;
         this.hud.cursor.position.x += dx * dt * str;
         this.hud.cursor.position.y -= dy * dt * str;
+    }
+
+    private slotScrollSystem(dt: number) {
+        let { scroll } = this.input.mouse;
+        if (scroll !== 0) {
+            scroll *= Number.MAX_SAFE_INTEGER;
+            scroll = clamp(scroll, -1, 1);
+            this.activeSlot = modulo(this.activeSlot + scroll, 8);
+        }
     }
 }
