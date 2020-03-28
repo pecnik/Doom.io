@@ -27,8 +27,8 @@ export abstract class Tool {
     public onMouseTwo() {}
 
     protected getActiveTextureId(): number {
-        const { slots, activeSlot } = this.editor;
-        return slots[activeSlot] || 0;
+        const { textureSlots, selectedSlot } = this.world;
+        return textureSlots[selectedSlot] || 0;
     }
 
     protected sampleVoxel(dir: 1 | -1) {

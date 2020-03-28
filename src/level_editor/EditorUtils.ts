@@ -144,8 +144,8 @@ export function setTextureUV(plane: PlaneGeometry, tileId: number) {
     cords[1][2].set(tileU, 1);
 
     // Offset by tileID
-    let x = (tileId - 1) % TILE_COLS;
-    let y = Math.floor((tileId - 1) / TILE_COLS);
+    let x = tileId % TILE_COLS;
+    let y = Math.floor(tileId / TILE_COLS);
     for (let i = 0; i < 2; i++) {
         for (let j = 0; j < 3; j++) {
             cords[i][j].x += tileU * x;

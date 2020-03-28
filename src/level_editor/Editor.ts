@@ -40,9 +40,6 @@ export class Editor implements Game {
         )
     };
 
-    public slots = [0, 1, 2, 3, 4, 5, 6, 7];
-    public activeSlot = 0;
-
     public isMenuOpen = false;
     public tools: Tool[] = [new BlockTool(this), new FillTool(this)];
     public tool: Tool = this.tools[0];
@@ -184,8 +181,10 @@ export class Editor implements Game {
         if (scroll !== 0) {
             scroll *= Number.MAX_SAFE_INTEGER;
             scroll = clamp(scroll, -1, 1);
-
-            this.activeSlot = modulo(this.activeSlot + scroll, 8);
+            this.world.selectedSlot = modulo(
+                this.world.selectedSlot + scroll,
+                this.world.textureSlots.length
+            );
         }
     }
 }
