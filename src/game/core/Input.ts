@@ -93,14 +93,20 @@ export class Input {
             (document.body as any).requestPointerLock();
         };
 
-        const clearInput = () => {
-            for (let i = 0; i < 255; i++) this.keys[i] = false;
-            for (let i = 0; i < 3; i++) this.mouse.btns[i] = false;
+        let wasLcoked = false;
+        const onLockChange = () => {
+            if (wasLcoked !== this.isLocked()) {
+                wasLcoked = this.isLocked();
+
+                // Reset input
+                for (let i = 0; i < 255; i++) this.keys[i] = false;
+                for (let i = 0; i < 3; i++) this.mouse.btns[i] = false;
+            }
         };
 
         if (requestPointerLock) {
             document.body.addEventListener("click", requestlock, false);
-            document.addEventListener("pointerlockchange", clearInput);
+            document.addEventListener("pointerlockchange", onLockChange, false);
         }
 
         window.addEventListener("keyup", onkeyup, false);
@@ -116,7 +122,7 @@ export class Input {
         this.destroy = () => {
             if (requestPointerLock) {
                 document.body.removeEventListener("click", requestlock);
-                document.removeEventListener("pointerlockchange", clearInput);
+                document.removeEventListener("pointerlockchange", onLockChange);
             }
 
             window.removeEventListener("keyup", onkeyup);
@@ -135,6 +141,10 @@ export class Input {
         for (let i = 0; i < 3; i++) {
             this.mouse.btns[i] = false;
         }
+    }
+
+    public isLocked(): boolean {
+        return (document as any).pointerLockElement !== document.body;
     }
 
     public isKeyUp(key: KeyCode): boolean {
