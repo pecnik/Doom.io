@@ -14,33 +14,22 @@ import { EditorWorld } from "./data/EditorWorld";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { clamp } from "lodash";
 import { modulo } from "../game/core/Utils";
-import { TextureBar } from "./hud/TextureBar";
-import { StateInfo } from "./hud/StateInfo";
-import { setTextureUV, loadTexture } from "./EditorUtils";
-import { TextureSelect } from "./hud/TextureSelect";
+import { loadTexture } from "./EditorUtils";
 import { Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
 import { FillTool } from "./tools/FillTool";
-import { ToolSelect } from "./hud/ToolSelect";
+import { EditorMenu } from "./data/EditorMenu";
 
 export const VIEW_WIDTH = 1920;
 export const VIEW_HEIGHT = 1080;
 
-export enum EditorState {
-    Editor,
-    TextureSelect
-}
-
 export class Editor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
     public readonly world = new EditorWorld();
+    public readonly menu = new EditorMenu();
     public readonly hud = {
         scene: new Scene(),
         cursor: new Object3D(),
-        stateInfo: new StateInfo(),
-        toolSelect: new ToolSelect(),
-        textureBar: new TextureBar(),
-        textureSelect: new TextureSelect(),
         camera: new OrthographicCamera(
             -VIEW_WIDTH / 2,
             VIEW_WIDTH / 2,
@@ -51,10 +40,10 @@ export class Editor implements Game {
         )
     };
 
-    public state = EditorState.Editor;
     public slots = [0, 1, 2, 3, 4, 5, 6, 7];
     public activeSlot = 0;
 
+    public isMenuOpen = false;
     public tools: Tool[] = [new BlockTool(this), new FillTool(this)];
     public tool: Tool = this.tools[0];
 
@@ -63,9 +52,6 @@ export class Editor implements Game {
             // Load level texture
             loadTexture("/assets/tileset.png").then(map => {
                 this.world.level.textrue = map;
-                this.hud.textureBar.init(map);
-                this.hud.textureSelect.init(map);
-                this.hud.toolSelect.init(this.tools);
             }),
 
             // Load cursor
@@ -98,182 +84,42 @@ export class Editor implements Game {
     }
 
     public create(): void {
-        let order = 1;
-        this.hud.cursor.renderOrder = order++;
-        this.hud.stateInfo.scene.renderOrder = order++;
-        this.hud.toolSelect.scene.renderOrder = order++;
-        this.hud.textureBar.scene.renderOrder = order++;
-        this.hud.textureSelect.scene.renderOrder = order++;
-        this.hud.scene.add(
-            this.hud.cursor,
-            this.hud.toolSelect.scene,
-            this.hud.stateInfo.scene,
-            this.hud.textureBar.scene,
-            this.hud.textureSelect.scene
-        );
-
-        this.setState(EditorState.Editor);
+        this.hud.scene.add(this.hud.cursor, this.menu.scene);
+        this.toggleMenu(false);
     }
 
     public update(dt: number) {
-        this.stateMachine(dt);
+        this.isMenuOpen ? this.updateMenu(dt) : this.updateEditor(dt);
         this.input.clear();
     }
 
-    private setState(state: EditorState) {
-        const prev = EditorState[this.state];
-        const next = EditorState[state];
-        console.log(`> Editor: ${prev} => ${next}`);
-
-        this.state = state;
-
-        if (this.state === EditorState.Editor) {
-            this.hud.cursor.position.set(0, 0, 0);
-            this.hud.cursor.visible = false;
-            this.hud.toolSelect.scene.visible = false;
-            this.hud.textureSelect.scene.visible = false;
-        }
-
-        if (this.state === EditorState.TextureSelect) {
-            this.hud.cursor.position.set(0, 0, 0);
-            this.hud.cursor.visible = true;
-            this.hud.toolSelect.scene.visible = true;
-            this.hud.textureSelect.scene.visible = true;
-        }
-
-        // Update info
-        this.updateInfo();
+    private toggleMenu(value: boolean) {
+        this.isMenuOpen = value;
+        this.hud.cursor.visible = value;
+        this.hud.cursor.position.set(0, 0, 0);
     }
 
-    private updateInfo() {
-        const tiles = this.hud.textureBar.slots.children;
-        for (let i = 0; i < this.slots.length; i++) {
-            // Scale up selected slot
-            const tile = tiles[i] as Mesh;
-            if (i === this.activeSlot) {
-                tile.scale.setScalar(1.125);
-            } else {
-                tile.scale.setScalar(0.75);
-            }
-
-            const geo = tile.geometry as PlaneGeometry;
-            geo.elementsNeedUpdate = true;
-            setTextureUV(geo, this.slots[i]);
+    private updateMenu(dt: number) {
+        if (this.input.isKeyPressed(KeyCode.TAB)) {
+            return this.toggleMenu(false);
         }
 
-        // Rerender info panel
-        const { width, height, ctx, texture } = this.hud.stateInfo;
-        ctx.clearRect(0, 0, width, height);
-        ctx.font = "30px Arial";
-        ctx.fillStyle = "white";
+        if (this.input.isMousePresed(MouseBtn.Left)) {
+            return this.toggleMenu(false);
+        }
 
-        const x1 = 16;
-        const x2 = 150;
-        let line = 1;
-
-        ctx.fillText(`State:`, x1, 32 * line);
-        ctx.fillText(EditorState[this.state], x2, 32 * line);
-        line++;
-
-        ctx.fillText(`Tool:`, x1, 32 * line);
-        ctx.fillText(this.tool.name, x2, 32 * line);
-        line++;
-
-        ctx.fillText(`Slot:`, x1, 32 * line);
-        ctx.fillText(this.activeSlot.toString(), x2, 32 * line);
-        line++;
-
-        ctx.fillText(`Texture:`, x1, 32 * line);
-        ctx.fillText(this.slots[this.activeSlot].toString(), x2, 32 * line);
-        line++;
-
-        texture.needsUpdate = true;
+        this.cursorSystem(dt);
+        this.slotScrollSystem(dt);
     }
 
-    private stateMachine(dt: number) {
-        if (this.state === EditorState.Editor) {
-            if (this.input.isKeyPressed(KeyCode.TAB)) {
-                return this.setState(EditorState.TextureSelect);
-            }
-
-            this.movementSystem(dt);
-            this.slotScrollSystem(dt);
-
-            const mouse1 = this.input.isMousePresed(MouseBtn.Left);
-            const mouse2 = this.input.isMousePresed(MouseBtn.Right);
-            if (mouse1) this.tool.onMouseOne();
-            if (mouse2) this.tool.onMouseTwo();
+    private updateEditor(dt: number) {
+        if (this.input.isKeyPressed(KeyCode.TAB)) {
+            return this.toggleMenu(true);
         }
 
-        if (this.state === EditorState.TextureSelect) {
-            if (this.input.isKeyPressed(KeyCode.TAB)) {
-                return this.setState(EditorState.Editor);
-            }
-
-            if (this.input.isMousePresed(MouseBtn.Left)) {
-                const { x, y } = this.hud.cursor.position;
-
-                // Test slot select
-                const barSlots = this.hud.textureBar.slots.children;
-                for (let i = 0; i < this.slots.length; i++) {
-                    const tile = barSlots[i] as Mesh;
-                    tile.geometry.computeBoundingBox();
-
-                    const { min, max } = tile.geometry.boundingBox;
-                    min.add(tile.position);
-                    max.add(tile.position);
-                    if (x < min.x || x > max.x) continue;
-                    if (y < min.y || y > max.y) continue;
-
-                    console.log(`> Editor: select slot #${i + 1}`);
-                    this.activeSlot = i;
-                    this.updateInfo();
-                    return;
-                }
-
-                // Test texture select
-                const selectSlots = this.hud.textureSelect.slots.children;
-                for (let i = 0; i < selectSlots.length; i++) {
-                    const tile = selectSlots[i] as Mesh;
-                    tile.geometry.computeBoundingBox();
-
-                    const { min, max } = tile.geometry.boundingBox;
-                    min.add(tile.position);
-                    max.add(tile.position);
-                    if (x < min.x || x > max.x) continue;
-                    if (y < min.y || y > max.y) continue;
-
-                    const slot = this.activeSlot;
-                    console.log(`> Editor: set slot #${slot} to #${i + 1}`);
-                    this.slots[this.activeSlot] = i;
-                    this.updateInfo();
-                    return;
-                }
-
-                // Test texture select
-                const toolSlots = this.hud.toolSelect.slots.children;
-                for (let i = 0; i < toolSlots.length; i++) {
-                    const tile = toolSlots[i] as Mesh;
-                    tile.geometry.computeBoundingBox();
-
-                    const { min, max } = tile.geometry.boundingBox;
-                    min.add(tile.position);
-                    max.add(tile.position);
-                    if (x < min.x || x > max.x) continue;
-                    if (y < min.y || y > max.y) continue;
-
-                    console.log(`> Editor: select tool #${i + 1}`);
-                    this.tool = this.tools[i];
-                    this.updateInfo();
-                    return this.setState(EditorState.Editor);
-                }
-
-                return this.setState(EditorState.Editor);
-            }
-
-            this.cursorSystem(dt);
-            this.slotScrollSystem(dt);
-        }
+        this.toolSystem(dt);
+        this.movementSystem(dt);
+        this.slotScrollSystem(dt);
     }
 
     private movementSystem(dt: number) {
@@ -312,6 +158,13 @@ export class Editor implements Game {
         this.world.camera.position.add(velocity);
     }
 
+    private toolSystem(_: number) {
+        const mouse1 = this.input.isMousePresed(MouseBtn.Left);
+        const mouse2 = this.input.isMousePresed(MouseBtn.Right);
+        if (mouse1) this.tool.onMouseOne();
+        if (mouse2) this.tool.onMouseTwo();
+    }
+
     private cursorSystem(dt: number) {
         const str = 50;
         const { dx, dy } = this.input.mouse;
@@ -333,7 +186,6 @@ export class Editor implements Game {
             scroll = clamp(scroll, -1, 1);
 
             this.activeSlot = modulo(this.activeSlot + scroll, 8);
-            this.updateInfo();
         }
     }
 }
