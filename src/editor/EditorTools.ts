@@ -10,7 +10,7 @@ import {
     Vector2
 } from "three";
 import { EditorWorld } from "./data/EditorWorld";
-import { Input } from "../game/core/Input";
+import { Input, KeyCode } from "../game/core/Input";
 import { HUD_WIDTH, HUD_HEIGHT } from "../game/data/Globals";
 import { TILE_COLS, TILE_ROWS } from "./data/Constants";
 import { Hitscan } from "../game/utils/EntityUtils";
@@ -25,13 +25,15 @@ export class EditorTools {
     public readonly hud: EditorHud;
     public readonly world: EditorWorld;
     public readonly input: Input;
-    public readonly scene = new Scene();
 
-    private cursor = new Object3D();
-    private border = new Object3D();
+    // Menu data
+    public readonly menu = new Scene();
+    private readonly cursor = new Object3D();
+    private readonly border = new Object3D();
+    private readonly texturePlanel = new Object3D();
 
+    // Texture preview
     private textureIndex = 0;
-    private texturePlanel = new Object3D();
     private texturePreview = new Mesh();
 
     public constructor(editor: Editor) {
@@ -39,7 +41,7 @@ export class EditorTools {
         this.world = editor.world;
         this.input = editor.input;
 
-        this.hud.scene.add(this.scene);
+        this.hud.scene.add(this.menu);
 
         let order = 1;
 
@@ -48,7 +50,7 @@ export class EditorTools {
         this.border.renderOrder = order++;
         this.cursor.renderOrder = order++;
 
-        this.scene.add(
+        this.menu.add(
             this.texturePlanel,
             this.texturePreview,
             this.border,
@@ -126,33 +128,41 @@ export class EditorTools {
                 this.texturePreview.translateY(-SIZE / 2);
                 this.texturePreview.translateX(HUD_WIDTH / 2);
                 this.texturePreview.translateY(HUD_HEIGHT / 2);
-                this.scene.add(this.texturePreview);
+                this.hud.scene.add(this.texturePreview);
                 this.updateTexturePreview();
             }
         });
     }
 
     public update(_: number) {
-        const { dx, dy } = this.input.mouse;
-        this.cursor.position.x += dx * 0.5;
-        this.cursor.position.y -= dy * 0.5;
+        const openMenu = this.input.isKeyDown(KeyCode.TAB);
 
-        // A bit hacky ... prevents FPS mouse look, when this tool is active
-        this.input.mouse.dx = 0;
-        this.input.mouse.dy = 0;
+        this.menu.visible = openMenu;
 
-        if (dx !== 0 && dy !== 0) {
-            const rsp = this.sampleTextureTile();
-            if (rsp !== undefined) {
-                this.border.position.copy(this.texturePlanel.position);
-                this.border.position.x += rsp.point.x * TEXTURE_TILE_SIZE;
-                this.border.position.y -= rsp.point.y * TEXTURE_TILE_SIZE;
+        if (openMenu) {
+            const { dx, dy } = this.input.mouse;
+            this.cursor.position.x += dx * 0.5;
+            this.cursor.position.y -= dy * 0.5;
 
-                if (this.textureIndex !== rsp.index) {
-                    this.textureIndex = rsp.index;
-                    this.updateTexturePreview(this.textureIndex);
+            // A bit hacky ... prevents FPS mouse look, when this tool is active
+            this.input.mouse.dx = 0;
+            this.input.mouse.dy = 0;
+
+            if (dx !== 0 && dy !== 0) {
+                const rsp = this.sampleTextureTile();
+                if (rsp !== undefined) {
+                    this.border.position.copy(this.texturePlanel.position);
+                    this.border.position.x += rsp.point.x * TEXTURE_TILE_SIZE;
+                    this.border.position.y -= rsp.point.y * TEXTURE_TILE_SIZE;
+
+                    if (this.textureIndex !== rsp.index) {
+                        this.textureIndex = rsp.index;
+                        this.updateTexturePreview(this.textureIndex);
+                    }
                 }
             }
+        } else {
+            // ...
         }
     }
 
