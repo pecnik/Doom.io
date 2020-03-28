@@ -26,6 +26,7 @@ import { BlockTool } from "./tools/BlockTool";
 import { FillTool } from "./tools/FillTool";
 import { EditorMenu } from "./data/EditorMenu";
 import { EditorLevel } from "./data/EditorLevel";
+import { SampleTool } from "./tools/SampleTool";
 
 export const VIEW_WIDTH = 1920;
 export const VIEW_HEIGHT = 1080;
@@ -53,7 +54,11 @@ export class Editor implements Game {
 
     public lastSave = 0;
     public isMenuOpen = false;
-    public tools: Tool[] = [new BlockTool(this), new FillTool(this)];
+    public tools: Tool[] = [
+        new BlockTool(this),
+        new FillTool(this),
+        new SampleTool(this)
+    ];
     public tool: Tool = this.tools[0];
 
     public preload(): Promise<any> {
@@ -146,7 +151,7 @@ export class Editor implements Game {
             const mesh = new Mesh(geo, mat);
             mesh.position.x += size + padd - offsetx;
             mesh.position.y -= size + padd - offsety;
-            mesh.position.y += index * (size + padd);
+            mesh.position.y -= index * (size + padd);
 
             const mat2 = new MeshBasicMaterial({ color: 0x00ff55 });
             const outline = new Mesh(geo, mat2);
