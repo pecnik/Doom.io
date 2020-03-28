@@ -181,6 +181,10 @@ export class Editor implements Game {
         ctx.fillText(EditorState[this.state], x2, 32 * line);
         line++;
 
+        ctx.fillText(`Tool:`, x1, 32 * line);
+        ctx.fillText(this.tool.name, x2, 32 * line);
+        line++;
+
         ctx.fillText(`Slot:`, x1, 32 * line);
         ctx.fillText(this.activeSlot.toString(), x2, 32 * line);
         line++;
