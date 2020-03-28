@@ -8,7 +8,8 @@ export abstract class Tool {
     protected readonly world: EditorWorld;
     protected readonly hud: EditorHud;
 
-    public abstract update(): void;
+    public abstract icon: string;
+    public abstract name: string;
 
     public constructor(editor: Editor) {
         this.input = editor.input;
@@ -19,4 +20,8 @@ export abstract class Tool {
     public start() {}
 
     public end() {}
+
+    public onMouseOne() {}
+
+    public onMouseTwo() {}
 }

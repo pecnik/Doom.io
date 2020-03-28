@@ -10,13 +10,15 @@ import {
     Vector2
 } from "three";
 import { EditorWorld } from "./data/EditorWorld";
-import { Input, KeyCode } from "../game/core/Input";
+import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { HUD_WIDTH, HUD_HEIGHT } from "../game/data/Globals";
 import { TILE_COLS, TILE_ROWS } from "./data/Constants";
 import { Hitscan } from "../game/utils/EntityUtils";
 import { Editor } from "./Editor";
 import { EditorHud } from "./data/EditorHud";
 import { setTextureUV } from "./EditorUtils";
+import { BlockTool } from "./tools/BlockTool";
+import { Tool } from "./tools/Tool";
 
 const TEXTURE_PANEL_SIZE = HUD_HEIGHT / 2;
 const TEXTURE_TILE_SIZE = TEXTURE_PANEL_SIZE / TILE_COLS;
@@ -36,7 +38,14 @@ export class EditorTools {
     private textureIndex = 0;
     private texturePreview = new Mesh();
 
+    // Tools
+    private readonly tools: Tool[];
+    private tool: Tool;
+
     public constructor(editor: Editor) {
+        this.tools = [new BlockTool(editor)];
+        this.tool = this.tools[0];
+
         this.hud = editor.hud;
         this.world = editor.world;
         this.input = editor.input;
@@ -135,11 +144,13 @@ export class EditorTools {
     }
 
     public update(_: number) {
-        const openMenu = this.input.isKeyDown(KeyCode.TAB);
-
-        this.menu.visible = openMenu;
-
-        if (openMenu) {
+        this.menu.visible = this.input.isKeyDown(KeyCode.TAB);
+        if (!this.menu.visible) {
+            const mouse1 = this.input.isMousePresed(MouseBtn.Left);
+            const mouse2 = this.input.isMousePresed(MouseBtn.Right);
+            if (mouse1) this.tool.onMouseOne();
+            if (mouse2) this.tool.onMouseTwo();
+        } else {
             const { dx, dy } = this.input.mouse;
             this.cursor.position.x += dx * 0.5;
             this.cursor.position.y -= dy * 0.5;
@@ -157,12 +168,11 @@ export class EditorTools {
 
                     if (this.textureIndex !== rsp.index) {
                         this.textureIndex = rsp.index;
+                        this.world.texutreIndex = rsp.index;
                         this.updateTexturePreview(this.textureIndex);
                     }
                 }
             }
-        } else {
-            // ...
         }
     }
 

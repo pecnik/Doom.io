@@ -1,38 +1,24 @@
 import { Tool } from "./Tool";
-import { KeyCode, MouseBtn } from "../../game/core/Input";
 import { buildLevelMesh } from "../EditorUtils";
 import { Intersection } from "three";
 import { Hitscan } from "../../game/utils/EntityUtils";
 
 export class BlockTool extends Tool {
-    public readonly title = "Block tool";
-    public readonly hotkey = KeyCode.R;
+    public readonly name = "Block tool";
+    public readonly icon = "/assets/sprites/editor_icon_block.png";
 
-    public update() {
-        const mousebtn1 = this.input.isMousePresed(MouseBtn.Left);
-        const mousebtn2 = this.input.isMousePresed(MouseBtn.Right);
-        const alt = this.input.isKeyDown(KeyCode.ALT);
+    // public fillVoxel() {
+    //     const voxel = this.getVoxel(-1);
+    //     if (voxel !== undefined) {
+    //         voxel.solid = true;
+    //         for (let i = 0; i < 6; i++) {
+    //             voxel.faces[i] = this.world.texutreIndex;
+    //         }
+    //         buildLevelMesh(this.world.level);
+    //     }
+    // }
 
-        if (mousebtn1) {
-            if (alt) this.fillVoxel();
-            else this.placeVoxel();
-        }
-
-        if (mousebtn2) this.removeVoxel();
-    }
-
-    private fillVoxel() {
-        const voxel = this.getVoxel(-1);
-        if (voxel !== undefined) {
-            voxel.solid = true;
-            for (let i = 0; i < 6; i++) {
-                voxel.faces[i] = this.world.texutreIndex;
-            }
-            buildLevelMesh(this.world.level);
-        }
-    }
-
-    private placeVoxel() {
+    public onMouseOne() {
         const voxel = this.getVoxel(1);
         if (voxel !== undefined) {
             voxel.solid = true;
@@ -43,7 +29,7 @@ export class BlockTool extends Tool {
         }
     }
 
-    private removeVoxel() {
+    public onMouseTwo() {
         const voxel = this.getVoxel(-1);
         if (voxel !== undefined) {
             voxel.solid = false;
