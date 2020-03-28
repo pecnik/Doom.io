@@ -116,6 +116,18 @@ export class Editor implements Game {
     }
 
     private updateInfo() {
+        // Scale up selected slot
+        const slots = this.hud.textrueBar.slots.children;
+        for (let i = 0; i < slots.length; i++) {
+            const slot = slots[i];
+            if (i === this.activeSlot) {
+                slot.scale.setScalar(1.125);
+            } else {
+                slot.scale.setScalar(1);
+            }
+        }
+
+        // Rerender info panel
         const { width, height, ctx, texture } = this.hud.stateInfo;
         ctx.clearRect(0, 0, width, height);
         ctx.font = "30px Arial";
@@ -222,12 +234,14 @@ export class Editor implements Game {
         this.hud.cursor.position.y -= dy * dt * str;
     }
 
-    private slotScrollSystem(dt: number) {
+    private slotScrollSystem(_: number) {
         let { scroll } = this.input.mouse;
         if (scroll !== 0) {
             scroll *= Number.MAX_SAFE_INTEGER;
             scroll = clamp(scroll, -1, 1);
+
             this.activeSlot = modulo(this.activeSlot + scroll, 8);
+            this.updateInfo();
         }
     }
 }
