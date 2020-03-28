@@ -14,7 +14,7 @@ import { EditorWorld } from "./data/EditorWorld";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { clamp } from "lodash";
 import { modulo } from "../game/core/Utils";
-import { loadTexture } from "./EditorUtils";
+import { loadTexture, setTextureUV } from "./EditorUtils";
 import { Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
 import { FillTool } from "./tools/FillTool";
@@ -26,7 +26,6 @@ export const VIEW_HEIGHT = 1080;
 export class Editor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
     public readonly world = new EditorWorld();
-    public readonly menu = new EditorMenu();
     public readonly hud = {
         scene: new Scene(),
         cursor: new Object3D(),
@@ -39,6 +38,9 @@ export class Editor implements Game {
             30
         )
     };
+
+    public readonly menu = new EditorMenu();
+    public readonly textureSlotsBar = this.menu.addGroup();
 
     public isMenuOpen = false;
     public tools: Tool[] = [new BlockTool(this), new FillTool(this)];
@@ -83,15 +85,65 @@ export class Editor implements Game {
     public create(): void {
         this.hud.scene.add(this.hud.cursor, this.menu.scene);
         this.toggleMenu(false);
+
+        const slotCount = this.world.textureSlots.length;
+        for (let i = 0; i < slotCount; i++) {
+            const state = { tileId: -1 };
+
+            const size = 128;
+            const padd = 0;
+            const offsetx = (size + padd) * slotCount * 0.5;
+            const offsety = VIEW_HEIGHT / 2;
+
+            const map = this.world.level.textrue;
+            const geo = new PlaneGeometry(size, size);
+            const mat = new MeshBasicMaterial({ map });
+            const button = new Mesh(geo, mat);
+            button.position.x += (size + padd) * i - offsetx;
+            button.position.y += size - offsety;
+
+            const outlineMat = new MeshBasicMaterial({ color: 0x00ff55 });
+            const outline = new Mesh(geo, outlineMat);
+            outline.position.z = -1;
+            outline.scale.setScalar(1.05);
+            button.add(outline);
+
+            const onClick = () => {
+                console.log(`> Click ${i}`);
+            };
+
+            const onUpdate = () => {
+                if (state.tileId !== this.world.textureSlots[i]) {
+                    state.tileId = this.world.textureSlots[i];
+                    setTextureUV(geo, state.tileId);
+                }
+
+                if (state.tileId !== this.world.selectedSlot) {
+                    button.scale.setScalar(0.75);
+                } else {
+                    button.scale.setScalar(1);
+                }
+            };
+
+            this.textureSlotsBar.addButton({ button, onClick, onUpdate });
+        }
     }
 
     public update(dt: number) {
         this.isMenuOpen ? this.updateMenu(dt) : this.updateEditor(dt);
+
+        this.menu.groups.forEach(group => {
+            if (group.visible) {
+                group.buttons.forEach(btn => btn.onUpdate());
+            }
+        });
+
         this.input.clear();
     }
 
     private toggleMenu(value: boolean) {
         this.isMenuOpen = value;
+
         this.hud.cursor.visible = value;
         this.hud.cursor.position.set(0, 0, 0);
     }
