@@ -10,13 +10,25 @@ import { EditorWorld } from "./data/EditorWorld";
 import { Input, KeyCode } from "../game/core/Input";
 import { clamp } from "lodash";
 import { modulo } from "../game/core/Utils";
+import { TextureBar } from "./hud/TextureBar";
+
+export const VIEW_WIDTH = 1920;
+export const VIEW_HEIGHT = 1080;
 
 export class Editor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
     public readonly world = new EditorWorld();
     public readonly hud = {
         scene: new Scene(),
-        camera: new OrthographicCamera(0, 0, 0, 0)
+        camera: new OrthographicCamera(
+            -VIEW_WIDTH / 2,
+            VIEW_WIDTH / 2,
+            VIEW_HEIGHT / 2,
+            -VIEW_HEIGHT / 2,
+            0,
+            30
+        ),
+        textrueBar: new TextureBar()
     };
 
     public preload(): Promise<any> {
@@ -29,11 +41,12 @@ export class Editor implements Game {
     }
 
     public create(): void {
-        // ...
+        this.hud.scene.add(this.hud.textrueBar.scene);
     }
 
     public update(dt: number): void {
         this.movementSystem(dt);
+        this.textureBarSystem();
         this.input.clear();
     }
 
@@ -71,5 +84,9 @@ export class Editor implements Game {
             .multiplyScalar(5)
             .multiplyScalar(dt);
         this.world.camera.position.add(velocity);
+    }
+
+    private textureBarSystem() {
+        // ...
     }
 }
