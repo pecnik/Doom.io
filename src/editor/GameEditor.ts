@@ -54,7 +54,7 @@ export class GameEditor implements Game {
 
                         const geometry = new PlaneGeometry(48, 48);
                         const crosshair = new Mesh(geometry, material);
-                        this.hud.cursor.add(crosshair);
+                        this.hud.scene.add(crosshair);
                         resolve();
                     }
                 );
