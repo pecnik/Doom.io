@@ -41,7 +41,7 @@ export class Input {
 
     public readonly destroy: () => void;
 
-    public constructor(config: { requestPointerLock: boolean; }) {
+    public constructor(config: { requestPointerLock: boolean }) {
         const { requestPointerLock } = config;
 
         const handler = <T extends Event>(handler: (ev: T) => void) => {
@@ -93,8 +93,14 @@ export class Input {
             (document.body as any).requestPointerLock();
         };
 
+        const clearInput = () => {
+            for (let i = 0; i < 255; i++) this.keys[i] = false;
+            for (let i = 0; i < 3; i++) this.mouse.btns[i] = false;
+        };
+
         if (requestPointerLock) {
             document.body.addEventListener("click", requestlock, false);
+            document.addEventListener("pointerlockchange", clearInput);
         }
 
         window.addEventListener("keyup", onkeyup, false);
@@ -110,6 +116,7 @@ export class Input {
         this.destroy = () => {
             if (requestPointerLock) {
                 document.body.removeEventListener("click", requestlock);
+                document.removeEventListener("pointerlockchange", clearInput);
             }
 
             window.removeEventListener("keyup", onkeyup);
@@ -118,6 +125,7 @@ export class Input {
             document.body.removeEventListener("mousemove", onmousemove);
             document.body.removeEventListener("mousedown", onmousedown);
             document.body.removeEventListener("mouseup", onmouseup);
+            document.body.removeEventListener("wheel", onmousescroll);
         };
 
         for (let i = 0; i < 255; i++) {
