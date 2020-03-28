@@ -5,7 +5,7 @@ export class FillTool extends Tool {
     public readonly name = "Fill tool";
     public readonly icon = "/assets/sprites/editor_icon_fill.png";
 
-    public onMouseOne() {
+    public onMouseTwo() {
         const rsp = this.sampleVoxel(-1);
         if (rsp !== undefined) {
             const tileId = this.getActiveTextureId();
@@ -17,7 +17,7 @@ export class FillTool extends Tool {
         }
     }
 
-    public onMouseTwo() {
+    public onMouseOne() {
         const rsp = this.sampleVoxel(-1);
         if (rsp !== undefined) {
             let index = -1;
