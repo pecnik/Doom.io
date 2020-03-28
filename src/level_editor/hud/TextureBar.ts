@@ -4,7 +4,7 @@ import { VIEW_HEIGHT } from "../Editor";
 export class TextureBar {
     public readonly count = 8;
     public readonly scene = new Scene();
-    public readonly tiles = new Group();
+    public readonly slots = new Group();
 
     public constructor() {
         const size = 128;
@@ -21,8 +21,8 @@ export class TextureBar {
             const tile = new Mesh(geo, mat);
             tile.position.x += (size + padd) * i - offsetx;
             tile.position.y += size / 2 + padd - offsety;
-            this.tiles.add(tile);
+            this.slots.add(tile);
         }
-        this.scene.add(this.tiles);
+        this.scene.add(this.slots);
     }
 }

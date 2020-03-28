@@ -4,7 +4,13 @@ import {
     OrthographicCamera,
     TextureLoader,
     Vector2,
-    Vector3
+    Vector3,
+    Object3D,
+    Texture,
+    PlaneGeometry,
+    MeshBasicMaterial,
+    Mesh,
+    NearestFilter
 } from "three";
 import { EditorWorld } from "./data/EditorWorld";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
@@ -35,20 +41,45 @@ export class Editor implements Game {
             0,
             30
         ),
+
+        cursor: new Object3D(),
         textrueBar: new TextureBar()
     };
 
     public preload(): Promise<any> {
-        return new Promise(resolve => {
-            new TextureLoader().load("/assets/tileset.png", map => {
-                this.world.level.textrue = map;
-                resolve();
+        const loadTexture = (src: string): Promise<Texture> => {
+            return new Promise(resolve => {
+                new TextureLoader().load(src, map => {
+                    map.minFilter = NearestFilter;
+                    map.magFilter = NearestFilter;
+                    resolve(map);
+                });
             });
-        });
+        };
+
+        return Promise.all([
+            // Load level texture
+            loadTexture("/assets/tileset.png").then(map => {
+                this.world.level.textrue = map;
+            }),
+
+            // Load cursor
+            loadTexture("/assets/sprites/editor_cursor.png").then(map => {
+                const geo = new PlaneGeometry(32, 32);
+                const mat = new MeshBasicMaterial({
+                    map,
+                    transparent: true
+                });
+                this.hud.cursor.add(new Mesh(geo, mat));
+            })
+        ]);
     }
 
     public create(): void {
-        this.hud.scene.add(this.hud.textrueBar.scene);
+        let order = 1;
+        this.hud.cursor.renderOrder = order++;
+        this.hud.textrueBar.scene.renderOrder = order++;
+        this.hud.scene.add(this.hud.cursor, this.hud.textrueBar.scene);
     }
 
     public update(dt: number) {
@@ -59,12 +90,12 @@ export class Editor implements Game {
     private setState(state: EditorState) {
         const prev = EditorState[this.state];
         const next = EditorState[state];
-        console.log(`> EditorState: ${prev} => ${next}`);
+        console.log(`> Editor: ${prev} => ${next}`);
 
         this.state = state;
 
         if (this.state === EditorState.Editor) {
-            // ...
+            this.hud.cursor.position.set(0, 0, 0);
         }
 
         if (this.state === EditorState.ToolSelect) {
@@ -87,19 +118,38 @@ export class Editor implements Game {
             }
 
             this.movementSystem(dt);
-            this.textureBarSystem();
         }
 
         if (this.state === EditorState.ToolSelect) {
             if (this.input.isMouseDown(MouseBtn.Left)) {
                 return this.setState(EditorState.Editor);
             }
+
+            this.cursorSystem(dt);
         }
 
         if (this.state === EditorState.TextureSelect) {
             if (this.input.isMouseDown(MouseBtn.Left)) {
+                const { x, y } = this.hud.cursor.position;
+                const slots = this.hud.textrueBar.slots.children;
+
+                for (let i = 0; i < slots.length; i++) {
+                    const slot = slots[i] as Mesh;
+                    slot.geometry.computeBoundingBox();
+
+                    const { min, max } = slot.geometry.boundingBox;
+                    min.add(slot.position);
+                    max.add(slot.position);
+                    if (x < min.x || x > max.x) continue;
+                    if (y < min.y || y > max.y) continue;
+
+                    console.log(`> Editor: select slot #${i + 1}`);
+                }
+
                 return this.setState(EditorState.Editor);
             }
+
+            this.cursorSystem(dt);
         }
     }
 
@@ -139,7 +189,10 @@ export class Editor implements Game {
         this.world.camera.position.add(velocity);
     }
 
-    private textureBarSystem() {
-        // ...
+    private cursorSystem(dt: number) {
+        const str = 50;
+        const { dx, dy } = this.input.mouse;
+        this.hud.cursor.position.x += dx * dt * str;
+        this.hud.cursor.position.y -= dy * dt * str;
     }
 }
