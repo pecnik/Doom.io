@@ -1,4 +1,3 @@
-import SocketIOClient from "socket.io-client";
 import { Hud } from "./data/Hud";
 import { Input } from "./core/Input";
 import { World } from "./data/World";
@@ -19,18 +18,17 @@ import { WeaponSpecs } from "./data/Weapon";
 import { Game } from "./core/Engine";
 
 export class GameClient implements Game {
-    private readonly socket: SocketIOClient.Socket;
-    private readonly input: Input;
+    // private readonly socket: SocketIOClient.Socket;
+    private readonly input = new Input({ requestPointerLock: true });
     public readonly world = new World();
     public readonly hud = new Hud();
 
     public constructor() {
-        const url = location.origin.replace(location.port, "8080");
-        this.input = new Input({ requestPointerLock: true });
-        this.socket = SocketIOClient.connect(url, {
-            reconnection: false,
-            autoConnect: false
-        });
+        // const url = location.origin.replace(location.port, "8080");
+        // this.socket = SocketIOClient.connect(url, {
+        //     reconnection: false,
+        //     autoConnect: false
+        // });
     }
 
     public preload() {
@@ -38,14 +36,14 @@ export class GameClient implements Game {
             this.world.level.load(),
             this.world.decals.load(),
 
-            // Connect to the server
-            new Promise(resolve => {
-                this.socket.connect();
-                this.socket.on("connect", () => {
-                    console.log(`> Connection::${this.socket.id}`);
-                    resolve();
-                });
-            }),
+            // // Connect to the server
+            // new Promise(resolve => {
+            //     this.socket.connect();
+            //     this.socket.on("connect", () => {
+            //         console.log(`> Connection::${this.socket.id}`);
+            //         resolve();
+            //     });
+            // }),
 
             // Preload weapon sprite
             ...WeaponSpecs.map(weapon => {
