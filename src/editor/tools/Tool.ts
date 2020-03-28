@@ -27,7 +27,7 @@ export abstract class Tool {
 
     public onMouseTwo() {}
 
-    protected getVoxel(dir: 1 | -1) {
+    protected sampleVoxel(dir: 1 | -1) {
         const buffer: Intersection[] = [];
         Hitscan.origin.set(0, 0);
         Hitscan.raycaster.setFromCamera(Hitscan.origin, this.world.camera);
@@ -42,6 +42,11 @@ export abstract class Tool {
         const normal = hit.face.normal.clone().multiplyScalar(0.1 * dir);
         point.add(normal);
 
-        return this.world.level.getVoxel(point);
+        const voxel = this.world.level.getVoxel(point);
+        if (voxel === undefined) {
+            return;
+        }
+
+        return { point: point.clone(), normal: hit.face.normal.clone(), voxel };
     }
 }
