@@ -102,14 +102,16 @@ export class Editor implements Game {
             button.position.x += (size + padd) * i - offsetx;
             button.position.y += size - offsety;
 
-            const outlineMat = new MeshBasicMaterial({ color: 0x00ff55 });
+            const outlineMat = new MeshBasicMaterial({
+                color: 0x00ff55
+            });
             const outline = new Mesh(geo, outlineMat);
             outline.position.z = -1;
             outline.scale.setScalar(1.05);
             button.add(outline);
 
             const onClick = () => {
-                console.log(`> Click ${i}`);
+                this.world.selectedSlot = i;
             };
 
             const onUpdate = () => {
@@ -125,50 +127,122 @@ export class Editor implements Game {
                 }
             };
 
-            this.textureSlotsBar.addButton({ button, onClick, onUpdate });
+            this.textureSlotsBar.addButton({
+                mesh: button,
+                onClick,
+                onUpdate
+            });
         }
     }
 
-    public update(dt: number) {
-        this.isMenuOpen ? this.updateMenu(dt) : this.updateEditor(dt);
+    // UPDATE LOOP
+    // ======================================
 
-        this.menu.groups.forEach(group => {
-            if (group.visible) {
-                group.buttons.forEach(btn => btn.onUpdate());
-            }
-        });
+    public update(dt: number) {
+        if (this.input.isKeyPressed(KeyCode.TAB)) {
+            this.toggleMenu(!this.isMenuOpen);
+        }
+
+        if (this.isMenuOpen) {
+            this.updateMenu(dt);
+        } else {
+            this.updateEditor(dt);
+        }
 
         this.input.clear();
     }
 
-    private toggleMenu(value: boolean) {
-        this.isMenuOpen = value;
-
-        this.hud.cursor.visible = value;
-        this.hud.cursor.position.set(0, 0, 0);
-    }
-
     private updateMenu(dt: number) {
-        if (this.input.isKeyPressed(KeyCode.TAB)) {
-            return this.toggleMenu(false);
-        }
-
-        if (this.input.isMousePresed(MouseBtn.Left)) {
-            return this.toggleMenu(false);
-        }
-
         this.cursorSystem(dt);
+        this.menuClickSystem(dt);
+        this.menuUpdateSystem(dt);
         this.selectSlotSystem(dt);
     }
 
     private updateEditor(dt: number) {
-        if (this.input.isKeyPressed(KeyCode.TAB)) {
-            return this.toggleMenu(true);
-        }
-
         this.toolSystem(dt);
         this.movementSystem(dt);
+        this.menuClickSystem(dt);
+        this.menuUpdateSystem(dt);
         this.selectSlotSystem(dt);
+    }
+
+    private toggleMenu(value: boolean) {
+        this.isMenuOpen = value;
+        this.hud.cursor.visible = value;
+        this.hud.cursor.position.set(0, 0, 0);
+    }
+
+    // SYSTEMS
+    // ======================================
+
+    private toolSystem(_: number) {
+        const mouse1 = this.input.isMousePresed(MouseBtn.Left);
+        const mouse2 = this.input.isMousePresed(MouseBtn.Right);
+        if (mouse1) this.tool.onMouseOne();
+        if (mouse2) this.tool.onMouseTwo();
+    }
+
+    private cursorSystem(dt: number) {
+        const str = 50;
+        const { dx, dy } = this.input.mouse;
+
+        const point = this.hud.cursor.position;
+        point.x += dx * dt * str;
+        point.y -= dy * dt * str;
+
+        const clampx = VIEW_WIDTH * 0.5;
+        const clampy = VIEW_HEIGHT * 0.5;
+        point.x = clamp(point.x, -clampx, clampx);
+        point.y = clamp(point.y, -clampy, clampy);
+    }
+
+    private menuUpdateSystem(_: number) {
+        this.menu.groups.forEach(group => {
+            if (group.visible) {
+                group.buttons.forEach(btn => {
+                    btn.onUpdate();
+                });
+            }
+        });
+    }
+
+    private menuClickSystem(_: number) {
+        const mouseDown = this.input.isMousePresed(MouseBtn.Left);
+        if (!mouseDown) return;
+
+        this.menu.groups.forEach(group => {
+            if (group.visible) {
+                group.buttons.forEach(btn => {
+                    const { x, y } = this.hud.cursor.position;
+                    const { min, max } = btn.aabb;
+                    if (x < min.x || x > max.x) return;
+                    if (y < min.y || y > max.y) return;
+                    btn.onClick();
+                });
+            }
+        });
+    }
+
+    private selectSlotSystem(_: number) {
+        const KEY_NUM_1 = KeyCode.NUM_1 as number;
+        const MAX_INDEX = this.world.textureSlots.length;
+        for (let i = 0; i < MAX_INDEX; i++) {
+            if (this.input.isKeyPressed(KEY_NUM_1 + i)) {
+                this.world.selectedSlot = i;
+                return;
+            }
+        }
+
+        let { scroll } = this.input.mouse;
+        if (scroll !== 0) {
+            scroll *= Number.MAX_SAFE_INTEGER;
+            scroll = clamp(scroll, -1, 1);
+            this.world.selectedSlot = modulo(
+                this.world.selectedSlot + scroll,
+                this.world.textureSlots.length
+            );
+        }
     }
 
     private movementSystem(dt: number) {
@@ -205,47 +279,5 @@ export class Editor implements Game {
             .multiplyScalar(5)
             .multiplyScalar(dt);
         this.world.camera.position.add(velocity);
-    }
-
-    private toolSystem(_: number) {
-        const mouse1 = this.input.isMousePresed(MouseBtn.Left);
-        const mouse2 = this.input.isMousePresed(MouseBtn.Right);
-        if (mouse1) this.tool.onMouseOne();
-        if (mouse2) this.tool.onMouseTwo();
-    }
-
-    private cursorSystem(dt: number) {
-        const str = 50;
-        const { dx, dy } = this.input.mouse;
-
-        const point = this.hud.cursor.position;
-        point.x += dx * dt * str;
-        point.y -= dy * dt * str;
-
-        const clampx = VIEW_WIDTH * 0.5;
-        const clampy = VIEW_HEIGHT * 0.5;
-        point.x = clamp(point.x, -clampx, clampx);
-        point.y = clamp(point.y, -clampy, clampy);
-    }
-
-    private selectSlotSystem(_: number) {
-        const KEY_NUM_1 = KeyCode.NUM_1 as number;
-        const MAX_INDEX = this.world.textureSlots.length;
-        for (let i = 0; i < MAX_INDEX; i++) {
-            if (this.input.isKeyPressed(KEY_NUM_1 + i)) {
-                this.world.selectedSlot = i;
-                return;
-            }
-        }
-
-        let { scroll } = this.input.mouse;
-        if (scroll !== 0) {
-            scroll *= Number.MAX_SAFE_INTEGER;
-            scroll = clamp(scroll, -1, 1);
-            this.world.selectedSlot = modulo(
-                this.world.selectedSlot + scroll,
-                this.world.textureSlots.length
-            );
-        }
     }
 }
