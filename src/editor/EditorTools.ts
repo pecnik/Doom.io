@@ -16,6 +16,7 @@ import { TILE_COLS, TILE_ROWS } from "./data/Constants";
 import { Hitscan } from "../game/utils/EntityUtils";
 import { Editor } from "./Editor";
 import { EditorHud } from "./data/EditorHud";
+import { setTextureUV } from "./EditorUtils";
 
 const TEXTURE_PANEL_SIZE = HUD_HEIGHT / 2;
 const TEXTURE_TILE_SIZE = TEXTURE_PANEL_SIZE / TILE_COLS;
@@ -26,9 +27,12 @@ export class EditorTools {
     public readonly input: Input;
     public readonly scene = new Scene();
 
-    private readonly cursor = new Object3D();
-    private readonly border = new Object3D();
-    public readonly texturePlanel = new Object3D();
+    private cursor = new Object3D();
+    private border = new Object3D();
+
+    private textureIndex = 0;
+    private texturePlanel = new Object3D();
+    private texturePreview = new Mesh();
 
     public constructor(editor: Editor) {
         this.hud = editor.hud;
@@ -40,15 +44,16 @@ export class EditorTools {
         let order = 1;
 
         this.texturePlanel.renderOrder = order++;
-        this.texturePlanel.position.set(0, 0, -1);
-
+        this.texturePreview.renderOrder = order++;
         this.border.renderOrder = order++;
-        this.border.position.set(0, 0, -1);
-
         this.cursor.renderOrder = order++;
-        this.cursor.position.set(0, 0, 0);
 
-        this.scene.add(this.texturePlanel, this.border, this.cursor);
+        this.scene.add(
+            this.texturePlanel,
+            this.texturePreview,
+            this.border,
+            this.cursor
+        );
 
         // Load cursor
         new TextureLoader().load("/assets/sprites/crosshair.png", map => {
@@ -71,6 +76,7 @@ export class EditorTools {
                 TEXTURE_TILE_SIZE,
                 TEXTURE_TILE_SIZE
             );
+
             const material = new MeshBasicMaterial({
                 map,
                 depthTest: false,
@@ -103,6 +109,26 @@ export class EditorTools {
             sprite.translateX(TEXTURE_PANEL_SIZE / 2);
             sprite.translateY(-TEXTURE_PANEL_SIZE / 2);
             this.texturePlanel.add(sprite);
+
+            {
+                // Preview
+                const SIZE = TEXTURE_TILE_SIZE * 2;
+                const geometry = new PlaneGeometry(SIZE, SIZE);
+
+                const material = new MeshBasicMaterial({
+                    map,
+                    depthTest: false,
+                    depthWrite: false
+                });
+
+                this.texturePreview = new Mesh(geometry, material);
+                this.texturePreview.translateX(-SIZE / 2);
+                this.texturePreview.translateY(-SIZE / 2);
+                this.texturePreview.translateX(HUD_WIDTH / 2);
+                this.texturePreview.translateY(HUD_HEIGHT / 2);
+                this.scene.add(this.texturePreview);
+                this.updateTexturePreview();
+            }
         });
     }
 
@@ -121,8 +147,19 @@ export class EditorTools {
                 this.border.position.copy(this.texturePlanel.position);
                 this.border.position.x += rsp.point.x * TEXTURE_TILE_SIZE;
                 this.border.position.y -= rsp.point.y * TEXTURE_TILE_SIZE;
+
+                if (this.textureIndex !== rsp.index) {
+                    this.textureIndex = rsp.index;
+                    this.updateTexturePreview(this.textureIndex);
+                }
             }
         }
+    }
+
+    private updateTexturePreview(index = this.world.texutreIndex) {
+        const geometry = this.texturePreview.geometry as PlaneGeometry;
+        geometry.elementsNeedUpdate = true;
+        setTextureUV(geometry, index);
     }
 
     private sampleTextureTile() {
@@ -141,7 +178,7 @@ export class EditorTools {
             if (rsp.uv) {
                 const x = Math.floor(rsp.uv.x * TILE_COLS);
                 const y = Math.floor((1 - rsp.uv.y) * TILE_ROWS);
-                const index = y * TILE_COLS + x;
+                const index = y * TILE_COLS + x + 1;
                 return {
                     point: new Vector2(x, y),
                     index
