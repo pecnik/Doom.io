@@ -29,7 +29,6 @@ export enum EditorState {
 }
 
 export class Editor implements Game {
-    public state = EditorState.Editor;
     public readonly input = new Input({ requestPointerLock: true });
     public readonly world = new EditorWorld();
     public readonly hud = {
@@ -46,6 +45,9 @@ export class Editor implements Game {
             30
         )
     };
+
+    public state = EditorState.Editor;
+    public activeSlot = 0;
 
     public preload(): Promise<any> {
         const loadTexture = (src: string): Promise<Texture> => {
@@ -115,18 +117,33 @@ export class Editor implements Game {
         }
 
         // Update info
+        this.updateInfo();
+    }
+
+    private updateInfo() {
         const { width, height, ctx, texture } = this.hud.stateInfo;
         ctx.clearRect(0, 0, width, height);
-
         ctx.font = "30px Arial";
         ctx.fillStyle = "white";
-        ctx.fillText(`${next}`, 24, 24);
+
+        const x1 = 24;
+        const x2 = 128;
+        let line = 1;
+
+        ctx.fillText(`State:`, x1, 32 * line);
+        ctx.fillText(EditorState[this.state], x2, 32 * line);
+        line++;
+
+        ctx.fillText(`Slot:`, x1, 32 * line);
+        ctx.fillText(this.activeSlot.toString(), x2, 32 * line);
+        line++;
+
         texture.needsUpdate = true;
     }
 
     private stateMachine(dt: number) {
         if (this.state === EditorState.Editor) {
-            if (this.input.isMouseDown(MouseBtn.Right)) {
+            if (this.input.isMousePresed(MouseBtn.Right)) {
                 return this.setState(EditorState.TextureSelect);
             }
 
@@ -161,6 +178,9 @@ export class Editor implements Game {
                     if (y < min.y || y > max.y) continue;
 
                     console.log(`> Editor: select slot #${i + 1}`);
+                    this.activeSlot = i;
+                    this.updateInfo();
+                    return;
                 }
 
                 return this.setState(EditorState.Editor);
