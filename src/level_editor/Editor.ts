@@ -19,7 +19,7 @@ import { clamp } from "lodash";
 import { modulo } from "../game/core/Utils";
 import { TextureBar } from "./hud/TextureBar";
 import { StateInfo } from "./hud/StateInfo";
-import { setTextureUV } from "../editor/EditorUtils";
+import { setTextureUV } from "./EditorUtils";
 import { TextureSelect } from "./hud/TextureSelect";
 import { Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
