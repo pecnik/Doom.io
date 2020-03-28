@@ -70,12 +70,16 @@ export class Editor implements Game {
 
             // Load cursor
             loadTexture("/assets/sprites/editor_cursor.png").then(map => {
-                const geo = new PlaneGeometry(32, 32);
+                const size = 32;
+                const geo = new PlaneGeometry(size, size);
                 const mat = new MeshBasicMaterial({
                     map,
                     transparent: true
                 });
-                this.hud.cursor.add(new Mesh(geo, mat));
+                const sprite = new Mesh(geo, mat);
+                sprite.position.x += size / 2;
+                sprite.position.y += size / 2;
+                this.hud.cursor.add(sprite);
             })
         ]);
     }
@@ -108,10 +112,12 @@ export class Editor implements Game {
 
         if (this.state === EditorState.Editor) {
             this.hud.cursor.position.set(0, 0, 0);
+            this.hud.cursor.visible = false;
         }
 
         if (this.state === EditorState.TextureSelect) {
-            // ...
+            this.hud.cursor.position.set(0, 0, 0);
+            this.hud.cursor.visible = true;
         }
 
         // Update info
@@ -126,7 +132,7 @@ export class Editor implements Game {
             if (i === this.activeSlot) {
                 tile.scale.setScalar(1.125);
             } else {
-                tile.scale.setScalar(1);
+                tile.scale.setScalar(0.75);
             }
 
             const geo = tile.geometry as PlaneGeometry;
@@ -235,8 +241,15 @@ export class Editor implements Game {
     private cursorSystem(dt: number) {
         const str = 50;
         const { dx, dy } = this.input.mouse;
-        this.hud.cursor.position.x += dx * dt * str;
-        this.hud.cursor.position.y -= dy * dt * str;
+
+        const point = this.hud.cursor.position;
+        point.x += dx * dt * str;
+        point.y -= dy * dt * str;
+
+        const clampx = VIEW_WIDTH * 0.49;
+        const clampy = VIEW_HEIGHT * 0.49;
+        point.x = clamp(point.x, -clampx, clampx);
+        point.y = clamp(point.y, -clampy, clampy);
     }
 
     private slotScrollSystem(_: number) {
