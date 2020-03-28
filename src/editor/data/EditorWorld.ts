@@ -5,7 +5,7 @@ import {
     Mesh,
     PlaneGeometry
 } from "three";
-import { Level } from "./Level";
+import { EditorLevel } from "./EditorLevel";
 
 export class EditorWorld {
     public elapsedTime = 0;
@@ -13,7 +13,7 @@ export class EditorWorld {
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
 
-    public readonly level = new Level(9, 6, 4);
+    public readonly level = new EditorLevel(9, 6, 4);
     public readonly floor = this.createFloor();
 
     public texutreIndex = 1;

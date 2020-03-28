@@ -6,7 +6,7 @@ export class Voxel {
     public solid = false;
 }
 
-export class Level {
+export class EditorLevel {
     public readonly scene: Scene = new Scene();
     public readonly voxel: Voxel[][][] = [];
     public readonly width: number;

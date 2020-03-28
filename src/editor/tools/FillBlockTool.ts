@@ -1,6 +1,6 @@
 import { Tool } from "./Tool";
 import { KeyCode, MouseBtn } from "../../game/core/Input";
-import { buildLevelMesh } from "../LevelUtils";
+import { buildLevelMesh } from "../EditorUtils";
 import { Intersection } from "three";
 import { Hitscan } from "../../game/utils/EntityUtils";
 
@@ -28,7 +28,6 @@ export class FillBlockTool extends Tool {
             buildLevelMesh(this.world.level);
         }
     }
-
 
     private hitscan() {
         const buffer: Intersection[] = [];

@@ -1,8 +1,21 @@
-import { MeshBasicMaterial, Mesh, NearestFilter, Vector2, PlaneGeometry, Geometry } from "three";
-import { Level, Voxel } from "./data/Level";
-import { TILE_W, TEXTURE_W, TILE_H, TEXTURE_H, TILE_COLS } from "./data/Constants";
+import {
+    MeshBasicMaterial,
+    Mesh,
+    NearestFilter,
+    Vector2,
+    PlaneGeometry,
+    Geometry
+} from "three";
+import { EditorLevel, Voxel } from "./data/EditorLevel";
+import {
+    TILE_W,
+    TEXTURE_W,
+    TILE_H,
+    TEXTURE_H,
+    TILE_COLS
+} from "./data/Constants";
 
-export function buildLevelMesh(level: Level) {
+export function buildLevelMesh(level: EditorLevel) {
     const planes = new Array<PlaneGeometry>();
     level.forEachVoxel(voxel => {
         if (voxel.solid) {
@@ -25,11 +38,14 @@ export function buildLevelMesh(level: Level) {
     level.scene.remove(...level.scene.children);
     level.scene.add(mesh);
 
-    const wireframe = new Mesh(geometry, new MeshBasicMaterial({ wireframe: true, color: 0x00ff00 }));
+    const wireframe = new Mesh(
+        geometry,
+        new MeshBasicMaterial({ wireframe: true, color: 0x00ff00 })
+    );
     level.scene.add(wireframe);
 }
 
-export function createVoxelPlanes(voxel: Voxel, level: Level) {
+export function createVoxelPlanes(voxel: Voxel, level: EditorLevel) {
     const planes: PlaneGeometry[] = [];
 
     const hasSolidNeighbor = (x: number, y: number, z: number) => {
@@ -123,5 +139,4 @@ export function setTextureUV(plane: PlaneGeometry, tileId: number) {
             cords[i][j].y -= tileV * y;
         }
     }
-};
-
+}

@@ -1,12 +1,12 @@
 import { Engine } from "../game/core/Engine";
 import { SCREEN_WIDTH, SCREEN_HEIGHT } from "../game/data/Globals";
 import { GameClient } from "../game/GameClient";
-import { GameEditor } from "../editor/GameEditor";
+import { Editor } from "../editor/Editor";
 
 function getApp() {
     const route = location.pathname.split("/")[1];
     if (route === "editor") {
-        return new GameEditor();
+        return new Editor();
     } else {
         return new GameClient();
     }

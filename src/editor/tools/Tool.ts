@@ -1,4 +1,4 @@
-import { GameEditor } from "../GameEditor";
+import { Editor } from "../Editor";
 import { Input } from "../../game/core/Input";
 import { EditorWorld } from "../data/EditorWorld";
 import { EditorHud } from "../data/EditorHud";
@@ -10,7 +10,7 @@ export abstract class Tool {
 
     public abstract update(): void;
 
-    public constructor(editor: GameEditor) {
+    public constructor(editor: Editor) {
         this.input = editor.input;
         this.world = editor.world;
         this.hud = editor.hud;

@@ -18,7 +18,7 @@ import { BlockTool } from "./tools/BlockTool";
 import { ActionSelectTool } from "./tools/ActionSelectTool";
 import { Tool } from "./tools/Tool";
 
-export class GameEditor implements Game {
+export class Editor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
     public readonly world = new EditorWorld();
     public readonly hud = new EditorHud();

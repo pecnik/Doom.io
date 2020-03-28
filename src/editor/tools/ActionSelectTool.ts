@@ -13,7 +13,7 @@ import {
 import { Hitscan } from "../../game/utils/EntityUtils";
 import { HUD_WIDTH, HUD_HEIGHT } from "../../game/data/Globals";
 import { TILE_COLS, TILE_ROWS } from "../data/Constants";
-import { GameEditor } from "../GameEditor";
+import { Editor } from "../Editor";
 
 const PANEL_SIZE = HUD_WIDTH / 2;
 const PANEL_TILE_SIZE = PANEL_SIZE / TILE_COLS;
@@ -26,7 +26,7 @@ export class ActionSelectTool extends Tool {
 
     private lastUpdate = 0;
 
-    public constructor(editor: GameEditor) {
+    public constructor(editor: Editor) {
         super(editor);
 
         let order = 1;
