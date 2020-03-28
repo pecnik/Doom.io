@@ -19,6 +19,7 @@ import { modulo } from "../game/core/Utils";
 import { TextureBar } from "./hud/TextureBar";
 import { StateInfo } from "./hud/StateInfo";
 import { setTextureUV } from "../editor/EditorUtils";
+import { TextureSelect } from "./hud/TextureSelect";
 
 export const VIEW_WIDTH = 1920;
 export const VIEW_HEIGHT = 1080;
@@ -35,7 +36,8 @@ export class Editor implements Game {
         scene: new Scene(),
         cursor: new Object3D(),
         stateInfo: new StateInfo(),
-        textrueBar: new TextureBar(),
+        textureBar: new TextureBar(),
+        textureSelect: new TextureSelect(),
         camera: new OrthographicCamera(
             -VIEW_WIDTH / 2,
             VIEW_WIDTH / 2,
@@ -65,7 +67,8 @@ export class Editor implements Game {
             // Load level texture
             loadTexture("/assets/tileset.png").then(map => {
                 this.world.level.textrue = map;
-                this.hud.textrueBar.init(map);
+                this.hud.textureBar.init(map);
+                this.hud.textureSelect.init(map);
             }),
 
             // Load cursor
@@ -78,7 +81,7 @@ export class Editor implements Game {
                 });
                 const sprite = new Mesh(geo, mat);
                 sprite.position.x += size / 2;
-                sprite.position.y += size / 2;
+                sprite.position.y -= size / 2;
                 this.hud.cursor.add(sprite);
             })
         ]);
@@ -88,11 +91,13 @@ export class Editor implements Game {
         let order = 1;
         this.hud.cursor.renderOrder = order++;
         this.hud.stateInfo.scene.renderOrder = order++;
-        this.hud.textrueBar.scene.renderOrder = order++;
+        this.hud.textureBar.scene.renderOrder = order++;
+        this.hud.textureSelect.scene.renderOrder = order++;
         this.hud.scene.add(
             this.hud.cursor,
             this.hud.stateInfo.scene,
-            this.hud.textrueBar.scene
+            this.hud.textureBar.scene,
+            this.hud.textureSelect.scene
         );
 
         this.setState(EditorState.Editor);
@@ -113,11 +118,13 @@ export class Editor implements Game {
         if (this.state === EditorState.Editor) {
             this.hud.cursor.position.set(0, 0, 0);
             this.hud.cursor.visible = false;
+            this.hud.textureSelect.scene.visible = false;
         }
 
         if (this.state === EditorState.TextureSelect) {
             this.hud.cursor.position.set(0, 0, 0);
             this.hud.cursor.visible = true;
+            this.hud.textureSelect.scene.visible = true;
         }
 
         // Update info
@@ -125,7 +132,7 @@ export class Editor implements Game {
     }
 
     private updateInfo() {
-        const tiles = this.hud.textrueBar.slots.children;
+        const tiles = this.hud.textureBar.slots.children;
         for (let i = 0; i < this.slots.length; i++) {
             // Scale up selected slot
             const tile = tiles[i] as Mesh;
@@ -136,6 +143,7 @@ export class Editor implements Game {
             }
 
             const geo = tile.geometry as PlaneGeometry;
+            geo.elementsNeedUpdate = true;
             setTextureUV(geo, this.slots[i]);
         }
 
@@ -145,8 +153,8 @@ export class Editor implements Game {
         ctx.font = "30px Arial";
         ctx.fillStyle = "white";
 
-        const x1 = 24;
-        const x2 = 128;
+        const x1 = 16;
+        const x2 = 150;
         let line = 1;
 
         ctx.fillText(`State:`, x1, 32 * line);
@@ -155,6 +163,10 @@ export class Editor implements Game {
 
         ctx.fillText(`Slot:`, x1, 32 * line);
         ctx.fillText(this.activeSlot.toString(), x2, 32 * line);
+        line++;
+
+        ctx.fillText(`Texture:`, x1, 32 * line);
+        ctx.fillText(this.slots[this.activeSlot].toString(), x2, 32 * line);
         line++;
 
         texture.needsUpdate = true;
@@ -175,21 +187,42 @@ export class Editor implements Game {
                 return this.setState(EditorState.Editor);
             }
 
-            if (this.input.isMouseDown(MouseBtn.Left)) {
+            if (this.input.isMousePresed(MouseBtn.Left)) {
                 const { x, y } = this.hud.cursor.position;
-                const slots = this.hud.textrueBar.slots.children;
-                for (let i = 0; i < this.slots.length; i++) {
-                    const slot = slots[i] as Mesh;
-                    slot.geometry.computeBoundingBox();
 
-                    const { min, max } = slot.geometry.boundingBox;
-                    min.add(slot.position);
-                    max.add(slot.position);
+                // Test bar slot select
+                const barSlots = this.hud.textureBar.slots.children;
+                for (let i = 0; i < this.slots.length; i++) {
+                    const tile = barSlots[i] as Mesh;
+                    tile.geometry.computeBoundingBox();
+
+                    const { min, max } = tile.geometry.boundingBox;
+                    min.add(tile.position);
+                    max.add(tile.position);
                     if (x < min.x || x > max.x) continue;
                     if (y < min.y || y > max.y) continue;
 
                     console.log(`> Editor: select slot #${i + 1}`);
                     this.activeSlot = i;
+                    this.updateInfo();
+                    return;
+                }
+
+                // Test bar slot select
+                const selectSlots = this.hud.textureSelect.slots.children;
+                for (let i = 0; i < selectSlots.length; i++) {
+                    const tile = selectSlots[i] as Mesh;
+                    tile.geometry.computeBoundingBox();
+
+                    const { min, max } = tile.geometry.boundingBox;
+                    min.add(tile.position);
+                    max.add(tile.position);
+                    if (x < min.x || x > max.x) continue;
+                    if (y < min.y || y > max.y) continue;
+
+                    const slot = this.activeSlot;
+                    console.log(`> Editor: set slot #${slot} to #${i + 1}`);
+                    this.slots[this.activeSlot] = i;
                     this.updateInfo();
                     return;
                 }
@@ -246,8 +279,8 @@ export class Editor implements Game {
         point.x += dx * dt * str;
         point.y -= dy * dt * str;
 
-        const clampx = VIEW_WIDTH * 0.49;
-        const clampy = VIEW_HEIGHT * 0.49;
+        const clampx = VIEW_WIDTH * 0.5;
+        const clampy = VIEW_HEIGHT * 0.5;
         point.x = clamp(point.x, -clampx, clampx);
         point.y = clamp(point.y, -clampy, clampy);
     }
