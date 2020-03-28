@@ -17,6 +17,7 @@ import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { clamp } from "lodash";
 import { modulo } from "../game/core/Utils";
 import { TextureBar } from "./hud/TextureBar";
+import { StateInfo } from "./hud/StateInfo";
 
 export const VIEW_WIDTH = 1920;
 export const VIEW_HEIGHT = 1080;
@@ -33,6 +34,9 @@ export class Editor implements Game {
     public readonly world = new EditorWorld();
     public readonly hud = {
         scene: new Scene(),
+        cursor: new Object3D(),
+        stateInfo: new StateInfo(),
+        textrueBar: new TextureBar(),
         camera: new OrthographicCamera(
             -VIEW_WIDTH / 2,
             VIEW_WIDTH / 2,
@@ -40,10 +44,7 @@ export class Editor implements Game {
             -VIEW_HEIGHT / 2,
             0,
             30
-        ),
-
-        cursor: new Object3D(),
-        textrueBar: new TextureBar()
+        )
     };
 
     public preload(): Promise<any> {
@@ -78,8 +79,15 @@ export class Editor implements Game {
     public create(): void {
         let order = 1;
         this.hud.cursor.renderOrder = order++;
+        this.hud.stateInfo.scene.renderOrder = order++;
         this.hud.textrueBar.scene.renderOrder = order++;
-        this.hud.scene.add(this.hud.cursor, this.hud.textrueBar.scene);
+        this.hud.scene.add(
+            this.hud.cursor,
+            this.hud.stateInfo.scene,
+            this.hud.textrueBar.scene
+        );
+
+        this.setState(EditorState.Editor);
     }
 
     public update(dt: number) {
@@ -105,6 +113,15 @@ export class Editor implements Game {
         if (this.state === EditorState.TextureSelect) {
             // ...
         }
+
+        // Update info
+        const { width, height, ctx, texture } = this.hud.stateInfo;
+        ctx.clearRect(0, 0, width, height);
+
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText(`${next}`, 24, 24);
+        texture.needsUpdate = true;
     }
 
     private stateMachine(dt: number) {
