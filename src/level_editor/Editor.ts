@@ -18,6 +18,7 @@ import { clamp } from "lodash";
 import { modulo } from "../game/core/Utils";
 import { TextureBar } from "./hud/TextureBar";
 import { StateInfo } from "./hud/StateInfo";
+import { setTextureUV } from "../editor/EditorUtils";
 
 export const VIEW_WIDTH = 1920;
 export const VIEW_HEIGHT = 1080;
@@ -46,6 +47,7 @@ export class Editor implements Game {
     };
 
     public state = EditorState.Editor;
+    public slots = [0, 1, 2, 3, 4, 5, 6, 7];
     public activeSlot = 0;
 
     public preload(): Promise<any> {
@@ -63,6 +65,7 @@ export class Editor implements Game {
             // Load level texture
             loadTexture("/assets/tileset.png").then(map => {
                 this.world.level.textrue = map;
+                this.hud.textrueBar.init(map);
             }),
 
             // Load cursor
@@ -116,15 +119,18 @@ export class Editor implements Game {
     }
 
     private updateInfo() {
-        // Scale up selected slot
-        const slots = this.hud.textrueBar.slots.children;
-        for (let i = 0; i < slots.length; i++) {
-            const slot = slots[i];
+        const tiles = this.hud.textrueBar.slots.children;
+        for (let i = 0; i < this.slots.length; i++) {
+            // Scale up selected slot
+            const tile = tiles[i] as Mesh;
             if (i === this.activeSlot) {
-                slot.scale.setScalar(1.125);
+                tile.scale.setScalar(1.125);
             } else {
-                slot.scale.setScalar(1);
+                tile.scale.setScalar(1);
             }
+
+            const geo = tile.geometry as PlaneGeometry;
+            setTextureUV(geo, this.slots[i]);
         }
 
         // Rerender info panel
@@ -166,8 +172,7 @@ export class Editor implements Game {
             if (this.input.isMouseDown(MouseBtn.Left)) {
                 const { x, y } = this.hud.cursor.position;
                 const slots = this.hud.textrueBar.slots.children;
-
-                for (let i = 0; i < slots.length; i++) {
+                for (let i = 0; i < this.slots.length; i++) {
                     const slot = slots[i] as Mesh;
                     slot.geometry.computeBoundingBox();
 
