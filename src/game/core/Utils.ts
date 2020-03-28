@@ -1,15 +1,3 @@
-export function findInMap<T, K>(
-    map: Map<K, T>,
-    fn: (item: T, key: K) => boolean
-): [T, K] | [] {
-    for (const [entityId, avatar] of map) {
-        if (fn(avatar, entityId) === true) {
-            return [avatar, entityId];
-        }
-    }
-    return [];
-}
-
 export function degToRad(degrees: number) {
     return (degrees * Math.PI) / 180;
 }

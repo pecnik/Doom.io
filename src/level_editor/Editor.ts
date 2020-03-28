@@ -2,15 +2,12 @@ import { Game } from "../game/core/Engine";
 import {
     Scene,
     OrthographicCamera,
-    TextureLoader,
     Vector2,
     Vector3,
     Object3D,
-    Texture,
     PlaneGeometry,
     MeshBasicMaterial,
     Mesh,
-    NearestFilter,
     AdditiveBlending
 } from "three";
 import { EditorWorld } from "./data/EditorWorld";
@@ -19,11 +16,12 @@ import { clamp } from "lodash";
 import { modulo } from "../game/core/Utils";
 import { TextureBar } from "./hud/TextureBar";
 import { StateInfo } from "./hud/StateInfo";
-import { setTextureUV } from "./EditorUtils";
+import { setTextureUV, loadTexture } from "./EditorUtils";
 import { TextureSelect } from "./hud/TextureSelect";
 import { Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
 import { FillTool } from "./tools/FillTool";
+import { ToolSelect } from "./hud/ToolSelect";
 
 export const VIEW_WIDTH = 1920;
 export const VIEW_HEIGHT = 1080;
@@ -40,6 +38,7 @@ export class Editor implements Game {
         scene: new Scene(),
         cursor: new Object3D(),
         stateInfo: new StateInfo(),
+        toolSelect: new ToolSelect(),
         textureBar: new TextureBar(),
         textureSelect: new TextureSelect(),
         camera: new OrthographicCamera(
@@ -60,22 +59,13 @@ export class Editor implements Game {
     public tool: Tool = this.tools[0];
 
     public preload(): Promise<any> {
-        const loadTexture = (src: string): Promise<Texture> => {
-            return new Promise(resolve => {
-                new TextureLoader().load(src, map => {
-                    map.minFilter = NearestFilter;
-                    map.magFilter = NearestFilter;
-                    resolve(map);
-                });
-            });
-        };
-
         return Promise.all([
             // Load level texture
             loadTexture("/assets/tileset.png").then(map => {
                 this.world.level.textrue = map;
                 this.hud.textureBar.init(map);
                 this.hud.textureSelect.init(map);
+                this.hud.toolSelect.init(this.tools);
             }),
 
             // Load cursor
@@ -111,10 +101,12 @@ export class Editor implements Game {
         let order = 1;
         this.hud.cursor.renderOrder = order++;
         this.hud.stateInfo.scene.renderOrder = order++;
+        this.hud.toolSelect.scene.renderOrder = order++;
         this.hud.textureBar.scene.renderOrder = order++;
         this.hud.textureSelect.scene.renderOrder = order++;
         this.hud.scene.add(
             this.hud.cursor,
+            this.hud.toolSelect.scene,
             this.hud.stateInfo.scene,
             this.hud.textureBar.scene,
             this.hud.textureSelect.scene
@@ -138,12 +130,14 @@ export class Editor implements Game {
         if (this.state === EditorState.Editor) {
             this.hud.cursor.position.set(0, 0, 0);
             this.hud.cursor.visible = false;
+            this.hud.toolSelect.scene.visible = false;
             this.hud.textureSelect.scene.visible = false;
         }
 
         if (this.state === EditorState.TextureSelect) {
             this.hud.cursor.position.set(0, 0, 0);
             this.hud.cursor.visible = true;
+            this.hud.toolSelect.scene.visible = true;
             this.hud.textureSelect.scene.visible = true;
         }
 
@@ -219,7 +213,7 @@ export class Editor implements Game {
             if (this.input.isMousePresed(MouseBtn.Left)) {
                 const { x, y } = this.hud.cursor.position;
 
-                // Test bar slot select
+                // Test slot select
                 const barSlots = this.hud.textureBar.slots.children;
                 for (let i = 0; i < this.slots.length; i++) {
                     const tile = barSlots[i] as Mesh;
@@ -237,7 +231,7 @@ export class Editor implements Game {
                     return;
                 }
 
-                // Test bar slot select
+                // Test texture select
                 const selectSlots = this.hud.textureSelect.slots.children;
                 for (let i = 0; i < selectSlots.length; i++) {
                     const tile = selectSlots[i] as Mesh;
@@ -254,6 +248,24 @@ export class Editor implements Game {
                     this.slots[this.activeSlot] = i;
                     this.updateInfo();
                     return;
+                }
+
+                // Test texture select
+                const toolSlots = this.hud.toolSelect.slots.children;
+                for (let i = 0; i < toolSlots.length; i++) {
+                    const tile = toolSlots[i] as Mesh;
+                    tile.geometry.computeBoundingBox();
+
+                    const { min, max } = tile.geometry.boundingBox;
+                    min.add(tile.position);
+                    max.add(tile.position);
+                    if (x < min.x || x > max.x) continue;
+                    if (y < min.y || y > max.y) continue;
+
+                    console.log(`> Editor: select tool #${i + 1}`);
+                    this.tool = this.tools[i];
+                    this.updateInfo();
+                    return this.setState(EditorState.Editor);
                 }
 
                 return this.setState(EditorState.Editor);
