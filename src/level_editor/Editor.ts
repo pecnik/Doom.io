@@ -10,7 +10,8 @@ import {
     PlaneGeometry,
     MeshBasicMaterial,
     Mesh,
-    NearestFilter
+    NearestFilter,
+    AdditiveBlending
 } from "three";
 import { EditorWorld } from "./data/EditorWorld";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
@@ -83,6 +84,19 @@ export class Editor implements Game {
                 sprite.position.x += size / 2;
                 sprite.position.y -= size / 2;
                 this.hud.cursor.add(sprite);
+            }),
+
+            // Load crosshair
+            loadTexture("/assets/sprites/crosshair.png").then(map => {
+                const size = 128;
+                const geo = new PlaneGeometry(size, size);
+                const mat = new MeshBasicMaterial({
+                    map,
+                    blending: AdditiveBlending
+                });
+                const crosshair = new Mesh(geo, mat);
+                crosshair.position.z = -1;
+                this.hud.scene.add(crosshair);
             })
         ]);
     }
