@@ -106,7 +106,7 @@ export class Editor implements Game {
         }
 
         this.cursorSystem(dt);
-        this.slotScrollSystem(dt);
+        this.selectSlotSystem(dt);
     }
 
     private updateEditor(dt: number) {
@@ -116,7 +116,7 @@ export class Editor implements Game {
 
         this.toolSystem(dt);
         this.movementSystem(dt);
-        this.slotScrollSystem(dt);
+        this.selectSlotSystem(dt);
     }
 
     private movementSystem(dt: number) {
@@ -176,7 +176,16 @@ export class Editor implements Game {
         point.y = clamp(point.y, -clampy, clampy);
     }
 
-    private slotScrollSystem(_: number) {
+    private selectSlotSystem(_: number) {
+        const KEY_NUM_1 = KeyCode.NUM_1 as number;
+        const MAX_INDEX = this.world.textureSlots.length;
+        for (let i = 0; i < MAX_INDEX; i++) {
+            if (this.input.isKeyPressed(KEY_NUM_1 + i)) {
+                this.world.selectedSlot = i;
+                return;
+            }
+        }
+
         let { scroll } = this.input.mouse;
         if (scroll !== 0) {
             scroll *= Number.MAX_SAFE_INTEGER;
