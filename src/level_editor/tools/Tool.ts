@@ -27,7 +27,7 @@ export abstract class Tool {
     public onMouseTwo() {}
 
     protected getActiveTextureId(): number {
-        const { textureSlots, selectedSlot } = this.world;
+        const { textureSlots, textureSlotIndex: selectedSlot } = this.world;
         return textureSlots[selectedSlot] || 0;
     }
 

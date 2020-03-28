@@ -9,7 +9,7 @@ import { EditorLevel } from "./EditorLevel";
 
 export class EditorWorld {
     public elapsedTime = 0;
-    public selectedSlot = 0;
+    public textureSlotIndex = 0;
     public textureSlots = [0, 1, 2, 3, 4, 5, 6, 7];
 
     public readonly scene = new Scene();

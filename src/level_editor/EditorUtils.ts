@@ -152,4 +152,6 @@ export function setTextureUV(plane: PlaneGeometry, tileId: number) {
             cords[i][j].y -= tileV * y;
         }
     }
+
+    plane.elementsNeedUpdate = true;
 }

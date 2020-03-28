@@ -14,7 +14,7 @@ import { EditorWorld } from "./data/EditorWorld";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { clamp } from "lodash";
 import { modulo } from "../game/core/Utils";
-import { loadTexture, setTextureUV } from "./EditorUtils";
+import { loadTexture, setTextureUV, TILE_COLS, TILE_ROWS } from "./EditorUtils";
 import { Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
 import { FillTool } from "./tools/FillTool";
@@ -40,6 +40,7 @@ export class Editor implements Game {
     };
 
     public readonly menu = new EditorMenu();
+    public readonly textureList = this.menu.addGroup();
     public readonly textureSlotsBar = this.menu.addGroup();
 
     public isMenuOpen = false;
@@ -84,10 +85,56 @@ export class Editor implements Game {
 
     public create(): void {
         this.hud.scene.add(this.hud.cursor, this.menu.scene);
+        this.initTextureList();
+        this.initTextureSlotsBar();
         this.toggleMenu(false);
+    }
 
+    private initTextureList() {
+        const size = 64;
+        const padd = 0;
+        const offsetx = (size + padd) * TILE_COLS * 0.5;
+        const offsety = (size + padd) * TILE_ROWS * 0.5;
+
+        for (let y = 0; y < TILE_ROWS; y++) {
+            for (let x = 0; x < TILE_COLS; x++) {
+                const tileId = this.textureList.buttons.length;
+
+                const map = this.world.level.textrue;
+                const geo = new PlaneGeometry(size, size);
+                const mat = new MeshBasicMaterial({ map });
+                const mesh = new Mesh(geo, mat);
+                mesh.position.x += (size + padd) * x - offsetx;
+                mesh.position.y -= (size + padd) * y - offsety;
+                setTextureUV(geo, tileId);
+
+                const mat2 = new MeshBasicMaterial({ color: 0x00ff55 });
+                const outline = new Mesh(geo, mat2);
+                outline.position.z = -1;
+                outline.scale.setScalar(1.05);
+                mesh.add(outline);
+
+                const onClick = () => {
+                    const index = this.world.textureSlotIndex;
+                    this.world.textureSlots[index] = tileId;
+                };
+
+                const onUpdate = () => {
+                    // ...
+                };
+
+                this.textureList.addButton({
+                    mesh,
+                    onClick,
+                    onUpdate
+                });
+            }
+        }
+    }
+
+    private initTextureSlotsBar() {
         const slotCount = this.world.textureSlots.length;
-        for (let i = 0; i < slotCount; i++) {
+        for (let index = 0; index < slotCount; index++) {
             const state = { tileId: -1 };
 
             const size = 128;
@@ -98,9 +145,9 @@ export class Editor implements Game {
             const map = this.world.level.textrue;
             const geo = new PlaneGeometry(size, size);
             const mat = new MeshBasicMaterial({ map });
-            const button = new Mesh(geo, mat);
-            button.position.x += (size + padd) * i - offsetx;
-            button.position.y += size - offsety;
+            const mesh = new Mesh(geo, mat);
+            mesh.position.x += (size + padd) * index - offsetx;
+            mesh.position.y += size - offsety;
 
             const outlineMat = new MeshBasicMaterial({
                 color: 0x00ff55
@@ -108,27 +155,27 @@ export class Editor implements Game {
             const outline = new Mesh(geo, outlineMat);
             outline.position.z = -1;
             outline.scale.setScalar(1.05);
-            button.add(outline);
+            mesh.add(outline);
 
             const onClick = () => {
-                this.world.selectedSlot = i;
+                this.world.textureSlotIndex = index;
             };
 
             const onUpdate = () => {
-                if (state.tileId !== this.world.textureSlots[i]) {
-                    state.tileId = this.world.textureSlots[i];
+                if (state.tileId !== this.world.textureSlots[index]) {
+                    state.tileId = this.world.textureSlots[index];
                     setTextureUV(geo, state.tileId);
                 }
 
-                if (state.tileId !== this.world.selectedSlot) {
-                    button.scale.setScalar(0.75);
+                if (index !== this.world.textureSlotIndex) {
+                    mesh.scale.setScalar(0.75);
                 } else {
-                    button.scale.setScalar(1);
+                    mesh.scale.setScalar(1);
                 }
             };
 
             this.textureSlotsBar.addButton({
-                mesh: button,
+                mesh,
                 onClick,
                 onUpdate
             });
@@ -169,6 +216,7 @@ export class Editor implements Game {
 
     private toggleMenu(value: boolean) {
         this.isMenuOpen = value;
+        this.textureList.visible = value;
         this.hud.cursor.visible = value;
         this.hud.cursor.position.set(0, 0, 0);
     }
@@ -229,7 +277,7 @@ export class Editor implements Game {
         const MAX_INDEX = this.world.textureSlots.length;
         for (let i = 0; i < MAX_INDEX; i++) {
             if (this.input.isKeyPressed(KEY_NUM_1 + i)) {
-                this.world.selectedSlot = i;
+                this.world.textureSlotIndex = i;
                 return;
             }
         }
@@ -238,8 +286,8 @@ export class Editor implements Game {
         if (scroll !== 0) {
             scroll *= Number.MAX_SAFE_INTEGER;
             scroll = clamp(scroll, -1, 1);
-            this.world.selectedSlot = modulo(
-                this.world.selectedSlot + scroll,
+            this.world.textureSlotIndex = modulo(
+                this.world.textureSlotIndex + scroll,
                 this.world.textureSlots.length
             );
         }
