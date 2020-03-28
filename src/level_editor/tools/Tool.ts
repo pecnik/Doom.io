@@ -3,14 +3,16 @@ import { Input } from "../../game/core/Input";
 import { EditorWorld } from "../data/EditorWorld";
 import { Intersection } from "three/src/core/Raycaster";
 import { Hitscan } from "../../game/utils/EntityUtils";
+import { Texture } from "three";
 
 export abstract class Tool {
     protected readonly editor: Editor;
     protected readonly input: Input;
     protected readonly world: EditorWorld;
 
-    public abstract icon: string;
     public abstract name: string;
+    public abstract icon: string;
+    public iconTexture?: Texture;
 
     public constructor(editor: Editor) {
         this.editor = editor;
@@ -51,6 +53,10 @@ export abstract class Tool {
             return;
         }
 
-        return { point: point.clone(), normal: hit.face.normal.clone(), voxel };
+        return {
+            point: point.clone(),
+            normal: hit.face.normal.clone(),
+            voxel
+        };
     }
 }

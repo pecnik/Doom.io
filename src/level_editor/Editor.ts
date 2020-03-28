@@ -40,6 +40,7 @@ export class Editor implements Game {
     };
 
     public readonly menu = new EditorMenu();
+    public readonly toolList = this.menu.addGroup();
     public readonly textureList = this.menu.addGroup();
     public readonly textureSlotsBar = this.menu.addGroup();
 
@@ -79,15 +80,65 @@ export class Editor implements Game {
                 const crosshair = new Mesh(geo, mat);
                 crosshair.position.z = -1;
                 this.hud.scene.add(crosshair);
+            }),
+
+            // Load tool icon texture
+            ...this.tools.map(tool => {
+                return loadTexture(tool.icon).then(map => {
+                    tool.iconTexture = map;
+                });
             })
         ]);
     }
 
     public create(): void {
         this.hud.scene.add(this.hud.cursor, this.menu.scene);
+        this.initToolList();
         this.initTextureList();
         this.initTextureSlotsBar();
         this.toggleMenu(false);
+    }
+
+    private initToolList() {
+        const size = 80;
+        const padd = 32;
+
+        const offsety = VIEW_HEIGHT / 2 - size;
+        const offsetx = VIEW_WIDTH / 2 - size;
+
+        this.tools.forEach((tool, index) => {
+            const map = tool.iconTexture;
+            const geo = new PlaneGeometry(size, size);
+            const mat = new MeshBasicMaterial({ map });
+            const mesh = new Mesh(geo, mat);
+            mesh.position.x += size + padd - offsetx;
+            mesh.position.y -= size + padd - offsety;
+            mesh.position.y += index * (size + padd);
+
+            const mat2 = new MeshBasicMaterial({ color: 0x00ff55 });
+            const outline = new Mesh(geo, mat2);
+            outline.position.z = -1;
+            outline.scale.setScalar(1.05);
+            mesh.add(outline);
+
+            const onClick = () => {
+                this.tool = tool;
+            };
+
+            const onUpdate = () => {
+                if (this.tool !== tool) {
+                    mesh.scale.setScalar(0.75);
+                } else {
+                    mesh.scale.setScalar(1);
+                }
+            };
+
+            this.toolList.addButton({
+                mesh,
+                onClick,
+                onUpdate
+            });
+        });
     }
 
     private initTextureList() {
