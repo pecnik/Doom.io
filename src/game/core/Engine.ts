@@ -25,7 +25,10 @@ export class Engine {
         this.game = game;
         this.viewport = canvas;
         this.gamearea = gamearea;
-        this.renderer = new WebGLRenderer({ canvas: this.viewport });
+        this.renderer = new WebGLRenderer({
+            canvas: this.viewport,
+            antialias: true
+        });
         this.renderer.autoClear = false;
         this.renderer.setClearColor(0x6495ed);
     }
