@@ -14,11 +14,18 @@ import { EditorWorld } from "./data/EditorWorld";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { clamp } from "lodash";
 import { modulo } from "../game/core/Utils";
-import { loadTexture, setTextureUV, TILE_COLS, TILE_ROWS } from "./EditorUtils";
+import {
+    loadTexture,
+    setTextureUV,
+    TILE_COLS,
+    TILE_ROWS,
+    buildLevelMesh
+} from "./EditorUtils";
 import { Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
 import { FillTool } from "./tools/FillTool";
 import { EditorMenu } from "./data/EditorMenu";
+import { EditorLevel } from "./data/EditorLevel";
 
 export const VIEW_WIDTH = 1920;
 export const VIEW_HEIGHT = 1080;
@@ -44,6 +51,7 @@ export class Editor implements Game {
     public readonly textureList = this.menu.addGroup();
     public readonly textureSlotsBar = this.menu.addGroup();
 
+    public lastSave = 0;
     public isMenuOpen = false;
     public tools: Tool[] = [new BlockTool(this), new FillTool(this)];
     public tool: Tool = this.tools[0];
@@ -97,6 +105,31 @@ export class Editor implements Game {
         this.initTextureList();
         this.initTextureSlotsBar();
         this.toggleMenu(false);
+
+        // Load from autosave
+        const json = localStorage.getItem("auto-save");
+        if (json !== null) {
+            const data = JSON.parse(json);
+            this.world.textureSlots = data.textureSlots as number[];
+            this.world.textureSlotIndex = data.textureSlotIndex as number;
+
+            const levelJson = data.level as EditorLevel;
+            this.world.level.init(
+                levelJson.width,
+                levelJson.depth,
+                levelJson.height
+            );
+            this.world.level.forEachVoxel(voxel => {
+                const { x, y, z } = voxel.origin;
+                const json = levelJson.voxel[x][y][z];
+                voxel.solid = json.solid;
+                Object.assign(voxel.origin, json.origin);
+                Object.assign(voxel.faces, json.faces);
+            });
+            buildLevelMesh(this.world.level);
+
+            console.log(`> Editor: load auto save`);
+        }
     }
 
     private initToolList() {
@@ -237,6 +270,8 @@ export class Editor implements Game {
     // ======================================
 
     public update(dt: number) {
+        this.world.elapsedTime += dt;
+
         if (this.input.isKeyPressed(KeyCode.TAB)) {
             this.toggleMenu(!this.isMenuOpen);
         }
@@ -245,6 +280,19 @@ export class Editor implements Game {
             this.updateMenu(dt);
         } else {
             this.updateEditor(dt);
+        }
+
+        const saveDelta = this.world.elapsedTime - this.lastSave;
+        if (saveDelta > 5) {
+            console.log(`> Editor: auto save`);
+            this.lastSave = this.world.elapsedTime;
+
+            const json = JSON.stringify({
+                level: this.world.level,
+                textureSlots: this.world.textureSlots,
+                textureSlotIndex: this.world.textureSlotIndex
+            });
+            localStorage.setItem("auto-save", json);
         }
 
         this.input.clear();

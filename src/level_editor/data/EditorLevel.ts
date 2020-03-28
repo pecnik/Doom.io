@@ -9,12 +9,19 @@ export class Voxel {
 export class EditorLevel {
     public readonly scene: Scene = new Scene();
     public readonly voxel: Voxel[][][] = [];
-    public readonly width: number;
-    public readonly depth: number;
-    public readonly height: number;
+    public width: number;
+    public depth: number;
+    public height: number;
     public textrue?: Texture;
 
     public constructor(width: number, depth: number, height: number) {
+        this.width = width;
+        this.depth = depth;
+        this.height = height;
+        this.init(width, depth, height);
+    }
+
+    public init(width: number, depth: number, height: number) {
         this.width = width;
         this.depth = depth;
         this.height = height;
