@@ -21,6 +21,9 @@ import { TextureBar } from "./hud/TextureBar";
 import { StateInfo } from "./hud/StateInfo";
 import { setTextureUV } from "../editor/EditorUtils";
 import { TextureSelect } from "./hud/TextureSelect";
+import { Tool } from "./tools/Tool";
+import { BlockTool } from "./tools/BlockTool";
+import { FillTool } from "./tools/FillTool";
 
 export const VIEW_WIDTH = 1920;
 export const VIEW_HEIGHT = 1080;
@@ -52,6 +55,9 @@ export class Editor implements Game {
     public state = EditorState.Editor;
     public slots = [0, 1, 2, 3, 4, 5, 6, 7];
     public activeSlot = 0;
+
+    public tools: Tool[] = [new BlockTool(this), new FillTool(this)];
+    public tool: Tool = this.tools[0];
 
     public preload(): Promise<any> {
         const loadTexture = (src: string): Promise<Texture> => {
@@ -194,6 +200,11 @@ export class Editor implements Game {
 
             this.movementSystem(dt);
             this.slotScrollSystem(dt);
+
+            const mouse1 = this.input.isMousePresed(MouseBtn.Left);
+            const mouse2 = this.input.isMousePresed(MouseBtn.Right);
+            if (mouse1) this.tool.onMouseOne();
+            if (mouse2) this.tool.onMouseTwo();
         }
 
         if (this.state === EditorState.TextureSelect) {
