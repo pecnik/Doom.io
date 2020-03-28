@@ -3,89 +3,35 @@ import { Input, KeyCode } from "../game/core/Input";
 import { EditorWorld } from "./data/EditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
-import {
-    Vector3,
-    Vector2,
-    MeshBasicMaterial,
-    Mesh,
-    AdditiveBlending,
-    TextureLoader,
-    NearestFilter,
-    PlaneGeometry
-} from "three";
+import { Vector3, Vector2, TextureLoader } from "three";
 import { EditorHud } from "./data/EditorHud";
-import { BlockTool } from "./tools/BlockTool";
-import { ActionSelectTool } from "./tools/ActionSelectTool";
-import { Tool } from "./tools/Tool";
+import { EditorTools } from "./EditorTools";
 
 export class Editor implements Game {
     public readonly input = new Input({ requestPointerLock: true });
-    public readonly world = new EditorWorld();
     public readonly hud = new EditorHud();
-
-    public readonly actionSelectTool = new ActionSelectTool(this);
-    public readonly blockTool = new BlockTool(this);
-    public tool: Tool = this.blockTool;
+    public readonly world = new EditorWorld();
+    public readonly tools = new EditorTools(this);
 
     public preload(): Promise<any> {
-        return Promise.all([
-            // Load level tileset texture
-            new Promise(resolve => {
-                new TextureLoader().load("/assets/tileset.png", map => {
-                    this.world.level.textrue = map;
-                    resolve();
-                });
-            }),
-
-            // Load crosshair cursor
-            new Promise(resolve => {
-                new TextureLoader().load(
-                    "/assets/sprites/crosshair.png",
-                    map => {
-                        const material = new MeshBasicMaterial({
-                            map,
-                            blending: AdditiveBlending,
-                            depthTest: false,
-                            depthWrite: false
-                        });
-
-                        map.magFilter = NearestFilter;
-                        map.minFilter = NearestFilter;
-
-                        const geometry = new PlaneGeometry(48, 48);
-                        const crosshair = new Mesh(geometry, material);
-                        this.hud.scene.add(crosshair);
-                        resolve();
-                    }
-                );
-            })
-        ]);
+        // Load level tileset texture
+        return new Promise(resolve => {
+            new TextureLoader().load("/assets/tileset.png", map => {
+                this.world.level.textrue = map;
+                resolve();
+            });
+        });
     }
 
     public create() {
-        console.log(`> Editor::created`);
+        // ...
     }
 
     public update(dt: number) {
-        const prevTool = this.tool;
-        const nextTool = this.getActiveTool();
-        if (prevTool !== nextTool) {
-            prevTool.end();
-            nextTool.start();
-            this.tool = nextTool;
-        }
-
         this.world.elapsedTime += dt;
-        this.tool.update();
+        this.tools.update(dt);
         this.updateControlls(dt);
         this.input.clear();
-    }
-
-    private getActiveTool() {
-        if (this.input.isKeyDown(KeyCode.TAB)) {
-            return this.actionSelectTool;
-        }
-        return this.blockTool;
     }
 
     private updateControlls(dt: number) {
