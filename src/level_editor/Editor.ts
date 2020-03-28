@@ -7,7 +7,7 @@ import {
     Vector3
 } from "three";
 import { EditorWorld } from "./data/EditorWorld";
-import { Input, KeyCode } from "../game/core/Input";
+import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { clamp } from "lodash";
 import { modulo } from "../game/core/Utils";
 import { TextureBar } from "./hud/TextureBar";
@@ -15,7 +15,14 @@ import { TextureBar } from "./hud/TextureBar";
 export const VIEW_WIDTH = 1920;
 export const VIEW_HEIGHT = 1080;
 
+export enum EditorState {
+    Editor,
+    ToolSelect,
+    TextureSelect
+}
+
 export class Editor implements Game {
+    public state = EditorState.Editor;
     public readonly input = new Input({ requestPointerLock: true });
     public readonly world = new EditorWorld();
     public readonly hud = {
@@ -44,10 +51,56 @@ export class Editor implements Game {
         this.hud.scene.add(this.hud.textrueBar.scene);
     }
 
-    public update(dt: number): void {
-        this.movementSystem(dt);
-        this.textureBarSystem();
+    public update(dt: number) {
+        this.stateMachine(dt);
         this.input.clear();
+    }
+
+    private setState(state: EditorState) {
+        const prev = EditorState[this.state];
+        const next = EditorState[state];
+        console.log(`> EditorState: ${prev} => ${next}`);
+
+        this.state = state;
+
+        if (this.state === EditorState.Editor) {
+            // ...
+        }
+
+        if (this.state === EditorState.ToolSelect) {
+            // ...
+        }
+
+        if (this.state === EditorState.TextureSelect) {
+            // ...
+        }
+    }
+
+    private stateMachine(dt: number) {
+        if (this.state === EditorState.Editor) {
+            if (this.input.isMouseDown(MouseBtn.Right)) {
+                return this.setState(EditorState.TextureSelect);
+            }
+
+            if (this.input.isKeyPressed(KeyCode.TAB)) {
+                return this.setState(EditorState.ToolSelect);
+            }
+
+            this.movementSystem(dt);
+            this.textureBarSystem();
+        }
+
+        if (this.state === EditorState.ToolSelect) {
+            if (this.input.isMouseDown(MouseBtn.Left)) {
+                return this.setState(EditorState.Editor);
+            }
+        }
+
+        if (this.state === EditorState.TextureSelect) {
+            if (this.input.isMouseDown(MouseBtn.Left)) {
+                return this.setState(EditorState.Editor);
+            }
+        }
     }
 
     private movementSystem(dt: number) {
