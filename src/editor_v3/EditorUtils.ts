@@ -31,8 +31,8 @@ export function loadTexture(src: string): Promise<Texture> {
 
 export function createLevel(
     width: number,
-    depth: number,
-    height: number
+    height: number,
+    depth: number
 ): LevelData {
     const voxel: VoxelData[][][] = [];
     for (let x = 0; x < width; x++) {
@@ -88,18 +88,12 @@ export function createLevelMesh(level: LevelData, map: Texture) {
     geometry.elementsNeedUpdate = true;
 
     const material = new MeshBasicMaterial({ map });
-    const levelMesh = new Mesh(geometry, material);
+    const wireframe = new MeshBasicMaterial({
+        wireframe: true,
+        color: 0x00ff00
+    });
 
-    // if (level.debug) {
-    //     const material = new MeshBasicMaterial({
-    //         wireframe: true,
-    //         color: 0x00ff00
-    //     });
-    //     const wireframe = new Mesh(geometry, material);
-    //     level.scene.add(wireframe);
-    // }
-
-    return levelMesh;
+    return new Mesh(geometry, material).add(new Mesh(geometry, wireframe));
 }
 
 export function createVoxelPlanes(voxel: VoxelData, level: LevelData) {
