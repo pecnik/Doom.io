@@ -1,25 +1,19 @@
 <template>
     <div id="right-menu">
         <button @click="createLevel">New level</button>
+        <hr>
+        <pre>{{ $store.state.level }}</pre>
     </div>
 </template>
 <script>
 export default {
-    mounted() {
-        console.log("Mounted");
-    },
     methods: {
         createLevel() {
-            const getNumber = (label, fallback) => {
-                const value = parseInt(prompt(label, 16));
-                return !isNaN(value) ? value : fallback;
-            };
-
-            const width = getNumber("width?", 16);
-            const height = getNumber("height?", 8);
-            const depth = getNumber("depth?", 16);
-
-            console.log({ width, height, depth });
+            const [width, height, depth] = prompt("Size?", "16,4,16")
+                .split(",")
+                .map(val => parseInt(val))
+                .map(val => (!isNaN(val) ? val : 8));
+            this.$store.dispatch("initLevel", { width, height, depth });
         }
     }
 };
