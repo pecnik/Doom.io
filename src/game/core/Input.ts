@@ -32,6 +32,7 @@ export enum KeyCode {
 }
 
 export class Input {
+    private readonly el: HTMLElement;
     private readonly keys: boolean[] = [];
     private readonly prev: boolean[] = [];
     public readonly mouse = {
@@ -44,8 +45,13 @@ export class Input {
 
     public readonly destroy: () => void;
 
-    public constructor(config: { requestPointerLock: boolean }) {
-        const { requestPointerLock } = config;
+    public constructor(config: {
+        requestPointerLock: boolean;
+        element?: HTMLElement;
+    }) {
+        const { requestPointerLock, element = document.body } = config;
+
+        this.el = element;
 
         const handler = <T extends Event>(handler: (ev: T) => void) => {
             if (!requestPointerLock) {
@@ -56,7 +62,7 @@ export class Input {
             }
 
             return (ev: T) => {
-                if ((document as any).pointerLockElement !== document.body) {
+                if ((document as any).pointerLockElement !== this.el) {
                     return true;
                 }
 
@@ -93,7 +99,7 @@ export class Input {
         });
 
         const requestlock = () => {
-            (document.body as any).requestPointerLock();
+            (this.el as any).requestPointerLock();
         };
 
         let wasLcoked = false;
@@ -108,33 +114,33 @@ export class Input {
         };
 
         if (requestPointerLock) {
-            document.body.addEventListener("click", requestlock, false);
+            this.el.addEventListener("click", requestlock, false);
             document.addEventListener("pointerlockchange", onLockChange, false);
         }
 
         window.addEventListener("keyup", onkeyup, false);
         window.addEventListener("keydown", onkeydown, false);
 
-        document.body.addEventListener("mousemove", onmousemove, false);
-        document.body.addEventListener("mousedown", onmousedown, false);
-        document.body.addEventListener("mouseup", onmouseup, false);
-        document.body.addEventListener("wheel", onmousescroll, {
+        this.el.addEventListener("mousemove", onmousemove, false);
+        this.el.addEventListener("mousedown", onmousedown, false);
+        this.el.addEventListener("mouseup", onmouseup, false);
+        this.el.addEventListener("wheel", onmousescroll, {
             passive: false
         });
 
         this.destroy = () => {
             if (requestPointerLock) {
-                document.body.removeEventListener("click", requestlock);
+                this.el.removeEventListener("click", requestlock);
                 document.removeEventListener("pointerlockchange", onLockChange);
             }
 
             window.removeEventListener("keyup", onkeyup);
             window.removeEventListener("keydown", onkeydown);
 
-            document.body.removeEventListener("mousemove", onmousemove);
-            document.body.removeEventListener("mousedown", onmousedown);
-            document.body.removeEventListener("mouseup", onmouseup);
-            document.body.removeEventListener("wheel", onmousescroll);
+            this.el.removeEventListener("mousemove", onmousemove);
+            this.el.removeEventListener("mousedown", onmousedown);
+            this.el.removeEventListener("mouseup", onmouseup);
+            this.el.removeEventListener("wheel", onmousescroll);
         };
 
         for (let i = 0; i < 255; i++) {
@@ -147,7 +153,7 @@ export class Input {
     }
 
     public isLocked(): boolean {
-        return (document as any).pointerLockElement !== document.body;
+        return (document as any).pointerLockElement !== this.el;
     }
 
     public isKeyUp(key: KeyCode): boolean {
