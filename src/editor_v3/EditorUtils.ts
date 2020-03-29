@@ -51,24 +51,24 @@ export function createLevel(
         }
     }
 
-    return { width, height, depth, voxels: voxel };
+    return { width, height, depth, voxel: voxel };
 }
 
 export function getVoxel(level: LevelData, point: Vector3) {
     const x = Math.round(point.x);
     const y = Math.round(point.y);
     const z = Math.round(point.z);
-    if (level.voxels[x] === undefined) return;
-    if (level.voxels[x][y] === undefined) return;
-    if (level.voxels[x][y][z] === undefined) return;
-    return level.voxels[x][y][z];
+    if (level.voxel[x] === undefined) return;
+    if (level.voxel[x][y] === undefined) return;
+    if (level.voxel[x][y][z] === undefined) return;
+    return level.voxel[x][y][z];
 }
 
 export function forEachVoxel(level: LevelData, fn: (v: VoxelData) => void) {
     for (let x = 0; x < level.width; x++) {
         for (let y = 0; y < level.height; y++) {
             for (let z = 0; z < level.depth; z++) {
-                fn(level.voxels[x][y][z]);
+                fn(level.voxel[x][y][z]);
             }
         }
     }

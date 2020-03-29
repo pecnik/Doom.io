@@ -9,7 +9,7 @@ export interface VoxelData {
 }
 
 export interface LevelData {
-    readonly voxels: VoxelData[][][];
+    readonly voxel: VoxelData[][][];
     readonly width: number;
     readonly height: number;
     readonly depth: number;
