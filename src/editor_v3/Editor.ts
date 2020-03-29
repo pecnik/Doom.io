@@ -2,8 +2,9 @@ import Vue from "vue";
 import App from "./vue/App.vue";
 import { Game } from "../game/core/Engine";
 import { EditorHud } from "./EditorHud";
-import { Input, KeyCode } from "../game/core/Input";
-import { EditorWorld, createStore } from "./EditorStore";
+import { Input, KeyCode, MouseBtn } from "../game/core/Input";
+import { createStore } from "./EditorStore";
+import { EditorWorld } from "./EditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import { Vector2, Vector3 } from "three";
@@ -39,7 +40,15 @@ export class Editor implements Game {
     public update(dt: number) {
         this.world.elapsedTime += dt;
         this.movementSystem(dt);
+        this.toolSystem();
         this.input.clear();
+    }
+
+    private toolSystem() {
+        const mouse1 = this.input.isMousePresed(MouseBtn.Left);
+        if (mouse1) {
+            this.store.dispatch("placeVoxel");
+        }
     }
 
     private movementSystem(dt: number) {
