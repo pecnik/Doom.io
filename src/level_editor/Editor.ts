@@ -7,8 +7,7 @@ import {
     Object3D,
     PlaneGeometry,
     MeshBasicMaterial,
-    Mesh,
-    AdditiveBlending
+    Mesh
 } from "three";
 import { EditorWorld } from "./data/EditorWorld";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
@@ -106,9 +105,10 @@ export class Editor implements Game {
     }
 
     public create(): void {
+        this.menu.scene.position.z = -1;
         this.hud.scene.add(
-            this.hud.cursor,
             this.hud.crosshair,
+            this.hud.cursor,
             this.menu.scene
         );
         this.initToolList();
@@ -158,24 +158,14 @@ export class Editor implements Game {
     private initToolList() {
         const size = 80;
         const padd = 32;
-
-        const offsety = VIEW_HEIGHT / 2 - size;
-        const offsetx = VIEW_WIDTH / 2 - size;
-
+        const offsetx = size * 3;
         this.tools.forEach((tool, index) => {
             const map = tool.iconTexture;
             const geo = new PlaneGeometry(size, size);
-            const mat = new MeshBasicMaterial({ map });
+            const mat = new MeshBasicMaterial({ map, transparent: true });
             const mesh = new Mesh(geo, mat);
             mesh.position.x += size + padd - offsetx;
-            mesh.position.y -= size + padd - offsety;
-            mesh.position.y -= index * (size + padd);
-
-            const mat2 = new MeshBasicMaterial({ color: 0x00ff55 });
-            const outline = new Mesh(geo, mat2);
-            outline.position.z = -1;
-            outline.scale.setScalar(1.05);
-            mesh.add(outline);
+            mesh.position.x -= index * (size + padd);
 
             const onClick = () => {
                 this.tool = tool;
@@ -200,9 +190,8 @@ export class Editor implements Game {
     private initTextureList() {
         const size = 64;
         const padd = 0;
-        const offsetx = (size + padd) * TILE_COLS * 0.5;
+        const offsetx = -size * 2;
         const offsety = (size + padd) * TILE_ROWS * 0.5;
-
         for (let y = 0; y < TILE_ROWS; y++) {
             for (let x = 0; x < TILE_COLS; x++) {
                 const tileId = this.textureList.buttons.length;
@@ -346,6 +335,7 @@ export class Editor implements Game {
 
     private toggleMenu(value: boolean) {
         this.isMenuOpen = value;
+        this.toolList.visible = value;
         this.textureList.visible = value;
         this.hud.cursor.visible = value;
         this.hud.cursor.position.set(0, 0, 0);
