@@ -54,12 +54,15 @@ export class Editor implements Game {
 
     public lastSave = 0;
     public isMenuOpen = false;
-    public tools: Tool[] = [
-        new BlockTool(this),
-        new FillTool(this),
-        new SampleTool(this)
-    ];
-    public tool: Tool = this.tools[0];
+
+    public toolMap = {
+        block: new BlockTool(this),
+        fill: new FillTool(this),
+        sample: new SampleTool(this)
+    };
+
+    public tools: Tool[] = Object.values(this.toolMap);
+    public tool: Tool = this.toolMap.block;
 
     public preload(): Promise<any> {
         return Promise.all([
@@ -162,7 +165,10 @@ export class Editor implements Game {
         this.tools.forEach((tool, index) => {
             const map = tool.iconTexture;
             const geo = new PlaneGeometry(size, size);
-            const mat = new MeshBasicMaterial({ map, transparent: true });
+            const mat = new MeshBasicMaterial({
+                map,
+                transparent: true
+            });
             const mesh = new Mesh(geo, mat);
             mesh.position.x += size + padd - offsetx;
             mesh.position.x -= index * (size + padd);
@@ -359,6 +365,22 @@ export class Editor implements Game {
         const mouse2 = this.input.isMousePresed(MouseBtn.Right);
         if (mouse1) this.tool.onMouseOne();
         if (mouse2) this.tool.onMouseTwo();
+
+        if (this.tool === this.toolMap.sample && mouse1) {
+            this.tool = this.toolMap.fill;
+        }
+
+        if (this.input.isKeyPressed(KeyCode.ALT)) {
+            this.tool = this.toolMap.sample;
+        }
+
+        if (this.input.isKeyPressed(KeyCode.Q)) {
+            this.tool = this.toolMap.block;
+        }
+
+        if (this.input.isKeyPressed(KeyCode.E)) {
+            this.tool = this.toolMap.fill;
+        }
     }
 
     private cursorSystem(dt: number) {
