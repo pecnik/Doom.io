@@ -31,7 +31,7 @@ export function loadTexture(src: string): Promise<Texture> {
 export function buildLevelMesh(level: EditorLevel) {
     const planes = new Array<PlaneGeometry>();
     level.forEachVoxel(voxel => {
-        if (voxel.solid) {
+        if (voxel.solid || (voxel.light && level.debug)) {
             planes.push(...createVoxelPlanes(voxel, level));
         }
     });
@@ -51,7 +51,7 @@ export function buildLevelMesh(level: EditorLevel) {
     level.scene.remove(...level.scene.children);
     level.scene.add(mesh);
 
-    if (level.wireframe) {
+    if (level.debug) {
         const material = new MeshBasicMaterial({
             wireframe: true,
             color: 0x00ff00

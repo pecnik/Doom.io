@@ -4,12 +4,13 @@ export class Voxel {
     public readonly origin = new Vector3();
     public readonly faces = [0, 0, 0, 0, 0, 0];
     public solid = false;
+    public light = false;
 }
 
 export class EditorLevel {
     public readonly scene: Scene = new Scene();
     public readonly voxel: Voxel[][][] = [];
-    public wireframe = true;
+    public debug = true;
     public width: number;
     public depth: number;
     public height: number;

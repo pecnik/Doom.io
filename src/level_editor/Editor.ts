@@ -382,7 +382,7 @@ export class Editor implements Game {
         }
 
         if (this.input.isKeyPressed(KeyCode.H)) {
-            this.world.level.wireframe = !this.world.level.wireframe;
+            this.world.level.debug = !this.world.level.debug;
             buildLevelMesh(this.world.level);
         }
     }
