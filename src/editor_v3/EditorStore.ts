@@ -9,7 +9,12 @@ import {
     Intersection
 } from "three";
 import { EditorWorld, LevelData } from "./EditorWorld";
-import { createLevel, createLevelMesh, getVoxel } from "./EditorUtils";
+import {
+    createLevel,
+    createLevelMesh,
+    getVoxel,
+    forEachVoxel
+} from "./EditorUtils";
 
 Vue.use(Vuex);
 
@@ -91,12 +96,23 @@ export function createStore(world: EditorWorld) {
             world.scene.add(world.floor, world.level);
         },
 
+        createFloor(ctx: StoreCtx, payload: { tileId: number }) {
+            const { level } = ctx.state;
+            forEachVoxel(level, voxel => {
+                if (voxel.y === 0) {
+                    voxel.solid = true;
+                    voxel.faces.fill(payload.tileId);
+                }
+            });
+            buildLevelMesh(level);
+        },
+
         placeVoxel(ctx: StoreCtx) {
             const tileId = 8; // TODO
             const rsp = sampleVoxel(ctx.state.level, 1);
             if (rsp !== undefined) {
                 rsp.voxel.solid = true;
-                rsp.voxel.faces.fill(tileId, 0, 6);
+                rsp.voxel.faces.fill(tileId);
                 buildLevelMesh(ctx.state.level);
             }
         },

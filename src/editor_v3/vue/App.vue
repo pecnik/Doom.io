@@ -1,6 +1,8 @@
 <template>
     <div id="right-menu">
         <button @click="createLevel">New level</button>
+        <br>
+        <button @click="createFloor">Fill floor</button>
         <hr>
         <div>{{ $store.state.level.width }}</div>
         <div>{{ $store.state.level.height }}</div>
@@ -16,6 +18,9 @@ export default {
                 .map(val => parseInt(val))
                 .map(val => (!isNaN(val) ? val : 8));
             this.$store.dispatch("initLevel", { width, height, depth });
+        },
+        createFloor() {
+            this.$store.dispatch("createFloor", { tileId: 8 });
         }
     }
 };
