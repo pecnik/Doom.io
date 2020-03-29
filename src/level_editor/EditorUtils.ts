@@ -51,11 +51,14 @@ export function buildLevelMesh(level: EditorLevel) {
     level.scene.remove(...level.scene.children);
     level.scene.add(mesh);
 
-    const wireframe = new Mesh(
-        geometry,
-        new MeshBasicMaterial({ wireframe: true, color: 0x00ff00 })
-    );
-    level.scene.add(wireframe);
+    if (level.wireframe) {
+        const material = new MeshBasicMaterial({
+            wireframe: true,
+            color: 0x00ff00
+        });
+        const wireframe = new Mesh(geometry, material);
+        level.scene.add(wireframe);
+    }
 }
 
 export function createVoxelPlanes(voxel: Voxel, level: EditorLevel) {

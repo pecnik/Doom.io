@@ -9,6 +9,7 @@ export class Voxel {
 export class EditorLevel {
     public readonly scene: Scene = new Scene();
     public readonly voxel: Voxel[][][] = [];
+    public wireframe = true;
     public width: number;
     public depth: number;
     public height: number;

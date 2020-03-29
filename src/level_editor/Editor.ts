@@ -381,6 +381,11 @@ export class Editor implements Game {
         if (this.input.isKeyPressed(KeyCode.E)) {
             this.tool = this.toolMap.fill;
         }
+
+        if (this.input.isKeyPressed(KeyCode.H)) {
+            this.world.level.wireframe = !this.world.level.wireframe;
+            buildLevelMesh(this.world.level);
+        }
     }
 
     private cursorSystem(dt: number) {
