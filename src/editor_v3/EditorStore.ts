@@ -61,6 +61,7 @@ export function createStore(world: EditorWorld) {
     }
 
     function buildLevelMesh(level: LevelData) {
+        console.log(`> Editor::build level mesh`);
         world.scene.remove(world.level);
         world.level = createLevelMesh(level, world.texture);
         world.scene.add(world.level);

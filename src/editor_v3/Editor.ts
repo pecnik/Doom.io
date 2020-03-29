@@ -8,6 +8,7 @@ import { EditorWorld } from "./EditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import { Vector2, Vector3 } from "three";
+import { loadTexture } from "./EditorUtils";
 
 export class Editor implements Game {
     public readonly hud = new EditorHud();
@@ -25,7 +26,9 @@ export class Editor implements Game {
 
     public preload() {
         return Promise.all([
-            // ...
+            loadTexture("/assets/tileset.png").then(map => {
+                this.world.texture = map;
+            })
         ]);
     }
 

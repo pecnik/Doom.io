@@ -2,7 +2,9 @@
     <div id="right-menu">
         <button @click="createLevel">New level</button>
         <hr>
-        <pre>{{ $store.state.level }}</pre>
+        <div>{{ $store.state.level.width }}</div>
+        <div>{{ $store.state.level.height }}</div>
+        <div>{{ $store.state.level.depth }}</div>
     </div>
 </template>
 <script>
