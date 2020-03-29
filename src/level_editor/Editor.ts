@@ -194,7 +194,9 @@ export class Editor implements Game {
         const offsety = (size + padd) * TILE_ROWS * 0.5;
         for (let y = 0; y < TILE_ROWS; y++) {
             for (let x = 0; x < TILE_COLS; x++) {
-                const tileId = this.textureList.buttons.length;
+                const state = {
+                    tileId: this.textureList.buttons.length
+                };
 
                 const map = this.world.level.textrue;
                 const geo = new PlaneGeometry(size, size);
@@ -202,21 +204,29 @@ export class Editor implements Game {
                 const mesh = new Mesh(geo, mat);
                 mesh.position.x += (size + padd) * x - offsetx;
                 mesh.position.y -= (size + padd) * y - offsety;
-                setTextureUV(geo, tileId);
+                setTextureUV(geo, state.tileId);
 
                 const mat2 = new MeshBasicMaterial({ color: 0x00ff55 });
                 const outline = new Mesh(geo, mat2);
-                outline.position.z = -1;
+                outline.position.z = -0.1;
                 outline.scale.setScalar(1.05);
                 mesh.add(outline);
 
                 const onClick = () => {
                     const index = this.world.textureSlotIndex;
-                    this.world.textureSlots[index] = tileId;
+                    this.world.textureSlots[index] = state.tileId;
                 };
 
                 const onUpdate = () => {
-                    // ...
+                    const index = this.world.textureSlotIndex;
+                    const tileId = this.world.textureSlots[index];
+                    if (state.tileId === tileId) {
+                        mesh.scale.setScalar(1.2);
+                        mesh.position.z = 1;
+                    } else {
+                        mesh.scale.setScalar(1);
+                        mesh.position.z = 0.5;
+                    }
                 };
 
                 this.textureList.addButton({
