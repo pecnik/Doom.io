@@ -39,6 +39,7 @@ export function createStore(world: EditorWorld) {
         const origin = new Vector2();
         raycaster.setFromCamera(origin, world.camera);
         raycaster.intersectObject(world.floor, true, buffer);
+        raycaster.intersectObject(world.level, true, buffer);
 
         const [hit] = buffer;
         if (!hit) return;
@@ -96,6 +97,14 @@ export function createStore(world: EditorWorld) {
             if (rsp !== undefined) {
                 rsp.voxel.solid = true;
                 rsp.voxel.faces.fill(tileId, 0, 6);
+                buildLevelMesh(ctx.state.level);
+            }
+        },
+
+        removeVoxel(ctx: StoreCtx) {
+            const rsp = sampleVoxel(ctx.state.level, -1);
+            if (rsp !== undefined) {
+                rsp.voxel.solid = false;
                 buildLevelMesh(ctx.state.level);
             }
         }

@@ -33,9 +33,12 @@ export class Editor implements Game {
 
     public preload() {
         return Promise.all([
+            // Load level tileset texture
             loadTexture("/assets/tileset.png").then(map => {
                 this.world.texture = map;
             }),
+
+            // Load crosshair sprite
             loadTexture("/assets/sprites/crosshair.png").then(map => {
                 const size = 128;
                 const geo = new PlaneGeometry(size, size);
@@ -65,8 +68,14 @@ export class Editor implements Game {
 
     private toolSystem() {
         const mouse1 = this.input.isMousePresed(MouseBtn.Left);
+        const mouse2 = this.input.isMousePresed(MouseBtn.Right);
+
         if (mouse1) {
             this.store.dispatch("placeVoxel");
+        }
+
+        if (mouse2) {
+            this.store.dispatch("removeVoxel");
         }
     }
 
