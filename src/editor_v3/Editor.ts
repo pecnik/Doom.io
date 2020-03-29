@@ -7,7 +7,14 @@ import { createStore } from "./EditorStore";
 import { EditorWorld } from "./EditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
-import { Vector2, Vector3 } from "three";
+import {
+    Vector2,
+    Vector3,
+    Mesh,
+    PlaneGeometry,
+    MeshBasicMaterial,
+    AdditiveBlending
+} from "three";
 import { loadTexture } from "./EditorUtils";
 
 export class Editor implements Game {
@@ -28,6 +35,15 @@ export class Editor implements Game {
         return Promise.all([
             loadTexture("/assets/tileset.png").then(map => {
                 this.world.texture = map;
+            }),
+            loadTexture("/assets/sprites/crosshair.png").then(map => {
+                const size = 128;
+                const geo = new PlaneGeometry(size, size);
+                const mat = new MeshBasicMaterial({
+                    map,
+                    blending: AdditiveBlending
+                });
+                this.hud.scene.add(new Mesh(geo, mat));
             })
         ]);
     }

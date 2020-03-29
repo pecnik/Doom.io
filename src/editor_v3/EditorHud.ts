@@ -7,6 +7,8 @@ export class EditorHud {
         -VIEW_WIDTH / 2,
         VIEW_WIDTH / 2,
         VIEW_HEIGHT / 2,
-        -VIEW_HEIGHT / 2
+        -VIEW_HEIGHT / 2,
+        0,
+        8
     );
 }
