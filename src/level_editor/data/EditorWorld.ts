@@ -15,7 +15,7 @@ export class EditorWorld {
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
 
-    public readonly level = new EditorLevel(9, 6, 4);
+    public readonly level = new EditorLevel(24, 24, 8);
     public readonly floor = this.createFloor();
 
     public constructor() {
@@ -31,7 +31,7 @@ export class EditorWorld {
     private createFloor() {
         const mat = new MeshBasicMaterial({
             wireframe: true,
-            color: 0xffffff
+            color: 0x222222
         });
 
         const geo = new PlaneGeometry(
