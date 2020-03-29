@@ -24,7 +24,6 @@ import { Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
 import { FillTool } from "./tools/FillTool";
 import { EditorMenu } from "./data/EditorMenu";
-import { EditorLevel } from "./data/EditorLevel";
 import { SampleTool } from "./tools/SampleTool";
 
 export const VIEW_WIDTH = 1920;
@@ -132,30 +131,30 @@ export class Editor implements Game {
             this.hud.crosshair.add(mesh);
         });
 
-        // Load from autosave
-        const json = localStorage.getItem("auto-save");
-        if (json !== null) {
-            const data = JSON.parse(json);
-            this.world.textureSlots = data.textureSlots as number[];
-            this.world.textureSlotIndex = data.textureSlotIndex as number;
+        // // Load from autosave
+        // const json = localStorage.getItem("auto-save");
+        // if (json !== null) {
+        //     const data = JSON.parse(json);
+        //     this.world.textureSlots = data.textureSlots as number[];
+        //     this.world.textureSlotIndex = data.textureSlotIndex as number;
 
-            const levelJson = data.level as EditorLevel;
-            this.world.level.init(
-                levelJson.width,
-                levelJson.depth,
-                levelJson.height
-            );
-            this.world.level.forEachVoxel(voxel => {
-                const { x, y, z } = voxel.origin;
-                const json = levelJson.voxel[x][y][z];
-                voxel.solid = json.solid;
-                Object.assign(voxel.origin, json.origin);
-                Object.assign(voxel.faces, json.faces);
-            });
-            buildLevelMesh(this.world.level);
+        //     const levelJson = data.level as EditorLevel;
+        //     this.world.level.init(
+        //         levelJson.width,
+        //         levelJson.depth,
+        //         levelJson.height
+        //     );
+        //     this.world.level.forEachVoxel(voxel => {
+        //         const { x, y, z } = voxel.origin;
+        //         const json = levelJson.voxel[x][y][z];
+        //         voxel.solid = json.solid;
+        //         Object.assign(voxel.origin, json.origin);
+        //         Object.assign(voxel.faces, json.faces);
+        //     });
+        //     buildLevelMesh(this.world.level);
 
-            console.log(`> Editor: load auto save`);
-        }
+        //     console.log(`> Editor: load auto save`);
+        // }
     }
 
     private initToolList() {
@@ -317,19 +316,19 @@ export class Editor implements Game {
             icon.visible = tool === this.tool;
         }
 
-        // Auto save
-        const saveDelta = this.world.elapsedTime - this.lastSave;
-        if (saveDelta > 5) {
-            console.log(`> Editor: auto save`);
-            this.lastSave = this.world.elapsedTime;
+        // // Auto save
+        // const saveDelta = this.world.elapsedTime - this.lastSave;
+        // if (saveDelta > 5) {
+        //     console.log(`> Editor: auto save`);
+        //     this.lastSave = this.world.elapsedTime;
 
-            const json = JSON.stringify({
-                level: this.world.level,
-                textureSlots: this.world.textureSlots,
-                textureSlotIndex: this.world.textureSlotIndex
-            });
-            localStorage.setItem("auto-save", json);
-        }
+        //     const json = JSON.stringify({
+        //         level: this.world.level,
+        //         textureSlots: this.world.textureSlots,
+        //         textureSlotIndex: this.world.textureSlotIndex
+        //     });
+        //     localStorage.setItem("auto-save", json);
+        // }
 
         this.input.clear();
     }
