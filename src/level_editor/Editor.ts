@@ -37,6 +37,7 @@ export class Editor implements Game {
     public readonly hud = {
         scene: new Scene(),
         cursor: new Object3D(),
+        crosshair: new Object3D(),
         camera: new OrthographicCamera(
             -VIEW_WIDTH / 2,
             VIEW_WIDTH / 2,
@@ -82,18 +83,18 @@ export class Editor implements Game {
                 this.hud.cursor.add(sprite);
             }),
 
-            // Load crosshair
-            loadTexture("/assets/sprites/crosshair.png").then(map => {
-                const size = 128;
-                const geo = new PlaneGeometry(size, size);
-                const mat = new MeshBasicMaterial({
-                    map,
-                    blending: AdditiveBlending
-                });
-                const crosshair = new Mesh(geo, mat);
-                crosshair.position.z = -1;
-                this.hud.scene.add(crosshair);
-            }),
+            // // Load crosshair
+            // loadTexture("/assets/sprites/crosshair.png").then(map => {
+            //     const size = 128;
+            //     const geo = new PlaneGeometry(size, size);
+            //     const mat = new MeshBasicMaterial({
+            //         map,
+            //         blending: AdditiveBlending
+            //     });
+            //     const crosshair = new Mesh(geo, mat);
+            //     crosshair.position.z = -1;
+            //     this.hud.scene.add(crosshair);
+            // }),
 
             // Load tool icon texture
             ...this.tools.map(tool => {
@@ -105,11 +106,28 @@ export class Editor implements Game {
     }
 
     public create(): void {
-        this.hud.scene.add(this.hud.cursor, this.menu.scene);
+        this.hud.scene.add(
+            this.hud.cursor,
+            this.hud.crosshair,
+            this.menu.scene
+        );
         this.initToolList();
         this.initTextureList();
         this.initTextureSlotsBar();
         this.toggleMenu(false);
+
+        // Init crosshair
+        this.tools.forEach(tool => {
+            const map = tool.iconTexture;
+            const geo = new PlaneGeometry(48, 48);
+            const mat = new MeshBasicMaterial({
+                map,
+                transparent: true
+            });
+            const mesh = new Mesh(geo, mat);
+            mesh.visible = false;
+            this.hud.crosshair.add(mesh);
+        });
 
         // Load from autosave
         const json = localStorage.getItem("auto-save");
@@ -287,6 +305,14 @@ export class Editor implements Game {
             this.updateEditor(dt);
         }
 
+        // Crosshair
+        for (let i = 0; i < this.tools.length; i++) {
+            const tool = this.tools[i];
+            const icon = this.hud.crosshair.children[i];
+            icon.visible = tool === this.tool;
+        }
+
+        // Auto save
         const saveDelta = this.world.elapsedTime - this.lastSave;
         if (saveDelta > 5) {
             console.log(`> Editor: auto save`);
