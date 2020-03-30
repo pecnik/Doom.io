@@ -86,22 +86,4 @@ export default {
     color: #f2f2f2;
     background: #222;
 }
-
-.tile {
-    transition: transform 100ms ease-in;
-    cursor: pointer;
-    display: inline-block;
-    border: 1px solid #666;
-    transform: scale(0.95);
-
-    &:hover,
-    &.active {
-        border-color: limegreen;
-        transform: scale(1);
-    }
-
-    &.active {
-        transform: scale(1.1);
-    }
-}
 </style>

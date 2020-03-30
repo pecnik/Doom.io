@@ -30,5 +30,23 @@ export default {
     display: inline-block;
     width: 64px;
     height: 64px;
+
+    transition: transform 100ms ease-in, border-radius 100ms ease-in;
+    cursor: pointer;
+    display: inline-block;
+    border: 1px solid #666;
+    border-radius: 16px;
+    transform: scale(0.95);
+
+    &:hover,
+    &.active {
+        border-color: #999;
+        transform: scale(1);
+    }
+
+    &.active {
+        border-color: #2ecc71;
+        border-radius: 0;
+    }
 }
 </style>
