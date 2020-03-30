@@ -14,7 +14,7 @@ import {
     createLevelMesh,
     getVoxel,
     forEachVoxel
-} from "./EditorUtils";
+} from "../EditorUtils";
 
 Vue.use(Vuex);
 

@@ -1,10 +1,10 @@
 import Vue from "vue";
 import App from "./vue/App.vue";
 import { Game } from "../game/core/Engine";
-import { EditorHud } from "./EditorHud";
+import { EditorHud } from "./store/EditorHud";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
-import { createStore } from "./EditorStore";
-import { EditorWorld } from "./EditorWorld";
+import { createStore } from "./store/EditorStore";
+import { EditorWorld } from "./store/EditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import {

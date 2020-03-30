@@ -9,7 +9,7 @@ import {
     TextureLoader,
     Vector3
 } from "three";
-import { LevelData, VoxelData } from "./EditorWorld";
+import { LevelData, VoxelData } from "./store/EditorWorld";
 
 export const TILE_W = 64;
 export const TILE_H = 64;

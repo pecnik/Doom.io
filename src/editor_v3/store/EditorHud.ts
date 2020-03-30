@@ -1,5 +1,5 @@
 import { Scene, OrthographicCamera } from "three";
-import { VIEW_WIDTH, VIEW_HEIGHT } from "./Constants";
+import { VIEW_WIDTH, VIEW_HEIGHT } from "../Constants";
 
 export class EditorHud {
     public readonly scene = new Scene();
