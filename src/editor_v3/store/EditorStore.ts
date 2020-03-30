@@ -94,6 +94,14 @@ export function createStore(world: EditorWorld) {
             world.level = createLevelMesh(ctx.state.level, world.texture);
             world.scene.remove(...world.scene.children);
             world.scene.add(world.floor, world.level);
+
+            // Reset camera
+            world.camera.rotation.set(Math.PI * -0.25, 0, 0, "YXZ");
+            world.camera.position.set(
+                payload.width / 2,
+                payload.height / 2,
+                payload.depth
+            );
         },
 
         createFloor(ctx: StoreCtx, payload: { tileId: number }) {
