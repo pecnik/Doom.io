@@ -15,7 +15,7 @@ import {
     getVoxel,
     forEachVoxel
 } from "../EditorUtils";
-import { EditorState } from "./EditorState";
+import { EditorState, EditorTool } from "./EditorState";
 
 Vue.use(Vuex);
 
@@ -128,6 +128,10 @@ export function createStore(world: EditorWorld) {
                 rsp.voxel.solid = false;
                 buildLevelMesh(ctx.state.level);
             }
+        },
+
+        setTool(ctx: StoreCtx, tool: EditorTool) {
+            ctx.state.tool = tool;
         },
 
         setTileIdSlot(

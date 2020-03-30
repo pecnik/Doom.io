@@ -7,15 +7,9 @@ import { createStore } from "./store/EditorStore";
 import { EditorWorld } from "./store/EditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
-import {
-    Vector2,
-    Vector3,
-    Mesh,
-    PlaneGeometry,
-    MeshBasicMaterial,
-    AdditiveBlending
-} from "three";
+import { Vector2, Vector3 } from "three";
 import { loadTexture } from "./EditorUtils";
+import { EditorTool } from "./store/EditorState";
 
 export class Editor implements Game {
     public readonly hud = new EditorHud();
@@ -62,15 +56,28 @@ export class Editor implements Game {
     }
 
     private toolSystem() {
-        const mouse1 = this.input.isMousePresed(MouseBtn.Left);
-        const mouse2 = this.input.isMousePresed(MouseBtn.Right);
-
-        if (mouse1) {
-            this.store.dispatch("placeVoxel");
+        // Hot-key tool
+        if (this.input.isKeyPressed(KeyCode.E)) {
+            this.store.dispatch("setTool", EditorTool.Block);
         }
 
-        if (mouse2) {
-            this.store.dispatch("removeVoxel");
+        if (this.input.isKeyPressed(KeyCode.F)) {
+            this.store.dispatch("setTool", EditorTool.Paint);
+        }
+
+        if (this.input.isKeyPressed(KeyCode.ALT)) {
+            this.store.dispatch("setTool", EditorTool.Pick);
+        }
+
+        // Execute tool action
+        if (this.input.isMouseReleased(MouseBtn.Left)) {
+            const { tool } = this.store.state;
+            if (tool === EditorTool.Block) this.store.dispatch("placeVoxel");
+        }
+
+        if (this.input.isMouseReleased(MouseBtn.Right)) {
+            const { tool } = this.store.state;
+            if (tool === EditorTool.Block) this.store.dispatch("removeVoxel");
         }
 
         // Select active slot

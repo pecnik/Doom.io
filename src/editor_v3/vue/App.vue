@@ -1,6 +1,8 @@
 <template>
     <div id="app">
-        <div id="cursor"></div>
+        <div id="cursor">
+            <i class="fa" :class="$store.state.tool"></i>
+        </div>
         <div id="menu-left" class="panel">
             <tile-bar></tile-bar>
         </div>
@@ -42,7 +44,7 @@ export default {
     pointer-events: none;
 
     #cursor {
-        $cursor_size: 24px;
+        $cursor_size: 32px;
         pointer-events: none;
         position: absolute;
 
@@ -52,9 +54,15 @@ export default {
         height: $cursor_size;
         margin-top: -$cursor_size / 2;
         margin-left: -$cursor_size / 2;
-
-        border: 1px solid white;
         border-radius: $cursor_size / 2;
+
+        opacity: 0.5;
+        color: #000;
+        background: #fff;
+
+        text-align: center;
+        font-size: $cursor_size / 2;
+        line-height: $cursor_size;
     }
 
     #dialog > *,
