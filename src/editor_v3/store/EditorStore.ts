@@ -15,12 +15,9 @@ import {
     getVoxel,
     forEachVoxel
 } from "../EditorUtils";
+import { EditorState } from "./EditorState";
 
 Vue.use(Vuex);
-
-export class EditorState {
-    public level = createLevel(0, 0, 0);
-}
 
 export function createStore(world: EditorWorld) {
     type StoreCtx = ActionContext<EditorState, EditorState>;
