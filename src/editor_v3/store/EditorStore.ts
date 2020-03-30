@@ -113,7 +113,7 @@ export function createStore(world: EditorWorld) {
         },
 
         placeVoxel(ctx: StoreCtx) {
-            const tileId = 8; // TODO
+            const tileId = ctx.getters.activeTileId;
             const rsp = sampleVoxel(ctx.state.level, 1);
             if (rsp !== undefined) {
                 rsp.voxel.solid = true;
@@ -128,11 +128,20 @@ export function createStore(world: EditorWorld) {
                 rsp.voxel.solid = false;
                 buildLevelMesh(ctx.state.level);
             }
+        },
+
+        setTileIdSlotIndex(ctx: StoreCtx, tileIdSlotIndex: number) {
+            ctx.state.tileIdSlotIndex = tileIdSlotIndex;
         }
     };
 
     return new Vuex.Store({
         state: new EditorState(),
-        actions
+        actions,
+        getters: {
+            activeTileId(state) {
+                return state.tileIdSlotArray[state.tileIdSlotIndex];
+            }
+        }
     });
 }

@@ -77,6 +77,17 @@ export class Editor implements Game {
         if (mouse2) {
             this.store.dispatch("removeVoxel");
         }
+
+        // Select active slot
+        const scroll = this.input.mouse.scroll;
+        if (scroll !== 0) {
+            const offset = clamp(scroll * Number.MAX_SAFE_INTEGER, -1, 1);
+            const index = modulo(
+                this.store.state.tileIdSlotIndex + offset,
+                this.store.state.tileIdSlotArray.length
+            );
+            this.store.dispatch("setTileIdSlotIndex", index);
+        }
     }
 
     private movementSystem(dt: number) {

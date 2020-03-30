@@ -8,9 +8,13 @@
             <div>{{ level.width }} x {{ level.height }} x {{ level.depth }}</div>
         </div>
         <div id="tile-menu-bar" class="panel">
-            <tile v-for="(tileId, key) in this.tileIdSlotArray"
-                :key="key + 1"
-                :tileId="tileId"></tile>
+            <span v-for="(tileId, index) in this.tileIdSlotArray"
+                v-on:click="setSlotIndex(index)"
+                :key="index + 1"
+                :class="{ active: index === tileIdSlotIndex }"
+                class="tile-slot-option">
+                <tile :tileId="tileId"></tile>
+            </span>
         </div>
     </div>
 </template>
@@ -39,6 +43,9 @@ export default {
         },
         createFloor() {
             this.$store.dispatch("createFloor", { tileId: 8 });
+        },
+        setSlotIndex(index) {
+            this.$store.dispatch("setTileIdSlotIndex", index);
         }
     }
 };
@@ -60,10 +67,25 @@ export default {
 }
 
 #tile-menu-bar {
+    text-align: center;
     position: absolute;
     left: auto;
-    height: 80px;
+    height: 64px + (16px * 2);
     width: 100vw;
     bottom: 0;
+
+    .tile-slot-option {
+        margin-left: 4px;
+        margin-right: 4px;
+        display: inline-block;
+        cursor: pointer;
+        border: 1px solid #888;
+        font-size: 0;
+
+        &:hover,
+        &.active {
+            border: 1px solid orange;
+        }
+    }
 }
 </style>
