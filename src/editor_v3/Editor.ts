@@ -57,6 +57,12 @@ export class Editor implements Game {
             height: 4,
             depth: 16
         });
+
+        document.addEventListener("pointerlockchange", () => {
+            if (this.input.isLocked() && this.store.state.tileSelectDialog) {
+                this.store.dispatch("setTileSelectDialog", false);
+            }
+        });
     }
 
     public update(dt: number) {

@@ -153,7 +153,7 @@ export class Input {
     }
 
     public isLocked(): boolean {
-        return (document as any).pointerLockElement !== this.el;
+        return (document as any).pointerLockElement === this.el;
     }
 
     public isKeyUp(key: KeyCode): boolean {

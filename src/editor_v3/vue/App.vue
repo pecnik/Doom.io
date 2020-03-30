@@ -40,7 +40,7 @@ export default {
 
     pointer-events: none;
 
-    #dialog,
+    #dialog > *,
     #menu-top,
     #menu-bot,
     #menu-left,
