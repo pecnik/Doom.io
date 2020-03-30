@@ -1,5 +1,6 @@
 <template>
     <div id="app">
+        <div id="cursor"></div>
         <div id="menu-left" class="panel">
             <tile-bar></tile-bar>
         </div>
@@ -39,6 +40,22 @@ export default {
     grid-template-columns: 96px 1fr 96px;
 
     pointer-events: none;
+
+    #cursor {
+        $cursor_size: 24px;
+        pointer-events: none;
+        position: absolute;
+
+        top: 50vh;
+        left: 50vw;
+        width: $cursor_size;
+        height: $cursor_size;
+        margin-top: -$cursor_size / 2;
+        margin-left: -$cursor_size / 2;
+
+        border: 1px solid white;
+        border-radius: $cursor_size / 2;
+    }
 
     #dialog > *,
     #menu-top,

@@ -36,17 +36,6 @@ export class Editor implements Game {
             // Load level tileset texture
             loadTexture("/assets/tileset.png").then(map => {
                 this.world.texture = map;
-            }),
-
-            // Load crosshair sprite
-            loadTexture("/assets/sprites/crosshair.png").then(map => {
-                const size = 128;
-                const geo = new PlaneGeometry(size, size);
-                const mat = new MeshBasicMaterial({
-                    map,
-                    blending: AdditiveBlending
-                });
-                this.hud.scene.add(new Mesh(geo, mat));
             })
         ]);
     }
