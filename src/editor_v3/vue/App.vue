@@ -1,91 +1,60 @@
 <template>
-    <div>
-        <div id="right-menu" class="panel">
-            <button @click="createLevel">New level</button>
-            <br>
-            <button @click="createFloor">Fill floor</button>
-            <hr>
-            <div>{{ level.width }} x {{ level.height }} x {{ level.depth }}</div>
-        </div>
-        <div id="tile-menu-bar" class="panel">
-            <span v-for="(tileId, index) in this.tileIdSlotArray"
-                v-on:click="setSlotIndex(index)"
-                :key="index + 1"
-                :class="{ active: index === tileIdSlotIndex }"
-                class="tile-slot-option">
-                <tile :tileId="tileId"></tile>
-            </span>
-        </div>
+    <div id="app">
+        <div id="menu-left" class="panel"></div>
+        <div id="menu-right" class="panel"></div>
     </div>
 </template>
-<script>
-import Tile from "./Tile.vue";
-export default {
-    components: { Tile },
-    computed: {
-        level() {
-            return this.$store.state.level;
-        },
-        tileIdSlotIndex() {
-            return this.$store.state.tileIdSlotIndex;
-        },
-        tileIdSlotArray() {
-            return this.$store.state.tileIdSlotArray;
-        }
-    },
-    methods: {
-        createLevel() {
-            const [width, height, depth] = prompt("Size?", "16,4,16")
-                .split(",")
-                .map(val => parseInt(val))
-                .map(val => (!isNaN(val) ? val : 8));
-            this.$store.dispatch("initLevel", { width, height, depth });
-        },
-        createFloor() {
-            this.$store.dispatch("createFloor", { tileId: 8 });
-        },
-        setSlotIndex(index) {
-            this.$store.dispatch("setTileIdSlotIndex", index);
-        }
-    }
-};
-</script>
 <style scoped lang="scss">
-.panel {
-    padding: 16px;
-    color: #f2f2f2;
-    background: #444;
-    border: 1px solid #222;
-    box-sizing: border-box;
-}
+#app {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 16px;
 
-#right-menu {
     position: absolute;
-    height: 100vh;
-    width: 200px;
-    right: 0;
-}
-
-#tile-menu-bar {
-    text-align: center;
-    position: absolute;
-    left: auto;
-    height: 64px + (16px * 2);
+    top: 0;
+    left: 0;
     width: 100vw;
-    bottom: 0;
+    height: 100vh;
 
-    .tile-slot-option {
-        margin-left: 4px;
-        margin-right: 4px;
-        display: inline-block;
-        cursor: pointer;
-        border: 1px solid #888;
-        font-size: 0;
+    display: grid;
+    grid-template-rows: 40px 1fr 96px;
+    grid-template-columns: 200px 1fr 300px;
 
-        &:hover,
-        &.active {
-            border: 1px solid orange;
-        }
+    pointer-events: none;
+
+    #menu-top,
+    #menu-bot,
+    #menu-left,
+    #menu-right {
+        pointer-events: auto;
     }
+
+    #menu-top {
+        grid-row: 1;
+        grid-column-start: 2;
+        grid-column-end: 3;
+    }
+
+    #menu-bot {
+        grid-row: 3;
+        grid-column-start: 2;
+        grid-column-end: 3;
+    }
+
+    #menu-left {
+        grid-column: 1;
+        grid-row-start: 1;
+        grid-row-end: 4;
+    }
+
+    #menu-right {
+        grid-column: 3;
+        grid-row-start: 1;
+        grid-row-end: 4;
+    }
+}
+
+.panel {
+    color: #f2f2f2;
+    background: #222;
 }
 </style>
