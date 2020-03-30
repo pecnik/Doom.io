@@ -51,6 +51,7 @@ export class Editor implements Game {
     public update(dt: number) {
         this.world.elapsedTime += dt;
         this.movementSystem(dt);
+        this.tileSlotSystem();
         this.toolSystem();
         this.input.clear();
     }
@@ -79,8 +80,17 @@ export class Editor implements Game {
             const { tool } = this.store.state;
             if (tool === EditorTool.Block) this.store.dispatch("removeVoxel");
         }
+    }
 
-        // Select active slot
+    private tileSlotSystem() {
+        const KEY_NUM_1 = KeyCode.NUM_1 as number;
+        for (let i = 0; i < 6; i++) {
+            if (this.input.isKeyPressed(KEY_NUM_1 + i)) {
+                this.store.dispatch("setTileIdSlotIndex", i);
+                return;
+            }
+        }
+
         const scroll = this.input.mouse.scroll;
         if (scroll !== 0) {
             const offset = clamp(scroll * Number.MAX_SAFE_INTEGER, -1, 1);
