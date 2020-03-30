@@ -36,7 +36,7 @@ export default {
 
     display: grid;
     grid-template-rows: 40px 1fr 96px;
-    grid-template-columns: 96px 1fr 300px;
+    grid-template-columns: 96px 1fr 96px;
 
     pointer-events: none;
 
