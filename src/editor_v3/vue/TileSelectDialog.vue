@@ -32,6 +32,10 @@ export default {
 };
 </script>
 <style scoped lang="scss">
+.panel {
+    max-width: 600px;
+}
+
 .tile-select-dialog {
     overflow-y: auto;
     max-height: 80vh;
