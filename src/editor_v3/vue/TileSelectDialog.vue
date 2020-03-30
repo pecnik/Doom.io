@@ -1,11 +1,12 @@
 <template>
-    <div>
-        <h2>Tile select #{{ tileIdSlotIndex + 1 }}</h2>
-        <tile v-for="tileId in 64" :key="tileId + 1"
-            @click.native="setTileSlot(tileId)"
-            class="tile"
-            :class="{ active: tileId === activeTileId }"
-            :tileId="tileId"></tile>
+    <div class="panel">
+        <div class="tile-select-dialog">
+            <tile v-for="(key, tileId) in 64" :key="key"
+                @click.native="setTileSlot(tileId)"
+                class="tile"
+                :class="{ active: tileId === activeTileId }"
+                :tileId="tileId"></tile>
+        </div>
     </div>
 </template>
 <script>
@@ -22,15 +23,20 @@ export default {
     },
     methods: {
         setTileSlot(tileId) {
+            const close = this.activeTileId !== tileId;
             const index = this.tileIdSlotIndex;
             this.$store.dispatch("setTileIdSlot", { index, tileId });
-            this.$store.dispatch("setTileSelectDialog", false);
+            this.$store.dispatch("setTileSelectDialog", close);
         }
     }
 };
 </script>
 <style scoped lang="scss">
-.tile {
-    margin: 4px;
+.tile-select-dialog {
+    overflow-y: auto;
+    max-height: 80vh;
+    .tile {
+        margin: 4px;
+    }
 }
 </style>

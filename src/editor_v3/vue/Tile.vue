@@ -5,16 +5,21 @@
 import { TILE_COLS, TILE_W, TILE_H } from "../EditorUtils";
 export default {
     props: {
-        tileId: { type: Number, required: true }
+        tileId: { type: Number, required: true },
+        lg: { type: Boolean, required: false, default: false }
     },
     computed: {
         style() {
+            const size = this.lg ? 128 : 64;
             const url = "/assets/tileset.png";
             const x = Math.floor(this.tileId % TILE_COLS);
             const y = Math.floor(this.tileId / TILE_COLS);
             return {
+                width: size + "px",
+                height: size + "px",
                 background: `url(${url})`,
-                backgroundPosition: `-${x * TILE_W}px -${y * TILE_H}px`
+                backgroundPosition: `-${x * size}px -${y * size}px`,
+                backgroundSize: this.lg ? "1024px" : "512px"
             };
         }
     }

@@ -50,8 +50,8 @@ export default {
 
     #dialog {
         padding: 32px;
-        grid-row-start: 2;
-        grid-row-end: 3;
+        grid-row-start: 1;
+        grid-row-end: 4;
         grid-column-start: 2;
         grid-column-end: 3;
     }
@@ -88,17 +88,20 @@ export default {
 }
 
 .tile {
+    transition: transform 100ms ease-in;
+    cursor: pointer;
     display: inline-block;
     border: 1px solid #666;
-    cursor: pointer;
+    transform: scale(0.95);
 
-    &:hover {
+    &:hover,
+    &.active {
         border-color: limegreen;
+        transform: scale(1);
     }
 
     &.active {
-        border-color: limegreen;
-        transform: scale(1.05);
+        transform: scale(1.1);
     }
 }
 </style>
