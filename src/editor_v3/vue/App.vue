@@ -3,16 +3,27 @@
         <div id="menu-left" class="panel">
             <tile-bar></tile-bar>
         </div>
-        <div id="menu-right" class="panel"></div>
+        <div id="menu-right" class="panel">
+            <!-- ... -->
+        </div>
+        <div id="dialog" v-if="tileSelectDialog">
+            <tile-select-dialog></tile-select-dialog>
+        </div>
     </div>
 </template>
 <script>
 import TileBar from "./TileBar.vue";
+import TileSelectDialog from "./TileSelectDialog.vue";
 export default {
-    components: { TileBar }
+    components: { TileBar, TileSelectDialog },
+    computed: {
+        tileSelectDialog() {
+            return this.$store.state.tileSelectDialog;
+        }
+    }
 };
 </script>
-<style scoped lang="scss">
+<style lang="scss">
 #app {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
@@ -29,11 +40,20 @@ export default {
 
     pointer-events: none;
 
+    #dialog,
     #menu-top,
     #menu-bot,
     #menu-left,
     #menu-right {
         pointer-events: auto;
+    }
+
+    #dialog {
+        padding: 32px;
+        grid-row-start: 2;
+        grid-row-end: 3;
+        grid-column-start: 2;
+        grid-column-end: 3;
     }
 
     #menu-top {
@@ -65,5 +85,20 @@ export default {
     padding: 16px;
     color: #f2f2f2;
     background: #222;
+}
+
+.tile {
+    display: inline-block;
+    border: 1px solid #666;
+    cursor: pointer;
+
+    &:hover {
+        border-color: limegreen;
+    }
+
+    &.active {
+        border-color: limegreen;
+        transform: scale(1.05);
+    }
 }
 </style>

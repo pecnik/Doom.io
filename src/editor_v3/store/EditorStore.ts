@@ -130,8 +130,23 @@ export function createStore(world: EditorWorld) {
             }
         },
 
+        setTileIdSlot(
+            ctx: StoreCtx,
+            payload: {
+                index: number;
+                tileId: number;
+            }
+        ) {
+            const { index, tileId } = payload;
+            Vue.set(ctx.state.tileIdSlotArray, index, tileId);
+        },
+
         setTileIdSlotIndex(ctx: StoreCtx, tileIdSlotIndex: number) {
             ctx.state.tileIdSlotIndex = tileIdSlotIndex;
+        },
+
+        setTileSelectDialog(ctx: StoreCtx, open: boolean) {
+            ctx.state.tileSelectDialog = open;
         }
     };
 

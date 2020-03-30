@@ -1,7 +1,10 @@
 <template>
     <div>
         <div v-for="(tileId, index) in tileIdSlotArray" :key="index + 1">
-            <tile class="tile" :class="{ active: index === tileIdSlotIndex }" :tileId="tileId"></tile>
+            <tile @click.native="openTileSelectDialog(index)"
+                class="tile"
+                :class="{ active: index === tileIdSlotIndex }"
+                :tileId="tileId"></tile>
         </div>
     </div>
 </template>
@@ -16,17 +19,17 @@ export default {
         tileIdSlotArray() {
             return this.$store.state.tileIdSlotArray;
         }
+    },
+    methods: {
+        openTileSelectDialog(index) {
+            this.$store.dispatch("setTileIdSlotIndex", index);
+            this.$store.dispatch("setTileSelectDialog", true);
+        }
     }
 };
 </script>
 <style scoped lang="scss">
 .tile {
-    // transition: transform 100ms ease;
     margin-bottom: 8px;
-    border: 1px solid #666;
-    &.active {
-        border-color: limegreen;
-        transform: scale(1.05);
-    }
 }
 </style>
