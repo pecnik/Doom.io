@@ -11,7 +11,7 @@ export default {
         style() {
             const url = "/assets/tileset.png";
             const x = Math.floor(this.tileId % TILE_COLS);
-            const y = Math.floor(this.tileId % TILE_COLS) * TILE_COLS;
+            const y = Math.floor(this.tileId / TILE_COLS);
             return {
                 background: `url(${url})`,
                 backgroundPosition: `-${x * TILE_W}px -${y * TILE_H}px`

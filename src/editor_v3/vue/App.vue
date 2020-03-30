@@ -1,12 +1,20 @@
 <template>
     <div id="app">
-        <div id="menu-left" class="panel"></div>
+        <div id="menu-left" class="panel">
+            <tile-bar></tile-bar>
+        </div>
         <div id="menu-right" class="panel"></div>
     </div>
 </template>
+<script>
+import TileBar from "./TileBar.vue";
+export default {
+    components: { TileBar }
+};
+</script>
 <style scoped lang="scss">
 #app {
-    font-family: "Courier New", Courier, monospace;
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
 
     position: absolute;
@@ -17,7 +25,7 @@
 
     display: grid;
     grid-template-rows: 40px 1fr 96px;
-    grid-template-columns: 200px 1fr 300px;
+    grid-template-columns: 96px 1fr 300px;
 
     pointer-events: none;
 
@@ -54,6 +62,7 @@
 }
 
 .panel {
+    padding: 16px;
     color: #f2f2f2;
     background: #222;
 }
