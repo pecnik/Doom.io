@@ -35,7 +35,8 @@ export class Editor implements Game {
         {
             type: EditorTool.Paint,
             hotkey: KeyCode.F,
-            onMouseOne: () => this.store.dispatch("fillVoxelFace")
+            onMouseOne: () => this.store.dispatch("fillVoxelFace"),
+            onMouseTwo: () => this.store.dispatch("fillVoxel")
         },
         {
             type: EditorTool.Pick,

@@ -150,6 +150,14 @@ export function createStore(world: EditorWorld) {
             }
         },
 
+        fillVoxel(ctx: StoreCtx) {
+            const rsp = sampleVoxel(ctx.state.level, -1);
+            if (rsp !== undefined) {
+                rsp.voxel.faces.fill(ctx.getters.activeTileId);
+                buildLevelMesh(ctx.state.level);
+            }
+        },
+
         fillVoxelFace(ctx: StoreCtx) {
             const rsp = sampleVoxel(ctx.state.level, -1);
             if (rsp !== undefined) {
