@@ -25,6 +25,23 @@ export class Editor implements Game {
         render: h => h(App)
     }).$mount("#ui-layer");
 
+    public readonly tools = [
+        {
+            type: EditorTool.Block,
+            hotkey: KeyCode.E,
+            onMouseOne: () => this.store.dispatch("placeVoxel"),
+            onMouseTwo: () => this.store.dispatch("removeVoxel")
+        },
+        {
+            type: EditorTool.Paint,
+            hotkey: KeyCode.F
+        },
+        {
+            type: EditorTool.Pick,
+            hotkey: KeyCode.ALT
+        }
+    ];
+
     public preload() {
         return Promise.all([
             // Load level tileset texture
@@ -57,28 +74,23 @@ export class Editor implements Game {
     }
 
     private toolSystem() {
-        // Hot-key tool
-        if (this.input.isKeyPressed(KeyCode.E)) {
-            this.store.dispatch("setTool", EditorTool.Block);
-        }
+        for (let i = 0; i < this.tools.length; i++) {
+            const tool = this.tools[i];
+            if (this.input.isKeyPressed(tool.hotkey)) {
+                this.store.dispatch("setTool", tool.type);
+            }
 
-        if (this.input.isKeyPressed(KeyCode.F)) {
-            this.store.dispatch("setTool", EditorTool.Paint);
-        }
+            if (this.input.isMouseReleased(MouseBtn.Left)) {
+                if (tool.onMouseOne && tool.type === this.store.state.tool) {
+                    tool.onMouseOne();
+                }
+            }
 
-        if (this.input.isKeyPressed(KeyCode.ALT)) {
-            this.store.dispatch("setTool", EditorTool.Pick);
-        }
-
-        // Execute tool action
-        if (this.input.isMouseReleased(MouseBtn.Left)) {
-            const { tool } = this.store.state;
-            if (tool === EditorTool.Block) this.store.dispatch("placeVoxel");
-        }
-
-        if (this.input.isMouseReleased(MouseBtn.Right)) {
-            const { tool } = this.store.state;
-            if (tool === EditorTool.Block) this.store.dispatch("removeVoxel");
+            if (this.input.isMouseReleased(MouseBtn.Right)) {
+                if (tool.onMouseOne && tool.type === this.store.state.tool) {
+                    tool.onMouseTwo();
+                }
+            }
         }
     }
 
