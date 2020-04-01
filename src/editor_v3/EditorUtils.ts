@@ -88,12 +88,7 @@ export function createLevelMesh(level: LevelData, map: Texture) {
     geometry.elementsNeedUpdate = true;
 
     const material = new MeshBasicMaterial({ map });
-    const wireframe = new MeshBasicMaterial({
-        wireframe: true,
-        color: 0x00ff00
-    });
-
-    return new Mesh(geometry, material).add(new Mesh(geometry, wireframe));
+    return new Mesh(geometry, material);
 }
 
 export function createVoxelPlanes(voxel: VoxelData, level: LevelData) {

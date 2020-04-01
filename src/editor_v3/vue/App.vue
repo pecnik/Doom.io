@@ -1,13 +1,16 @@
 <template>
     <div id="app">
         <div id="cursor">
-            <i class="fa" :class="$store.state.tool"></i>
+            <i class="fa" :class="toolIcon"></i>
         </div>
         <div id="menu-left" class="panel">
             <tile-bar></tile-bar>
         </div>
         <div id="menu-right" class="panel">
-            <!-- ... -->
+            <label title="Wireframe">
+                WFR
+                <input type="checkbox" :value="wireframe" @input="toggleWireframe">
+            </label>
         </div>
         <div id="dialog" v-if="tileSelectDialog">
             <tile-select-dialog></tile-select-dialog>
@@ -22,6 +25,17 @@ export default {
     computed: {
         tileSelectDialog() {
             return this.$store.state.tileSelectDialog;
+        },
+        toolIcon() {
+            return this.$store.state.tool;
+        },
+        wireframe() {
+            return this.$store.state.wireframe;
+        }
+    },
+    methods: {
+        toggleWireframe(ev) {
+            this.$store.dispatch("setWireframe", ev.target.checked);
         }
     }
 };
