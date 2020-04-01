@@ -130,6 +130,44 @@ export function createStore(world: EditorWorld) {
             }
         },
 
+        sampleVoxel(ctx: StoreCtx) {
+            const rsp = sampleVoxel(ctx.state.level, -1);
+            if (rsp !== undefined) {
+                let face = -1;
+                if (rsp.normal.x === -1) face = 0;
+                if (rsp.normal.x === +1) face = 1;
+                if (rsp.normal.y === -1) face = 2;
+                if (rsp.normal.y === +1) face = 3;
+                if (rsp.normal.z === -1) face = 4;
+                if (rsp.normal.z === +1) face = 5;
+
+                if (face > -1) {
+                    const index = ctx.state.tileIdSlotIndex;
+                    const tileId = rsp.voxel.faces[face];
+                    ctx.dispatch("setTileIdSlot", { tileId, index });
+                    ctx.dispatch("setTool", EditorTool.Paint);
+                }
+            }
+        },
+
+        fillVoxelFace(ctx: StoreCtx) {
+            const rsp = sampleVoxel(ctx.state.level, -1);
+            if (rsp !== undefined) {
+                let index = -1;
+                if (rsp.normal.x === -1) index = 0;
+                if (rsp.normal.x === +1) index = 1;
+                if (rsp.normal.y === -1) index = 2;
+                if (rsp.normal.y === +1) index = 3;
+                if (rsp.normal.z === -1) index = 4;
+                if (rsp.normal.z === +1) index = 5;
+
+                if (index > -1) {
+                    rsp.voxel.faces[index] = ctx.getters.activeTileId;
+                    buildLevelMesh(ctx.state.level);
+                }
+            }
+        },
+
         setTool(ctx: StoreCtx, tool: EditorTool) {
             ctx.state.tool = tool;
         },

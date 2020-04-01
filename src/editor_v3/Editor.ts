@@ -34,11 +34,13 @@ export class Editor implements Game {
         },
         {
             type: EditorTool.Paint,
-            hotkey: KeyCode.F
+            hotkey: KeyCode.F,
+            onMouseOne: () => this.store.dispatch("fillVoxelFace")
         },
         {
             type: EditorTool.Pick,
-            hotkey: KeyCode.ALT
+            hotkey: KeyCode.ALT,
+            onMouseOne: () => this.store.dispatch("sampleVoxel")
         }
     ];
 
@@ -87,7 +89,7 @@ export class Editor implements Game {
             }
 
             if (this.input.isMouseReleased(MouseBtn.Right)) {
-                if (tool.onMouseOne && tool.type === this.store.state.tool) {
+                if (tool.onMouseTwo && tool.type === this.store.state.tool) {
                     tool.onMouseTwo();
                 }
             }
