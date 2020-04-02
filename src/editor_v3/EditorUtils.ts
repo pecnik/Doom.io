@@ -117,10 +117,16 @@ export function createVoxelPlanes(voxel: VoxelData, level: LevelData) {
         }
     };
 
+    const setLight = (geo: Geometry, str: number) => {
+        const light = (1 / 6) * str;
+        const color = new Color(light, light, light);
+        setVertexColor(geo, color);
+    };
+
     if (!hasSolidNeighbor(-1, 0, 0)) {
         const xmin = new PlaneGeometry(1, 1, 1, 1);
         setTextureUV(xmin, voxel.faces[0]);
-        setVertexColor(xmin, new Color(0x736889));
+        setLight(xmin, 3);
         xmin.rotateY(Math.PI * -0.5);
         xmin.translate(voxelOrigin.x, voxelOrigin.y, voxelOrigin.z);
         xmin.translate(-0.5, 0, 0);
@@ -130,7 +136,7 @@ export function createVoxelPlanes(voxel: VoxelData, level: LevelData) {
     if (!hasSolidNeighbor(1, 0, 0)) {
         const xmax = new PlaneGeometry(1, 1, 1, 1);
         setTextureUV(xmax, voxel.faces[1]);
-        setVertexColor(xmax, new Color(0xffffff));
+        setLight(xmax, 4);
         xmax.rotateY(Math.PI * 0.5);
         xmax.translate(voxelOrigin.x, voxelOrigin.y, voxelOrigin.z);
         xmax.translate(0.5, 0, 0);
@@ -140,7 +146,7 @@ export function createVoxelPlanes(voxel: VoxelData, level: LevelData) {
     if (!hasSolidNeighbor(0, -1, 0)) {
         const ymin = new PlaneGeometry(1, 1, 1, 1);
         setTextureUV(ymin, voxel.faces[2]);
-        setVertexColor(ymin, new Color(0x263b4e));
+        setLight(ymin, 1);
         ymin.rotateX(Math.PI * 0.5);
         ymin.translate(voxelOrigin.x, voxelOrigin.y, voxelOrigin.z);
         ymin.translate(0, -0.5, 0);
@@ -150,6 +156,7 @@ export function createVoxelPlanes(voxel: VoxelData, level: LevelData) {
     if (!hasSolidNeighbor(0, 1, 0)) {
         const ymax = new PlaneGeometry(1, 1, 1, 1);
         setTextureUV(ymax, voxel.faces[3]);
+        setLight(ymax, 6);
         ymax.rotateX(Math.PI * -0.5);
         ymax.translate(voxelOrigin.x, voxelOrigin.y, voxelOrigin.z);
         ymax.translate(0, 0.5, 0);
@@ -159,7 +166,7 @@ export function createVoxelPlanes(voxel: VoxelData, level: LevelData) {
     if (!hasSolidNeighbor(0, 0, -1)) {
         const zmin = new PlaneGeometry(1, 1, 1, 1);
         setTextureUV(zmin, voxel.faces[4]);
-        setVertexColor(zmin, new Color(0xa096b4));
+        setLight(zmin, 2);
         zmin.rotateY(Math.PI);
         zmin.translate(voxelOrigin.x, voxelOrigin.y, voxelOrigin.z);
         zmin.translate(0, 0, -0.5);
@@ -169,7 +176,7 @@ export function createVoxelPlanes(voxel: VoxelData, level: LevelData) {
     if (!hasSolidNeighbor(0, 0, 1)) {
         const zmax = new PlaneGeometry(1, 1, 1, 1);
         setTextureUV(zmax, voxel.faces[5]);
-        setVertexColor(zmax, new Color(0xf4f4c4));
+        setLight(zmax, 5);
         zmax.translate(voxelOrigin.x, voxelOrigin.y, voxelOrigin.z);
         zmax.translate(0, 0, 0.5);
         planes.push(zmax);

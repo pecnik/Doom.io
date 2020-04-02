@@ -83,13 +83,13 @@ export class Editor implements Game {
                 this.store.dispatch("setTool", tool.type);
             }
 
-            if (this.input.isMouseReleased(MouseBtn.Left)) {
+            if (this.input.isMousePresed(MouseBtn.Left)) {
                 if (tool.onMouseOne && tool.type === this.store.state.tool) {
                     tool.onMouseOne();
                 }
             }
 
-            if (this.input.isMouseReleased(MouseBtn.Right)) {
+            if (this.input.isMousePresed(MouseBtn.Right)) {
                 if (tool.onMouseTwo && tool.type === this.store.state.tool) {
                     tool.onMouseTwo();
                 }
