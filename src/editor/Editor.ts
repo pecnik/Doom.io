@@ -1,5 +1,6 @@
 import Vue from "vue";
 import App from "./vue/App.vue";
+import { Vector2, Vector3, Texture, TextureLoader, NearestFilter } from "three";
 import { Game } from "../game/core/Engine";
 import { EditorHud } from "./store/EditorHud";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
@@ -7,8 +8,6 @@ import { createStore } from "./store/EditorStore";
 import { EditorWorld } from "./store/EditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
-import { Vector2, Vector3 } from "three";
-import { loadTexture } from "./EditorUtils";
 import { EditorTool } from "./store/EditorState";
 
 export class Editor implements Game {
@@ -46,6 +45,16 @@ export class Editor implements Game {
     ];
 
     public preload() {
+        const loadTexture = (src: string): Promise<Texture> => {
+            return new Promise(resolve => {
+                new TextureLoader().load(src, map => {
+                    map.minFilter = NearestFilter;
+                    map.magFilter = NearestFilter;
+                    resolve(map);
+                });
+            });
+        };
+
         return Promise.all([
             // Load level tileset texture
             loadTexture("/assets/tileset.png").then(map => {

@@ -2,7 +2,7 @@
     <div class="tile" :style="style"></div>
 </template>
 <script>
-import { TILE_COLS, TILE_W, TILE_H } from "../EditorUtils";
+import { TILE_COLS, TILE_W, TILE_H } from "../Level";
 export default {
     props: {
         tileId: { type: Number, required: true },

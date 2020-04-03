@@ -9,13 +9,8 @@ import {
     Intersection
 } from "three";
 import { EditorWorld, LevelData } from "./EditorWorld";
-import {
-    createLevel,
-    createLevelMesh,
-    getVoxel,
-    forEachVoxel
-} from "../EditorUtils";
 import { EditorState, EditorTool } from "./EditorState";
+import { Level } from "../Level";
 
 Vue.use(Vuex);
 
@@ -51,7 +46,7 @@ export function createStore(world: EditorWorld) {
         const normal = hit.face.normal.clone().multiplyScalar(0.1 * dir);
         point.add(normal);
 
-        const voxel = getVoxel(level, point);
+        const voxel = Level.getVoxel(level, point);
         if (voxel === undefined) {
             return;
         }
@@ -66,7 +61,7 @@ export function createStore(world: EditorWorld) {
     function updateLevelMesh(ctx: StoreCtx) {
         console.log(`> Editor::build level mesh`);
         world.scene.remove(world.level);
-        world.level = createLevelMesh(ctx.state.level, world.texture);
+        world.level = Level.createLevelMesh(ctx.state.level, world.texture);
         world.scene.add(world.level);
 
         if (ctx.state.wireframe) {
@@ -88,7 +83,7 @@ export function createStore(world: EditorWorld) {
             }
         ) {
             // Init new level data
-            ctx.state.level = createLevel(
+            ctx.state.level = Level.create(
                 payload.width,
                 payload.height,
                 payload.depth
@@ -96,7 +91,7 @@ export function createStore(world: EditorWorld) {
 
             // Reset world scene
             world.floor = createFloor(payload.width, payload.depth);
-            world.level = createLevelMesh(ctx.state.level, world.texture);
+            world.level = Level.createLevelMesh(ctx.state.level, world.texture);
             world.scene.remove(...world.scene.children);
             world.scene.add(world.floor, world.level);
 
@@ -111,7 +106,7 @@ export function createStore(world: EditorWorld) {
 
         createFloor(ctx: StoreCtx, payload: { tileId: number }) {
             const { level } = ctx.state;
-            forEachVoxel(level, voxel => {
+            Level.forEachVoxel(level, voxel => {
                 if (voxel.y === 0) {
                     voxel.solid = true;
                     voxel.faces.fill(payload.tileId);

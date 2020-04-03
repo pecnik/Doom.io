@@ -1,4 +1,4 @@
-import { createLevel } from "../EditorUtils";
+import { Level } from "../Level";
 
 export enum EditorTool {
     Block = "fa-cube",
@@ -7,7 +7,7 @@ export enum EditorTool {
 }
 
 export class EditorState {
-    public level = createLevel(0, 0, 0);
+    public level = Level.create(0, 0, 0);
     public tool = EditorTool.Block;
     public wireframe = false;
     public tileSelectDialog = false;
