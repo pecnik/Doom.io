@@ -8,7 +8,7 @@ import {
     Vector2,
     Intersection
 } from "three";
-import { EditorWorld, LevelData } from "./EditorWorld";
+import { EditorWorld } from "./EditorWorld";
 import { EditorState, EditorTool } from "./EditorState";
 import { Level } from "../Level";
 
@@ -31,7 +31,7 @@ export function createStore(world: EditorWorld) {
         return new Mesh(geo, mat);
     }
 
-    function sampleVoxel(level: LevelData, dir: -1 | 1) {
+    function sampleVoxel(level: Level, dir: -1 | 1) {
         const buffer: Intersection[] = [];
         const origin = new Vector2();
         raycaster.setFromCamera(origin, world.camera);

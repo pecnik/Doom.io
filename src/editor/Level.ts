@@ -9,7 +9,6 @@ import {
     Color,
     Vector2
 } from "three";
-import { LevelData, VoxelData } from "./store/EditorWorld";
 
 export const TILE_W = 64;
 export const TILE_H = 64;
@@ -59,7 +58,7 @@ export module Level {
         return new Level(width, height, depth);
     }
 
-    export function getVoxel(level: LevelData, point: Vector3) {
+    export function getVoxel(level: Level, point: Vector3) {
         const x = Math.round(point.x);
         const y = Math.round(point.y);
         const z = Math.round(point.z);
@@ -69,7 +68,7 @@ export module Level {
         return level.voxel[x][y][z];
     }
 
-    export function forEachVoxel(level: LevelData, fn: (v: VoxelData) => void) {
+    export function forEachVoxel(level: Level, fn: (v: Voxel) => void) {
         for (let x = 0; x < level.width; x++) {
             for (let y = 0; y < level.height; y++) {
                 for (let z = 0; z < level.depth; z++) {
@@ -79,7 +78,7 @@ export module Level {
         }
     }
 
-    export function createLevelMesh(level: LevelData, map: Texture) {
+    export function createLevelMesh(level: Level, map: Texture) {
         const planes = new Array<PlaneGeometry>();
         forEachVoxel(level, voxel => {
             if (voxel.solid) {
@@ -99,7 +98,7 @@ export module Level {
         return new Mesh(geometry, material);
     }
 
-    export function createVoxelPlanes(voxel: VoxelData, level: LevelData) {
+    export function createVoxelPlanes(voxel: Voxel, level: Level) {
         const planes: PlaneGeometry[] = [];
 
         const voxelOrigin = new Vector3(voxel.x, voxel.y, voxel.z);
