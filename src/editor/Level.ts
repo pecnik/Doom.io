@@ -7,7 +7,9 @@ import {
     VertexColors,
     Mesh,
     Vector2,
-    Color
+    Color,
+    Ray,
+    Box3,
 } from "three";
 import { clamp } from "lodash";
 
@@ -62,40 +64,40 @@ export module Level {
 
     export function createMesh(level: Level, map: Texture) {
         const planes = new Array<PlaneGeometry>();
-        forEachVoxel(level, voxel => {
+        forEachVoxel(level, (voxel) => {
             if (voxel.solid) {
                 planes.push(...createVoxelGeo(voxel, level));
             }
         });
 
         const geometry = new Geometry();
-        planes.forEach(plane => geometry.merge(plane));
-        planes.forEach(plane => plane.dispose());
+        planes.forEach((plane) => geometry.merge(plane));
+        planes.forEach((plane) => plane.dispose());
         geometry.elementsNeedUpdate = true;
 
         const material = new MeshBasicMaterial({
             map,
-            vertexColors: VertexColors
+            vertexColors: VertexColors,
         });
         return new Mesh(geometry, material);
     }
 
     export function createLightMesh(level: Level, map: Texture) {
         const planes = new Array<PlaneGeometry>();
-        forEachVoxel(level, voxel => {
+        forEachVoxel(level, (voxel) => {
             if (voxel.light) {
                 planes.push(...createVoxelGeo(voxel, level));
             }
         });
 
         const geometry = new Geometry();
-        planes.forEach(plane => geometry.merge(plane));
-        planes.forEach(plane => plane.dispose());
+        planes.forEach((plane) => geometry.merge(plane));
+        planes.forEach((plane) => plane.dispose());
         geometry.elementsNeedUpdate = true;
 
         const material = new MeshBasicMaterial({
             map,
-            vertexColors: VertexColors
+            vertexColors: VertexColors,
         });
         return new Mesh(geometry, material);
     }
@@ -201,54 +203,73 @@ export module Level {
     }
 
     export function setLighting(level: Level, mesh: Mesh) {
-        console.log("TODO - Lighting", { level, mesh });
         const lights: Vector3[] = [];
-        forEachVoxel(level, voxel => {
+        forEachVoxel(level, (voxel) => {
             if (voxel.light) {
                 lights.push(new Vector3(voxel.x, voxel.y, voxel.z));
             }
         });
 
+        const ray = new Ray();
+        const box = new Box3();
+        const reachedLight = (origin: Vector3, light: Vector3) => {
+            ray.origin.copy(origin);
+            ray.direction.subVectors(light, origin).normalize();
+
+            const min_x = Math.floor(Math.min(origin.x, light.x));
+            const min_y = Math.floor(Math.min(origin.y, light.y));
+            const min_z = Math.floor(Math.min(origin.z, light.z));
+
+            const max_x = Math.ceil(Math.max(origin.x, light.x)) + 1;
+            const max_y = Math.ceil(Math.max(origin.y, light.y)) + 1;
+            const max_z = Math.ceil(Math.max(origin.z, light.z)) + 1;
+
+            for (let _x = min_x; _x < max_x; _x++) {
+                for (let _y = min_y; _y < max_y; _y++) {
+                    for (let _z = min_z; _z < max_z; _z++) {
+                        const point = new Vector3(_x, _y, _z);
+                        const voxel = Level.getVoxel(level, point);
+                        if (voxel && voxel.solid) {
+                            box.min.copy(point).subScalar(0.49);
+                            box.max.copy(point).addScalar(0.49);
+                            if (ray.intersectsBox(box)) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return true;
+        };
+
         const getLightValue = (point: Vector3, light: Vector3) => {
-            const lightRad = 4;
+            const lightRad = 16;
             let value = point.distanceTo(light);
             value = clamp(value, 0, lightRad);
             value = (lightRad - value) / lightRad;
             return value;
         };
 
-        const geometry = mesh.geometry as Geometry;
-        for (let g = 0; g < geometry.faces.length; g++) {
-            const face = geometry.faces[g];
-
-            // Vertices
-            const verA = geometry.vertices[face.a];
-            const verB = geometry.vertices[face.b];
-            const verC = geometry.vertices[face.c];
-
-            // Vertex colors
-            const colorA = new Color();
-            const colorB = new Color();
-            const colorC = new Color();
-
-            let lightA = 0;
-            let lightB = 0;
-            let lightC = 0;
-
+        const sampleLightColor = (point: Vector3) => {
+            let value = 0.1;
             for (let l = 0; l < lights.length; l++) {
                 const light = lights[l];
-                lightA += getLightValue(verA, light);
-                lightB += getLightValue(verB, light);
-                lightC += getLightValue(verC, light);
+                if (reachedLight(point, light)) {
+                    value += getLightValue(point, light);
+                }
             }
 
-            colorA.setRGB(lightA, lightA, lightA);
-            colorB.setRGB(lightB, lightB, lightB);
-            colorC.setRGB(lightC, lightC, lightC);
+            return new Color(value, value, value);
+        };
 
-            face.vertexColors[0] = colorA;
-            face.vertexColors[1] = colorB;
-            face.vertexColors[2] = colorC;
+        // Set vertex colors
+        const geometry = mesh.geometry as Geometry;
+        for (let i = 0; i < geometry.faces.length; i++) {
+            const face = geometry.faces[i];
+            face.vertexColors[0] = sampleLightColor(geometry.vertices[face.a]);
+            face.vertexColors[1] = sampleLightColor(geometry.vertices[face.b]);
+            face.vertexColors[2] = sampleLightColor(geometry.vertices[face.c]);
         }
 
         geometry.elementsNeedUpdate = true;
