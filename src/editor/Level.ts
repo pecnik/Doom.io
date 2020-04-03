@@ -6,8 +6,10 @@ import {
     MeshBasicMaterial,
     VertexColors,
     Mesh,
-    Vector2
+    Vector2,
+    Color
 } from "three";
+import { clamp } from "lodash";
 
 export const TILE_W = 64;
 export const TILE_H = 64;
@@ -54,26 +56,6 @@ export class Level {
 }
 
 export module Level {
-    export function getVoxel(level: Level, point: Vector3) {
-        const x = Math.round(point.x);
-        const y = Math.round(point.y);
-        const z = Math.round(point.z);
-        if (level.voxel[x] === undefined) return;
-        if (level.voxel[x][y] === undefined) return;
-        if (level.voxel[x][y][z] === undefined) return;
-        return level.voxel[x][y][z];
-    }
-
-    export function forEachVoxel(level: Level, fn: (v: Voxel) => void) {
-        for (let x = 0; x < level.width; x++) {
-            for (let y = 0; y < level.height; y++) {
-                for (let z = 0; z < level.depth; z++) {
-                    fn(level.voxel[x][y][z]);
-                }
-            }
-        }
-    }
-
     export function create(width: number, height: number, depth: number) {
         return new Level(width, height, depth);
     }
@@ -118,7 +100,7 @@ export module Level {
         return new Mesh(geometry, material);
     }
 
-    function createVoxelGeo(voxel: Voxel, level: Level) {
+    export function createVoxelGeo(voxel: Voxel, level: Level) {
         const planes: PlaneGeometry[] = [];
 
         const voxelOrigin = new Vector3(voxel.x, voxel.y, voxel.z);
@@ -216,5 +198,79 @@ export module Level {
         }
 
         return planes;
+    }
+
+    export function setLighting(level: Level, mesh: Mesh) {
+        console.log("TODO - Lighting", { level, mesh });
+        const lights: Vector3[] = [];
+        forEachVoxel(level, voxel => {
+            if (voxel.light) {
+                lights.push(new Vector3(voxel.x, voxel.y, voxel.z));
+            }
+        });
+
+        const getLightValue = (point: Vector3, light: Vector3) => {
+            const lightRad = 4;
+            let value = point.distanceTo(light);
+            value = clamp(value, 0, lightRad);
+            value = (lightRad - value) / lightRad;
+            return value;
+        };
+
+        const geometry = mesh.geometry as Geometry;
+        for (let g = 0; g < geometry.faces.length; g++) {
+            const face = geometry.faces[g];
+
+            // Vertices
+            const verA = geometry.vertices[face.a];
+            const verB = geometry.vertices[face.b];
+            const verC = geometry.vertices[face.c];
+
+            // Vertex colors
+            const colorA = new Color();
+            const colorB = new Color();
+            const colorC = new Color();
+
+            let lightA = 0;
+            let lightB = 0;
+            let lightC = 0;
+
+            for (let l = 0; l < lights.length; l++) {
+                const light = lights[l];
+                lightA += getLightValue(verA, light);
+                lightB += getLightValue(verB, light);
+                lightC += getLightValue(verC, light);
+            }
+
+            colorA.setRGB(lightA, lightA, lightA);
+            colorB.setRGB(lightB, lightB, lightB);
+            colorC.setRGB(lightC, lightC, lightC);
+
+            face.vertexColors[0] = colorA;
+            face.vertexColors[1] = colorB;
+            face.vertexColors[2] = colorC;
+        }
+
+        geometry.elementsNeedUpdate = true;
+    }
+
+    export function getVoxel(level: Level, point: Vector3) {
+        const x = Math.round(point.x);
+        const y = Math.round(point.y);
+        const z = Math.round(point.z);
+        if (level.voxel[x] === undefined) return;
+        if (level.voxel[x][y] === undefined) return;
+        if (level.voxel[x][y][z] === undefined) return;
+        return level.voxel[x][y][z];
+    }
+
+    export function forEachVoxel(level: Level, fn: (v: Voxel) => void) {
+        for (let x = 0; x < level.width; x++) {
+            for (let y = 0; y < level.height; y++) {
+                for (let z = 0; z < level.depth; z++) {
+                    fn(level.voxel[x][y][z]);
+                }
+            }
+        }
     }
 }

@@ -65,9 +65,9 @@ export class Editor implements Game {
 
     public create() {
         this.store.dispatch("initLevel", {
-            width: 16,
+            width: 8,
             height: 4,
-            depth: 16
+            depth: 8
         });
 
         document.addEventListener("pointerlockchange", () => {
