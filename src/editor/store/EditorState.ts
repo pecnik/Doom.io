@@ -12,5 +12,5 @@ export class EditorState {
     public wireframe = false;
     public tileSelectDialog = false;
     public tileIdSlotIndex = 0;
-    public tileIdSlotArray = [0, 1, 2, 3, 4, 5].map(i => i + 8);
+    public tileIdSlotArray = [0, 1, 2, 8, 9, 10];
 }

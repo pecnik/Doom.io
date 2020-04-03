@@ -21,6 +21,7 @@ export class Voxel {
     public readonly z: number;
     public solid = false;
     public faces = [0, 0, 0, 0, 0, 0];
+    public light = false;
 
     public constructor(x: number, y: number, z: number) {
         this.x = x;
@@ -81,6 +82,26 @@ export module Level {
         const planes = new Array<PlaneGeometry>();
         forEachVoxel(level, voxel => {
             if (voxel.solid) {
+                planes.push(...createVoxelGeo(voxel, level));
+            }
+        });
+
+        const geometry = new Geometry();
+        planes.forEach(plane => geometry.merge(plane));
+        planes.forEach(plane => plane.dispose());
+        geometry.elementsNeedUpdate = true;
+
+        const material = new MeshBasicMaterial({
+            map,
+            vertexColors: VertexColors
+        });
+        return new Mesh(geometry, material);
+    }
+
+    export function createLightMesh(level: Level, map: Texture) {
+        const planes = new Array<PlaneGeometry>();
+        forEachVoxel(level, voxel => {
+            if (voxel.light) {
                 planes.push(...createVoxelGeo(voxel, level));
             }
         });

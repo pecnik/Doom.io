@@ -64,6 +64,14 @@ export function createStore(world: EditorWorld) {
         world.level = Level.createMesh(ctx.state.level, world.texture);
         world.scene.add(world.level);
 
+        // Add light mesh
+        {
+            world.level.add(
+                Level.createLightMesh(ctx.state.level, world.texture)
+            );
+        }
+
+        // Add wireframe
         if (ctx.state.wireframe) {
             const material = new MeshBasicMaterial({
                 wireframe: true,
@@ -84,6 +92,13 @@ export function createStore(world: EditorWorld) {
                 payload.height,
                 payload.depth
             );
+
+            Level.forEachVoxel(ctx.state.level, voxel => {
+                if (voxel.y === 0) {
+                    voxel.solid = true;
+                    voxel.faces.fill(8);
+                }
+            });
 
             // Reset world scene
             world.floor = createFloor(payload.width, payload.depth);
@@ -115,8 +130,9 @@ export function createStore(world: EditorWorld) {
             const tileId = ctx.getters.activeTileId;
             const rsp = sampleVoxel(ctx.state.level, 1);
             if (rsp !== undefined) {
-                rsp.voxel.solid = true;
                 rsp.voxel.faces.fill(tileId);
+                rsp.voxel.solid = tileId >= 8;
+                rsp.voxel.light = tileId < 8;
                 updateMesh(ctx);
             }
         },
@@ -125,6 +141,7 @@ export function createStore(world: EditorWorld) {
             const rsp = sampleVoxel(ctx.state.level, -1);
             if (rsp !== undefined) {
                 rsp.voxel.solid = false;
+                rsp.voxel.light = false;
                 updateMesh(ctx);
             }
         },
