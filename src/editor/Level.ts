@@ -6,7 +6,6 @@ import {
     MeshBasicMaterial,
     VertexColors,
     Mesh,
-    Color,
     Vector2
 } from "three";
 
