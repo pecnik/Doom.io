@@ -54,10 +54,6 @@ export class Level {
 }
 
 export module Level {
-    export function create(width: number, height: number, depth: number) {
-        return new Level(width, height, depth);
-    }
-
     export function getVoxel(level: Level, point: Vector3) {
         const x = Math.round(point.x);
         const y = Math.round(point.y);
@@ -78,11 +74,15 @@ export module Level {
         }
     }
 
-    export function createLevelMesh(level: Level, map: Texture) {
+    export function create(width: number, height: number, depth: number) {
+        return new Level(width, height, depth);
+    }
+
+    export function createMesh(level: Level, map: Texture) {
         const planes = new Array<PlaneGeometry>();
         forEachVoxel(level, voxel => {
             if (voxel.solid) {
-                planes.push(...createVoxelPlanes(voxel, level));
+                planes.push(...createVoxelGeo(voxel, level));
             }
         });
 
@@ -98,7 +98,7 @@ export module Level {
         return new Mesh(geometry, material);
     }
 
-    export function createVoxelPlanes(voxel: Voxel, level: Level) {
+    function createVoxelGeo(voxel: Voxel, level: Level) {
         const planes: PlaneGeometry[] = [];
 
         const voxelOrigin = new Vector3(voxel.x, voxel.y, voxel.z);
@@ -114,24 +114,37 @@ export module Level {
             else return neighbor.solid;
         };
 
-        const setVertexColor = (geo: Geometry, color: Color) => {
-            for (let i = 0; i < geo.faces.length; i++) {
+        const setTextureUV = (plane: PlaneGeometry, tileId: number) => {
+            const cords: Vector2[][] = plane.faceVertexUvs[0];
+
+            // preload UV
+            const tileU = TILE_W / TEXTURE_W;
+            const tileV = TILE_H / TEXTURE_H;
+
+            cords[0][0].set(0, 1);
+            cords[0][1].set(0, 1 - tileV);
+            cords[0][2].set(tileU, 1);
+
+            cords[1][0].set(0, 1 - tileV);
+            cords[1][1].set(tileU, 1 - tileV);
+            cords[1][2].set(tileU, 1);
+
+            // Offset by tileID
+            let x = tileId % TILE_COLS;
+            let y = Math.floor(tileId / TILE_COLS);
+            for (let i = 0; i < 2; i++) {
                 for (let j = 0; j < 3; j++) {
-                    geo.faces[i].vertexColors[j] = color;
+                    cords[i][j].x += tileU * x;
+                    cords[i][j].y -= tileV * y;
                 }
             }
-        };
 
-        const setLight = (geo: Geometry, str: number) => {
-            const light = (1 / 6) * str;
-            const color = new Color(light, light, light);
-            setVertexColor(geo, color);
+            plane.elementsNeedUpdate = true;
         };
 
         if (!hasSolidNeighbor(-1, 0, 0)) {
             const xmin = new PlaneGeometry(1, 1, 1, 1);
             setTextureUV(xmin, voxel.faces[0]);
-            setLight(xmin, 3);
             xmin.rotateY(Math.PI * -0.5);
             xmin.translate(voxelOrigin.x, voxelOrigin.y, voxelOrigin.z);
             xmin.translate(-0.5, 0, 0);
@@ -141,7 +154,6 @@ export module Level {
         if (!hasSolidNeighbor(1, 0, 0)) {
             const xmax = new PlaneGeometry(1, 1, 1, 1);
             setTextureUV(xmax, voxel.faces[1]);
-            setLight(xmax, 4);
             xmax.rotateY(Math.PI * 0.5);
             xmax.translate(voxelOrigin.x, voxelOrigin.y, voxelOrigin.z);
             xmax.translate(0.5, 0, 0);
@@ -151,7 +163,6 @@ export module Level {
         if (!hasSolidNeighbor(0, -1, 0)) {
             const ymin = new PlaneGeometry(1, 1, 1, 1);
             setTextureUV(ymin, voxel.faces[2]);
-            setLight(ymin, 1);
             ymin.rotateX(Math.PI * 0.5);
             ymin.translate(voxelOrigin.x, voxelOrigin.y, voxelOrigin.z);
             ymin.translate(0, -0.5, 0);
@@ -161,7 +172,6 @@ export module Level {
         if (!hasSolidNeighbor(0, 1, 0)) {
             const ymax = new PlaneGeometry(1, 1, 1, 1);
             setTextureUV(ymax, voxel.faces[3]);
-            setLight(ymax, 6);
             ymax.rotateX(Math.PI * -0.5);
             ymax.translate(voxelOrigin.x, voxelOrigin.y, voxelOrigin.z);
             ymax.translate(0, 0.5, 0);
@@ -171,7 +181,6 @@ export module Level {
         if (!hasSolidNeighbor(0, 0, -1)) {
             const zmin = new PlaneGeometry(1, 1, 1, 1);
             setTextureUV(zmin, voxel.faces[4]);
-            setLight(zmin, 2);
             zmin.rotateY(Math.PI);
             zmin.translate(voxelOrigin.x, voxelOrigin.y, voxelOrigin.z);
             zmin.translate(0, 0, -0.5);
@@ -181,40 +190,11 @@ export module Level {
         if (!hasSolidNeighbor(0, 0, 1)) {
             const zmax = new PlaneGeometry(1, 1, 1, 1);
             setTextureUV(zmax, voxel.faces[5]);
-            setLight(zmax, 5);
             zmax.translate(voxelOrigin.x, voxelOrigin.y, voxelOrigin.z);
             zmax.translate(0, 0, 0.5);
             planes.push(zmax);
         }
 
         return planes;
-    }
-
-    export function setTextureUV(plane: PlaneGeometry, tileId: number) {
-        const cords: Vector2[][] = plane.faceVertexUvs[0];
-
-        // preload UV
-        const tileU = TILE_W / TEXTURE_W;
-        const tileV = TILE_H / TEXTURE_H;
-
-        cords[0][0].set(0, 1);
-        cords[0][1].set(0, 1 - tileV);
-        cords[0][2].set(tileU, 1);
-
-        cords[1][0].set(0, 1 - tileV);
-        cords[1][1].set(tileU, 1 - tileV);
-        cords[1][2].set(tileU, 1);
-
-        // Offset by tileID
-        let x = tileId % TILE_COLS;
-        let y = Math.floor(tileId / TILE_COLS);
-        for (let i = 0; i < 2; i++) {
-            for (let j = 0; j < 3; j++) {
-                cords[i][j].x += tileU * x;
-                cords[i][j].y -= tileV * y;
-            }
-        }
-
-        plane.elementsNeedUpdate = true;
     }
 }
