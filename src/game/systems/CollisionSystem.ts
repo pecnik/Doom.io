@@ -84,20 +84,20 @@ export class CollisionSystem extends System {
         collision: Comp.Collision,
         velocity: Comp.Velocity
     ) {
-        const { prev, next, radius } = collision;
+        const { prev, next, radius, height } = collision;
         const coll = new Vector3();
         coll.x = clamp(next.x, aabb.min.x, aabb.max.x);
         coll.y = clamp(next.y, aabb.min.y, aabb.max.y);
         coll.z = clamp(next.z, aabb.min.z, aabb.max.z);
 
-        if (next.distanceToSquared(coll) >= radius ** 2) {
-            return;
-        }
-
-        const floor = aabb.max.y + radius;
+        const floor = aabb.max.y + height;
         if (prev.y >= floor && next.y <= floor) {
             next.y = floor;
             velocity.y = 0;
+            return;
+        }
+
+        if (next.distanceToSquared(coll) >= radius ** 2) {
             return;
         }
 

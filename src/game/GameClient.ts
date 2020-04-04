@@ -93,7 +93,7 @@ export class GameClient implements Game {
             .getComponent(Comp.Position)
             .set(
                 this.world.level.data.width / 2,
-                1,
+                8,
                 this.world.level.data.depth / 2
             );
         this.world.addEntity(player);
@@ -103,7 +103,7 @@ export class GameClient implements Game {
             .getComponent(Comp.Position)
             .set(
                 this.world.level.data.width * 0.25,
-                1,
+                8,
                 this.world.level.data.depth / 2
             );
         this.world.addEntity(barrel);
