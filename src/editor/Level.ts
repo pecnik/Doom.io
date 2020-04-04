@@ -265,15 +265,15 @@ export module Level {
         };
 
         const sampleLightColor = (point: Vector3) => {
-            const result = new Color(0, 0, 0);
+            const result = new Color(0.2, 0.2, 0.3);
 
             for (let l = 0; l < lights.length; l++) {
                 const light = lights[l];
                 if (reachedLight(point, light)) {
-                    const lightRad = 16;
+                    const lightRad = 32;
                     const lightCol = colorOfLight(light);
 
-                    let value = point.distanceTo(light);
+                    let value = point.distanceToSquared(light);
                     value = clamp(value, 0, lightRad);
                     value = (lightRad - value) / lightRad;
 
