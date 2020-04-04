@@ -66,7 +66,8 @@ export class AudioFootstepSystem extends System {
                 footstep.audio.play();
             }
 
-            footstep.audio.position.set(position.x, -0.5, position.y);
+            footstep.audio.position.copy(position);
+            footstep.audio.position.y -= 0.5;
         }
     }
 }
