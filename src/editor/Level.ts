@@ -19,13 +19,19 @@ export const TEXTURE_W = 512;
 export const TEXTURE_H = 512;
 export const TILE_COLS = TEXTURE_W / TILE_W;
 
+export enum VoxelType {
+    Empty,
+    Solid,
+    Light,
+}
+
 export class Voxel {
     public readonly x: number;
     public readonly y: number;
     public readonly z: number;
-    public solid = false;
+
+    public type = VoxelType.Empty;
     public faces = [0, 0, 0, 0, 0, 0];
-    public light = false;
 
     public constructor(x: number, y: number, z: number) {
         this.x = x;
@@ -65,7 +71,7 @@ export module Level {
     export function createMesh(level: Level, map: Texture) {
         const planes = new Array<PlaneGeometry>();
         forEachVoxel(level, (voxel) => {
-            if (voxel.solid) {
+            if (voxel.type === VoxelType.Solid) {
                 planes.push(...createVoxelGeo(voxel, level));
             }
         });
@@ -85,7 +91,7 @@ export module Level {
     export function createLightMesh(level: Level, map: Texture) {
         const planes = new Array<PlaneGeometry>();
         forEachVoxel(level, (voxel) => {
-            if (voxel.light) {
+            if (voxel.type === VoxelType.Light) {
                 planes.push(...createVoxelGeo(voxel, level));
             }
         });
@@ -115,7 +121,7 @@ export module Level {
 
             const neighbor = getVoxel(level, origin);
             if (neighbor === undefined) return false;
-            else return neighbor.solid;
+            else return neighbor.type === VoxelType.Solid;
         };
 
         const setTextureUV = (plane: PlaneGeometry, tileId: number) => {
@@ -205,7 +211,7 @@ export module Level {
     export function setLighting(level: Level, mesh: Mesh) {
         const lights: Vector3[] = [];
         forEachVoxel(level, (voxel) => {
-            if (voxel.light) {
+            if (voxel.type === VoxelType.Light) {
                 lights.push(new Vector3(voxel.x, voxel.y, voxel.z));
             }
         });
@@ -229,7 +235,7 @@ export module Level {
                     for (let _z = min_z; _z < max_z; _z++) {
                         const point = new Vector3(_x, _y, _z);
                         const voxel = Level.getVoxel(level, point);
-                        if (voxel && voxel.solid) {
+                        if (voxel && voxel.type === VoxelType.Solid) {
                             box.min.copy(point).subScalar(0.49);
                             box.max.copy(point).addScalar(0.49);
                             if (ray.intersectsBox(box)) {

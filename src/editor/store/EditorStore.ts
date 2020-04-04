@@ -6,11 +6,11 @@ import {
     Mesh,
     Raycaster,
     Vector2,
-    Intersection
+    Intersection,
 } from "three";
 import { EditorWorld } from "./EditorWorld";
 import { EditorState, EditorTool } from "./EditorState";
-import { Level } from "../Level";
+import { Level, VoxelType } from "../Level";
 
 Vue.use(Vuex);
 
@@ -23,7 +23,7 @@ export function createStore(world: EditorWorld) {
         const geo = new PlaneGeometry(width, depth, width, depth);
         const mat = new MeshBasicMaterial({
             wireframe: true,
-            color: 0xf2f2f2
+            color: 0xf2f2f2,
         });
         geo.rotateX(-Math.PI / 2);
         geo.translate(-0.5, -0.5, -0.5);
@@ -54,7 +54,7 @@ export function createStore(world: EditorWorld) {
         return {
             point: point.clone(),
             normal: hit.face.normal.clone(),
-            voxel
+            voxel,
         };
     }
 
@@ -78,7 +78,7 @@ export function createStore(world: EditorWorld) {
         if (ctx.state.wireframe) {
             const material = new MeshBasicMaterial({
                 wireframe: true,
-                color: 0x00ff00
+                color: 0x00ff00,
             });
             world.level.add(new Mesh(world.level.geometry, material));
         }
@@ -96,9 +96,9 @@ export function createStore(world: EditorWorld) {
                 payload.depth
             );
 
-            Level.forEachVoxel(ctx.state.level, voxel => {
+            Level.forEachVoxel(ctx.state.level, (voxel) => {
                 if (voxel.y === 0) {
-                    voxel.solid = true;
+                    voxel.type = VoxelType.Solid;
                     voxel.faces.fill(8);
                 }
             });
@@ -120,9 +120,9 @@ export function createStore(world: EditorWorld) {
 
         createFloor(ctx: StoreCtx, payload: { tileId: number }) {
             const { level } = ctx.state;
-            Level.forEachVoxel(level, voxel => {
+            Level.forEachVoxel(level, (voxel) => {
                 if (voxel.y === 0) {
-                    voxel.solid = true;
+                    voxel.type = VoxelType.Solid;
                     voxel.faces.fill(payload.tileId);
                 }
             });
@@ -134,8 +134,8 @@ export function createStore(world: EditorWorld) {
             const rsp = sampleVoxel(ctx.state.level, 1);
             if (rsp !== undefined) {
                 rsp.voxel.faces.fill(tileId);
-                rsp.voxel.solid = tileId >= 8;
-                rsp.voxel.light = tileId < 8;
+                rsp.voxel.type =
+                    tileId >= 8 ? VoxelType.Solid : VoxelType.Light;
                 updateMesh(ctx);
             }
         },
@@ -143,8 +143,7 @@ export function createStore(world: EditorWorld) {
         removeVoxel(ctx: StoreCtx) {
             const rsp = sampleVoxel(ctx.state.level, -1);
             if (rsp !== undefined) {
-                rsp.voxel.solid = false;
-                rsp.voxel.light = false;
+                rsp.voxel.type = VoxelType.Empty;
                 updateMesh(ctx);
             }
         },
@@ -221,7 +220,7 @@ export function createStore(world: EditorWorld) {
 
         setTileSelectDialog(ctx: StoreCtx, open: boolean) {
             ctx.state.tileSelectDialog = open;
-        }
+        },
     };
 
     return new Vuex.Store({
@@ -230,7 +229,7 @@ export function createStore(world: EditorWorld) {
         getters: {
             activeTileId(state) {
                 return state.tileIdSlotArray[state.tileIdSlotIndex];
-            }
-        }
+            },
+        },
     });
 }
