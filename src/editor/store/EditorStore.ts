@@ -65,22 +65,18 @@ export function createStore(world: EditorWorld) {
         world.scene.add(world.level);
 
         // Init lighting
-        Level.updateMeshLighting(ctx.state.level, world.level);
+        Level.addMeshLighting(ctx.state.level, world.level);
+
+        // Add wireframe
+        if (ctx.state.wireframe) {
+            Level.addMeshWireframe(ctx.state.level, world.level);
+        }
 
         // Add light mesh
         {
             world.level.add(
                 Level.createLightMesh(ctx.state.level, world.texture)
             );
-        }
-
-        // Add wireframe
-        if (ctx.state.wireframe) {
-            const material = new MeshBasicMaterial({
-                wireframe: true,
-                color: 0x00ff00,
-            });
-            world.level.add(new Mesh(world.level.geometry, material));
         }
     }
 

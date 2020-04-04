@@ -45,8 +45,9 @@ export class GameClient implements Game {
 
             loadTexture("/assets/tileset.png").then((map) => {
                 const { level } = this.world;
-                level.data = Level.create(16, 2, 16);
 
+                // Init level data
+                level.data = Level.create(16, 2, 16);
                 Level.forEachVoxel(level.data, (voxel) => {
                     if (voxel.y === 0) {
                         voxel.type = VoxelType.Solid;
@@ -54,15 +55,9 @@ export class GameClient implements Game {
                     }
                 });
 
+                // Init level mesh
                 level.mesh = Level.createMesh(level.data, map);
-                level.mesh.position.y = -2;
-
-                const material = new MeshBasicMaterial({
-                    wireframe: true,
-                    color: 0x00ff00,
-                });
-                level.mesh.add(new Mesh(level.mesh.geometry, material));
-
+                Level.addMeshWireframe(level.data, level.mesh);
                 this.world.scene.add(level.mesh);
             }),
 
@@ -109,7 +104,12 @@ export class GameClient implements Game {
 
         // Entities
         const player = EntityFactory.Player();
-        player.getComponent(Comp.Position2D).set(0, 0);
+        player
+            .getComponent(Comp.Position2D)
+            .set(
+                this.world.level.data.width / 2,
+                this.world.level.data.depth / 2
+            );
         this.world.addEntity(player);
     }
 

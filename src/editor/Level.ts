@@ -209,7 +209,15 @@ export module Level {
         return planes;
     }
 
-    export function updateMeshLighting(level: Level, mesh: Mesh) {
+    export function addMeshWireframe(_: Level, mesh: Mesh) {
+        const material = new MeshBasicMaterial({
+            wireframe: true,
+            color: 0x00ff00,
+        });
+        mesh.add(new Mesh(mesh.geometry, material));
+    }
+
+    export function addMeshLighting(level: Level, mesh: Mesh) {
         const lights: Vector3[] = [];
         forEachVoxel(level, (voxel) => {
             if (voxel.type === VoxelType.Light) {
