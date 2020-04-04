@@ -97,9 +97,10 @@ export class GameClient implements Game {
         // Entities
         const player = EntityFactory.Player();
         player
-            .getComponent(Comp.Position2D)
+            .getComponent(Comp.Position)
             .set(
                 this.world.level.data.width / 2,
+                this.world.level.data.height,
                 this.world.level.data.depth / 2
             );
         this.world.addEntity(player);

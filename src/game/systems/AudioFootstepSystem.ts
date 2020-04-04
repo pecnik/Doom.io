@@ -15,8 +15,8 @@ export class AudioFootstepSystem extends System {
 
         this.family = new FamilyBuilder(world)
             .include(Comp.Footstep)
-            .include(Comp.Position2D)
-            .include(Comp.Velocity2D)
+            .include(Comp.Position)
+            .include(Comp.Velocity)
             .build();
 
         this.group = new Group();
@@ -28,10 +28,10 @@ export class AudioFootstepSystem extends System {
                 if (footstep.audio !== undefined) {
                     this.group.remove(footstep.audio);
                 }
-            }
+            },
         });
 
-        new AudioLoader().load("/assets/sounds/footstep.wav", buffer => {
+        new AudioLoader().load("/assets/sounds/footstep.wav", (buffer) => {
             this.buffer = buffer;
         });
     }
@@ -47,8 +47,8 @@ export class AudioFootstepSystem extends System {
 
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
-            const position = entity.getComponent(Comp.Position2D);
-            const velocity = entity.getComponent(Comp.Velocity2D);
+            const position = entity.getComponent(Comp.Position);
+            const velocity = entity.getComponent(Comp.Velocity);
             const footstep = entity.getComponent(Comp.Footstep);
 
             if (footstep.audio === undefined) {

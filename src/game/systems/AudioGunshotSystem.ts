@@ -15,7 +15,7 @@ export class AudioGunshotSystem extends System {
         this.family = new FamilyBuilder(world)
             .include(Comp.Gunshot)
             .include(Comp.Shooter)
-            .include(Comp.Position2D)
+            .include(Comp.Position)
             .include(Comp.Rotation2D)
             .build();
 
@@ -28,7 +28,7 @@ export class AudioGunshotSystem extends System {
                 if (gunshot.audio !== undefined) {
                     this.group.remove(gunshot.audio);
                 }
-            }
+            },
         });
     }
 
@@ -39,7 +39,7 @@ export class AudioGunshotSystem extends System {
 
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
-            const position = entity.getComponent(Comp.Position2D);
+            const position = entity.getComponent(Comp.Position);
             const rotation = entity.getComponent(Comp.Rotation2D);
             const shooter = entity.getComponent(Comp.Shooter);
             const gunshot = entity.getComponent(Comp.Gunshot);
@@ -68,7 +68,7 @@ export class AudioGunshotSystem extends System {
             }
 
             gunshot.origin.rotation.set(rotation.x, rotation.y, 0, "YXZ");
-            gunshot.origin.position.set(position.x, 0, position.y);
+            gunshot.origin.position.copy(position);
         }
     }
 }

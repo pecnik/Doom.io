@@ -14,21 +14,22 @@ export class CollisionSystem extends System {
 
         this.bodies = new FamilyBuilder(world)
             .include(Comp.Collision)
-            .include(Comp.Position2D)
-            .include(Comp.Velocity2D)
+            .include(Comp.Position)
+            .include(Comp.Velocity)
             .build();
 
         this.colliders = new FamilyBuilder(world)
             .include(Comp.Collider)
-            .include(Comp.Position2D)
+            .include(Comp.Position)
             .build();
     }
 
     public update(world: World) {
         for (let i = 0; i < this.bodies.entities.length; i++) {
+            continue; // TODO
             const entity = this.bodies.entities[i];
-            const position = entity.getComponent(Comp.Position2D);
-            const velocity = entity.getComponent(Comp.Velocity2D);
+            const position = entity.getComponent(Comp.Position);
+            const velocity = entity.getComponent(Comp.Velocity);
             const collision = entity.getComponent(Comp.Collision);
 
             const { prev, next } = collision;
@@ -39,7 +40,7 @@ export class CollisionSystem extends System {
             for (let j = 0; j < this.colliders.entities.length; j++) {
                 const entity = this.colliders.entities[j];
                 const collider = entity.getComponent(Comp.Collider);
-                const position = entity.getComponent(Comp.Position2D);
+                const position = entity.getComponent(Comp.Position);
                 aabb.min.copy(collider.min).add(position);
                 aabb.max.copy(collider.max).add(position);
                 this.resolve(aabb, collision, velocity);
@@ -72,7 +73,7 @@ export class CollisionSystem extends System {
     private resolve(
         aabb: Box2,
         collision: Comp.Collision,
-        velocity: Comp.Velocity2D
+        velocity: Comp.Velocity
     ) {
         const { next, radius } = collision;
         const coll = new Vector2();

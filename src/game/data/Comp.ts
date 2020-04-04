@@ -7,18 +7,19 @@ import {
     MeshBasicMaterial,
     BufferGeometry,
     Box2,
-    PositionalAudio
+    PositionalAudio,
+    Vector3,
 } from "three";
 import { WeaponSpecs, WeaponState, WeaponAmmo } from "./Weapon";
 
 export module Comp {
     const NEXT_TAG = () => uniqueId("comp-tag");
 
-    export class Position2D extends Vector2 implements Component {
+    export class Position extends Vector3 implements Component {
         public static readonly tag = NEXT_TAG();
     }
 
-    export class Velocity2D extends Vector2 implements Component {
+    export class Velocity extends Vector3 implements Component {
         public static readonly tag = NEXT_TAG();
     }
 
@@ -32,8 +33,8 @@ export module Comp {
 
     export class Collision implements Component {
         public static readonly tag = NEXT_TAG();
-        public readonly prev = new Vector2();
-        public readonly next = new Vector2();
+        public readonly prev = new Vector3();
+        public readonly next = new Vector3();
         public radius = 0.2;
     }
 
@@ -58,10 +59,10 @@ export module Comp {
         public shootTime = 0;
         public reloadTime = 0;
         public weaponIndex = 0;
-        public ammo: WeaponAmmo[] = WeaponSpecs.map(spec => {
+        public ammo: WeaponAmmo[] = WeaponSpecs.map((spec) => {
             return {
                 loaded: spec.maxLoadedAmmo,
-                reserved: spec.maxReservedAmmo
+                reserved: spec.maxReservedAmmo,
             };
         });
     }

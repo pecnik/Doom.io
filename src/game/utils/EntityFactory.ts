@@ -11,8 +11,8 @@ export module EntityFactory {
         entity.id = nextID();
 
         entity.putComponent(Comp.PlayerInput);
-        entity.putComponent(Comp.Position2D);
-        entity.putComponent(Comp.Velocity2D);
+        entity.putComponent(Comp.Position);
+        entity.putComponent(Comp.Velocity);
         entity.putComponent(Comp.Rotation2D);
         entity.putComponent(Comp.Collision);
         entity.putComponent(Comp.Shooter);
@@ -26,7 +26,7 @@ export module EntityFactory {
         const entity = new Entity();
         entity.id = nextID();
 
-        entity.putComponent(Comp.Position2D);
+        entity.putComponent(Comp.Position);
         entity.putComponent(Comp.Collider);
         entity.putComponent(Comp.Render);
         entity.putComponent(Comp.Health);
@@ -42,7 +42,7 @@ export module EntityFactory {
         const entity = new Entity();
         entity.id = nextID();
 
-        entity.putComponent(Comp.Position2D);
+        entity.putComponent(Comp.Position);
         entity.putComponent(Comp.Collider);
         entity.putComponent(Comp.Render);
         entity.putComponent(Comp.RenderDecalTag);

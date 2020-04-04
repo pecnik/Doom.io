@@ -13,8 +13,8 @@ export class PlayerMoveSystem extends System {
         super();
         this.family = new FamilyBuilder(world)
             .include(Comp.PlayerInput)
-            .include(Comp.Position2D)
-            .include(Comp.Velocity2D)
+            .include(Comp.Position)
+            .include(Comp.Velocity)
             .include(Comp.Rotation2D)
             .build();
     }
@@ -22,19 +22,20 @@ export class PlayerMoveSystem extends System {
     public update(_: World, dt: number) {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
-            const position = entity.getComponent(Comp.Position2D);
-            const velocity = entity.getComponent(Comp.Velocity2D);
+            const position = entity.getComponent(Comp.Position);
+            const velocity = entity.getComponent(Comp.Velocity);
 
             const move = this.getMoveVector(entity);
+
             velocity.x = lerp(velocity.x, move.x, RUN_SPEED / 8);
-            velocity.y = lerp(velocity.y, move.y, RUN_SPEED / 8);
+            velocity.z = lerp(velocity.z, move.y, RUN_SPEED / 8);
 
             position.x += velocity.x * dt;
-            position.y += velocity.y * dt;
+            position.z += velocity.z * dt;
         }
     }
 
-    private getMoveVector(entity: Entity) {
+    private getMoveVector(entity: Entity): Vector2 {
         const input = entity.getComponent(Comp.PlayerInput);
         const rotation = entity.getComponent(Comp.Rotation2D);
 

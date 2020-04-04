@@ -55,7 +55,7 @@ export class HudWeaponSystem extends System {
 
         this.family = new FamilyBuilder(world)
             .include(Comp.PlayerInput)
-            .include(Comp.Velocity2D)
+            .include(Comp.Velocity)
             .include(Comp.Shooter)
             .build();
 
@@ -77,7 +77,7 @@ export class HudWeaponSystem extends System {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
             const shooter = entity.getComponent(Comp.Shooter);
-            const position = entity.getComponent(Comp.Position2D);
+            const position = entity.getComponent(Comp.Position);
 
             const weaponSprite = this.weapons[shooter.weaponIndex];
             for (let i = 0; i < this.weapons.length; i++) {
@@ -132,13 +132,12 @@ export class HudWeaponSystem extends System {
     private setLightColor(
         weaponSprite: WeaponPovSprite,
         world: World,
-        position: Comp.Position2D
+        position: Comp.Position
     ) {
         const sprite = weaponSprite.material;
 
         // TODO: UPDATE TO 3D
-        const index = new Vector3(position.x, 0, position.y);
-        const light = Level.getVoxelLightColor(world.level.data, index);
+        const light = Level.getVoxelLightColor(world.level.data, position);
         if (!sprite.color.equals(light)) {
             sprite.color.lerp(light, 0.125);
             sprite.needsUpdate = true;
@@ -151,7 +150,7 @@ export class HudWeaponSystem extends System {
         if (shooter.state === WeaponState.Shoot) return Animation.Shoot;
         if (shooter.state === WeaponState.Reload) return Animation.Reload;
 
-        const velocity = entity.getComponent(Comp.Velocity2D);
+        const velocity = entity.getComponent(Comp.Velocity);
         if (velocity.lengthSq() > 0) {
             return Animation.Walk;
         }

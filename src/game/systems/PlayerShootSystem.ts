@@ -10,7 +10,7 @@ import {
     WeaponSpecs,
     WeaponState,
     WeaponAmmo,
-    WeaponSpec
+    WeaponSpec,
 } from "../data/Weapon";
 
 export class PlayerShootSystem extends System {
@@ -24,7 +24,7 @@ export class PlayerShootSystem extends System {
 
         this.shooters = new FamilyBuilder(world)
             .include(Comp.PlayerInput)
-            .include(Comp.Position2D)
+            .include(Comp.Position)
             .include(Comp.Rotation2D)
             .include(Comp.Shooter)
             .build();
@@ -161,14 +161,14 @@ export class PlayerShootSystem extends System {
     }
 
     private fireBullets(world: World, entity: Entity) {
-        const position = entity.getComponent(Comp.Position2D);
+        const position = entity.getComponent(Comp.Position);
         const rotation = entity.getComponent(Comp.Rotation2D);
         const shooter = entity.getComponent(Comp.Shooter);
         const weapon = WeaponSpecs[shooter.weaponIndex];
 
         // Init hitscan
         Hitscan.caster.entity = entity;
-        Hitscan.camera.position.set(position.x, 0, position.y);
+        Hitscan.camera.position.copy(position);
         Hitscan.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
         Hitscan.camera.updateWorldMatrix(false, false);
 
