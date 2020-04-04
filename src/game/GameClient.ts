@@ -17,7 +17,7 @@ import { HudDisplaySystem } from "./systems/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Weapon";
 import { Game } from "./core/Engine";
 import { loadTexture } from "./utils/Helpers";
-import { Level, VoxelType } from "../editor/Level";
+import { Level } from "../editor/Level";
 
 export class GameClient implements Game {
     // private readonly socket: SocketIOClient.Socket;
@@ -40,20 +40,13 @@ export class GameClient implements Game {
             // Load level
             loadTexture("/assets/tileset.png").then((map) => {
                 const { level } = this.world;
-
-                // Init level data
-                level.data = Level.create(16, 2, 16);
-                Level.forEachVoxel(level.data, (voxel) => {
-                    if (voxel.y === 0) {
-                        voxel.type = VoxelType.Solid;
-                        voxel.faces.fill(8);
-                    }
-                });
-
-                // Init level mesh
-                level.mesh = Level.createMesh(level.data, map);
-                Level.addMeshWireframe(level.data, level.mesh);
-                this.world.scene.add(level.mesh);
+                const json = localStorage.getItem("level");
+                if (json !== null) {
+                    level.data = JSON.parse(json);
+                    level.mesh = Level.createMesh(level.data, map);
+                    Level.addMeshLighting(level.data, level.mesh);
+                    this.world.scene.add(level.mesh);
+                }
             }),
 
             // Preload weapon sprite

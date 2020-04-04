@@ -7,6 +7,8 @@
             <tile-bar></tile-bar>
         </div>
         <div id="menu-right" class="panel">
+            <button @click="play">PLAY</button>
+            <hr>
             <label title="Wireframe">
                 WFR
                 <input type="checkbox" :value="wireframe" @input="toggleWireframe">
@@ -36,6 +38,13 @@ export default {
     methods: {
         toggleWireframe(ev) {
             this.$store.dispatch("setWireframe", ev.target.checked);
+        },
+        play() {
+            const { level } = this.$store.state;
+            localStorage.setItem("level", JSON.stringify(level));
+
+            const url = [location.origin, location.pathname].join("");
+            window.open(url);
         }
     }
 };
