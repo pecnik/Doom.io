@@ -12,13 +12,7 @@ import { AudioFootstepSystem } from "./systems/AudioFootstepSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { AudioGunshotSystem } from "./systems/AudioGunshotSystem";
 import { HudWeaponSystem } from "./systems/HudWeaponSystem";
-import {
-    AudioListener,
-    AudioLoader,
-    TextureLoader,
-    MeshBasicMaterial,
-    Mesh,
-} from "three";
+import { AudioListener, AudioLoader } from "three";
 import { HudDisplaySystem } from "./systems/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Weapon";
 import { Game } from "./core/Engine";
@@ -43,6 +37,7 @@ export class GameClient implements Game {
         return Promise.all([
             this.world.decals.load(),
 
+            // Load level
             loadTexture("/assets/tileset.png").then((map) => {
                 const { level } = this.world;
 
@@ -63,11 +58,8 @@ export class GameClient implements Game {
 
             // Preload weapon sprite
             ...WeaponSpecs.map((weapon) => {
-                return new Promise((resolve) => {
-                    new TextureLoader().load(weapon.povSpriteSrc, (texture) => {
-                        weapon.povSpriteTexture = texture;
-                        resolve();
-                    });
+                loadTexture(weapon.povSpriteSrc).then((map) => {
+                    weapon.povSpriteTexture = map;
                 });
             }),
 
