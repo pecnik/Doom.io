@@ -135,8 +135,6 @@ export class HudWeaponSystem extends System {
         position: Comp.Position
     ) {
         const sprite = weaponSprite.material;
-
-        // TODO: UPDATE TO 3D
         const light = Level.getVoxelLightColor(world.level.data, position);
         if (!sprite.color.equals(light)) {
             sprite.color.lerp(light, 0.125);
@@ -151,7 +149,7 @@ export class HudWeaponSystem extends System {
         if (shooter.state === WeaponState.Reload) return Animation.Reload;
 
         const velocity = entity.getComponent(Comp.Velocity);
-        if (velocity.lengthSq() > 0) {
+        if (Math.abs(velocity.x) > 0.01 || Math.abs(velocity.z) > 0.01) {
             return Animation.Walk;
         }
 

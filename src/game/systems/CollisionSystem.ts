@@ -2,8 +2,9 @@ import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
 import { clamp } from "lodash";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
-import { Vector3, Box3 } from "three";
+import { Vector3, Box3, Vector2 } from "three";
 import { Level, VoxelType } from "../../editor/Level";
+import { onFamilyChange } from "../utils/EntityUtils";
 
 export class CollisionSystem extends System {
     private readonly bodies: Family;
@@ -22,6 +23,15 @@ export class CollisionSystem extends System {
         //     .include(Comp.Collider)
         //     .include(Comp.Position)
         //     .build();
+
+        onFamilyChange(world, this.bodies, {
+            onEntityAdded(entity) {
+                const position = entity.getComponent(Comp.Position);
+                const collision = entity.getComponent(Comp.Collision);
+                collision.next.copy(position);
+                collision.prev.copy(position);
+            },
+        });
     }
 
     public update(world: World) {
@@ -36,6 +46,9 @@ export class CollisionSystem extends System {
             const { prev, next } = collision;
             next.copy(position);
 
+            // Reset flags
+            collision.falg.setScalar(0);
+
             // TODO
             // // Resolve entity collisions
             // const aabb = new Box2();
@@ -49,12 +62,12 @@ export class CollisionSystem extends System {
             // }
 
             // Resolve level collision
-            const minX = Math.floor(Math.min(prev.x, next.x)) - 1;
-            const minY = Math.floor(Math.min(prev.y, next.y)) - 1;
-            const minZ = Math.floor(Math.min(prev.z, next.z)) - 1;
-            const maxX = Math.ceil(Math.max(prev.x, next.x)) + 1;
-            const maxY = Math.ceil(Math.max(prev.y, next.y)) + 1;
-            const maxZ = Math.ceil(Math.max(prev.z, next.z)) + 1;
+            const minX = Math.floor(Math.min(prev.x, next.x)) - 2;
+            const minY = Math.floor(Math.min(prev.y, next.y)) - 2;
+            const minZ = Math.floor(Math.min(prev.z, next.z)) - 2;
+            const maxX = Math.ceil(Math.max(prev.x, next.x)) + 2;
+            const maxY = Math.ceil(Math.max(prev.y, next.y)) + 2;
+            const maxZ = Math.ceil(Math.max(prev.z, next.z)) + 2;
 
             const index = new Vector3();
             const aabb = new Box3();
@@ -84,31 +97,67 @@ export class CollisionSystem extends System {
         collision: Comp.Collision,
         velocity: Comp.Velocity
     ) {
-        const { prev, next, radius, height } = collision;
-        const coll = new Vector3();
-        coll.x = clamp(next.x, aabb.min.x, aabb.max.x);
-        coll.y = clamp(next.y, aabb.min.y, aabb.max.y);
-        coll.z = clamp(next.z, aabb.min.z, aabb.max.z);
+        const { prev, next, falg, radius, height } = collision;
 
-        const floor = aabb.max.y + height;
-        if (prev.y >= floor && next.y <= floor) {
+        // Test vertical collision
+        const playerMinY = Math.min(next.y, prev.y) - height / 2;
+        const playerMaxY = Math.max(next.y, prev.y) + height / 2;
+        if (playerMinY > aabb.max.y) return;
+        if (playerMaxY < aabb.min.y) return;
+
+        // Test horizontal collision
+        const position2D = new Vector2();
+        const collision2D = new Vector2();
+        position2D.x = next.x;
+        position2D.y = next.z;
+        collision2D.x = clamp(next.x, aabb.min.x, aabb.max.x);
+        collision2D.y = clamp(next.z, aabb.min.z, aabb.max.z);
+        if (position2D.distanceToSquared(collision2D) > radius ** 2) {
+            return; // No collision
+        }
+
+        // Resolve vertical collision
+        const floor = aabb.max.y + height / 2;
+        if (next.y < floor && prev.y >= floor) {
             next.y = floor;
             velocity.y = 0;
+            falg.y = -1;
             return;
         }
 
-        if (next.distanceToSquared(coll) >= radius ** 2) {
+        const stepsize = 0.25;
+        const deltay = aabb.max.y - playerMinY;
+        if (deltay < stepsize && deltay >= 0 && velocity.y <= 0) {
+            next.y = Math.max(next.y, floor);
+            falg.y = -1;
             return;
         }
 
-        next.sub(coll).normalize().multiplyScalar(radius).add(coll);
+        const ceiling = aabb.min.y - height / 2;
+        if (next.y > ceiling && prev.y <= ceiling) {
+            next.y = ceiling;
+            velocity.y = 0;
+            falg.y = 1;
+            return;
+        }
+
+        // Resolve horizontal collision
+        position2D
+            .sub(collision2D)
+            .normalize()
+            .multiplyScalar(radius)
+            .add(collision2D);
+        next.x = position2D.x;
+        next.z = position2D.y;
 
         if (next.x > aabb.min.x && next.x < aabb.max.x) {
             velocity.z = 0;
+            collision.falg.z = 1;
         }
 
         if (next.z > aabb.min.z && next.z < aabb.max.z) {
             velocity.x = 0;
+            collision.falg.x = 1;
         }
     }
 }

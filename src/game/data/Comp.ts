@@ -35,8 +35,9 @@ export module Comp {
         public static readonly tag = NEXT_TAG();
         public readonly prev = new Vector3();
         public readonly next = new Vector3();
+        public readonly falg = new Vector3();
         public radius = 0.2;
-        public height = 0.5;
+        public height = 0.75;
     }
 
     export class PlayerInput implements Component {
