@@ -2,7 +2,7 @@ import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { Vector2 } from "three";
-import { WALK_SPEED, RUN_SPEED } from "../data/Globals";
+import { WALK_SPEED, RUN_SPEED, GRAVITY } from "../data/Globals";
 import { lerp } from "../core/Utils";
 import { isScopeActive } from "../utils/EntityUtils";
 
@@ -25,12 +25,17 @@ export class PlayerMoveSystem extends System {
             const position = entity.getComponent(Comp.Position);
             const velocity = entity.getComponent(Comp.Velocity);
 
+            // horizontal movement
             const move = this.getMoveVector(entity);
-
             velocity.x = lerp(velocity.x, move.x, RUN_SPEED / 8);
             velocity.z = lerp(velocity.z, move.y, RUN_SPEED / 8);
 
+            // Apply gravity
+            velocity.y -= GRAVITY * dt;
+
+            // Apply velocity
             position.x += velocity.x * dt;
+            position.y += velocity.y * dt;
             position.z += velocity.z * dt;
         }
     }

@@ -84,7 +84,7 @@ export class CollisionSystem extends System {
         collision: Comp.Collision,
         velocity: Comp.Velocity
     ) {
-        const { next, radius } = collision;
+        const { prev, next, radius } = collision;
         const coll = new Vector3();
         coll.x = clamp(next.x, aabb.min.x, aabb.max.x);
         coll.y = clamp(next.y, aabb.min.y, aabb.max.y);
@@ -94,14 +94,17 @@ export class CollisionSystem extends System {
             return;
         }
 
+        const floor = aabb.max.y + radius;
+        if (prev.y >= floor && next.y <= floor) {
+            next.y = floor;
+            velocity.y = 0;
+            return;
+        }
+
         next.sub(coll).normalize().multiplyScalar(radius).add(coll);
 
         if (next.x > aabb.min.x && next.x < aabb.max.x) {
-            velocity.y = 0;
-        }
-
-        if (next.y > aabb.min.y && next.y < aabb.max.y) {
-            velocity.x = 0;
+            velocity.z = 0;
         }
 
         if (next.z > aabb.min.z && next.z < aabb.max.z) {
