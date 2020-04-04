@@ -134,8 +134,14 @@ export function createStore(world: EditorWorld) {
             const rsp = sampleVoxel(ctx.state.level, 1);
             if (rsp !== undefined) {
                 rsp.voxel.faces.fill(tileId);
-                rsp.voxel.type =
-                    tileId >= 8 ? VoxelType.Solid : VoxelType.Light;
+                rsp.voxel.tileId = tileId;
+
+                if (tileId >= 8) {
+                    rsp.voxel.type = VoxelType.Solid;
+                } else {
+                    rsp.voxel.type = VoxelType.Light;
+                }
+
                 updateMesh(ctx);
             }
         },

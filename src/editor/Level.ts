@@ -31,6 +31,7 @@ export class Voxel {
     public readonly z: number;
 
     public type = VoxelType.Empty;
+    public tileId = 0;
     public faces = [0, 0, 0, 0, 0, 0];
 
     public constructor(x: number, y: number, z: number) {
@@ -216,6 +217,20 @@ export module Level {
             }
         });
 
+        const W = new Color(1, 1, 1);
+        const R = new Color(1, 0, 0);
+        const G = new Color(0, 1, 0);
+        const B = new Color(0, 0, 1);
+        const colorOfLight = (light: Vector3) => {
+            const voxel = getVoxel(level, light);
+            if (voxel === undefined) return W;
+            if (voxel.tileId === 0) return W;
+            if (voxel.tileId === 1) return R;
+            if (voxel.tileId === 2) return G;
+            if (voxel.tileId === 3) return B;
+            return W;
+        };
+
         const ray = new Ray();
         const box = new Box3();
         const reachedLight = (origin: Vector3, light: Vector3) => {
@@ -249,24 +264,26 @@ export module Level {
             return true;
         };
 
-        const getLightValue = (point: Vector3, light: Vector3) => {
-            const lightRad = 16;
-            let value = point.distanceTo(light);
-            value = clamp(value, 0, lightRad);
-            value = (lightRad - value) / lightRad;
-            return value;
-        };
-
         const sampleLightColor = (point: Vector3) => {
-            let value = 0.1;
+            const result = new Color(0, 0, 0);
+
             for (let l = 0; l < lights.length; l++) {
                 const light = lights[l];
                 if (reachedLight(point, light)) {
-                    value += getLightValue(point, light);
+                    const lightRad = 16;
+                    const lightCol = colorOfLight(light);
+
+                    let value = point.distanceTo(light);
+                    value = clamp(value, 0, lightRad);
+                    value = (lightRad - value) / lightRad;
+
+                    result.r += lightCol.r * value;
+                    result.g += lightCol.g * value;
+                    result.b += lightCol.b * value;
                 }
             }
 
-            return new Color(value, value, value);
+            return result;
         };
 
         // Set vertex colors
