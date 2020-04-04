@@ -104,6 +104,16 @@ export class GameClient implements Game {
                 this.world.level.data.depth / 2
             );
         this.world.addEntity(player);
+
+        const barrel = EntityFactory.Barrel();
+        barrel
+            .getComponent(Comp.Position)
+            .set(
+                this.world.level.data.width * 0.25,
+                this.world.level.data.height,
+                this.world.level.data.depth / 2
+            );
+        this.world.addEntity(barrel);
     }
 
     public update(dt: number) {
