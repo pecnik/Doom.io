@@ -9,12 +9,13 @@ import {
     Sprite,
     SpriteMaterial,
     Texture,
-    Group
+    Group,
 } from "three";
 import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
 import { WeaponSpecs, WeaponState } from "../data/Weapon";
 import { Hud } from "../data/Hud";
 import { isScopeActive } from "../utils/EntityUtils";
+import { Level } from "../../editor/Level";
 
 enum Animation {
     Walk,
@@ -23,7 +24,7 @@ enum Animation {
     Fall,
     Swap,
     Shoot,
-    Reload
+    Reload,
 }
 
 export class WeaponPovSprite extends Object3D {
@@ -58,7 +59,7 @@ export class HudWeaponSystem extends System {
             .include(Comp.Shooter)
             .build();
 
-        this.weapons = WeaponSpecs.map(weapon => {
+        this.weapons = WeaponSpecs.map((weapon) => {
             return new WeaponPovSprite(weapon.povSpriteTexture as Texture);
         });
 
@@ -134,13 +135,12 @@ export class HudWeaponSystem extends System {
         position: Comp.Position2D
     ) {
         const sprite = weaponSprite.material;
-        const cell = world.level.getCell(
-            Math.round(position.x),
-            Math.round(position.y)
-        );
 
-        if (cell !== undefined && !sprite.color.equals(cell.light)) {
-            sprite.color.lerp(cell.light, 0.125);
+        // TODO: UPDATE TO 3D
+        const index = new Vector3(position.x, 0, position.y);
+        const light = Level.getVoxelLightColor(world.level.data, index);
+        if (!sprite.color.equals(light)) {
+            sprite.color.lerp(light, 0.125);
             sprite.needsUpdate = true;
         }
     }

@@ -209,7 +209,7 @@ export module Level {
         return planes;
     }
 
-    export function setLighting(level: Level, mesh: Mesh) {
+    export function updateMeshLighting(level: Level, mesh: Mesh) {
         const lights: Vector3[] = [];
         forEachVoxel(level, (voxel) => {
             if (voxel.type === VoxelType.Light) {
@@ -306,6 +306,10 @@ export module Level {
         if (level.voxel[x][y] === undefined) return;
         if (level.voxel[x][y][z] === undefined) return;
         return level.voxel[x][y][z];
+    }
+
+    export function getVoxelLightColor(_: Level, __: Vector3) {
+        return new Color(1, 1, 1);
     }
 
     export function forEachVoxel(level: Level, fn: (v: Voxel) => void) {

@@ -12,10 +12,18 @@ import { AudioFootstepSystem } from "./systems/AudioFootstepSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { AudioGunshotSystem } from "./systems/AudioGunshotSystem";
 import { HudWeaponSystem } from "./systems/HudWeaponSystem";
-import { AudioListener, AudioLoader, TextureLoader } from "three";
+import {
+    AudioListener,
+    AudioLoader,
+    TextureLoader,
+    MeshBasicMaterial,
+    Mesh,
+} from "three";
 import { HudDisplaySystem } from "./systems/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Weapon";
 import { Game } from "./core/Engine";
+import { loadTexture } from "./utils/Helpers";
+import { Level, VoxelType } from "../editor/Level";
 
 export class GameClient implements Game {
     // private readonly socket: SocketIOClient.Socket;
@@ -33,22 +41,35 @@ export class GameClient implements Game {
 
     public preload() {
         return Promise.all([
-            this.world.level.load(),
             this.world.decals.load(),
 
-            // // Connect to the server
-            // new Promise(resolve => {
-            //     this.socket.connect();
-            //     this.socket.on("connect", () => {
-            //         console.log(`> Connection::${this.socket.id}`);
-            //         resolve();
-            //     });
-            // }),
+            loadTexture("/assets/tileset.png").then((map) => {
+                const { level } = this.world;
+                level.data = Level.create(16, 2, 16);
+
+                Level.forEachVoxel(level.data, (voxel) => {
+                    if (voxel.y === 0) {
+                        voxel.type = VoxelType.Solid;
+                        voxel.faces.fill(8);
+                    }
+                });
+
+                level.mesh = Level.createMesh(level.data, map);
+                level.mesh.position.y = -2;
+
+                const material = new MeshBasicMaterial({
+                    wireframe: true,
+                    color: 0x00ff00,
+                });
+                level.mesh.add(new Mesh(level.mesh.geometry, material));
+
+                this.world.scene.add(level.mesh);
+            }),
 
             // Preload weapon sprite
-            ...WeaponSpecs.map(weapon => {
-                return new Promise(resolve => {
-                    new TextureLoader().load(weapon.povSpriteSrc, texture => {
+            ...WeaponSpecs.map((weapon) => {
+                return new Promise((resolve) => {
+                    new TextureLoader().load(weapon.povSpriteSrc, (texture) => {
                         weapon.povSpriteTexture = texture;
                         resolve();
                     });
@@ -56,14 +77,14 @@ export class GameClient implements Game {
             }),
 
             // Preload weapon audio
-            ...WeaponSpecs.map(weapon => {
-                return new Promise(resolve => {
-                    new AudioLoader().load(weapon.fireSoundSrc, buffer => {
+            ...WeaponSpecs.map((weapon) => {
+                return new Promise((resolve) => {
+                    new AudioLoader().load(weapon.fireSoundSrc, (buffer) => {
                         weapon.fireSoundBuffer = buffer;
                         resolve();
                     });
                 });
-            })
+            }),
         ]);
     }
 
@@ -88,7 +109,7 @@ export class GameClient implements Game {
 
         // Entities
         const player = EntityFactory.Player();
-        player.getComponent(Comp.Position2D).set(3, 3);
+        player.getComponent(Comp.Position2D).set(0, 0);
         this.world.addEntity(player);
     }
 

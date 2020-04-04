@@ -65,7 +65,7 @@ export function createStore(world: EditorWorld) {
         world.scene.add(world.level);
 
         // Init lighting
-        Level.setLighting(ctx.state.level, world.level);
+        Level.updateMeshLighting(ctx.state.level, world.level);
 
         // Add light mesh
         {

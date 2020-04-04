@@ -1,24 +1,23 @@
 import { Engine } from "@nova-engine/ecs";
-import { Scene, PerspectiveCamera, AudioListener } from "three";
-import { Level } from "./Level";
+import { Scene, PerspectiveCamera, AudioListener, Mesh } from "three";
 import { BulletDecals } from "../utils/BulletDecals";
 import { Particles } from "../utils/Particles";
+import { Level } from "../../editor/Level";
 
 export class World extends Engine {
-    public elapsedTime = 0;
-
+    public readonly level = { data: new Level(0, 0, 0), mesh: new Mesh() };
     public readonly scene = new Scene();
-    public readonly level = new Level();
     public readonly camera = new PerspectiveCamera(90);
     public readonly decals = new BulletDecals();
     public readonly particles = new Particles();
+
+    public elapsedTime = 0;
     public listener?: AudioListener;
 
     public constructor() {
         super();
-        this.scene.add(this.level.scene);
-        this.scene.add(this.decals.scene);
         this.scene.add(this.particles.scene);
+        this.scene.add(this.decals.scene);
         this.scene.add(this.camera);
     }
 

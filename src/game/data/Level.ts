@@ -11,7 +11,7 @@ import {
     NearestFilter,
     Color,
     VertexColors,
-    Box2
+    Box2,
 } from "three";
 import { clamp } from "lodash";
 import { degToRad } from "../core/Utils";
@@ -30,7 +30,7 @@ export interface Cell {
     readonly aabb: Box2;
 }
 
-export class Level {
+export class Level_OLD {
     public readonly scene = new Scene();
     public readonly cells: Cell[] = [];
     public rows = 0;
@@ -38,11 +38,11 @@ export class Level {
 
     public load() {
         return Promise.all([
-            fetch("/assets/tilemap.json").then(rsp => rsp.json()),
-            fetch("/assets/tileset.json").then(rsp => rsp.json()),
-            new Promise<Texture>(resolve => {
+            fetch("/assets/tilemap.json").then((rsp) => rsp.json()),
+            fetch("/assets/tileset.json").then((rsp) => rsp.json()),
+            new Promise<Texture>((resolve) => {
                 new TextureLoader().load("/assets/tileset.png", resolve);
-            })
+            }),
         ]).then((data: [Tiled2D.Tilemap, Tiled2D.Tileset, Texture]) => {
             const [tilemap, tileset, texture] = data;
 
@@ -83,7 +83,7 @@ export class Level {
                 floor: floor[i] > 0,
 
                 light: lightMap[i],
-                aabb: new Box2()
+                aabb: new Box2(),
             };
 
             cell.aabb.min.x = cell.x - 0.5;
@@ -153,7 +153,7 @@ export class Level {
         };
 
         const planes: PlaneGeometry[] = [];
-        this.cells.forEach(cell => {
+        this.cells.forEach((cell) => {
             const { x, y, ceilId, wallId, floorId } = cell;
             const color = getLight(x, y);
 
@@ -207,13 +207,13 @@ export class Level {
         });
 
         const geometry = new Geometry();
-        planes.forEach(plane => geometry.merge(plane));
-        planes.forEach(plane => plane.dispose());
+        planes.forEach((plane) => geometry.merge(plane));
+        planes.forEach((plane) => plane.dispose());
         geometry.elementsNeedUpdate = true;
 
         const materal = new MeshBasicMaterial({
             vertexColors: VertexColors,
-            map: texture
+            map: texture,
         });
         texture.minFilter = NearestFilter;
         texture.magFilter = NearestFilter;
@@ -236,7 +236,7 @@ export class Level {
             new Color(0xffffff),
             new Color(0xff0000),
             new Color(0x00ff00),
-            new Color(0x0000ff)
+            new Color(0x0000ff),
         ];
 
         lightLayer.forEach((lightId, index) => {
@@ -245,13 +245,13 @@ export class Level {
                 const y = Math.floor(index / tilemap.width);
                 lightData.push({
                     point: new Vector2(x, y),
-                    color: lightColors[lightId - 1] || new Color(0xffffff)
+                    color: lightColors[lightId - 1] || new Color(0xffffff),
                 });
             }
         });
 
         // Build light map
-        const lightMap: Color[] = lightLayer.map(_ => shadowColor.clone());
+        const lightMap: Color[] = lightLayer.map((_) => shadowColor.clone());
         for (let y = 0; y < tilemap.height; y++) {
             for (let x = 0; x < tilemap.width; x++) {
                 const index = y * tilemap.width + x;
@@ -261,14 +261,11 @@ export class Level {
 
                 const color = lightMap[index];
                 const tile = new Vector2(x, y);
-                lightData.forEach(light => {
+                lightData.forEach((light) => {
                     // Check wall collision
                     let reachedLight = false;
 
-                    const direction = light.point
-                        .clone()
-                        .sub(tile)
-                        .normalize();
+                    const direction = light.point.clone().sub(tile).normalize();
 
                     const ray = tile.clone();
                     for (let i = 0; i < 24; i++) {

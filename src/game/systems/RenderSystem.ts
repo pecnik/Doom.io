@@ -1,8 +1,9 @@
 import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
-import { Group } from "three";
+import { Group, Vector3 } from "three";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { onFamilyChange } from "../utils/EntityUtils";
+import { Level } from "../../editor/Level";
 
 export class RenderSystem extends System {
     private readonly family: Family;
@@ -27,7 +28,7 @@ export class RenderSystem extends System {
             onEntityRemoved: (entity: Entity) => {
                 const render = entity.getComponent(Comp.Render);
                 this.group.remove(render.obj);
-            }
+            },
         });
     }
 
@@ -38,13 +39,11 @@ export class RenderSystem extends System {
             const position = entity.getComponent(Comp.Position2D);
             render.obj.position.set(position.x, -0.5, position.y);
 
-            const cell = world.level.getCell(
-                Math.round(position.x),
-                Math.round(position.y)
-            );
-
-            if (cell !== undefined && !render.mat.color.equals(cell.light)) {
-                render.mat.color.lerp(cell.light, 0.125);
+            // TODO: UPDATE TO 3D
+            const index = new Vector3(position.x, 0, position.y);
+            const light = Level.getVoxelLightColor(world.level.data, index);
+            if (!render.mat.color.equals(light)) {
+                render.mat.color.lerp(light, 0.125);
                 render.mat.needsUpdate = true;
             }
         }

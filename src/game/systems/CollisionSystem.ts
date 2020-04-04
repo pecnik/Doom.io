@@ -2,7 +2,8 @@ import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
 import { clamp } from "lodash";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
-import { Vector2, Box2 } from "three";
+import { Vector2, Box2, Vector3 } from "three";
+import { Level, VoxelType } from "../../editor/Level";
 
 export class CollisionSystem extends System {
     private readonly bodies: Family;
@@ -51,9 +52,11 @@ export class CollisionSystem extends System {
             const maxY = Math.ceil(Math.max(prev.y, next.y)) + 1;
             for (let y = minY; y < maxY; y++) {
                 for (let x = minX; x < maxX; x++) {
-                    const cell = world.level.getCell(x, y);
-                    if (cell !== undefined && cell.wall) {
-                        this.resolve(cell.aabb, collision, velocity);
+                    const index = new Vector3(position.x, 0, position.y);
+                    const voxel = Level.getVoxel(world.level.data, index);
+                    if (voxel !== undefined && voxel.type === VoxelType.Solid) {
+                        // this.resolve(cell.aabb, collision, velocity);
+                        // TODO: 3D COLLISION
                     }
                 }
             }
@@ -80,10 +83,7 @@ export class CollisionSystem extends System {
             return;
         }
 
-        next.sub(coll)
-            .normalize()
-            .multiplyScalar(radius)
-            .add(coll);
+        next.sub(coll).normalize().multiplyScalar(radius).add(coll);
 
         if (next.x > aabb.min.x && next.x < aabb.max.x) {
             velocity.y = 0;
