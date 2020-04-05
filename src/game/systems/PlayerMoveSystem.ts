@@ -1,4 +1,4 @@
-import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
+import { System, Family, FamilyBuilder, Entity } from "../core/ecs";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { Vector2 } from "three";

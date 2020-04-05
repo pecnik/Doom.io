@@ -1,4 +1,4 @@
-import { System, FamilyBuilder, Family } from "@nova-engine/ecs";
+import { System, FamilyBuilder, Family } from "../core/ecs";
 import { World } from "../data/World";
 import { Hud } from "../data/Hud";
 import { Comp } from "../data/Comp";
@@ -9,7 +9,7 @@ import {
     Texture,
     MeshBasicMaterial,
     PlaneGeometry,
-    Mesh
+    Mesh,
 } from "three";
 import { HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
 
@@ -53,7 +53,7 @@ export class HudDisplaySystem extends System {
     private readonly ammoText = new HudElement({
         width: 256,
         height: 128,
-        props: { loadedAmmo: 0, reservedAmmo: 0 }
+        props: { loadedAmmo: 0, reservedAmmo: 0 },
     });
 
     public constructor(world: World, hud: Hud) {
@@ -80,10 +80,10 @@ export class HudDisplaySystem extends System {
         );
 
         // Load crosshair srpite
-        new TextureLoader().load("/assets/sprites/crosshair.png", map => {
+        new TextureLoader().load("/assets/sprites/crosshair.png", (map) => {
             const material = new MeshBasicMaterial({
                 map,
-                blending: AdditiveBlending
+                blending: AdditiveBlending,
             });
 
             map.magFilter = NearestFilter;

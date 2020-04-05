@@ -1,5 +1,5 @@
 import GLTFLoader from "three-gltf-loader";
-import { Entity, Family, EngineEntityListener } from "@nova-engine/ecs";
+import { Entity, Family, EngineEntityListener } from "../core/ecs";
 import { Comp } from "../data/Comp";
 import {
     Mesh,

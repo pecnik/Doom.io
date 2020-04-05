@@ -1,4 +1,4 @@
-import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
+import { System, Family, FamilyBuilder } from "../core/ecs";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { lerp } from "../core/Utils";

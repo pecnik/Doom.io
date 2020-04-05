@@ -1,4 +1,4 @@
-import { Component } from "@nova-engine/ecs";
+import { Component } from "../core/ecs";
 import { uniqueId } from "lodash";
 import {
     Vector2,

@@ -1,4 +1,4 @@
-import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
+import { System, Family, FamilyBuilder, Entity } from "../core/ecs";
 import { Group, PositionalAudio } from "three";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";

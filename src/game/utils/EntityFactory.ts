@@ -1,4 +1,4 @@
-import { Entity } from "@nova-engine/ecs";
+import { Entity } from "../core/ecs";
 import { uniqueId } from "lodash";
 import { Comp } from "../data/Comp";
 import { loadRenderMesh, setColliderFromMesh } from "./EntityUtils";

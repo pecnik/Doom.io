@@ -1,4 +1,4 @@
-import { Engine } from "@nova-engine/ecs";
+import { Engine } from "../core/ecs";
 import { Scene, PerspectiveCamera, AudioListener, Mesh } from "three";
 import { BulletDecals } from "../utils/BulletDecals";
 import { Particles } from "../utils/Particles";
