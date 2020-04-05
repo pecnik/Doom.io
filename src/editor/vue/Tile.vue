@@ -2,7 +2,7 @@
     <div class="tile" :style="style"></div>
 </template>
 <script>
-import { TILE_COLS, TILE_W, TILE_H } from "../Level";
+import { Level } from "../level/Level";
 export default {
     props: {
         tileId: { type: Number, required: true },
@@ -12,8 +12,8 @@ export default {
         style() {
             const size = this.lg ? 128 : 64;
             const url = "/assets/tileset.png";
-            const x = Math.floor(this.tileId % TILE_COLS);
-            const y = Math.floor(this.tileId / TILE_COLS);
+            const x = Math.floor(this.tileId % Level.TILE_COLS);
+            const y = Math.floor(this.tileId / Level.TILE_COLS);
             return {
                 width: size + "px",
                 height: size + "px",

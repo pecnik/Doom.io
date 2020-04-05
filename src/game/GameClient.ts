@@ -12,7 +12,7 @@ import { AudioFootstepSystem } from "./systems/AudioFootstepSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { AudioGunshotSystem } from "./systems/AudioGunshotSystem";
 import { HudWeaponSystem } from "./systems/HudWeaponSystem";
-import { AudioListener, AudioLoader, Vector3 } from "three";
+import { AudioListener, AudioLoader } from "three";
 import { HudDisplaySystem } from "./systems/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Weapon";
 import { Game } from "./core/Engine";
