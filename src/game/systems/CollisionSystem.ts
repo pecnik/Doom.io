@@ -120,8 +120,8 @@ export class CollisionSystem extends System {
         // Resolve vertical collision
         const floor = aabb.max.y + height / 2;
         if (next.y <= floor && prev.y >= floor) {
-            const abv = level.getVoxel(voxel.x, voxel.y + 1, voxel.z);
-            if (abv !== undefined && abv.type === Level.VoxelType.Solid) {
+            const above = level.getVoxelType(voxel.x, voxel.y + 1, voxel.z);
+            if (above === Level.VoxelType.Solid) {
                 return; // Ignore, abovr voxel will handle this
             }
 

@@ -20,6 +20,12 @@ export module Level {
     export const TEXTURE_H = 512;
     export const TILE_COLS = TEXTURE_W / TILE_W;
 
+    export interface Point3 {
+        x: number;
+        y: number;
+        z: number;
+    }
+
     export enum VoxelType {
         Empty,
         Solid,
@@ -76,7 +82,7 @@ export module Level {
             }
         }
 
-        public getVoxel(x: number, y: number, z: number) {
+        public getVoxel(x: number, y: number, z: number): Voxel | undefined {
             const { voxel } = this.matrix;
             if (voxel[x] === undefined) return;
             if (voxel[x][y] === undefined) return;
@@ -84,7 +90,20 @@ export module Level {
             return voxel[x][y][z];
         }
 
-        public getVoxelAt(point: { x: number; y: number; z: number }) {
+        public getVoxelType(x: number, y: number, z: number): VoxelType {
+            const voxel = this.getVoxel(x, y, z);
+            if (voxel === undefined) return VoxelType.Empty;
+            return voxel.type;
+        }
+
+        public getVoxelLight(x: number, y: number, z: number): Color {
+            const voxel = this.getVoxel(x, y, z);
+            return voxel !== undefined
+                ? new Color(voxel.light)
+                : new Color(0x000000);
+        }
+
+        public getVoxelAt(point: Point3): Voxel | undefined {
             return this.getVoxel(
                 Math.round(point.x),
                 Math.round(point.y),
@@ -92,11 +111,13 @@ export module Level {
             );
         }
 
-        public getVoxelLightAt(point: {
-            x: number;
-            y: number;
-            z: number;
-        }): Color {
+        public getVoxelTypeAt(point: Point3): VoxelType {
+            const voxel = this.getVoxelAt(point);
+            if (voxel === undefined) return VoxelType.Empty;
+            return voxel.type;
+        }
+
+        public getVoxelLightAt(point: Point3): Color {
             const voxel = this.getVoxelAt(point);
             return voxel !== undefined
                 ? new Color(voxel.light)

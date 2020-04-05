@@ -41,7 +41,6 @@ export class GameClient implements Game {
                 const { level } = this.world;
                 const json = localStorage.getItem("level");
                 if (json !== null) {
-                    console.log({ json });
                     this.world.level.matrix = JSON.parse(json);
                     this.world.level.texture = map;
                     this.world.level.buildMesh();
