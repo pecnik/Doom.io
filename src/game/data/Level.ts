@@ -247,34 +247,40 @@ export module Level {
             const geometry = this.mesh.geometry as Geometry;
             geometry.elementsNeedUpdate = true;
             for (let i = 0; i < geometry.faces.length; i++) {
-                const face = geometry.faces[i];
-                const verts = geometry.vertices;
+                setTimeout(() => {
+                    const face = geometry.faces[i];
+                    const verts = geometry.vertices;
 
-                face.vertexColors[0] = aggregateLight(
-                    verts[face.a],
-                    face.normal
-                );
+                    geometry.elementsNeedUpdate = true;
 
-                face.vertexColors[1] = aggregateLight(
-                    verts[face.b],
-                    face.normal
-                );
+                    face.vertexColors[0] = aggregateLight(
+                        verts[face.a],
+                        face.normal
+                    );
 
-                face.vertexColors[2] = aggregateLight(
-                    verts[face.c],
-                    face.normal
-                );
+                    face.vertexColors[1] = aggregateLight(
+                        verts[face.b],
+                        face.normal
+                    );
+
+                    face.vertexColors[2] = aggregateLight(
+                        verts[face.c],
+                        face.normal
+                    );
+                });
             }
 
             // Set voxel color value
             const point = new Vector3();
             const normal = new Vector3(0, 0, 0);
             this.forEachVoxel((voxel) => {
-                point.set(voxel.x, voxel.y, voxel.z);
-                normal.set(0, 0, 0);
-                if (voxel.type !== VoxelType.Light) {
-                    voxel.light = aggregateLight(point, normal).getHex();
-                }
+                setTimeout(() => {
+                    point.set(voxel.x, voxel.y, voxel.z);
+                    normal.set(0, 0, 0);
+                    if (voxel.type !== VoxelType.Light) {
+                        voxel.light = aggregateLight(point, normal).getHex();
+                    }
+                });
 
                 // // Debug
                 // const debug = new Mesh(

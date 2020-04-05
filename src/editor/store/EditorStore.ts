@@ -27,6 +27,10 @@ export function createStore(world: EditorWorld) {
         console.log("> Editor::autosave");
     }, 2000);
 
+    const addLightingTimeout = debounce(() => {
+        world.level.addLighting();
+    }, 250);
+
     function createFloor(width: number, depth: number) {
         const geo = new PlaneGeometry(width, depth, width, depth);
         const mat = new MeshBasicMaterial({
@@ -72,7 +76,7 @@ export function createStore(world: EditorWorld) {
         world.scene.add(world.level.mesh);
 
         // Add lighting
-        world.level.addLighting();
+        addLightingTimeout();
 
         // Add light debug mesh
         if (ctx.state.debugLights) {

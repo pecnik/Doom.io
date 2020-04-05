@@ -30,6 +30,25 @@ export class PlayerMoveSystem extends System {
             const velocity = entity.getComponent(Comp.Velocity);
             const collision = entity.getComponent(Comp.Collision);
 
+            // Jumping
+            const elapsed = world.elapsedTime;
+            const isGrounded = collision.falg.y === -1;
+            if (input.jump) {
+                jump.triggerTime = elapsed;
+            }
+
+            if (isGrounded) {
+                jump.coyoteTime = elapsed;
+            }
+
+            const tdelta = elapsed - jump.triggerTime;
+            const cdelta = elapsed - jump.coyoteTime;
+            if (tdelta < 0.1 && cdelta < 0.1) {
+                velocity.y = JUMP_SPEED;
+                jump.triggerTime = 0;
+                jump.coyoteTime = 0;
+            }
+
             // horizontal movement
             const move = new Vector2(input.movex, input.movey);
             move.normalize();
@@ -41,26 +60,9 @@ export class PlayerMoveSystem extends System {
                 move.rotateAround(new Vector2(), -rotation.y);
             }
 
-            velocity.x = lerp(velocity.x, move.x, RUN_SPEED / 8);
-            velocity.z = lerp(velocity.z, move.y, RUN_SPEED / 8);
-
-            // Jumping
-            const elapsed = world.elapsedTime;
-            if (input.jump) {
-                jump.triggerTime = elapsed;
-            }
-
-            if (collision.falg.y === -1) {
-                jump.coyoteTime = elapsed;
-            }
-
-            const tdelta = elapsed - jump.triggerTime;
-            const cdelta = elapsed - jump.coyoteTime;
-            if (tdelta < 0.1 && cdelta < 0.1) {
-                velocity.y = JUMP_SPEED;
-                jump.triggerTime = 0;
-                jump.coyoteTime = 0;
-            }
+            const acc = isGrounded ? RUN_SPEED * 0.25 : RUN_SPEED * 0.005;
+            velocity.x = lerp(velocity.x, move.x, acc);
+            velocity.z = lerp(velocity.z, move.y, acc);
 
             // Apply gravity
             velocity.y -= GRAVITY * dt;

@@ -17,6 +17,7 @@ export class AudioFootstepSystem extends System {
             .include(Comp.Footstep)
             .include(Comp.Position)
             .include(Comp.Velocity)
+            .include(Comp.Collision)
             .build();
 
         this.group = new Group();
@@ -50,6 +51,7 @@ export class AudioFootstepSystem extends System {
             const position = entity.getComponent(Comp.Position);
             const velocity = entity.getComponent(Comp.Velocity);
             const footstep = entity.getComponent(Comp.Footstep);
+            const collision = entity.getComponent(Comp.Collision);
 
             if (footstep.audio === undefined) {
                 footstep.audio = new PositionalAudio(world.listener);
@@ -59,6 +61,7 @@ export class AudioFootstepSystem extends System {
 
             if (
                 footstep.audio.isPlaying === false &&
+                collision.falg.y === -1 &&
                 (Math.abs(velocity.x) > 2 || Math.abs(velocity.z) > 2)
             ) {
                 footstep.audio.detune = random(1, 6) * 100;
