@@ -10,7 +10,7 @@ import {
 } from "three";
 import { EditorWorld } from "./EditorWorld";
 import { EditorState, EditorTool } from "./EditorState";
-import { Level } from "../level/Level";
+import { Level } from "../../game/data/Level";
 
 Vue.use(Vuex);
 

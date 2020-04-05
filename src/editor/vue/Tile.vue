@@ -2,7 +2,7 @@
     <div class="tile" :style="style"></div>
 </template>
 <script>
-import { Level } from "../level/Level";
+import { Level } from "../../game/data/Level";
 export default {
     props: {
         tileId: { type: Number, required: true },

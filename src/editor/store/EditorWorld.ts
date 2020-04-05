@@ -1,5 +1,5 @@
 import { Scene, PerspectiveCamera, Mesh } from "three";
-import { Level } from "../level/Level";
+import { Level } from "../../game/data/Level";
 
 export class EditorWorld {
     public readonly scene = new Scene();

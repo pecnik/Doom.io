@@ -2,7 +2,7 @@ import { Engine } from "../core/ecs";
 import { Scene, PerspectiveCamera, AudioListener } from "three";
 import { BulletDecals } from "../utils/BulletDecals";
 import { Particles } from "../utils/Particles";
-import { Level } from "../../editor/level/Level";
+import { Level } from "./Level";
 
 export class World extends Engine {
     public readonly level = new Level.Level();

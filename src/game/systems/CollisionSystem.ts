@@ -4,7 +4,7 @@ import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { Box3, Vector2 } from "three";
 import { onFamilyChange } from "../utils/EntityUtils";
-import { Level } from "../../editor/level/Level";
+import { Level } from "../data/Level";
 
 export class CollisionSystem extends System {
     private readonly bodies: Family;

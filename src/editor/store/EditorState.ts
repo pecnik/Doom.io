@@ -1,4 +1,4 @@
-import { Level } from "../level/Level";
+import { Level } from "../../game/data/Level";
 
 export enum EditorTool {
     Block = "fa-cube",

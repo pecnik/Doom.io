@@ -9,7 +9,7 @@ import {
 import { random } from "lodash";
 import { GRAVITY } from "../data/Globals";
 import { World } from "../data/World";
-import { Level } from "../../editor/level/Level";
+import { Level } from "../data/Level";
 
 export class Particle extends Vector3 {
     public readonly velocity = new Vector3();
