@@ -148,6 +148,11 @@ export class HudWeaponSystem extends System {
         if (shooter.state === WeaponState.Shoot) return Animation.Shoot;
         if (shooter.state === WeaponState.Reload) return Animation.Reload;
 
+        const collision = entity.getComponent(Comp.Collision);
+        if (collision.falg.y !== -1) {
+            return Animation.Jump;
+        }
+
         const velocity = entity.getComponent(Comp.Velocity);
         if (Math.abs(velocity.x) > 0.01 || Math.abs(velocity.z) > 0.01) {
             return Animation.Walk;
@@ -170,7 +175,7 @@ export class HudWeaponSystem extends System {
 
             case Animation.Jump:
             case Animation.Fall:
-                frame.y += 0.125;
+                frame.y += 0.0625;
                 return frame;
 
             case Animation.Reload:

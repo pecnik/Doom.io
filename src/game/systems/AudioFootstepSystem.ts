@@ -59,7 +59,7 @@ export class AudioFootstepSystem extends System {
 
             if (
                 footstep.audio.isPlaying === false &&
-                velocity.lengthSq() > 10
+                (Math.abs(velocity.x) > 2 || Math.abs(velocity.z) > 2)
             ) {
                 footstep.audio.detune = random(1, 6) * 100;
                 footstep.audio.setVolume(random(0.25, 0.5, true));
