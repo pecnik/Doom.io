@@ -8,6 +8,13 @@
         </div>
         <div id="menu-right" class="panel">
             <button class="form-cotnrol" @click="play">PLAY</button>
+            <label>
+                <select class="form-cotnrol" :value="$store.state.tool" @input="setTool">
+                    <option v-for="tool in tools" :key="tool.value" :value="tool.value">
+                        {{ tool.label }}
+                    </option>
+                </select>
+            </label>
             <label class="form-cotnrol">
                 <input type="checkbox"
                     :checked="$store.state.wireframe"
@@ -29,6 +36,7 @@
 <script>
 import TileBar from "./TileBar.vue";
 import TileSelectDialog from "./TileSelectDialog.vue";
+import { EditorTool } from "../store/EditorState";
 export default {
     components: { TileBar, TileSelectDialog },
     computed: {
@@ -46,6 +54,9 @@ export default {
         toggleDebugLights(ev) {
             this.$store.dispatch("setDebugLights", ev.target.checked);
         },
+        setTool(ev) {
+            this.$store.dispatch("setTool", ev.target.value);
+        },
         play() {
             const { level } = this.$store.state;
             localStorage.setItem("level", JSON.stringify(level));
@@ -53,6 +64,24 @@ export default {
             const url = [location.origin, location.pathname].join("");
             window.open(url);
         }
+    },
+    data() {
+        const tools = [
+            {
+                value: EditorTool.Block,
+                label: "Block (E)"
+            },
+            {
+                value: EditorTool.Paint,
+                label: "Fill (F)"
+            },
+            {
+                value: EditorTool.Pick,
+                label: "Sample (ALT)"
+            }
+        ];
+
+        return { tools };
     }
 };
 </script>
@@ -145,6 +174,7 @@ export default {
 .form-cotnrol {
     display: block;
     line-height: 32px;
+    height: 32px;
     padding: 0;
     width: 100%;
     margin-bottom: 16px;
