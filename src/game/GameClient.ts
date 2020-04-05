@@ -12,7 +12,7 @@ import { AudioFootstepSystem } from "./systems/AudioFootstepSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { AudioGunshotSystem } from "./systems/AudioGunshotSystem";
 import { HudWeaponSystem } from "./systems/HudWeaponSystem";
-import { AudioListener, AudioLoader } from "three";
+import { AudioListener, AudioLoader, Vector3 } from "three";
 import { HudDisplaySystem } from "./systems/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Weapon";
 import { Game } from "./core/Engine";
@@ -89,25 +89,14 @@ export class GameClient implements Game {
         this.world.addSystem(new AudioFootstepSystem(this.world));
 
         // Entities
+        const { width, depth } = this.world.level.matrix;
 
         const player = EntityFactory.Player();
-        player
-            .getComponent(Comp.Position)
-            .set(
-                this.world.level.matrix.width / 2,
-                8,
-                this.world.level.matrix.depth / 2
-            );
+        player.getComponent(Comp.Position).set(width * 0.25, 8, depth / 2);
         this.world.addEntity(player);
 
         const barrel = EntityFactory.Barrel();
-        barrel
-            .getComponent(Comp.Position)
-            .set(
-                this.world.level.matrix.width * 0.25,
-                8,
-                this.world.level.matrix.depth / 2
-            );
+        barrel.getComponent(Comp.Position).set(width * 0.25, 8, depth / 2);
         this.world.addEntity(barrel);
     }
 
