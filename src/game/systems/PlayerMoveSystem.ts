@@ -26,12 +26,11 @@ export class PlayerMoveSystem extends System {
             const jump = entity.getComponent(Comp.Jump);
             const input = entity.getComponent(Comp.PlayerInput);
             const position = entity.getComponent(Comp.Position);
+            const rotation = entity.getComponent(Comp.Rotation2D);
             const velocity = entity.getComponent(Comp.Velocity);
             const collision = entity.getComponent(Comp.Collision);
 
             // horizontal movement
-            const rotation = entity.getComponent(Comp.Rotation2D);
-
             const move = new Vector2(input.movex, input.movey);
             move.normalize();
 
