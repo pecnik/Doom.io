@@ -4,10 +4,12 @@ import {
     PointsMaterial,
     VertexColors,
     Color,
-    Points
+    Points,
 } from "three";
 import { random } from "lodash";
 import { GRAVITY } from "../data/Globals";
+import { World } from "../data/World";
+import { Level, VoxelType } from "../../editor/Level";
 
 export class Particle extends Vector3 {
     public readonly velocity = new Vector3();
@@ -21,7 +23,7 @@ export class Particles {
         // create the particle variables
         const material = new PointsMaterial({
             vertexColors: VertexColors,
-            size: 1 / 24 // TODO - resize based on camera FOV
+            size: 1 / 24, // TODO - resize based on camera FOV
         });
 
         this.particles = new Geometry();
@@ -37,7 +39,7 @@ export class Particles {
     private getFreeParticleIndex(): number {
         for (let i = 0; i < this.particles.vertices.length; i++) {
             const particle = this.particles.vertices[i] as Particle;
-            if (particle.y >= 1 || particle.y <= -1) {
+            if (particle.y < -1) {
                 return i;
             }
         }
@@ -77,7 +79,7 @@ export class Particles {
         }
     }
 
-    public update(dt: number) {
+    public update(world: World, dt: number) {
         this.particles.verticesNeedUpdate = false;
         for (let i = 0; i < this.particles.vertices.length; i++) {
             const particle = this.particles.vertices[i] as Particle;
@@ -86,15 +88,19 @@ export class Particles {
             // Update velocity and position
             particle.velocity.x *= 0.9;
             particle.velocity.z *= 0.9;
-            particle.velocity.y -= GRAVITY * dt * 0.02;
+            particle.velocity.y -= GRAVITY * dt * 0.002;
             particle.add(particle.velocity);
 
             // Bounce of floor
-            if (particle.y <= -0.5) {
-                particle.y = -0.5;
-                particle.velocity.y *= -random(0.25, 0.5, true);
-                if (particle.velocity.y < 0.001) {
-                    particle.y = -1000;
+            const voxel = Level.getVoxel(world.level.data, particle);
+            if (voxel !== undefined && voxel.type === VoxelType.Solid) {
+                const floor = voxel.y + 0.5;
+                if (particle.y <= floor) {
+                    particle.y = floor;
+                    particle.velocity.y *= -random(0.25, 0.5, true);
+                    if (particle.velocity.y < 0.001) {
+                        particle.y = -1000;
+                    }
                 }
             }
 
