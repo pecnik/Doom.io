@@ -43,7 +43,7 @@ export function createStore(world: EditorWorld) {
         if (!hit.face) return;
 
         const point = hit.point.clone();
-        const normal = hit.face.normal.clone().multiplyScalar(0.1 * dir);
+        const normal = hit.face.normal.clone().multiplyScalar(0.5 * dir);
         point.add(normal);
 
         const voxel = world.level.getVoxelAt(point);
@@ -65,7 +65,7 @@ export function createStore(world: EditorWorld) {
         world.level.addLighting();
 
         // Add light debug mesh
-        // TODO
+        world.level.addLightingDebug();
 
         // Add wireframe
         if (ctx.state.wireframe) {

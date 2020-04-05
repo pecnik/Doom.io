@@ -10,6 +10,7 @@ import {
     Color,
     Ray,
     Box3,
+    BoxGeometry,
 } from "three";
 import { clamp } from "lodash";
 
@@ -282,6 +283,18 @@ export module Level {
                 // );
                 // debug.position.copy(point);
                 // this.mesh.add(debug);
+            });
+        }
+
+        public addLightingDebug() {
+            this.forEachVoxel((voxel) => {
+                if (voxel.type === VoxelType.Light) {
+                    const geo = new BoxGeometry(0.5, 0.5, 0.5);
+                    const mat = new MeshBasicMaterial({ color: voxel.light });
+                    const light = new Mesh(geo, mat);
+                    light.position.set(voxel.x, voxel.y, voxel.z);
+                    this.mesh.add(light);
+                }
             });
         }
 
