@@ -141,6 +141,19 @@ export function createStore(world: EditorWorld) {
             updateMesh(ctx);
         },
 
+        resizeLevel(ctx: StoreCtx, payload: [number, number, number]) {
+            const [w, h, d] = payload;
+
+            world.scene.remove(...world.scene.children);
+
+            world.floor = createFloor(w, d);
+            world.scene.add(world.floor);
+
+            world.level.resize(w, h, d);
+            ctx.state.level = world.level.matrix;
+            updateMesh(ctx);
+        },
+
         createFloor(ctx: StoreCtx, payload: { tileId: number }) {
             world.level.forEachVoxel((voxel) => {
                 if (voxel.y === 0) {

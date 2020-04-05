@@ -7,21 +7,24 @@
             <tile-bar></tile-bar>
         </div>
         <div id="menu-right" class="panel">
-            <button class="form-cotnrol" @click="play">PLAY</button>
+            <button class="form-control" @click="play">PLAY</button>
+
+            <button class="form-control" @click="resize">Resize</button>
+
             <label>
-                <select class="form-cotnrol" :value="$store.state.tool" @input="setTool">
+                <select class="form-control" :value="$store.state.tool" @input="setTool">
                     <option v-for="tool in tools" :key="tool.value" :value="tool.value">
                         {{ tool.label }}
                     </option>
                 </select>
             </label>
-            <label class="form-cotnrol">
+            <label class="form-control">
                 <input type="checkbox"
                     :checked="$store.state.wireframe"
                     @change="toggleWireframe">
                 Wireframe
             </label>
-            <label class="form-cotnrol">
+            <label class="form-control">
                 <input type="checkbox"
                     :checked="$store.state.debugLights"
                     @change="toggleDebugLights">
@@ -48,21 +51,38 @@ export default {
         }
     },
     methods: {
-        toggleWireframe(ev) {
-            this.$store.dispatch("setWireframe", ev.target.checked);
-        },
-        toggleDebugLights(ev) {
-            this.$store.dispatch("setDebugLights", ev.target.checked);
-        },
-        setTool(ev) {
-            this.$store.dispatch("setTool", ev.target.value);
-        },
         play() {
             const { level } = this.$store.state;
             localStorage.setItem("level", JSON.stringify(level));
 
             const url = [location.origin, location.pathname].join("");
             window.open(url);
+        },
+        resize() {
+            if (!confirm("Resize level? Data might be lost.")) {
+                return;
+            }
+
+            const input = prompt("Resize?", "8, 4, 8");
+            const parsed = input.split(",").map(x => parseInt(x));
+            for (let i = 0; i < 3; i++) {
+                if (isNaN(parsed[i])) {
+                    alert(`Error: invalid resize value`);
+                    return;
+                }
+            }
+
+            const [w, h, d] = parsed;
+            this.$store.dispatch("resizeLevel", [w, h, d]);
+        },
+        setTool(ev) {
+            this.$store.dispatch("setTool", ev.target.value);
+        },
+        toggleWireframe(ev) {
+            this.$store.dispatch("setWireframe", ev.target.checked);
+        },
+        toggleDebugLights(ev) {
+            this.$store.dispatch("setDebugLights", ev.target.checked);
         }
     },
     data() {
@@ -171,7 +191,7 @@ export default {
     background: #222;
 }
 
-.form-cotnrol {
+.form-control {
     display: block;
     line-height: 32px;
     height: 32px;

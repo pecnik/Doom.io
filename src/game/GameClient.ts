@@ -91,11 +91,11 @@ export class GameClient implements Game {
         const { width, depth } = this.world.level.matrix;
 
         const player = EntityFactory.Player();
-        player.getComponent(Comp.Position).set(width * 0.25, 8, depth / 2);
+        player.getComponent(Comp.Position).set(width / 2, 8, depth / 2);
         this.world.addEntity(player);
 
         const barrel = EntityFactory.Barrel();
-        barrel.getComponent(Comp.Position).set(width * 0.25, 8, depth / 2);
+        barrel.getComponent(Comp.Position).set(width / 2, 8, depth / 2);
         this.world.addEntity(barrel);
     }
 
