@@ -1,9 +1,9 @@
-import { System, Family, FamilyBuilder } from "@nova-engine/ecs";
+import { System, Family, FamilyBuilder, Entity } from "@nova-engine/ecs";
 import { clamp } from "lodash";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
-import { Vector3, Box3, Vector2 } from "three";
-import { Level, VoxelType } from "../../editor/Level";
+import { Box3, Vector2 } from "three";
+import { Level, VoxelType, Voxel } from "../../editor/Level";
 import { onFamilyChange } from "../utils/EntityUtils";
 
 export class CollisionSystem extends System {
@@ -40,7 +40,6 @@ export class CollisionSystem extends System {
         for (let i = 0; i < this.bodies.entities.length; i++) {
             const entity = this.bodies.entities[i];
             const position = entity.getComponent(Comp.Position);
-            const velocity = entity.getComponent(Comp.Velocity);
             const collision = entity.getComponent(Comp.Collision);
 
             const { prev, next } = collision;
@@ -69,17 +68,13 @@ export class CollisionSystem extends System {
             const maxY = Math.ceil(Math.max(prev.y, next.y)) + 2;
             const maxZ = Math.ceil(Math.max(prev.z, next.z)) + 2;
 
-            const index = new Vector3();
-            const aabb = new Box3();
             for (let x = minX; x < maxX; x++) {
                 for (let y = minY; y < maxY; y++) {
                     for (let z = minZ; z < maxZ; z++) {
-                        const voxel = Level.getVoxel(level, index.set(x, y, z));
+                        const voxel = Level.getVoxelAt(level, x, y, z);
                         if (voxel === undefined) continue;
                         if (voxel.type !== VoxelType.Solid) continue;
-                        aabb.min.set(voxel.x, voxel.y, voxel.z).subScalar(0.5);
-                        aabb.max.set(voxel.x, voxel.y, voxel.z).addScalar(0.5);
-                        this.resolve(aabb, collision, velocity);
+                        this.resolveVoxelCollision(level, voxel, entity);
                     }
                 }
             }
@@ -92,11 +87,13 @@ export class CollisionSystem extends System {
         }
     }
 
-    private resolve(
-        aabb: Box3,
-        collision: Comp.Collision,
-        velocity: Comp.Velocity
-    ) {
+    private resolveVoxelCollision(level: Level, voxel: Voxel, entity: Entity) {
+        const aabb = new Box3();
+        aabb.min.set(voxel.x, voxel.y, voxel.z).subScalar(0.5);
+        aabb.max.set(voxel.x, voxel.y, voxel.z).addScalar(0.5);
+
+        const collision = entity.getComponent(Comp.Collision);
+        const velocity = entity.getComponent(Comp.Velocity);
         const { prev, next, falg, radius, height } = collision;
 
         // Test vertical collision
@@ -112,25 +109,31 @@ export class CollisionSystem extends System {
         position2D.y = next.z;
         collision2D.x = clamp(next.x, aabb.min.x, aabb.max.x);
         collision2D.y = clamp(next.z, aabb.min.z, aabb.max.z);
-        if (position2D.distanceToSquared(collision2D) > radius ** 2) {
+
+        const sqrtDist2D = position2D.distanceToSquared(collision2D);
+        if (sqrtDist2D > radius ** 2) {
             return; // No collision
         }
 
         // Resolve vertical collision
         const floor = aabb.max.y + height / 2;
-        if (next.y < floor && prev.y >= floor) {
-            next.y = floor;
-            velocity.y = 0;
-            falg.y = -1;
-            return;
-        }
+        if (next.y <= floor && prev.y >= floor) {
+            const voxelAbove = Level.getVoxelAt(
+                level,
+                voxel.x,
+                voxel.y + 1,
+                voxel.z
+            );
 
-        const stepsize = 0.25;
-        const deltay = aabb.max.y - playerMinY;
-        if (deltay < stepsize && deltay >= 0 && velocity.y <= 0) {
-            next.y = Math.max(next.y, floor);
-            falg.y = -1;
-            return;
+            if (
+                voxelAbove === undefined ||
+                voxelAbove.type !== VoxelType.Solid
+            ) {
+                next.y = floor;
+                velocity.y = 0;
+                falg.y = -1;
+                return;
+            }
         }
 
         const ceiling = aabb.min.y - height / 2;

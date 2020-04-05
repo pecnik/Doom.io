@@ -316,6 +316,13 @@ export module Level {
         return level.voxel[x][y][z];
     }
 
+    export function getVoxelAt(level: Level, x: number, y: number, z: number) {
+        if (level.voxel[x] === undefined) return;
+        if (level.voxel[x][y] === undefined) return;
+        if (level.voxel[x][y][z] === undefined) return;
+        return level.voxel[x][y][z];
+    }
+
     export function getVoxelLightColor(_: Level, __: Vector3) {
         return new Color(1, 1, 1);
     }
