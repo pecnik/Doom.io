@@ -1,4 +1,4 @@
-import { System, Family, FamilyBuilder, Entity } from "../core/ecs";
+import { System, Family, FamilyBuilder } from "../core/ecs";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { Vector2 } from "three";
@@ -23,20 +23,30 @@ export class PlayerMoveSystem extends System {
     public update(world: World, dt: number) {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
+            const jump = entity.getComponent(Comp.Jump);
+            const input = entity.getComponent(Comp.PlayerInput);
             const position = entity.getComponent(Comp.Position);
             const velocity = entity.getComponent(Comp.Velocity);
             const collision = entity.getComponent(Comp.Collision);
 
             // horizontal movement
-            const move = this.getMoveVector(entity);
+            const rotation = entity.getComponent(Comp.Rotation2D);
+
+            const move = new Vector2(input.movex, input.movey);
+            move.normalize();
+
+            const scope = isScopeActive(entity);
+            const speed = input.walk || scope ? WALK_SPEED : RUN_SPEED;
+            move.multiplyScalar(speed);
+            if (move.x !== 0 || move.y !== 0) {
+                move.rotateAround(new Vector2(), -rotation.y);
+            }
+
             velocity.x = lerp(velocity.x, move.x, RUN_SPEED / 8);
             velocity.z = lerp(velocity.z, move.y, RUN_SPEED / 8);
 
             // Jumping
             const elapsed = world.elapsedTime;
-            const jump = entity.getComponent(Comp.Jump);
-            const input = entity.getComponent(Comp.PlayerInput);
-
             if (input.jump) {
                 jump.triggerTime = elapsed;
             }
@@ -61,22 +71,5 @@ export class PlayerMoveSystem extends System {
             position.y += velocity.y * dt;
             position.z += velocity.z * dt;
         }
-    }
-
-    private getMoveVector(entity: Entity): Vector2 {
-        const input = entity.getComponent(Comp.PlayerInput);
-        const rotation = entity.getComponent(Comp.Rotation2D);
-
-        const move = new Vector2(input.movex, input.movey);
-        move.normalize();
-
-        const scope = isScopeActive(entity);
-        const speed = input.walk || scope ? WALK_SPEED : RUN_SPEED;
-        move.multiplyScalar(speed);
-        if (move.x !== 0 || move.y !== 0) {
-            move.rotateAround(new Vector2(), -rotation.y);
-        }
-
-        return move;
     }
 }
