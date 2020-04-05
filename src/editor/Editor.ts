@@ -58,7 +58,7 @@ export class Editor implements Game {
         return Promise.all([
             // Load level tileset texture
             loadTexture("/assets/tileset.png").then((map) => {
-                this.world.texture = map;
+                this.world.level.texture = map;
             }),
         ]);
     }

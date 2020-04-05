@@ -10,7 +10,7 @@ import {
 } from "three";
 import { EditorWorld } from "./EditorWorld";
 import { EditorState, EditorTool } from "./EditorState";
-import { Level, VoxelType } from "../Level";
+import { Level } from "../level/Level";
 
 Vue.use(Vuex);
 
@@ -31,12 +31,12 @@ export function createStore(world: EditorWorld) {
         return new Mesh(geo, mat);
     }
 
-    function sampleVoxel(level: Level, dir: -1 | 1) {
+    function sampleVoxel(dir: -1 | 1) {
         const buffer: Intersection[] = [];
         const origin = new Vector2();
         raycaster.setFromCamera(origin, world.camera);
         raycaster.intersectObject(world.floor, true, buffer);
-        raycaster.intersectObject(world.level, true, buffer);
+        raycaster.intersectObject(world.level.mesh, true, buffer);
 
         const [hit] = buffer;
         if (!hit) return;
@@ -46,11 +46,8 @@ export function createStore(world: EditorWorld) {
         const normal = hit.face.normal.clone().multiplyScalar(0.1 * dir);
         point.add(normal);
 
-        const voxel = Level.getVoxel(level, point);
-        if (voxel === undefined) {
-            return;
-        }
-
+        const voxel = world.level.getVoxelAt(point);
+        if (voxel === undefined) return;
         return {
             point: point.clone(),
             normal: hit.face.normal.clone(),
@@ -60,23 +57,19 @@ export function createStore(world: EditorWorld) {
 
     function updateMesh(ctx: StoreCtx) {
         console.log(`> Editor::build level mesh`);
-        world.scene.remove(world.level);
-        world.level = Level.createMesh(ctx.state.level, world.texture);
-        world.scene.add(world.level);
+        world.scene.remove(world.level.mesh);
+        world.level.buildMesh();
+        world.scene.add(world.level.mesh);
 
-        // Init lighting
-        Level.addMeshLighting(ctx.state.level, world.level);
+        // Add lighting
+        world.level.addLighting();
+
+        // Add light debug mesh
+        // TODO
 
         // Add wireframe
         if (ctx.state.wireframe) {
-            Level.addMeshWireframe(ctx.state.level, world.level);
-        }
-
-        // Add light mesh
-        {
-            world.level.add(
-                Level.createLightMesh(ctx.state.level, world.texture)
-            );
+            world.level.addWireframe();
         }
     }
 
@@ -85,40 +78,37 @@ export function createStore(world: EditorWorld) {
             ctx: StoreCtx,
             payload: { width: number; height: number; depth: number }
         ) {
-            // Init new level data
-            ctx.state.level = Level.create(
-                payload.width,
-                payload.height,
-                payload.depth
-            );
+            const { width, height, depth } = payload;
 
-            Level.forEachVoxel(ctx.state.level, (voxel) => {
+            world.level.resize(width, height, depth);
+            world.level.forEachVoxel((voxel) => {
                 if (voxel.y === 0) {
-                    voxel.type = VoxelType.Solid;
+                    voxel.type = Level.VoxelType.Solid;
                     voxel.faces.fill(8);
                 }
             });
 
+            // Init new level data
+            ctx.state.level = world.level.matrix;
+
             // Reset world scene
-            world.floor = createFloor(payload.width, payload.depth);
-            world.level = Level.createMesh(ctx.state.level, world.texture);
             world.scene.remove(...world.scene.children);
-            world.scene.add(world.floor, world.level);
+
+            world.floor = createFloor(payload.width, payload.depth);
+            world.scene.add(world.floor);
+
+            world.level.buildMesh();
+            world.scene.add(world.level.mesh);
 
             // Reset camera
             world.camera.rotation.set(Math.PI * -0.25, 0, 0, "YXZ");
-            world.camera.position.set(
-                payload.width / 2,
-                payload.height / 2,
-                payload.depth
-            );
+            world.camera.position.set(width / 2, height / 2, depth);
         },
 
         createFloor(ctx: StoreCtx, payload: { tileId: number }) {
-            const { level } = ctx.state;
-            Level.forEachVoxel(level, (voxel) => {
+            world.level.forEachVoxel((voxel) => {
                 if (voxel.y === 0) {
-                    voxel.type = VoxelType.Solid;
+                    voxel.type = Level.VoxelType.Solid;
                     voxel.faces.fill(payload.tileId);
                 }
             });
@@ -127,15 +117,15 @@ export function createStore(world: EditorWorld) {
 
         placeVoxel(ctx: StoreCtx) {
             const tileId = ctx.getters.activeTileId;
-            const rsp = sampleVoxel(ctx.state.level, 1);
+            const rsp = sampleVoxel(1);
             if (rsp !== undefined) {
                 rsp.voxel.faces.fill(tileId);
-                rsp.voxel.tileId = tileId;
-
                 if (tileId >= 8) {
-                    rsp.voxel.type = VoxelType.Solid;
+                    rsp.voxel.type = Level.VoxelType.Solid;
                 } else {
-                    rsp.voxel.type = VoxelType.Light;
+                    const lights = [0xffffff, 0xff0000, 0x00ff00, 0x0000ff];
+                    rsp.voxel.type = Level.VoxelType.Light;
+                    rsp.voxel.light = lights[tileId] || 0xffffff;
                 }
 
                 updateMesh(ctx);
@@ -143,15 +133,15 @@ export function createStore(world: EditorWorld) {
         },
 
         removeVoxel(ctx: StoreCtx) {
-            const rsp = sampleVoxel(ctx.state.level, -1);
+            const rsp = sampleVoxel(-1);
             if (rsp !== undefined) {
-                rsp.voxel.type = VoxelType.Empty;
+                rsp.voxel.type = Level.VoxelType.Empty;
                 updateMesh(ctx);
             }
         },
 
         sampleVoxel(ctx: StoreCtx) {
-            const rsp = sampleVoxel(ctx.state.level, -1);
+            const rsp = sampleVoxel(-1);
             if (rsp !== undefined) {
                 let face = -1;
                 if (rsp.normal.x === -1) face = 0;
@@ -171,7 +161,7 @@ export function createStore(world: EditorWorld) {
         },
 
         fillVoxel(ctx: StoreCtx) {
-            const rsp = sampleVoxel(ctx.state.level, -1);
+            const rsp = sampleVoxel(-1);
             if (rsp !== undefined) {
                 rsp.voxel.faces.fill(ctx.getters.activeTileId);
                 updateMesh(ctx);
@@ -179,7 +169,7 @@ export function createStore(world: EditorWorld) {
         },
 
         fillVoxelFace(ctx: StoreCtx) {
-            const rsp = sampleVoxel(ctx.state.level, -1);
+            const rsp = sampleVoxel(-1);
             if (rsp !== undefined) {
                 let index = -1;
                 if (rsp.normal.x === -1) index = 0;

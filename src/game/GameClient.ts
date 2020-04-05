@@ -17,7 +17,7 @@ import { HudDisplaySystem } from "./systems/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Weapon";
 import { Game } from "./core/Engine";
 import { loadTexture } from "./utils/Helpers";
-import { Level } from "../editor/Level";
+import { LevelOLD } from "../editor/Level";
 
 export class GameClient implements Game {
     // private readonly socket: SocketIOClient.Socket;
@@ -43,8 +43,8 @@ export class GameClient implements Game {
                 const json = localStorage.getItem("level");
                 if (json !== null) {
                     level.data = JSON.parse(json);
-                    level.mesh = Level.createMesh(level.data, map);
-                    Level.addMeshLighting(level.data, level.mesh);
+                    level.mesh = LevelOLD.createMesh(level.data, map);
+                    LevelOLD.addMeshLighting(level.data, level.mesh);
                     this.world.scene.add(level.mesh);
                 }
             }),

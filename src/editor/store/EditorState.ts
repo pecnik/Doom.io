@@ -1,13 +1,13 @@
-import { Level } from "../Level";
+import { Level } from "../level/Level";
 
 export enum EditorTool {
     Block = "fa-cube",
     Paint = "fa-fill-drip",
-    Pick = "fa-eye-dropper"
+    Pick = "fa-eye-dropper",
 }
 
 export class EditorState {
-    public level = Level.create(0, 0, 0);
+    public level = new Level.Level().matrix;
     public tool = EditorTool.Block;
     public wireframe = false;
     public tileSelectDialog = false;

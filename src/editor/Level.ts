@@ -41,7 +41,7 @@ export class Voxel {
     }
 }
 
-export class Level {
+export class LevelOLD {
     public readonly voxel: Voxel[][][] = [];
     public readonly width: number;
     public readonly height: number;
@@ -64,12 +64,12 @@ export class Level {
     }
 }
 
-export module Level {
+export module LevelOLD {
     export function create(width: number, height: number, depth: number) {
-        return new Level(width, height, depth);
+        return new LevelOLD(width, height, depth);
     }
 
-    export function createMesh(level: Level, map: Texture) {
+    export function createMesh(level: LevelOLD, map: Texture) {
         const planes = new Array<PlaneGeometry>();
         forEachVoxel(level, (voxel) => {
             if (voxel.type === VoxelType.Solid) {
@@ -89,7 +89,7 @@ export module Level {
         return new Mesh(geometry, material);
     }
 
-    export function createLightMesh(level: Level, map: Texture) {
+    export function createLightMesh(level: LevelOLD, map: Texture) {
         const planes = new Array<PlaneGeometry>();
         forEachVoxel(level, (voxel) => {
             if (voxel.type === VoxelType.Light) {
@@ -109,7 +109,7 @@ export module Level {
         return new Mesh(geometry, material);
     }
 
-    export function createVoxelGeo(voxel: Voxel, level: Level) {
+    export function createVoxelGeo(voxel: Voxel, level: LevelOLD) {
         const planes: PlaneGeometry[] = [];
 
         const voxelOrigin = new Vector3(voxel.x, voxel.y, voxel.z);
@@ -209,7 +209,7 @@ export module Level {
         return planes;
     }
 
-    export function addMeshWireframe(_: Level, mesh: Mesh) {
+    export function addMeshWireframe(_: LevelOLD, mesh: Mesh) {
         const material = new MeshBasicMaterial({
             wireframe: true,
             color: 0x00ff00,
@@ -217,7 +217,7 @@ export module Level {
         mesh.add(new Mesh(mesh.geometry, material));
     }
 
-    export function addMeshLighting(level: Level, mesh: Mesh) {
+    export function addMeshLighting(level: LevelOLD, mesh: Mesh) {
         const lights: Vector3[] = [];
         forEachVoxel(level, (voxel) => {
             if (voxel.type === VoxelType.Light) {
@@ -257,7 +257,7 @@ export module Level {
                 for (let _y = min_y; _y < max_y; _y++) {
                     for (let _z = min_z; _z < max_z; _z++) {
                         const point = new Vector3(_x, _y, _z);
-                        const voxel = Level.getVoxel(level, point);
+                        const voxel = LevelOLD.getVoxel(level, point);
                         if (voxel && voxel.type === VoxelType.Solid) {
                             box.min.copy(point).subScalar(0.49);
                             box.max.copy(point).addScalar(0.49);
@@ -317,7 +317,7 @@ export module Level {
         geometry.elementsNeedUpdate = true;
     }
 
-    export function getVoxel(level: Level, point: Vector3) {
+    export function getVoxel(level: LevelOLD, point: Vector3) {
         const x = Math.round(point.x);
         const y = Math.round(point.y);
         const z = Math.round(point.z);
@@ -327,18 +327,18 @@ export module Level {
         return level.voxel[x][y][z];
     }
 
-    export function getVoxelAt(level: Level, x: number, y: number, z: number) {
+    export function getVoxelAt(level: LevelOLD, x: number, y: number, z: number) {
         if (level.voxel[x] === undefined) return;
         if (level.voxel[x][y] === undefined) return;
         if (level.voxel[x][y][z] === undefined) return;
         return level.voxel[x][y][z];
     }
 
-    export function getVoxelLightColor(_: Level, __: Vector3) {
+    export function getVoxelLightColor(_: LevelOLD, __: Vector3) {
         return new Color(1, 1, 1);
     }
 
-    export function forEachVoxel(level: Level, fn: (v: Voxel) => void) {
+    export function forEachVoxel(level: LevelOLD, fn: (v: Voxel) => void) {
         for (let x = 0; x < level.width; x++) {
             for (let y = 0; y < level.height; y++) {
                 for (let z = 0; z < level.depth; z++) {

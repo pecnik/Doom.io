@@ -15,7 +15,7 @@ import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
 import { WeaponSpecs, WeaponState } from "../data/Weapon";
 import { Hud } from "../data/Hud";
 import { isScopeActive } from "../utils/EntityUtils";
-import { Level } from "../../editor/Level";
+import { LevelOLD } from "../../editor/Level";
 
 enum Animation {
     Walk,
@@ -135,7 +135,7 @@ export class HudWeaponSystem extends System {
         position: Comp.Position
     ) {
         const sprite = weaponSprite.material;
-        const light = Level.getVoxelLightColor(world.level.data, position);
+        const light = LevelOLD.getVoxelLightColor(world.level.data, position);
         if (!sprite.color.equals(light)) {
             sprite.color.lerp(light, 0.125);
             sprite.needsUpdate = true;

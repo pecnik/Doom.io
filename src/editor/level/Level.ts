@@ -52,14 +52,9 @@ export module Level {
     }
 
     export class Level {
-        public map?: Texture;
         public mesh = new Mesh();
-        public matrix: Matrix = {
-            voxel: [],
-            width: 0,
-            height: 0,
-            depth: 0,
-        };
+        public matrix: Matrix = { voxel: [], width: 0, height: 0, depth: 0 };
+        public texture = new Texture();
 
         public resize(width: number, height: number, depth: number) {
             this.matrix = { width, height, depth, voxel: [] };
@@ -122,10 +117,11 @@ export module Level {
             geometry.elementsNeedUpdate = true;
 
             const material = new MeshBasicMaterial({
-                map: this.map,
+                map: this.texture,
                 vertexColors: VertexColors,
             });
-            return new Mesh(geometry, material);
+
+            this.mesh = new Mesh(geometry, material);
         }
 
         public addWireframe() {

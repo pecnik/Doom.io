@@ -9,7 +9,7 @@ import {
 import { random } from "lodash";
 import { GRAVITY } from "../data/Globals";
 import { World } from "../data/World";
-import { Level, VoxelType } from "../../editor/Level";
+import { LevelOLD, VoxelType } from "../../editor/Level";
 
 export class Particle extends Vector3 {
     public readonly velocity = new Vector3();
@@ -92,7 +92,7 @@ export class Particles {
             particle.add(particle.velocity);
 
             // Bounce of floor
-            const voxel = Level.getVoxel(world.level.data, particle);
+            const voxel = LevelOLD.getVoxel(world.level.data, particle);
             if (voxel !== undefined && voxel.type === VoxelType.Solid) {
                 const floor = voxel.y + 0.5;
                 if (particle.y <= floor) {
