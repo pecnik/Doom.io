@@ -2,10 +2,10 @@ import { Engine } from "../core/ecs";
 import { Scene, PerspectiveCamera, AudioListener, Mesh } from "three";
 import { BulletDecals } from "../utils/BulletDecals";
 import { Particles } from "../utils/Particles";
-import { LevelOLD } from "../../editor/Level";
+import { Level } from "../../editor/level/Level";
 
 export class World extends Engine {
-    public readonly level = { data: new LevelOLD(0, 0, 0), mesh: new Mesh() };
+    public readonly level = new Level.Level();
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
     public readonly decals = new BulletDecals();

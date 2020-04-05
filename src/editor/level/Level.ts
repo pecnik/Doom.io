@@ -92,6 +92,17 @@ export module Level {
             );
         }
 
+        public getVoxelLightAt(point: {
+            x: number;
+            y: number;
+            z: number;
+        }): Color {
+            const voxel = this.getVoxelAt(point);
+            return voxel !== undefined
+                ? new Color(voxel.light)
+                : new Color(0x000000);
+        }
+
         public forEachVoxel(fn: (v: Voxel) => void) {
             const { width, depth, height, voxel } = this.matrix;
             for (let x = 0; x < width; x++) {

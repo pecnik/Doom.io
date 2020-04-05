@@ -17,7 +17,6 @@ import { HudDisplaySystem } from "./systems/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Weapon";
 import { Game } from "./core/Engine";
 import { loadTexture } from "./utils/Helpers";
-import { LevelOLD } from "../editor/Level";
 
 export class GameClient implements Game {
     // private readonly socket: SocketIOClient.Socket;
@@ -42,16 +41,18 @@ export class GameClient implements Game {
                 const { level } = this.world;
                 const json = localStorage.getItem("level");
                 if (json !== null) {
-                    level.data = JSON.parse(json);
-                    level.mesh = LevelOLD.createMesh(level.data, map);
-                    LevelOLD.addMeshLighting(level.data, level.mesh);
+                    console.log({ json });
+                    this.world.level.matrix = JSON.parse(json);
+                    this.world.level.texture = map;
+                    this.world.level.buildMesh();
+                    this.world.level.addLighting();
                     this.world.scene.add(level.mesh);
                 }
             }),
 
             // Preload weapon sprite
             ...WeaponSpecs.map((weapon) => {
-                loadTexture(weapon.povSpriteSrc).then((map) => {
+                return loadTexture(weapon.povSpriteSrc).then((map) => {
                     weapon.povSpriteTexture = map;
                 });
             }),
@@ -88,13 +89,14 @@ export class GameClient implements Game {
         this.world.addSystem(new AudioFootstepSystem(this.world));
 
         // Entities
+
         const player = EntityFactory.Player();
         player
             .getComponent(Comp.Position)
             .set(
-                this.world.level.data.width / 2,
+                this.world.level.matrix.width / 2,
                 8,
-                this.world.level.data.depth / 2
+                this.world.level.matrix.depth / 2
             );
         this.world.addEntity(player);
 
@@ -102,9 +104,9 @@ export class GameClient implements Game {
         barrel
             .getComponent(Comp.Position)
             .set(
-                this.world.level.data.width * 0.25,
+                this.world.level.matrix.width * 0.25,
                 8,
-                this.world.level.data.depth / 2
+                this.world.level.matrix.depth / 2
             );
         this.world.addEntity(barrel);
     }

@@ -3,7 +3,6 @@ import { Group } from "three";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { onFamilyChange } from "../utils/EntityUtils";
-import { LevelOLD } from "../../editor/Level";
 
 export class RenderSystem extends System {
     private readonly family: Family;
@@ -39,8 +38,7 @@ export class RenderSystem extends System {
             const position = entity.getComponent(Comp.Position);
             render.obj.position.copy(position);
 
-            // TODO: UPDATE TO 3D
-            const light = LevelOLD.getVoxelLightColor(world.level.data, position);
+            const light = world.level.getVoxelLightAt(position);
             if (!render.mat.color.equals(light)) {
                 render.mat.color.lerp(light, 0.125);
                 render.mat.needsUpdate = true;

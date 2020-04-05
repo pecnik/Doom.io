@@ -3,8 +3,8 @@ import { clamp } from "lodash";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { Box3, Vector2 } from "three";
-import { LevelOLD, VoxelType, Voxel } from "../../editor/Level";
 import { onFamilyChange } from "../utils/EntityUtils";
+import { Level } from "../../editor/level/Level";
 
 export class CollisionSystem extends System {
     private readonly bodies: Family;
@@ -35,8 +35,6 @@ export class CollisionSystem extends System {
     }
 
     public update(world: World) {
-        const level = world.level.data;
-
         for (let i = 0; i < this.bodies.entities.length; i++) {
             const entity = this.bodies.entities[i];
             const position = entity.getComponent(Comp.Position);
@@ -71,10 +69,10 @@ export class CollisionSystem extends System {
             for (let x = minX; x < maxX; x++) {
                 for (let y = minY; y < maxY; y++) {
                     for (let z = minZ; z < maxZ; z++) {
-                        const voxel = LevelOLD.getVoxelAt(level, x, y, z);
+                        const voxel = world.level.getVoxel(x, y, z);
                         if (voxel === undefined) continue;
-                        if (voxel.type !== VoxelType.Solid) continue;
-                        this.resolveVoxelCollision(level, voxel, entity);
+                        if (voxel.type !== Level.VoxelType.Solid) continue;
+                        this.resolveVoxelCollision(world.level, voxel, entity);
                     }
                 }
             }
@@ -87,7 +85,11 @@ export class CollisionSystem extends System {
         }
     }
 
-    private resolveVoxelCollision(level: LevelOLD, voxel: Voxel, entity: Entity) {
+    private resolveVoxelCollision(
+        level: Level.Level,
+        voxel: Level.Voxel,
+        entity: Entity
+    ) {
         const aabb = new Box3();
         aabb.min.set(voxel.x, voxel.y, voxel.z).subScalar(0.5);
         aabb.max.set(voxel.x, voxel.y, voxel.z).addScalar(0.5);
@@ -118,22 +120,14 @@ export class CollisionSystem extends System {
         // Resolve vertical collision
         const floor = aabb.max.y + height / 2;
         if (next.y <= floor && prev.y >= floor) {
-            const voxelAbove = LevelOLD.getVoxelAt(
-                level,
-                voxel.x,
-                voxel.y + 1,
-                voxel.z
-            );
-
-            if (
-                voxelAbove === undefined ||
-                voxelAbove.type !== VoxelType.Solid
-            ) {
-                next.y = floor;
-                velocity.y = 0;
-                falg.y = -1;
+            const abv = level.getVoxel(voxel.x, voxel.y + 1, voxel.z);
+            if (abv !== undefined && abv.type === Level.VoxelType.Solid) {
+                return; // Ignore, abovr voxel will handle this
             }
 
+            next.y = floor;
+            velocity.y = 0;
+            falg.y = -1;
             return;
         }
 
