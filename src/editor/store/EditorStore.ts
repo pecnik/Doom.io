@@ -11,6 +11,7 @@ import {
 import { EditorWorld } from "./EditorWorld";
 import { EditorState, EditorTool } from "./EditorState";
 import { Level } from "../../game/data/Level";
+import { debounce } from "lodash";
 
 Vue.use(Vuex);
 
@@ -18,6 +19,13 @@ export function createStore(world: EditorWorld) {
     type StoreCtx = ActionContext<EditorState, EditorState>;
 
     const raycaster = new Raycaster();
+
+    const autoSaveTimeout = debounce((ctx: StoreCtx) => {
+        const { level } = ctx.state;
+        localStorage.setItem("level", JSON.stringify(level));
+        localStorage.setItem("store-state", JSON.stringify(ctx.state));
+        console.log("> Editor::autosave");
+    }, 2000);
 
     function createFloor(width: number, depth: number) {
         const geo = new PlaneGeometry(width, depth, width, depth);
@@ -57,6 +65,8 @@ export function createStore(world: EditorWorld) {
 
     function updateMesh(ctx: StoreCtx) {
         console.log(`> Editor::build level mesh`);
+        autoSaveTimeout(ctx);
+
         world.scene.remove(world.level.mesh);
         world.level.buildMesh();
         world.scene.add(world.level.mesh);
@@ -76,11 +86,33 @@ export function createStore(world: EditorWorld) {
     }
 
     const actions = {
-        initLevel(
-            ctx: StoreCtx,
-            payload: { width: number; height: number; depth: number }
-        ) {
-            const { width, height, depth } = payload;
+        initLevel(ctx: StoreCtx) {
+            const saveFile = localStorage.getItem("store-state");
+            if (saveFile !== null) {
+                const state = JSON.parse(saveFile) as EditorState;
+                Object.assign(ctx.state, state);
+
+                const { width, height, depth } = ctx.state.level;
+                world.scene.remove(...world.scene.children);
+
+                // Add floor
+                world.floor = createFloor(width, depth);
+                world.scene.add(world.floor);
+
+                // Reset camera
+                world.camera.rotation.set(Math.PI * -0.25, 0, 0, "YXZ");
+                world.camera.position.set(width / 2, height / 2, depth);
+
+                // Create level mesh
+                world.level.matrix = ctx.state.level;
+                world.level.buildMesh();
+                world.scene.add(world.level.mesh);
+                updateMesh(ctx);
+
+                return;
+            }
+
+            const [width, height, depth] = [8, 8, 8];
 
             world.level.resize(width, height, depth);
             world.level.forEachVoxel((voxel) => {
@@ -96,7 +128,7 @@ export function createStore(world: EditorWorld) {
             // Reset world scene
             world.scene.remove(...world.scene.children);
 
-            world.floor = createFloor(payload.width, payload.depth);
+            world.floor = createFloor(width, depth);
             world.scene.add(world.floor);
 
             world.level.buildMesh();

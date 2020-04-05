@@ -64,11 +64,7 @@ export class Editor implements Game {
     }
 
     public create() {
-        this.store.dispatch("initLevel", {
-            width: 8,
-            height: 8,
-            depth: 8,
-        });
+        this.store.dispatch("initLevel");
 
         document.addEventListener("pointerlockchange", () => {
             if (this.input.isLocked() && this.store.state.tileSelectDialog) {
