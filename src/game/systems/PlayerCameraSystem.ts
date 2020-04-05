@@ -21,8 +21,8 @@ export class PlayerCameraSystem extends System {
             const entity = this.family.entities[i];
             const position = entity.getComponent(Comp.Position);
             const rotation = entity.getComponent(Comp.Rotation2D);
-            world.camera.position.copy(position);
             world.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
+            world.camera.position.copy(position);
 
             const fov = isScopeActive(entity) ? 60 : 90;
             if (world.camera.fov !== fov) {
