@@ -174,12 +174,6 @@ export module Level {
                 }
             });
 
-            const colorOfLight = (light: Vector3) => {
-                const voxel = this.getVoxelAt(light);
-                if (voxel === undefined) return new Color(0xffffff);
-                return new Color(voxel.light);
-            };
-
             const ray = new Ray();
             const box = new Box3();
             const reachedLight = (origin: Vector3, light: Vector3) => {
@@ -213,7 +207,7 @@ export module Level {
                 return true;
             };
 
-            const sampleLightColor = (point: Vector3, normal: Vector3) => {
+            const aggregateLight = (point: Vector3, normal: Vector3) => {
                 const result = new Color(0.2, 0.2, 0.3);
 
                 for (let l = 0; l < lights.length; l++) {
@@ -230,7 +224,7 @@ export module Level {
                     // Test if point reaches
                     if (reachedLight(point, light)) {
                         const lightRad = 32;
-                        const lightCol = colorOfLight(light);
+                        const lightCol = this.getVoxelLightAt(light);
 
                         let value = point.distanceToSquared(light);
                         value = clamp(value, 0, lightRad);
@@ -242,29 +236,53 @@ export module Level {
                     }
                 }
 
+                result.r = clamp(result.r, 0, 1);
+                result.g = clamp(result.g, 0, 1);
+                result.b = clamp(result.b, 0, 1);
                 return result;
             };
 
-            // Set vertex colors
+            // Set geometry vertex colors
             const geometry = this.mesh.geometry as Geometry;
+            geometry.elementsNeedUpdate = true;
             for (let i = 0; i < geometry.faces.length; i++) {
                 const face = geometry.faces[i];
                 const verts = geometry.vertices;
-                face.vertexColors[0] = sampleLightColor(
+
+                face.vertexColors[0] = aggregateLight(
                     verts[face.a],
                     face.normal
                 );
-                face.vertexColors[1] = sampleLightColor(
+
+                face.vertexColors[1] = aggregateLight(
                     verts[face.b],
                     face.normal
                 );
-                face.vertexColors[2] = sampleLightColor(
+
+                face.vertexColors[2] = aggregateLight(
                     verts[face.c],
                     face.normal
                 );
             }
 
-            geometry.elementsNeedUpdate = true;
+            // Set voxel color value
+            const point = new Vector3();
+            const normal = new Vector3(0, 0, 0);
+            this.forEachVoxel((voxel) => {
+                point.set(voxel.x, voxel.y, voxel.z);
+                normal.set(0, 0, 0);
+                if (voxel.type !== VoxelType.Light) {
+                    voxel.light = aggregateLight(point, normal).getHex();
+                }
+
+                // // Debug
+                // const debug = new Mesh(
+                //     new BoxGeometry(0.1, 0.1, 0.1),
+                //     new MeshBasicMaterial({ color: voxel.light })
+                // );
+                // debug.position.copy(point);
+                // this.mesh.add(debug);
+            });
         }
 
         private createVoxelGeometry(voxel: Voxel) {
