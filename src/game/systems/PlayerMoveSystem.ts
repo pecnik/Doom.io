@@ -20,7 +20,7 @@ export class PlayerMoveSystem extends System {
             .build();
     }
 
-    public update(_: World, dt: number) {
+    public update(world: World, dt: number) {
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
             const position = entity.getComponent(Comp.Position);
@@ -32,10 +32,25 @@ export class PlayerMoveSystem extends System {
             velocity.x = lerp(velocity.x, move.x, RUN_SPEED / 8);
             velocity.z = lerp(velocity.z, move.y, RUN_SPEED / 8);
 
-            // Jump
-            const { jump } = entity.getComponent(Comp.PlayerInput);
-            if (jump && collision.falg.y === -1) {
+            // Jumping
+            const elapsed = world.elapsedTime;
+            const jump = entity.getComponent(Comp.Jump);
+            const input = entity.getComponent(Comp.PlayerInput);
+
+            if (input.jump) {
+                jump.triggerTime = elapsed;
+            }
+
+            if (collision.falg.y === -1) {
+                jump.coyoteTime = elapsed;
+            }
+
+            const tdelta = elapsed - jump.triggerTime;
+            const cdelta = elapsed - jump.coyoteTime;
+            if (tdelta < 0.1 && cdelta < 0.1) {
                 velocity.y = JUMP_SPEED;
+                jump.triggerTime = 0;
+                jump.coyoteTime = 0;
             }
 
             // Apply gravity

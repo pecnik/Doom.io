@@ -37,7 +37,7 @@ export module Comp {
         public readonly next = new Vector3();
         public readonly falg = new Vector3();
         public radius = 0.2;
-        public height = 0.75;
+        public height = 0.5;
     }
 
     export class PlayerInput implements Component {
@@ -96,5 +96,11 @@ export module Comp {
     export class Health implements Component {
         public static readonly tag = NEXT_TAG();
         public value = 100;
+    }
+
+    export class Jump implements Component {
+        public static readonly tag = NEXT_TAG();
+        public triggerTime = 0;
+        public coyoteTime = 0;
     }
 }

@@ -18,6 +18,7 @@ export module EntityFactory {
         entity.putComponent(Comp.Shooter);
         entity.putComponent(Comp.Gunshot);
         entity.putComponent(Comp.Footstep);
+        entity.putComponent(Comp.Jump);
 
         return entity;
     }
