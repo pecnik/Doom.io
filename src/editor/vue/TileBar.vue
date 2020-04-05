@@ -1,11 +1,11 @@
 <template>
     <div>
-        <div v-for="(tileId, index) in tileIdSlotArray" :key="index + 1">
-            <tile @click.native="openTileSelectDialog(index)"
-                class="tile"
-                :class="{ active: index === tileIdSlotIndex }"
-                :tileId="tileId"></tile>
-        </div>
+        <tile v-for="(tileId, index) in tileIdSlotArray"
+            class="tile"
+            @click.native="openTileSelectDialog(index)"
+            :key="index + 1"
+            :class="{ active: index === tileIdSlotIndex }"
+            :tileId="tileId"></tile>
     </div>
 </template>
 <script>
@@ -30,6 +30,6 @@ export default {
 </script>
 <style scoped lang="scss">
 .tile {
-    margin-bottom: 8px;
+    margin: 7px;
 }
 </style>

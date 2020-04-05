@@ -65,7 +65,9 @@ export function createStore(world: EditorWorld) {
         world.level.addLighting();
 
         // Add light debug mesh
-        world.level.addLightingDebug();
+        if (ctx.state.debugLights) {
+            world.level.addLightingDebug();
+        }
 
         // Add wireframe
         if (ctx.state.wireframe) {
@@ -103,6 +105,8 @@ export function createStore(world: EditorWorld) {
             // Reset camera
             world.camera.rotation.set(Math.PI * -0.25, 0, 0, "YXZ");
             world.camera.position.set(width / 2, height / 2, depth);
+
+            updateMesh(ctx);
         },
 
         createFloor(ctx: StoreCtx, payload: { tileId: number }) {
@@ -188,6 +192,11 @@ export function createStore(world: EditorWorld) {
 
         setWireframe(ctx: StoreCtx, enabled: boolean) {
             ctx.state.wireframe = enabled;
+            updateMesh(ctx);
+        },
+
+        setDebugLights(ctx: StoreCtx, enabled: boolean) {
+            ctx.state.debugLights = enabled;
             updateMesh(ctx);
         },
 

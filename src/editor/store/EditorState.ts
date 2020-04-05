@@ -9,7 +9,10 @@ export enum EditorTool {
 export class EditorState {
     public level = new Level.Level().matrix;
     public tool = EditorTool.Block;
-    public wireframe = false;
+
+    public wireframe = true;
+    public debugLights = true;
+
     public tileSelectDialog = false;
     public tileIdSlotIndex = 0;
     public tileIdSlotArray = [0, 1, 2, 3, 8, 9, 10, 11];

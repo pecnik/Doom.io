@@ -7,11 +7,18 @@
             <tile-bar></tile-bar>
         </div>
         <div id="menu-right" class="panel">
-            <button @click="play">PLAY</button>
-            <hr>
-            <label title="Wireframe">
-                WFR
-                <input type="checkbox" :value="wireframe" @input="toggleWireframe">
+            <button class="form-cotnrol" @click="play">PLAY</button>
+            <label class="form-cotnrol">
+                <input type="checkbox"
+                    :value="$store.state.wireframe"
+                    @input="toggleWireframe">
+                Wireframe
+            </label>
+            <label class="form-cotnrol">
+                <input type="checkbox"
+                    :value="$store.state.debugLights"
+                    @input="toggleDebugLights">
+                Debug lights
             </label>
         </div>
         <div id="dialog" v-if="tileSelectDialog">
@@ -30,14 +37,14 @@ export default {
         },
         toolIcon() {
             return this.$store.state.tool;
-        },
-        wireframe() {
-            return this.$store.state.wireframe;
         }
     },
     methods: {
         toggleWireframe(ev) {
             this.$store.dispatch("setWireframe", ev.target.checked);
+        },
+        toggleDebugLights(ev) {
+            this.$store.dispatch("setDebugLights", ev.target.checked);
         },
         play() {
             const { level } = this.$store.state;
@@ -62,7 +69,7 @@ export default {
 
     display: grid;
     grid-template-rows: 40px 1fr 96px;
-    grid-template-columns: 96px 1fr 96px;
+    grid-template-columns: 192px 1fr 192px;
 
     pointer-events: none;
 
@@ -133,5 +140,19 @@ export default {
     padding: 16px;
     color: #f2f2f2;
     background: #222;
+}
+
+.form-cotnrol {
+    display: block;
+    line-height: 32px;
+    padding: 0;
+    width: 100%;
+    margin-bottom: 16px;
+    opacity: 0.75;
+
+    &:hover {
+        opacity: 1;
+        cursor: pointer;
+    }
 }
 </style>
