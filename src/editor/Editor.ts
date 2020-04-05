@@ -15,13 +15,13 @@ export class Editor implements Game {
     public readonly world = new EditorWorld();
     public readonly input = new Input({
         requestPointerLock: true,
-        element: document.getElementById("viewport") as HTMLElement
+        element: document.getElementById("viewport") as HTMLElement,
     });
 
     public readonly store = createStore(this.world);
     public readonly vue = new Vue({
         store: this.store,
-        render: h => h(App)
+        render: (h) => h(App),
     }).$mount("#ui-layer");
 
     public readonly tools = [
@@ -29,25 +29,25 @@ export class Editor implements Game {
             type: EditorTool.Block,
             hotkey: KeyCode.E,
             onMouseOne: () => this.store.dispatch("placeVoxel"),
-            onMouseTwo: () => this.store.dispatch("removeVoxel")
+            onMouseTwo: () => this.store.dispatch("removeVoxel"),
         },
         {
             type: EditorTool.Paint,
             hotkey: KeyCode.F,
             onMouseOne: () => this.store.dispatch("fillVoxelFace"),
-            onMouseTwo: () => this.store.dispatch("fillVoxel")
+            onMouseTwo: () => this.store.dispatch("fillVoxel"),
         },
         {
             type: EditorTool.Pick,
             hotkey: KeyCode.ALT,
-            onMouseOne: () => this.store.dispatch("sampleVoxel")
-        }
+            onMouseOne: () => this.store.dispatch("sampleVoxel"),
+        },
     ];
 
     public preload() {
         const loadTexture = (src: string): Promise<Texture> => {
-            return new Promise(resolve => {
-                new TextureLoader().load(src, map => {
+            return new Promise((resolve) => {
+                new TextureLoader().load(src, (map) => {
                     map.minFilter = NearestFilter;
                     map.magFilter = NearestFilter;
                     resolve(map);
@@ -57,17 +57,17 @@ export class Editor implements Game {
 
         return Promise.all([
             // Load level tileset texture
-            loadTexture("/assets/tileset.png").then(map => {
+            loadTexture("/assets/tileset.png").then((map) => {
                 this.world.texture = map;
-            })
+            }),
         ]);
     }
 
     public create() {
         this.store.dispatch("initLevel", {
             width: 8,
-            height: 4,
-            depth: 8
+            height: 8,
+            depth: 8,
         });
 
         document.addEventListener("pointerlockchange", () => {
@@ -155,10 +155,7 @@ export class Editor implements Game {
 
         const fly = (down ? -1 : 0) + (up ? 1 : 0);
         const velocity = new Vector3(move.x, fly, move.y);
-        velocity
-            .normalize()
-            .multiplyScalar(5)
-            .multiplyScalar(dt);
+        velocity.normalize().multiplyScalar(5).multiplyScalar(dt);
         this.world.camera.position.add(velocity);
     }
 }

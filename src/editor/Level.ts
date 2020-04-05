@@ -272,11 +272,21 @@ export module Level {
             return true;
         };
 
-        const sampleLightColor = (point: Vector3) => {
+        const sampleLightColor = (point: Vector3, normal: Vector3) => {
             const result = new Color(0.2, 0.2, 0.3);
 
             for (let l = 0; l < lights.length; l++) {
                 const light = lights[l];
+
+                // Test if facing light
+                if (normal.x === +1 && light.x < point.x) continue;
+                if (normal.x === -1 && light.x > point.x) continue;
+                if (normal.y === +1 && light.y < point.y) continue;
+                if (normal.y === -1 && light.y > point.y) continue;
+                if (normal.z === +1 && light.z < point.z) continue;
+                if (normal.z === -1 && light.z > point.z) continue;
+
+                // Test if point reaches
                 if (reachedLight(point, light)) {
                     const lightRad = 32;
                     const lightCol = colorOfLight(light);
@@ -298,9 +308,10 @@ export module Level {
         const geometry = mesh.geometry as Geometry;
         for (let i = 0; i < geometry.faces.length; i++) {
             const face = geometry.faces[i];
-            face.vertexColors[0] = sampleLightColor(geometry.vertices[face.a]);
-            face.vertexColors[1] = sampleLightColor(geometry.vertices[face.b]);
-            face.vertexColors[2] = sampleLightColor(geometry.vertices[face.c]);
+            const verts = geometry.vertices;
+            face.vertexColors[0] = sampleLightColor(verts[face.a], face.normal);
+            face.vertexColors[1] = sampleLightColor(verts[face.b], face.normal);
+            face.vertexColors[2] = sampleLightColor(verts[face.c], face.normal);
         }
 
         geometry.elementsNeedUpdate = true;
