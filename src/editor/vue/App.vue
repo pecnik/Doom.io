@@ -10,14 +10,14 @@
             <button class="form-cotnrol" @click="play">PLAY</button>
             <label class="form-cotnrol">
                 <input type="checkbox"
-                    :value="$store.state.wireframe"
-                    @input="toggleWireframe">
+                    :checked="$store.state.wireframe"
+                    @change="toggleWireframe">
                 Wireframe
             </label>
             <label class="form-cotnrol">
                 <input type="checkbox"
-                    :value="$store.state.debugLights"
-                    @input="toggleDebugLights">
+                    :checked="$store.state.debugLights"
+                    @change="toggleDebugLights">
                 Debug lights
             </label>
         </div>
@@ -149,6 +149,7 @@ export default {
     width: 100%;
     margin-bottom: 16px;
     opacity: 0.75;
+    user-select: none;
 
     &:hover {
         opacity: 1;
