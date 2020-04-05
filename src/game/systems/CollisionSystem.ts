@@ -99,8 +99,8 @@ export class CollisionSystem extends System {
         // Test vertical collision
         const playerMinY = Math.min(next.y, prev.y) - height / 2;
         const playerMaxY = Math.max(next.y, prev.y) + height / 2;
-        if (playerMinY > aabb.max.y) return;
-        if (playerMaxY < aabb.min.y) return;
+        if (playerMinY >= aabb.max.y) return;
+        if (playerMaxY <= aabb.min.y) return;
 
         // Test horizontal collision
         const position2D = new Vector2();
@@ -132,8 +132,9 @@ export class CollisionSystem extends System {
                 next.y = floor;
                 velocity.y = 0;
                 falg.y = -1;
-                return;
             }
+
+            return;
         }
 
         const ceiling = aabb.min.y - height / 2;
