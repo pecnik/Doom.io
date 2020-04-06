@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="tile-bar">
         <tile v-for="(tileId, index) in tileIdSlotArray"
             class="tile"
             @click.native="openTileSelectDialog(index)"
@@ -29,7 +29,12 @@ export default {
 };
 </script>
 <style scoped lang="scss">
-.tile {
-    margin: 7px;
+.tile-bar {
+    display: flex;
+    padding: 16px;
+
+    .tile {
+        margin-right: 16px;
+    }
 }
 </style>

@@ -7,6 +7,9 @@
             </div>
             <div id="editor-sidemenu">SIDEMENI</div>
             <div id="editor-viewport" ref="viewport"></div>
+            <div id="editor-cursor">
+                <i class="fa" :class="toolIcon"></i>
+            </div>
         </div>
         </v-app>
     </div>
@@ -20,6 +23,11 @@ import TileBar from "./TileBar.vue";
 
 export default {
     components: { TileBar },
+    computed: {
+        toolIcon() {
+            return this.$store.state.tool;
+        }
+    },
     mounted() {
         const viewport = this.$refs["viewport"];
         const renderer = new WebGLRenderer({ antialias: true });
@@ -67,29 +75,57 @@ export default {
     box-sizing: border-box;
 
     display: grid;
-    grid-template-rows: 32px 96px minmax(0, 1fr) 32px;
-    grid-template-columns: 32px minmax(0, 1fr) 250px 32px;
+    grid-gap: 24px;
+    grid-template-rows: 96px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 250px;
 
     #editor-header {
         box-sizing: border-box;
-        grid-row: 2;
-        grid-column-start: 2;
-        grid-column-end: 4;
+        grid-row: 1;
+        grid-column-start: 1;
+        grid-column-end: 3;
     }
 
     #editor-sidemenu {
         box-sizing: border-box;
-        grid-row: 3;
-        grid-column: 3;
+        grid-row: 2;
+        grid-column: 2;
     }
 
     #editor-viewport {
         box-sizing: border-box;
-        grid-row: 3;
-        grid-column: 2;
+        grid-row: 2;
+        grid-column: 1;
 
         > canvas {
             border: 1px solid #999999;
+        }
+    }
+
+    #editor-cursor {
+        grid-row: 2;
+        grid-column: 1;
+        pointer-events: none;
+
+        /* center fa curosr */
+        display: grid;
+        align-content: space-evenly;
+        justify-content: space-evenly;
+
+        .fa {
+            $cursor_size: 32px;
+            pointer-events: none;
+            width: $cursor_size;
+            height: $cursor_size;
+            border-radius: $cursor_size / 2;
+
+            opacity: 0.5;
+            color: #000;
+            background: #fff;
+
+            text-align: center;
+            font-size: $cursor_size / 2;
+            line-height: $cursor_size;
         }
     }
 }

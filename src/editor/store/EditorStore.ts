@@ -29,7 +29,7 @@ export function createStore(world: EditorWorld) {
 
     const addLightingTimeout = debounce(() => {
         world.level.addLighting();
-    }, 250);
+    }, 1000);
 
     function createFloor(width: number, depth: number) {
         const geo = new PlaneGeometry(width, depth, width, depth);
