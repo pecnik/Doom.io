@@ -63,25 +63,25 @@ export default {
 
     display: grid;
     grid-template-rows: 32px 96px minmax(0, 1fr) 32px;
-    grid-template-columns: 32px 250px minmax(0, 1fr) 32px;
+    grid-template-columns: 32px minmax(0, 1fr) 250px 32px;
 
     #editor-header {
         box-sizing: border-box;
         grid-row: 2;
-        grid-column-start: 3;
+        grid-column-start: 2;
         grid-column-end: 4;
     }
 
     #editor-sidemenu {
         box-sizing: border-box;
         grid-row: 3;
-        grid-column: 2;
+        grid-column: 3;
     }
 
     #editor-viewport {
         box-sizing: border-box;
         grid-row: 3;
-        grid-column: 3;
+        grid-column: 2;
 
         > canvas {
             border: 1px solid #999999;
