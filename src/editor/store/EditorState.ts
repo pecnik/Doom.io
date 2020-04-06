@@ -10,6 +10,7 @@ export class EditorState {
     public level = new Level.Level().matrix;
     public tool = EditorTool.Block;
 
+    public shading = true;
     public wireframe = true;
     public lightModels = true;
 

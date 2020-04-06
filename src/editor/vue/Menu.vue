@@ -20,6 +20,12 @@
         </label>
         <label class="form-control">
             <v-checkbox
+                label="Shading"
+                :input-value="settings.shading"
+                @change="toggleShading"></v-checkbox>
+        </label>
+        <label class="form-control">
+            <v-checkbox
                 label="Debug lights"
                 :input-value="settings.lightModels"
                 @change="toggleLightModels"></v-checkbox>
@@ -32,6 +38,7 @@ export default {
     computed: {
         settings() {
             return {
+                shading: this.$store.state.shading,
                 wireframe: this.$store.state.wireframe,
                 lightModels: this.$store.state.lightModels
             };
@@ -64,6 +71,9 @@ export default {
         },
         setTool(ev) {
             this.$store.dispatch("setTool", ev.target.value);
+        },
+        toggleShading(value) {
+            this.$store.dispatch("setShading", value);
         },
         toggleWireframe(value) {
             this.$store.dispatch("setWireframe", value);

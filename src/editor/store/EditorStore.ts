@@ -76,7 +76,9 @@ export function createStore(world: EditorWorld) {
         world.scene.add(world.level.mesh);
 
         // Add lighting
-        addLightingTimeout();
+        if (ctx.state.shading) {
+            addLightingTimeout();
+        }
 
         // Add light debug mesh
         if (ctx.state.lightModels) {
@@ -241,6 +243,11 @@ export function createStore(world: EditorWorld) {
 
         setWireframe(ctx: StoreCtx, enabled: boolean) {
             ctx.state.wireframe = enabled;
+            updateMesh(ctx);
+        },
+
+        setShading(ctx: StoreCtx, enabled: boolean) {
+            ctx.state.shading = enabled;
             updateMesh(ctx);
         },
 
