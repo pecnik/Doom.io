@@ -2,7 +2,9 @@
     <div>
         <v-app>
         <div id="editor-app">
-            <div id="editor-header">HEADER</div>
+            <div id="editor-header">
+                <tile-bar></tile-bar>
+            </div>
             <div id="editor-sidemenu">SIDEMENI</div>
             <div id="editor-viewport" ref="viewport"></div>
         </div>
@@ -14,7 +16,10 @@ import { WebGLRenderer } from "three";
 import { Editor } from "../Editor";
 import { debounce } from "lodash";
 
+import TileBar from "./TileBar.vue";
+
 export default {
+    components: { TileBar },
     mounted() {
         const viewport = this.$refs["viewport"];
         const renderer = new WebGLRenderer({ antialias: true });
