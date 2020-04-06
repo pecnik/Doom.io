@@ -11,7 +11,7 @@ export class EditorState {
     public tool = EditorTool.Block;
 
     public wireframe = true;
-    public debugLights = true;
+    public lightModels = true;
 
     public tileSelectDialog = false;
     public tileIdSlotIndex = 0;

@@ -26,8 +26,8 @@
             </label>
             <label class="form-control">
                 <input type="checkbox"
-                    :checked="$store.state.debugLights"
-                    @change="toggleDebugLights">
+                    :checked="$store.state.lightModels"
+                    @change="toggleLightModels">
                 Debug lights
             </label>
         </div>
@@ -81,8 +81,8 @@ export default {
         toggleWireframe(ev) {
             this.$store.dispatch("setWireframe", ev.target.checked);
         },
-        toggleDebugLights(ev) {
-            this.$store.dispatch("setDebugLights", ev.target.checked);
+        toggleLightModels(ev) {
+            this.$store.dispatch("toggleLightModels", ev.target.checked);
         }
     },
     data() {

@@ -21,8 +21,8 @@
         <label class="form-control">
             <v-checkbox
                 label="Debug lights"
-                :input-value="settings.debugLights"
-                @change="toggleDebugLights"></v-checkbox>
+                :input-value="settings.lightModels"
+                @change="toggleLightModels"></v-checkbox>
         </label>
     </div>
 </template>
@@ -33,7 +33,7 @@ export default {
         settings() {
             return {
                 wireframe: this.$store.state.wireframe,
-                debugLights: this.$store.state.debugLights
+                lightModels: this.$store.state.lightModels
             };
         }
     },
@@ -66,12 +66,10 @@ export default {
             this.$store.dispatch("setTool", ev.target.value);
         },
         toggleWireframe(value) {
-            console.log({ value });
             this.$store.dispatch("setWireframe", value);
         },
-        toggleDebugLights(value) {
-            console.log({ value });
-            this.$store.dispatch("setDebugLights", value);
+        toggleLightModels(value) {
+            this.$store.dispatch("toggleLightModels", value);
         }
     },
     data() {

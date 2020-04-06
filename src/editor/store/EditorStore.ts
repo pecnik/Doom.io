@@ -79,7 +79,7 @@ export function createStore(world: EditorWorld) {
         addLightingTimeout();
 
         // Add light debug mesh
-        if (ctx.state.debugLights) {
+        if (ctx.state.lightModels) {
             world.level.addLightingDebug();
         }
 
@@ -244,8 +244,8 @@ export function createStore(world: EditorWorld) {
             updateMesh(ctx);
         },
 
-        setDebugLights(ctx: StoreCtx, enabled: boolean) {
-            ctx.state.debugLights = enabled;
+        toggleLightModels(ctx: StoreCtx, enabled: boolean) {
+            ctx.state.lightModels = enabled;
             updateMesh(ctx);
         },
 
