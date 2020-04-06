@@ -251,7 +251,9 @@ export module Level {
                     const face = geometry.faces[i];
                     const verts = geometry.vertices;
 
-                    geometry.elementsNeedUpdate = true;
+                    if (i === geometry.faces.length - 1) {
+                        geometry.elementsNeedUpdate = true;
+                    }
 
                     face.vertexColors[0] = aggregateLight(
                         verts[face.a],

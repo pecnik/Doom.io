@@ -2,9 +2,7 @@
     <div>
         <v-app>
             <v-content>
-                <v-container>
-                    <div ref="viewport"></div>
-                </v-container>
+                <div ref="viewport"></div>
             </v-content>
         </v-app>
     </div>
@@ -15,9 +13,10 @@ import { Editor } from "../Editor";
 export default {
     mounted() {
         const viewport = this.$refs["viewport"];
-        const editor = new Editor(viewport);
         const renderer = new WebGLRenderer({});
         viewport.appendChild(renderer.domElement);
+
+        const editor = new Editor(renderer.domElement);
 
         let aspect = 0;
         const onWindowResize = () => {
@@ -41,7 +40,7 @@ export default {
             let lastTime = 0;
             requestAnimationFrame(function next(gameTime) {
                 const delta = (gameTime - lastTime) * 0.001;
-                lastTime=gameTime
+                lastTime = gameTime;
                 editor.update(delta);
                 renderer.render(editor.world.scene, editor.world.camera);
                 requestAnimationFrame(next);
