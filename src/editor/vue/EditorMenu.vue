@@ -1,35 +1,31 @@
 <template>
     <div>
-        <button class="form-control" @click="play">PLAY</button>
+        <v-btn x-large block @click="play">PLAY</v-btn>
+        <br>
+        <br>
 
-        <button class="form-control" @click="resize">Resize</button>
+        <v-select
+            :value="settings.tool"
+            @change="setTool"
+            :items="tools"
+            item-text="label"
+            item-value="value"
+            label="Active tool"
+        ></v-select>
 
-        <label>
-            <select class="form-control" :value="$store.state.tool" @input="setTool">
-                <option v-for="tool in tools" :key="tool.value" :value="tool.value">
-                    {{ tool.label }}
-                </option>
-            </select>
-        </label>
-
-        <label class="form-control">
-            <v-checkbox
-                label="Wireframe"
-                :input-value="settings.wireframe"
-                @change="toggleWireframe"></v-checkbox>
-        </label>
-        <label class="form-control">
-            <v-checkbox
-                label="Shading"
-                :input-value="settings.shading"
-                @change="toggleShading"></v-checkbox>
-        </label>
-        <label class="form-control">
-            <v-checkbox
-                label="Debug lights"
-                :input-value="settings.lightModels"
-                @change="toggleLightModels"></v-checkbox>
-        </label>
+        <v-checkbox
+            label="Wireframe"
+            :input-value="settings.wireframe"
+            @change="toggleWireframe"></v-checkbox>
+        <v-checkbox
+            label="Shading"
+            :input-value="settings.shading"
+            @change="toggleShading"></v-checkbox>
+        <v-checkbox
+            label="Debug lights"
+            :input-value="settings.lightModels"
+            @change="toggleLightModels"></v-checkbox>
+        <v-btn  @click="newLevel">New level</v-btn>
     </div>
 </template>
 <script>
@@ -38,6 +34,7 @@ export default {
     computed: {
         settings() {
             return {
+                tool: this.$store.state.tool,
                 shading: this.$store.state.shading,
                 wireframe: this.$store.state.wireframe,
                 lightModels: this.$store.state.lightModels
@@ -52,8 +49,8 @@ export default {
             const url = [location.origin, location.pathname].join("");
             window.open(url);
         },
-        resize() {
-            if (!confirm("Resize level? Data might be lost.")) {
+        newLevel() {
+            if (!confirm("New level?")) {
                 return;
             }
 
@@ -69,8 +66,8 @@ export default {
             const [w, h, d] = parsed;
             this.$store.dispatch("resizeLevel", [w, h, d]);
         },
-        setTool(ev) {
-            this.$store.dispatch("setTool", ev.target.value);
+        setTool(value) {
+            this.$store.dispatch("setTool", value);
         },
         toggleShading(value) {
             this.$store.dispatch("setShading", value);

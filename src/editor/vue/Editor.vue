@@ -21,7 +21,7 @@ import { WebGLRenderer } from "three";
 import { Editor } from "../Editor";
 import { debounce } from "lodash";
 
-import EditorMenu from "./Menu.vue";
+import EditorMenu from "./EditorMenu.vue";
 import TileBar from "./TileBar.vue";
 
 export default {
@@ -72,8 +72,9 @@ export default {
 </script>
 <style lang="scss">
 #editor-app {
-    width: 100vw;
+    width: 94vw;
     height: 100vh;
+    margin: 0 auto;
     overflow: hidden;
     box-sizing: border-box;
 
