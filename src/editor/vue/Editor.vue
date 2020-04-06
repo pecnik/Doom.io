@@ -17,15 +17,16 @@ import { debounce } from "lodash";
 export default {
     mounted() {
         const viewport = this.$refs["viewport"];
-        const renderer = new WebGLRenderer({});
+        const renderer = new WebGLRenderer({ antialias: true });
+        renderer.setClearColor(0x6495ed);
         viewport.appendChild(renderer.domElement);
 
         const editor = new Editor(renderer.domElement);
 
         let aspect = 0;
         const onWindowResize = debounce(() => {
-            const width = viewport.offsetWidth;
-            const height = viewport.offsetHeight;
+            const width = Math.floor(viewport.offsetWidth - 1);
+            const height = Math.floor(viewport.offsetHeight - 1);
             const aspect = width / height;
             const camera = editor.world.camera;
             camera.aspect = aspect;
@@ -61,26 +62,30 @@ export default {
     box-sizing: border-box;
 
     display: grid;
-    grid-template-rows: 96px minmax(0, 1fr);
-    grid-template-columns: 250px minmax(0, 1fr);
+    grid-template-rows: 32px 96px minmax(0, 1fr) 32px;
+    grid-template-columns: 32px 250px minmax(0, 1fr) 32px;
 
     #editor-header {
         box-sizing: border-box;
-        grid-row: 1;
-        grid-column-start: 1;
-        grid-column-end: 3;
+        grid-row: 2;
+        grid-column-start: 3;
+        grid-column-end: 4;
     }
 
     #editor-sidemenu {
         box-sizing: border-box;
-        grid-row: 2;
-        grid-column: 1;
+        grid-row: 3;
+        grid-column: 2;
     }
 
     #editor-viewport {
         box-sizing: border-box;
-        grid-row: 2;
-        grid-column: 2;
+        grid-row: 3;
+        grid-column: 3;
+
+        > canvas {
+            border: 1px solid #999999;
+        }
     }
 }
 </style>

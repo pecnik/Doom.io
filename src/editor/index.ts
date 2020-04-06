@@ -7,7 +7,7 @@ import "vuetify/dist/vuetify.min.css";
 Vue.use(Vuetify);
 
 const vuetify = new Vuetify({
-    // ...
+    theme: { dark: true },
 });
 
 new Vue({
