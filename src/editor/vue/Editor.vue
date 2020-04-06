@@ -5,7 +5,9 @@
             <div id="editor-header">
                 <tile-bar></tile-bar>
             </div>
-            <div id="editor-sidemenu">SIDEMENI</div>
+            <div id="editor-sidemenu">
+                <editor-menu></editor-menu>
+            </div>
             <div id="editor-viewport" ref="viewport"></div>
             <div id="editor-cursor">
                 <i class="fa" :class="toolIcon"></i>
@@ -19,10 +21,11 @@ import { WebGLRenderer } from "three";
 import { Editor } from "../Editor";
 import { debounce } from "lodash";
 
+import EditorMenu from "./Menu.vue";
 import TileBar from "./TileBar.vue";
 
 export default {
-    components: { TileBar },
+    components: { EditorMenu, TileBar },
     computed: {
         toolIcon() {
             return this.$store.state.tool;
