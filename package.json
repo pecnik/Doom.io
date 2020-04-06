@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@nuxtjs/vuetify": "^1.11.0",
     "@types/chai": "^4.2.11",
     "@types/express": "^4.17.3",
     "@types/express-fileupload": "^1.1.2",

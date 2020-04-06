@@ -1,29 +1,22 @@
-import Vue from "vue";
-import App from "./vue/App.vue";
 import { Vector2, Vector3, Texture, TextureLoader, NearestFilter } from "three";
 import { Game } from "../game/core/Engine";
 import { EditorHud } from "./store/EditorHud";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
-import { createStore } from "./store/EditorStore";
+import { Store } from "vuex";
 import { EditorWorld } from "./store/EditorWorld";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
-import { EditorTool } from "./store/EditorState";
+import { EditorTool, EditorState } from "./store/EditorState";
+import { createStore } from "./store/EditorStore";
 
 export class Editor implements Game {
-    public readonly hud = new EditorHud();
-    public readonly world = new EditorWorld();
-    public readonly input = new Input({
-        requestPointerLock: true,
-        element: document.getElementById("viewport") as HTMLElement,
-    });
+    public static readonly world = new EditorWorld();
+    public static readonly store = createStore(Editor.world);
 
-    public readonly store = createStore(this.world);
-    public readonly vue = new Vue({
-        store: this.store,
-        render: (h) => h(App),
-    }).$mount("#ui-layer");
-
+    public readonly hud: EditorHud;
+    public readonly world: EditorWorld;
+    public readonly store: Store<EditorState>;
+    public readonly input: Input;
     public readonly tools = [
         {
             type: EditorTool.Block,
@@ -43,6 +36,16 @@ export class Editor implements Game {
             onMouseOne: () => this.store.dispatch("sampleVoxel"),
         },
     ];
+
+    public constructor(viewport: HTMLElement) {
+        this.hud = new EditorHud();
+        this.world = Editor.world;
+        this.store = Editor.store;
+        this.input = new Input({
+            requestPointerLock: true,
+            element: viewport,
+        });
+    }
 
     public preload() {
         const loadTexture = (src: string): Promise<Texture> => {
@@ -151,7 +154,10 @@ export class Editor implements Game {
 
         const fly = (down ? -1 : 0) + (up ? 1 : 0);
         const velocity = new Vector3(move.x, fly, move.y);
-        velocity.normalize().multiplyScalar(5).multiplyScalar(dt);
+        velocity
+            .normalize()
+            .multiplyScalar(5)
+            .multiplyScalar(dt);
         this.world.camera.position.add(velocity);
     }
 }

@@ -1,9 +1,23 @@
-import { Engine } from "../game/core/Engine";
+import Vue from "vue";
+import Vuetify from "vuetify";
+import EditorApp from "./vue/Editor.vue";
 import { Editor } from "./Editor";
-import { VIEW_WIDTH, VIEW_HEIGHT } from "./Constants";
+import "vuetify/dist/vuetify.min.css";
 
-new Engine(
-    new Editor(),
-    document.getElementById("viewport") as HTMLCanvasElement,
-    document.getElementById("gamearea") as HTMLDivElement
-).start(VIEW_WIDTH, VIEW_HEIGHT);
+Vue.use(Vuetify);
+
+const vuetify = new Vuetify({
+    // ...
+});
+
+new Vue({
+    store: Editor.store,
+    vuetify,
+    render: (h) => h(EditorApp),
+}).$mount("#ui-layer");
+
+// Idk ...
+const gamearea = document.getElementById("gamearea");
+if (gamearea) {
+    gamearea.remove();
+}
