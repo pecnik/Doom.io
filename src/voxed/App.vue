@@ -30,6 +30,7 @@ const editor = Editor.getInstance();
 export default {
     methods: {
         resize() {
+            const viewport = this.$refs["viewport"];
             const width = Math.floor(viewport.offsetWidth - 1);
             const height = Math.floor(viewport.offsetHeight - 1);
             const aspect = width / height;
@@ -42,14 +43,16 @@ export default {
     },
     mounted() {
         const viewport = this.$refs["viewport"];
-        editor.renderer.setClearColor(0x6495ed);
+        editor.renderer.setClearColor(0x4d5c69);
         viewport.appendChild(editor.renderer.domElement);
 
         this.resize();
         window.addEventListener("resize", this.resize);
 
-        requestAnimationFrame(function next() {
-            editor.update();
+        editor.newLevel(8, 4, 8);
+
+        requestAnimationFrame(function next(elapsed) {
+            editor.update(elapsed);
             requestAnimationFrame(next);
         });
     }
