@@ -29,13 +29,13 @@
         justify-content: space-evenly;
 
         .fa {
-            $cursor_size: 32px;
+            $cursor_size: 24px;
             pointer-events: none;
             width: $cursor_size;
             height: $cursor_size;
             border-radius: $cursor_size / 2;
 
-            opacity: 0.5;
+            opacity: 0.75;
             color: #000;
             background: #fff;
 
