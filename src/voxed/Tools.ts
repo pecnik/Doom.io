@@ -7,7 +7,7 @@ export abstract class Tool {
     protected readonly editor: Editor;
     protected readonly raycaster: Raycaster;
 
-    public abstract readonly guid: EditorTool;
+    public abstract readonly id: EditorTool;
     public abstract readonly hotkey: KeyCode;
 
     public constructor(editor: Editor) {
@@ -15,6 +15,7 @@ export abstract class Tool {
         this.raycaster = new Raycaster();
     }
 
+    public onStart() {}
     public onMouseOne() {}
     public onMouseTwo() {}
 
@@ -44,7 +45,7 @@ export abstract class Tool {
 }
 
 export class BlockTool extends Tool {
-    public readonly guid = EditorTool.Block;
+    public readonly id = EditorTool.Block;
     public readonly hotkey = KeyCode.E;
 
     public onMouseOne() {
@@ -67,7 +68,7 @@ export class BlockTool extends Tool {
 }
 
 export class PaintTool extends Tool {
-    public readonly guid = EditorTool.Paint;
+    public readonly id = EditorTool.Paint;
     public readonly hotkey = KeyCode.F;
 
     public onMouseOne() {
@@ -100,8 +101,14 @@ export class PaintTool extends Tool {
 }
 
 export class SampleTool extends Tool {
-    public readonly guid = EditorTool.Sample;
+    private prevTool = EditorTool.Block;
+
+    public readonly id = EditorTool.Sample;
     public readonly hotkey = KeyCode.ALT;
+
+    public onStart() {
+        this.prevTool = this.editor.getSelectedToolId();
+    }
 
     public onMouseOne() {
         const rsp = this.sampleVoxel(-1);
@@ -119,6 +126,7 @@ export class SampleTool extends Tool {
                 const { texture } = this.editor.store.state;
                 texture.slots[texture.index] = tileId;
                 texture.slots = [...texture.slots]; // Force vue update
+                this.editor.setActiveTool(this.prevTool);
             }
         }
     }

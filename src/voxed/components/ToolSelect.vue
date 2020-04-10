@@ -1,7 +1,7 @@
 <template>
     <v-select label="Tool"
         @change="setTool"
-        :value="tool"
+        :value="toolId"
         :items="items"></v-select>
 </template>
 <script>
@@ -13,13 +13,13 @@ export default {
         };
     },
     computed: {
-        tool() {
-            return this.$store.state.tool;
+        toolId() {
+            return this.$store.state.toolId;
         }
     },
     methods: {
         setTool(value) {
-            this.$store.state.tool = value;
+            this.$store.state.toolId = value;
         }
     }
 };

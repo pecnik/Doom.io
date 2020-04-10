@@ -75,13 +75,13 @@ export default {
     components: { ToolSelect, TextureSelect },
     computed: {
         toolIcon() {
-            const { tool } = this.$store.state;
+            const { toolId } = this.$store.state;
             const icons = {
                 [EditorTool.Block]: "fa-cube",
                 [EditorTool.Paint]: "fa-fill-drip",
                 [EditorTool.Sample]: "fa-eye-dropper"
             };
-            return icons[tool];
+            return icons[toolId];
         }
     },
     methods: {

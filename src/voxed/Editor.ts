@@ -47,7 +47,7 @@ export class Editor {
 
     public readonly store = new Vuex.Store({
         state: {
-            tool: EditorTool.Block,
+            toolId: EditorTool.Block,
             texture: {
                 slots: [0, 1, 2, 3, 8, 9, 10, 11],
                 index: 0
@@ -57,6 +57,10 @@ export class Editor {
 
     public constructor() {
         this.scene.add(this.floor, this.level.mesh, this.level.wireframe);
+    }
+
+    public getSelectedToolId() {
+        return this.store.state.toolId;
     }
 
     public getSelectedTileId() {
@@ -91,6 +95,15 @@ export class Editor {
 
         this.camera.rotation.set(-Math.PI / 4, 0, 0, "YXZ");
         this.camera.position.set(max_x / 2, max_y / 2, max_z / 2);
+    }
+
+    public setActiveTool(toolId: EditorTool) {
+        for (let i = 0; i < this.tools.length; i++) {
+            if (this.tools[i].id === toolId) {
+                this.tools[i].onStart();
+            }
+        }
+        this.store.state.toolId = toolId;
     }
 
     public update(elapsed: number) {
@@ -164,24 +177,24 @@ export class Editor {
     }
 
     private toolSystem() {
+        const toolId = this.getSelectedToolId();
         for (let i = 0; i < this.tools.length; i++) {
             const tool = this.tools[i];
 
+            // Hotkey select tool
             if (this.input.isKeyPressed(tool.hotkey)) {
-                this.store.state.tool = tool.guid;
-                continue;
+                this.setActiveTool(tool.id);
             }
 
-            if (tool.guid !== this.store.state.tool) {
-                continue;
-            }
+            // Tool actions
+            if (tool.id === toolId) {
+                if (this.input.isMousePresed(MouseBtn.Left)) {
+                    tool.onMouseOne();
+                }
 
-            if (this.input.isMousePresed(MouseBtn.Left)) {
-                tool.onMouseOne();
-            }
-
-            if (this.input.isMousePresed(MouseBtn.Right)) {
-                tool.onMouseTwo();
+                if (this.input.isMousePresed(MouseBtn.Right)) {
+                    tool.onMouseTwo();
+                }
             }
         }
     }
