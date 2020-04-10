@@ -53,13 +53,13 @@ export class Editor {
 
     public preload() {
         return loadTexture("/assets/tileset.png").then(map => {
-            this.level.map = map;
+            this.level.initMaterial(map);
         });
     }
 
     public newLevel(max_x: number, max_y: number, max_z: number) {
         this.level.initData(max_x, max_y, max_z);
-        // this.level.
+        this.level.updateGeometry();
 
         {
             // Reconstruct floor mesh

@@ -52,7 +52,7 @@ export default {
         window.addEventListener("resize", this.resize);
 
         editor.preload().then(() => {
-            editor.newLevel(8, 4, 8);
+            editor.newLevel(6, 2, 4);
             requestAnimationFrame(function next(elapsed) {
                 editor.update(elapsed);
                 requestAnimationFrame(next);
