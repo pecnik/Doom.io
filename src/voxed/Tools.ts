@@ -1,6 +1,12 @@
 import { Editor, Tool_ID } from "./Editor";
 import { KeyCode } from "../game/core/Input";
-import { Raycaster, Intersection, Vector2 } from "three";
+import {
+    Raycaster,
+    Intersection,
+    Vector2,
+    MeshBasicMaterial,
+    Color
+} from "three";
 import { VoxelType, Level } from "./Level";
 import { disposeMeshMaterial } from "../game/utils/Helpers";
 
@@ -57,8 +63,15 @@ export class BlockTool extends Tool {
     public readonly hotkey = KeyCode.E;
 
     public onLoad() {
+        let material = this.editor.level.mesh.material as MeshBasicMaterial;
+        material = material.clone();
+        material.transparent = true;
+        material.opacity = 0.75;
+        material.color = new Color(0x00ffff);
+
         disposeMeshMaterial(this.previewLevel.mesh.material);
-        this.previewLevel.mesh.material = this.editor.level.mesh.material;
+        this.previewLevel.mesh.material = material;
+
         this.editor.scene.add(this.previewLevel.mesh);
     }
 
