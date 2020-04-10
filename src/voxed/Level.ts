@@ -59,6 +59,14 @@ export class Level {
         return voxel[index];
     }
 
+    public getVoxelAt(vec: Vector3) {
+        return this.getVoxel(
+            Math.round(vec.x),
+            Math.round(vec.y),
+            Math.round(vec.z)
+        );
+    }
+
     public initData(max_x: number, max_y: number, max_z: number) {
         this.data.max_x = max_x;
         this.data.max_y = max_y;

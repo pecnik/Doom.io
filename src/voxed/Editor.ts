@@ -10,11 +10,12 @@ import {
     Vector3,
     PlaneGeometry
 } from "three";
-import { Input, KeyCode } from "../game/core/Input";
+import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { Level } from "./Level";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import { disposeMeshMaterial, loadTexture } from "../game/utils/Helpers";
+import { BlockTool } from "./Tools";
 
 Vue.use(Vuex);
 
@@ -51,16 +52,16 @@ export class Editor {
                 slots: [0, 1, 2, 3, 8, 9, 10, 11],
                 index: 0
             }
-        },
-        getters: {
-            selectedTileId({ texture }) {
-                return texture.slots[texture.index];
-            }
         }
     });
 
     public constructor() {
         this.scene.add(this.floor, this.level.mesh, this.level.wireframe);
+    }
+
+    public getSelectedTileId() {
+        const { texture } = this.store.state;
+        return texture.slots[texture.index];
     }
 
     public preload() {
@@ -99,6 +100,7 @@ export class Editor {
         const delta = (this.elapsedTime - this.previusTime) * 0.001;
         this.movementSystem(delta);
         this.tileSlotSystem();
+        this.toolSystem();
         this.input.clear();
 
         this.renderer.render(this.scene, this.camera);
@@ -160,4 +162,29 @@ export class Editor {
             );
         }
     }
+
+    private toolSystem() {
+        for (let i = 0; i < this.tools.length; i++) {
+            const tool = this.tools[i];
+
+            if (this.input.isKeyPressed(tool.hotkey)) {
+                this.store.state.tool = tool.guid;
+                continue;
+            }
+
+            if (tool.guid !== this.store.state.tool) {
+                continue;
+            }
+
+            if (this.input.isMousePresed(MouseBtn.Left)) {
+                tool.onMouseOne();
+            }
+
+            if (this.input.isMousePresed(MouseBtn.Right)) {
+                tool.onMouseTwo();
+            }
+        }
+    }
+
+    private readonly tools = [new BlockTool(this)];
 }
