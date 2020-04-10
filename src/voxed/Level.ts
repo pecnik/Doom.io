@@ -6,7 +6,8 @@ import {
     Vector2,
     MeshBasicMaterial,
     VertexColors as vertexColors,
-    Geometry
+    Geometry,
+    Color
 } from "three";
 import { disposeMeshMaterial } from "../game/utils/Helpers";
 
@@ -89,7 +90,7 @@ export class Level {
         }
     }
 
-    public initMaterial(texture: Texture) {
+    public setMaterial(texture: Texture) {
         disposeMeshMaterial(this.mesh.material);
         this.mesh.material = new MeshBasicMaterial({
             vertexColors,
@@ -211,6 +212,32 @@ export class Level {
         planes.forEach(plane => geometry.merge(plane));
         planes.forEach(plane => plane.dispose());
         geometry.elementsNeedUpdate = true;
+
+        const darken3 = new Color(0x222222);
+        const darken2 = new Color(0x444444);
+        const darken1 = new Color(0x888888);
+        const lighten1 = new Color(0xeeeeee);
+        const lighten2 = new Color(0xffffff);
+        const getLight = (normal: Vector3) => {
+            if (normal.x === +1) return darken1;
+            if (normal.x === -1) return darken1;
+
+            if (normal.y === +1) return lighten2;
+            if (normal.y === -1) return darken3;
+
+            if (normal.z === +1) return darken2;
+            if (normal.z === -1) return lighten1;
+
+            return lighten2;
+        };
+
+        geometry.faces.forEach(face => {
+            const light = getLight(face.normal);
+            face.vertexColors.length = 3;
+            face.vertexColors[0] = light;
+            face.vertexColors[1] = light;
+            face.vertexColors[2] = light;
+        });
 
         this.mesh.geometry.dispose();
         this.wireframe.geometry.dispose();

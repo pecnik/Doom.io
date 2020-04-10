@@ -70,7 +70,7 @@ export class Editor {
 
     public preload() {
         return loadTexture("/assets/tileset.png").then(map => {
-            this.level.initMaterial(map);
+            this.level.setMaterial(map);
             this.tools.forEach(tool => tool.onLoad());
         });
     }
