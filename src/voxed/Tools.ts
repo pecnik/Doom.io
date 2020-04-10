@@ -53,7 +53,6 @@ export class BlockTool extends Tool {
         if (rsp !== undefined) {
             rsp.voxel.type = VoxelType.Solid;
             rsp.voxel.faces.fill(tileId);
-            console.log({ tileId });
             this.editor.level.updateGeometry();
         }
     }
