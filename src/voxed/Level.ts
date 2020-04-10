@@ -45,8 +45,9 @@ export class LevelData {
 }
 
 export class Level {
-    public mesh = new Mesh();
     public data = new LevelData();
+    public mesh = new Mesh();
+    public wireframe = new Mesh();
 
     public getVoxel(x: number, y: number, z: number) {
         const { voxel, max_x, max_y, max_z } = this.data;
@@ -83,6 +84,12 @@ export class Level {
     public initMaterial(map: Texture) {
         disposeMeshMaterial(this.mesh);
         this.mesh.material = new MeshBasicMaterial({ vertexColors, map });
+
+        disposeMeshMaterial(this.wireframe);
+        this.wireframe.material = new MeshBasicMaterial({
+            color: 0x00ff00,
+            wireframe: true
+        });
     }
 
     public updateGeometry() {
@@ -193,6 +200,9 @@ export class Level {
         geometry.elementsNeedUpdate = true;
 
         this.mesh.geometry.dispose();
+        this.wireframe.geometry.dispose();
+
         this.mesh.geometry = geometry;
+        this.wireframe.geometry = geometry;
     }
 }

@@ -48,7 +48,7 @@ export class Editor {
     });
 
     public constructor() {
-        this.scene.add(this.floor, this.level.mesh);
+        this.scene.add(this.floor, this.level.mesh, this.level.wireframe);
     }
 
     public preload() {
