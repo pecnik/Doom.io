@@ -93,6 +93,7 @@ export class Editor {
 
         const delta = (this.elapsedTime - this.previusTime) * 0.001;
         this.movementSystem(delta);
+        this.tileSlotSystem();
         this.input.clear();
 
         this.renderer.render(this.scene, this.camera);
@@ -132,5 +133,26 @@ export class Editor {
             .multiplyScalar(5)
             .multiplyScalar(dt);
         this.camera.position.add(velocity);
+    }
+
+    private tileSlotSystem() {
+        const { texture } = this.store.state;
+
+        const KEY_NUM_1 = KeyCode.NUM_1 as number;
+        for (let i = 0; i < 8; i++) {
+            if (this.input.isKeyPressed(KEY_NUM_1 + i)) {
+                texture.index = i;
+                return;
+            }
+        }
+
+        const scroll = this.input.mouse.scroll;
+        if (scroll !== 0) {
+            const offset = clamp(scroll * Number.MAX_SAFE_INTEGER, -1, 1);
+            texture.index = modulo(
+                texture.index + offset,
+                texture.slots.length
+            );
+        }
     }
 }

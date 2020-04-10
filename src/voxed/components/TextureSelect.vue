@@ -1,16 +1,20 @@
 <style scoped lang="scss">
+@import "~vuetify/src/styles/main.sass";
+
 .texture-option {
     display: inline-block;
-    padding: 8px;
+    margin: 4px;
+    padding: 4px;
     font-size: 0;
+    border-radius: 8px;
 
     &:hover {
         cursor: pointer;
-        background: #444;
+        background-color: map-get($teal, "darken-3");
     }
 
     &.active {
-        background: cornflowerblue;
+        background-color: map-get($teal, "lighten-3");
     }
 }
 </style>
