@@ -5,12 +5,10 @@ import {
     Scene,
     PerspectiveCamera,
     Mesh,
-    BoxGeometry,
     MeshBasicMaterial,
     Vector2,
     Vector3,
-    PlaneGeometry,
-    Material
+    PlaneGeometry
 } from "three";
 import { Input, KeyCode } from "../game/core/Input";
 import { Level } from "./Level";
