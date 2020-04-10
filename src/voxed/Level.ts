@@ -6,7 +6,10 @@ import {
     Vector2,
     MeshBasicMaterial,
     VertexColors as vertexColors,
-    Geometry
+    Geometry,
+    LineSegments,
+    LineBasicMaterial,
+    EdgesGeometry
 } from "three";
 import { disposeMeshMaterial } from "../game/utils/Helpers";
 
@@ -82,10 +85,10 @@ export class Level {
     }
 
     public initMaterial(map: Texture) {
-        disposeMeshMaterial(this.mesh);
+        disposeMeshMaterial(this.mesh.material);
         this.mesh.material = new MeshBasicMaterial({ vertexColors, map });
 
-        disposeMeshMaterial(this.wireframe);
+        disposeMeshMaterial(this.wireframe.material);
         this.wireframe.material = new MeshBasicMaterial({
             color: 0x00ff00,
             wireframe: true
@@ -191,7 +194,9 @@ export class Level {
 
         const planes = new Array<PlaneGeometry>();
         this.data.voxel.forEach(voxel => {
-            planes.push(...createVoxelGeometry(voxel));
+            if (voxel.type === VoxelType.Solid) {
+                planes.push(...createVoxelGeometry(voxel));
+            }
         });
 
         const geometry = new Geometry();

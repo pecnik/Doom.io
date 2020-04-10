@@ -1,4 +1,4 @@
-import { Texture, TextureLoader, NearestFilter, Mesh, Material } from "three";
+import { Texture, TextureLoader, NearestFilter, Material } from "three";
 
 export function loadTexture(src: string): Promise<Texture> {
     return new Promise(resolve => {
@@ -10,10 +10,10 @@ export function loadTexture(src: string): Promise<Texture> {
     });
 }
 
-export function disposeMeshMaterial(mesh: Mesh) {
-    if (mesh.material instanceof Material) {
-        mesh.material.dispose();
+export function disposeMeshMaterial(material: Material | Material[]) {
+    if (material instanceof Material) {
+        material.dispose();
     } else {
-        mesh.material.forEach(material => material.dispose());
+        material.forEach(material => material.dispose());
     }
 }

@@ -69,7 +69,7 @@ export class Editor {
             this.floor.geometry.translate(-0.5, -0.5, -0.5);
             this.floor.geometry.translate(max_x / 2, 0, max_z / 2);
 
-            disposeMeshMaterial(this.floor);
+            disposeMeshMaterial(this.floor.material);
             this.floor.material = new MeshBasicMaterial({
                 wireframe: true,
                 color: 0xf2f2f2
