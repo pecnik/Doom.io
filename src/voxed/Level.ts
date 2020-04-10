@@ -6,10 +6,7 @@ import {
     Vector2,
     MeshBasicMaterial,
     VertexColors as vertexColors,
-    Geometry,
-    LineSegments,
-    LineBasicMaterial,
-    EdgesGeometry
+    Geometry
 } from "three";
 import { disposeMeshMaterial } from "../game/utils/Helpers";
 
