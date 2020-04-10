@@ -15,7 +15,7 @@ import { Level } from "./Level";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import { disposeMeshMaterial, loadTexture } from "../game/utils/Helpers";
-import { BlockTool } from "./Tools";
+import { BlockTool, PaintTool, SampleTool } from "./Tools";
 
 Vue.use(Vuex);
 
@@ -186,5 +186,9 @@ export class Editor {
         }
     }
 
-    private readonly tools = [new BlockTool(this)];
+    private readonly tools = [
+        new BlockTool(this),
+        new PaintTool(this),
+        new SampleTool(this)
+    ];
 }
