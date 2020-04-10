@@ -58,6 +58,7 @@
 
             <!-- Side menu -->
             <div id="voxed-sidemenu" ref="sidemenu">
+                <texture-select></texture-select>
                 <tool-select></tool-select>
             </div>
         </div>
@@ -65,12 +66,13 @@
 </template>
 <script>
 import ToolSelect from "./components/ToolSelect.vue";
+import TextureSelect from "./components/TextureSelect.vue";
 import { Editor, EditorTool } from "./Editor";
 
 const editor = Editor.getInstance();
 
 export default {
-    components: { ToolSelect },
+    components: { ToolSelect, TextureSelect },
     computed: {
         toolIcon() {
             const { tool } = this.$store.state;
