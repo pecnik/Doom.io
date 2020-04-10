@@ -47,6 +47,7 @@ export class Editor {
 
     public readonly store = new Vuex.Store({
         state: {
+            renderWireframe: true,
             toolId: Tool_ID.Block,
             texture: {
                 slots: [0, 1, 2, 3, 8, 9, 10, 11],
@@ -57,6 +58,24 @@ export class Editor {
 
     public constructor() {
         this.scene.add(this.floor, this.level.mesh, this.level.wireframe);
+
+        this.store.watch(
+            state => state.renderWireframe,
+            renderWireframe => {
+                this.level.wireframe.visible = renderWireframe;
+            }
+        );
+
+        this.store.watch(
+            state => state.toolId,
+            toolId => {
+                for (let i = 0; i < this.tools.length; i++) {
+                    if (this.tools[i].id === toolId) {
+                        this.tools[i].onStart();
+                    }
+                }
+            }
+        );
     }
 
     public getSelectedToolId() {
@@ -105,11 +124,6 @@ export class Editor {
     }
 
     public setActiveTool(toolId: Tool_ID) {
-        for (let i = 0; i < this.tools.length; i++) {
-            if (this.tools[i].id === toolId) {
-                this.tools[i].onStart();
-            }
-        }
         this.store.state.toolId = toolId;
     }
 

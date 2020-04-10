@@ -58,8 +58,15 @@
 
             <!-- Side menu -->
             <div id="voxed-sidemenu" ref="sidemenu">
+                <v-card class="mb-4">
+                    <v-card-text>
+                        <tool-select></tool-select>
+                    </v-card-text>
+                    <v-card-text>
+                        <render-settings></render-settings>
+                    </v-card-text>
+                </v-card>
                 <texture-select></texture-select>
-                <tool-select></tool-select>
             </div>
         </div>
     </v-app>
@@ -67,12 +74,13 @@
 <script>
 import ToolSelect from "./components/ToolSelect.vue";
 import TextureSelect from "./components/TextureSelect.vue";
+import RenderSettings from "./components/RenderSettings.vue";
 import { Editor, Tool_ID } from "./Editor";
 
 const editor = Editor.getInstance();
 
 export default {
-    components: { ToolSelect, TextureSelect },
+    components: { ToolSelect, RenderSettings, TextureSelect },
     computed: {
         toolIcon() {
             const { toolId } = this.$store.state;
