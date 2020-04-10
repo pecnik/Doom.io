@@ -14,7 +14,7 @@ import { Input, KeyCode } from "../game/core/Input";
 import { Level } from "./Level";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
-import { disposeMeshMaterial } from "../game/utils/Helpers";
+import { disposeMeshMaterial, loadTexture } from "../game/utils/Helpers";
 
 Vue.use(Vuex);
 
@@ -51,8 +51,15 @@ export class Editor {
         this.scene.add(this.floor, this.level.mesh);
     }
 
+    public preload() {
+        return loadTexture("/assets/tileset.png").then(map => {
+            this.level.map = map;
+        });
+    }
+
     public newLevel(max_x: number, max_y: number, max_z: number) {
         this.level.initData(max_x, max_y, max_z);
+        // this.level.
 
         {
             // Reconstruct floor mesh

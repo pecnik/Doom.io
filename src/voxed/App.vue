@@ -3,7 +3,9 @@
     width: 100vw;
     height: 100vh;
     display: grid;
-    grid-template-rows: 96px 1fr;
+    grid-template-rows: 96px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    box-sizing: border-box;
 
     #voxed-header {
         grid-row: 1;
@@ -49,11 +51,12 @@ export default {
         this.resize();
         window.addEventListener("resize", this.resize);
 
-        editor.newLevel(8, 4, 8);
-
-        requestAnimationFrame(function next(elapsed) {
-            editor.update(elapsed);
-            requestAnimationFrame(next);
+        editor.preload().then(() => {
+            editor.newLevel(8, 4, 8);
+            requestAnimationFrame(function next(elapsed) {
+                editor.update(elapsed);
+                requestAnimationFrame(next);
+            });
         });
     }
 };

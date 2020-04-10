@@ -1,4 +1,9 @@
-import { Mesh } from "three";
+import { Mesh, Texture } from "three";
+
+export enum VoxelType {
+    Empty,
+    Solid
+}
 
 export class VoxelData {
     public index = 0;
@@ -17,6 +22,7 @@ export class LevelData {
 export class Level {
     public mesh = new Mesh();
     public data = new LevelData();
+    public map = new Texture();
 
     public initData(max_x: number, max_y: number, max_z: number) {
         this.data.max_x = max_x;
