@@ -3,33 +3,85 @@
     width: 100vw;
     height: 100vh;
     display: grid;
-    grid-template-rows: 96px minmax(0, 1fr);
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 300px;
     box-sizing: border-box;
 
-    #voxed-header {
+    #voxed-sidemenu {
         grid-row: 1;
+        grid-column: 2;
+        padding: 16px;
     }
 
     #voxed-viewport {
-        grid-row: 2;
+        grid-row: 1;
+        grid-column: 1;
+    }
+
+    #voxed-viewport-cursor {
+        grid-row: 1;
+        grid-column: 1;
+        pointer-events: none;
+
+        /* center fa curosr */
+        display: grid;
+        align-content: space-evenly;
+        justify-content: space-evenly;
+
+        .fa {
+            $cursor_size: 32px;
+            pointer-events: none;
+            width: $cursor_size;
+            height: $cursor_size;
+            border-radius: $cursor_size / 2;
+
+            opacity: 0.5;
+            color: #000;
+            background: #fff;
+
+            text-align: center;
+            font-size: $cursor_size / 2;
+            line-height: $cursor_size;
+        }
     }
 }
 </style>
 <template>
     <v-app>
         <div id="voxed-app">
-            <div id="voxed-header" ref="header"></div>
+
+            <!-- Viewport -->
             <div id="voxed-viewport" ref="viewport"></div>
+            <div id="voxed-viewport-cursor">
+                <i class="fa" :class="toolIcon"></i>
+            </div>
+
+            <!-- Side menu -->
+            <div id="voxed-sidemenu" ref="sidemenu">
+                <tool-select></tool-select>
+            </div>
         </div>
     </v-app>
 </template>
 <script>
-import { Editor } from "./Editor";
+import ToolSelect from "./components/ToolSelect.vue";
+import { Editor, EditorTool } from "./Editor";
 
 const editor = Editor.getInstance();
 
 export default {
+    components: { ToolSelect },
+    computed: {
+        toolIcon() {
+            const { tool } = this.$store.state;
+            const icons = {
+                [EditorTool.Block]: "fa-cube",
+                [EditorTool.Paint]: "fa-fill-drip",
+                [EditorTool.Sample]: "fa-eye-dropper"
+            };
+            return icons[tool];
+        }
+    },
     methods: {
         resize() {
             const viewport = this.$refs["viewport"];

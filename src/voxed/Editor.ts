@@ -18,6 +18,12 @@ import { disposeMeshMaterial, loadTexture } from "../game/utils/Helpers";
 
 Vue.use(Vuex);
 
+export enum EditorTool {
+    Block = "Block",
+    Paint = "Paint",
+    Sample = "Sample"
+}
+
 export class Editor {
     public static readonly getInstance = (() => {
         const intance = new Editor();
@@ -40,6 +46,7 @@ export class Editor {
 
     public readonly store = new Vuex.Store({
         state: {
+            tool: EditorTool.Block,
             texture: {
                 slots: [0, 1, 2, 3, 8, 9, 10, 11],
                 index: 0
