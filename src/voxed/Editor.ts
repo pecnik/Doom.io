@@ -71,11 +71,12 @@ export class Editor {
     public preload() {
         return loadTexture("/assets/tileset.png").then(map => {
             this.level.initMaterial(map);
+            this.tools.forEach(tool => tool.onLoad());
         });
     }
 
     public newLevel(max_x: number, max_y: number, max_z: number) {
-        this.level.initData(max_x, max_y, max_z);
+        this.level.setSize(max_x, max_y, max_z);
         this.level.data.voxel.forEach(voxel => {
             if (voxel.y === 0) {
                 voxel.type = VoxelType.Solid;
@@ -194,12 +195,18 @@ export class Editor {
 
             // Tool actions
             if (tool.id === toolId) {
+                tool.onUpdate();
+
                 if (this.input.isMousePresed(MouseBtn.Left)) {
-                    tool.onMouseOne();
+                    tool.onMouseDown();
+                } else if (this.input.isMouseReleased(MouseBtn.Left)) {
+                    tool.onMouseUp();
                 }
 
                 if (this.input.isMousePresed(MouseBtn.Right)) {
-                    tool.onMouseTwo();
+                    tool.onMouseTwoDown();
+                } else if (this.input.isMouseReleased(MouseBtn.Right)) {
+                    tool.onMouseTwoUp();
                 }
             }
         }

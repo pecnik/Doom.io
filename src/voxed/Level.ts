@@ -67,7 +67,7 @@ export class Level {
         );
     }
 
-    public initData(max_x: number, max_y: number, max_z: number) {
+    public setSize(max_x: number, max_y: number, max_z: number) {
         this.data.max_x = max_x;
         this.data.max_y = max_y;
         this.data.max_z = max_z;
@@ -89,9 +89,12 @@ export class Level {
         }
     }
 
-    public initMaterial(map: Texture) {
+    public initMaterial(texture: Texture) {
         disposeMeshMaterial(this.mesh.material);
-        this.mesh.material = new MeshBasicMaterial({ vertexColors, map });
+        this.mesh.material = new MeshBasicMaterial({
+            vertexColors,
+            map: texture
+        });
 
         disposeMeshMaterial(this.wireframe.material);
         this.wireframe.material = new MeshBasicMaterial({

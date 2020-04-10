@@ -1,7 +1,8 @@
 import { Editor, Tool_ID } from "./Editor";
 import { KeyCode } from "../game/core/Input";
 import { Raycaster, Intersection, Vector2 } from "three";
-import { VoxelType } from "./Level";
+import { VoxelType, Level } from "./Level";
+import { disposeMeshMaterial } from "../game/utils/Helpers";
 
 export abstract class Tool {
     protected readonly editor: Editor;
@@ -15,16 +16,20 @@ export abstract class Tool {
         this.raycaster = new Raycaster();
     }
 
+    public onLoad() {}
     public onStart() {}
-    public onMouseOne() {}
-    public onMouseTwo() {}
+    public onUpdate() {}
+    public onMouseDown() {}
+    public onMouseUp() {}
+    public onMouseTwoDown() {}
+    public onMouseTwoUp() {}
 
     protected sampleVoxel(dir: -1 | 1) {
         const buffer: Intersection[] = [];
         const origin = new Vector2();
         this.raycaster.setFromCamera(origin, this.editor.camera);
-        this.raycaster.intersectObject(this.editor.floor, true, buffer);
         this.raycaster.intersectObject(this.editor.level.mesh, true, buffer);
+        this.raycaster.intersectObject(this.editor.floor, true, buffer);
 
         const [hit] = buffer;
         if (!hit) return;
@@ -45,24 +50,67 @@ export abstract class Tool {
 }
 
 export class BlockTool extends Tool {
+    private readonly previewLevel = new Level();
+    private drawing = false;
+
     public readonly id = Tool_ID.Block;
     public readonly hotkey = KeyCode.E;
 
-    public onMouseOne() {
-        const tileId = this.editor.getSelectedTileId();
-        const rsp = this.sampleVoxel(1);
-        if (rsp !== undefined) {
-            rsp.voxel.type = VoxelType.Solid;
-            rsp.voxel.faces.fill(tileId);
+    public onLoad() {
+        disposeMeshMaterial(this.previewLevel.mesh.material);
+        this.previewLevel.mesh.material = this.editor.level.mesh.material;
+        this.editor.scene.add(this.previewLevel.mesh);
+    }
+
+    public onUpdate() {
+        this.previewLevel.mesh.visible = this.drawing;
+
+        if (this.drawing) {
+            const rsp = this.sampleVoxel(1);
+            if (rsp !== undefined) {
+                const voxel = this.previewLevel.data.voxel[rsp.voxel.index];
+                if (voxel.type !== VoxelType.Solid) {
+                    const tileId = this.editor.getSelectedTileId();
+                    voxel.type = VoxelType.Solid;
+                    voxel.faces.fill(tileId);
+                    this.previewLevel.updateGeometry();
+                }
+            }
+        }
+    }
+
+    public onMouseDown() {
+        this.drawing = true;
+        this.previewLevel.mesh.visible = true;
+        this.previewLevel.setSize(
+            this.editor.level.data.max_x,
+            this.editor.level.data.max_y,
+            this.editor.level.data.max_z
+        );
+        this.previewLevel.updateGeometry();
+    }
+
+    public onMouseUp() {
+        if (this.drawing) {
+            this.drawing = false;
+            this.previewLevel.data.voxel.forEach(voxel => {
+                if (voxel.type === VoxelType.Solid) {
+                    this.editor.level.data.voxel[voxel.index] = voxel;
+                }
+            });
             this.editor.level.updateGeometry();
         }
     }
 
-    public onMouseTwo() {
-        const rsp = this.sampleVoxel(-1);
-        if (rsp !== undefined) {
-            rsp.voxel.type = VoxelType.Empty;
-            this.editor.level.updateGeometry();
+    public onMouseTwoDown() {
+        if (this.drawing) {
+            this.drawing = false;
+        } else {
+            const rsp = this.sampleVoxel(-1);
+            if (rsp !== undefined) {
+                rsp.voxel.type = VoxelType.Empty;
+                this.editor.level.updateGeometry();
+            }
         }
     }
 }
@@ -71,7 +119,7 @@ export class PaintTool extends Tool {
     public readonly id = Tool_ID.Paint;
     public readonly hotkey = KeyCode.F;
 
-    public onMouseOne() {
+    public onMouseDown() {
         const tileId = this.editor.getSelectedTileId();
         const rsp = this.sampleVoxel(-1);
         if (rsp !== undefined) {
@@ -90,7 +138,7 @@ export class PaintTool extends Tool {
         }
     }
 
-    public onMouseTwo() {
+    public onMouseTwoDown() {
         const tileId = this.editor.getSelectedTileId();
         const rsp = this.sampleVoxel(-1);
         if (rsp !== undefined) {
@@ -110,7 +158,7 @@ export class SampleTool extends Tool {
         this.prevTool = this.editor.getSelectedToolId();
     }
 
-    public onMouseOne() {
+    public onMouseDown() {
         const rsp = this.sampleVoxel(-1);
         if (rsp !== undefined) {
             let face = -1;
@@ -131,7 +179,7 @@ export class SampleTool extends Tool {
         }
     }
 
-    public onMouseTwo() {
+    public onMouseTwoDown() {
         const tileId = this.editor.getSelectedTileId();
         const rsp = this.sampleVoxel(-1);
         if (rsp !== undefined) {
