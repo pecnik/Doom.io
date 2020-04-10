@@ -19,7 +19,7 @@ import { BlockTool, PaintTool, SampleTool } from "./Tools";
 
 Vue.use(Vuex);
 
-export enum EditorTool {
+export enum Tool_ID {
     Block = "Block",
     Paint = "Paint",
     Sample = "Sample"
@@ -47,7 +47,7 @@ export class Editor {
 
     public readonly store = new Vuex.Store({
         state: {
-            toolId: EditorTool.Block,
+            toolId: Tool_ID.Block,
             texture: {
                 slots: [0, 1, 2, 3, 8, 9, 10, 11],
                 index: 0
@@ -97,7 +97,7 @@ export class Editor {
         this.camera.position.set(max_x / 2, max_y / 2, max_z / 2);
     }
 
-    public setActiveTool(toolId: EditorTool) {
+    public setActiveTool(toolId: Tool_ID) {
         for (let i = 0; i < this.tools.length; i++) {
             if (this.tools[i].id === toolId) {
                 this.tools[i].onStart();

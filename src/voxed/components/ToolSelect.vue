@@ -5,11 +5,11 @@
         :items="items"></v-select>
 </template>
 <script>
-import { EditorTool } from "../Editor";
+import { Tool_ID } from "../Editor";
 export default {
     data() {
         return {
-            items: Object.keys(EditorTool)
+            items: Object.keys(Tool_ID)
         };
     },
     computed: {

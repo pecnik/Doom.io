@@ -67,7 +67,7 @@
 <script>
 import ToolSelect from "./components/ToolSelect.vue";
 import TextureSelect from "./components/TextureSelect.vue";
-import { Editor, EditorTool } from "./Editor";
+import { Editor, Tool_ID } from "./Editor";
 
 const editor = Editor.getInstance();
 
@@ -77,9 +77,9 @@ export default {
         toolIcon() {
             const { toolId } = this.$store.state;
             const icons = {
-                [EditorTool.Block]: "fa-cube",
-                [EditorTool.Paint]: "fa-fill-drip",
-                [EditorTool.Sample]: "fa-eye-dropper"
+                [Tool_ID.Block]: "fa-cube",
+                [Tool_ID.Paint]: "fa-fill-drip",
+                [Tool_ID.Sample]: "fa-eye-dropper"
             };
             return icons[toolId];
         }

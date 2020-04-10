@@ -1,4 +1,4 @@
-import { Editor, EditorTool } from "./Editor";
+import { Editor, Tool_ID } from "./Editor";
 import { KeyCode } from "../game/core/Input";
 import { Raycaster, Intersection, Vector2 } from "three";
 import { VoxelType } from "./Level";
@@ -7,7 +7,7 @@ export abstract class Tool {
     protected readonly editor: Editor;
     protected readonly raycaster: Raycaster;
 
-    public abstract readonly id: EditorTool;
+    public abstract readonly id: Tool_ID;
     public abstract readonly hotkey: KeyCode;
 
     public constructor(editor: Editor) {
@@ -45,7 +45,7 @@ export abstract class Tool {
 }
 
 export class BlockTool extends Tool {
-    public readonly id = EditorTool.Block;
+    public readonly id = Tool_ID.Block;
     public readonly hotkey = KeyCode.E;
 
     public onMouseOne() {
@@ -68,7 +68,7 @@ export class BlockTool extends Tool {
 }
 
 export class PaintTool extends Tool {
-    public readonly id = EditorTool.Paint;
+    public readonly id = Tool_ID.Paint;
     public readonly hotkey = KeyCode.F;
 
     public onMouseOne() {
@@ -101,9 +101,9 @@ export class PaintTool extends Tool {
 }
 
 export class SampleTool extends Tool {
-    private prevTool = EditorTool.Block;
+    private prevTool = Tool_ID.Block;
 
-    public readonly id = EditorTool.Sample;
+    public readonly id = Tool_ID.Sample;
     public readonly hotkey = KeyCode.ALT;
 
     public onStart() {
