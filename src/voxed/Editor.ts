@@ -51,6 +51,11 @@ export class Editor {
                 slots: [0, 1, 2, 3, 8, 9, 10, 11],
                 index: 0
             }
+        },
+        getters: {
+            selectedTileId({ texture }) {
+                return texture.slots[texture.index];
+            }
         }
     });
 
