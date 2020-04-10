@@ -11,7 +11,7 @@ import {
     PlaneGeometry
 } from "three";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
-import { Level } from "./Level";
+import { Level, VoxelType } from "./Level";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import { disposeMeshMaterial, loadTexture } from "../game/utils/Helpers";
@@ -76,6 +76,12 @@ export class Editor {
 
     public newLevel(max_x: number, max_y: number, max_z: number) {
         this.level.initData(max_x, max_y, max_z);
+        this.level.data.voxel.forEach(voxel => {
+            if (voxel.y === 0) {
+                voxel.type = VoxelType.Solid;
+                voxel.faces.fill(8);
+            }
+        });
         this.level.updateGeometry();
 
         {

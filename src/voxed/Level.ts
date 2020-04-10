@@ -79,7 +79,7 @@ export class Level {
                     this.data.voxel.push({
                         index,
                         faces: [0, 0, 0, 0, 0, 0],
-                        type: VoxelType.Solid,
+                        type: VoxelType.Empty,
                         x,
                         y,
                         z
