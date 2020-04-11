@@ -226,10 +226,10 @@ export class Level {
     }
 
     private updateLighing() {
-        const darken2 = new Color(0x222222);
-        const darken1 = new Color(0x444444);
-        const lighten1 = new Color(0x666666);
-        const lighten2 = new Color(0x888888);
+        const darken2 = new Color(0.5, 0.5, 0.5);
+        const darken1 = new Color(0.6, 0.6, 0.6);
+        const lighten1 = new Color(0.8, 0.8, 0.8);
+        const lighten2 = new Color(0.9, 0.9, 0.9);
         const getBaseLight = (normal: Vector3): Color => {
             if (normal.x === +1) return darken1;
             if (normal.x === -1) return darken1;
@@ -243,16 +243,21 @@ export class Level {
             return lighten2;
         };
 
-        const aggregateLight = (vertex: Vector3, normal: Vector3) => {
+        const getSunLight = (vertex: Vector3, normal: Vector3) => {
+            if (normal.y === -1) {
+                return 0;
+            }
+
             const min_y = Math.ceil(vertex.y + normal.y * 0.25);
             const max_y = this.data.max_y;
 
-            const rad = 0.25;
-            const x = Math.round(vertex.x + normal.x * rad);
-            const z = Math.round(vertex.z + normal.z * rad);
+            const x = Math.round(vertex.x + normal.x * 0.25);
+            const z = Math.round(vertex.z + normal.z * 0.25);
             for (let y = min_y; y < max_y; y++) {
-                const voxel1 = this.getVoxel(x, y, z);
-                if (voxel1 && voxel1.type === VoxelType.Solid) return 0.5;
+                const voxel = this.getVoxel(x, y, z);
+                if (voxel && voxel.type === VoxelType.Solid) {
+                    return 0;
+                }
             }
 
             return 1;
@@ -278,7 +283,7 @@ export class Level {
             origin.divideScalar(3);
 
             // Cast shadow lighting
-            const light = aggregateLight(origin, face.normal);
+            const light = getSunLight(origin, face.normal) * 0.5;
             for (let i = 0; i < 3; i++) {
                 face.vertexColors[i].r += light;
                 face.vertexColors[i].g += light;
