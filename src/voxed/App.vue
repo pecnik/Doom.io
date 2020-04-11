@@ -76,6 +76,7 @@
     </v-app>
 </template>
 <script>
+import DefaultLevel from "../../assets/levels/level_one.json";
 import ToolSelect from "./components/ToolSelect.vue";
 import TextureSelect from "./components/TextureSelect.vue";
 import RenderSettings from "./components/RenderSettings.vue";
@@ -125,7 +126,8 @@ export default {
                 editor.level.data = JSON.parse(json);
                 editor.level.updateGeometry();
             } else {
-                editor.newLevel(24, 12, 24);
+                editor.level.data = DefaultLevel;
+                editor.level.updateGeometry();
             }
 
             requestAnimationFrame(function next(elapsed) {
