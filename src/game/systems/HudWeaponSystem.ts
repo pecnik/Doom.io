@@ -9,7 +9,7 @@ import {
     Sprite,
     SpriteMaterial,
     Texture,
-    Group,
+    Group
 } from "three";
 import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
 import { WeaponSpecs, WeaponState } from "../data/Weapon";
@@ -21,9 +21,10 @@ enum Animation {
     Idle,
     Jump,
     Fall,
+    Land,
     Swap,
     Shoot,
-    Reload,
+    Reload
 }
 
 export class WeaponPovSprite extends Object3D {
@@ -58,7 +59,7 @@ export class HudWeaponSystem extends System {
             .include(Comp.Shooter)
             .build();
 
-        this.weapons = WeaponSpecs.map((weapon) => {
+        this.weapons = WeaponSpecs.map(weapon => {
             return new WeaponPovSprite(weapon.povSpriteTexture as Texture);
         });
 
@@ -116,6 +117,10 @@ export class HudWeaponSystem extends System {
                 this.transition = 0;
             }
 
+            if (this.animation === Animation.Land) {
+                this.transition = 0;
+            }
+
             const frame = this.getFrame(world, shooter);
             if (this.transition === 0) {
                 weaponSprite.position.x = frame.x;
@@ -152,6 +157,10 @@ export class HudWeaponSystem extends System {
             return Animation.Jump;
         }
 
+        if (this.animation === Animation.Jump) {
+            return Animation.Land;
+        }
+
         const velocity = entity.getComponent(Comp.Velocity);
         if (Math.abs(velocity.x) > 0.01 || Math.abs(velocity.z) > 0.01) {
             return Animation.Walk;
@@ -170,6 +179,10 @@ export class HudWeaponSystem extends System {
                 elapsed *= 10;
                 frame.y += Math.abs(Math.sin(elapsed) * 0.05);
                 frame.x += Math.cos(elapsed) * 0.05;
+                return frame;
+
+            case Animation.Land:
+                frame.y -= 0.125;
                 return frame;
 
             case Animation.Jump:
