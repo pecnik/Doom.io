@@ -2,7 +2,7 @@ import { System, Family, FamilyBuilder, Entity } from "../core/ecs";
 import { Group, PositionalAudio } from "three";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
-import { onFamilyChange } from "../utils/Helpers";
+import { onFamilyChange, getHeadPosition } from "../utils/Helpers";
 import { WeaponSpecs } from "../data/Weapon";
 
 export class AudioGunshotSystem extends System {
@@ -28,7 +28,7 @@ export class AudioGunshotSystem extends System {
                 if (gunshot.audio !== undefined) {
                     this.group.remove(gunshot.audio);
                 }
-            },
+            }
         });
     }
 
@@ -39,7 +39,7 @@ export class AudioGunshotSystem extends System {
 
         for (let i = 0; i < this.family.entities.length; i++) {
             const entity = this.family.entities[i];
-            const position = entity.getComponent(Comp.Position);
+            const position = getHeadPosition(entity);
             const rotation = entity.getComponent(Comp.Rotation2D);
             const shooter = entity.getComponent(Comp.Shooter);
             const gunshot = entity.getComponent(Comp.Gunshot);

@@ -29,10 +29,10 @@ export class AudioFootstepSystem extends System {
                 if (footstep.audio !== undefined) {
                     this.group.remove(footstep.audio);
                 }
-            },
+            }
         });
 
-        new AudioLoader().load("/assets/sounds/footstep.wav", (buffer) => {
+        new AudioLoader().load("/assets/sounds/footstep.wav", buffer => {
             this.buffer = buffer;
         });
     }
@@ -70,7 +70,6 @@ export class AudioFootstepSystem extends System {
             }
 
             footstep.audio.position.copy(position);
-            footstep.audio.position.y -= 0.5;
         }
     }
 }
