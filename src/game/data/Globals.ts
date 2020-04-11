@@ -4,10 +4,10 @@ export const HUD_WIDTH = 800;
 export const HUD_HEIGHT = 600;
 
 export const PLAYER_RADIUS = 0.25;
-export const PLAYER_HEIGHT = 1.8;
+export const PLAYER_HEIGHT = 1.5;
 export const PLAYER_CROUCH_H = 0.95;
 
-export const RUN_SPEED = 4;
+export const RUN_SPEED = 6;
 export const WALK_SPEED = 1.5;
 export const SWAP_SPEED = 0.25;
 

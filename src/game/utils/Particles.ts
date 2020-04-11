@@ -23,7 +23,7 @@ export class Particles {
         // create the particle variables
         const material = new PointsMaterial({
             vertexColors: VertexColors,
-            size: 1 / 24 // TODO - resize based on camera FOV
+            size: 1 / 12 // TODO - resize based on camera FOV
         });
 
         this.particles = new Geometry();
@@ -68,8 +68,8 @@ export class Particles {
                 this.particles.colorsNeedUpdate = true;
             }
 
-            const rand = 0.5;
-            particle.velocity.copy(direction);
+            const rand = 0.75;
+            particle.velocity.copy(direction).multiplyScalar(2);
             particle.velocity.x += random(-rand, rand, true);
             particle.velocity.y += random(-rand, rand, true);
             particle.velocity.z += random(-rand, rand, true);
@@ -88,7 +88,7 @@ export class Particles {
             // Update velocity and position
             particle.velocity.x *= 0.9;
             particle.velocity.z *= 0.9;
-            particle.velocity.y -= GRAVITY * dt * 0.002;
+            particle.velocity.y -= GRAVITY * dt * 0.01;
             particle.add(particle.velocity);
 
             // Bounce of floor
