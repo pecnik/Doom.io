@@ -5,11 +5,14 @@
         :items="items"></v-select>
 </template>
 <script>
-import { Tool_ID } from "../tools/Tool";
+import { Editor } from "../Editor";
+
+const editor = Editor.getInstance();
+
 export default {
     data() {
         return {
-            items: Object.values(Tool_ID)
+            items: editor.tools.map(tool => tool.id)
         };
     },
     computed: {

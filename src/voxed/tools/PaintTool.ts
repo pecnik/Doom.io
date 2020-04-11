@@ -4,6 +4,7 @@ import { Tool, Tool_ID } from "./Tool";
 export class PaintTool extends Tool {
     public readonly id = Tool_ID.Paint;
     public readonly hotkey = KeyCode.F;
+    public readonly faicon = "fa-fill-drip";
 
     public onLeftPressed() {
         const tileId = this.editor.getSelectedTileId();

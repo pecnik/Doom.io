@@ -7,6 +7,7 @@ import { Tool, Tool_ID } from "./Tool";
 export class BlockTool extends Tool {
     public readonly id = Tool_ID.Block;
     public readonly hotkey = KeyCode.E;
+    public readonly faicon = "fa-cube";
 
     private readonly previewLevel = new Level();
     private readonly state = {

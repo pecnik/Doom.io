@@ -9,17 +9,9 @@ export enum Tool_ID {
 }
 
 export abstract class Tool {
-    protected readonly editor: Editor;
-    protected readonly raycaster: Raycaster;
-
     public abstract readonly id: Tool_ID;
     public abstract readonly hotkey: KeyCode;
-
-    public constructor(editor: Editor) {
-        this.editor = editor;
-        this.raycaster = new Raycaster();
-    }
-
+    public abstract readonly faicon: string;
     public onLoad() {}
     public onStart(_: Tool_ID) {}
     public onEnd() {}
@@ -28,6 +20,14 @@ export abstract class Tool {
     public onLeftReleased() {}
     public onRightPressed() {}
     public onRightReleased() {}
+
+    protected readonly editor: Editor;
+    protected readonly raycaster: Raycaster;
+
+    public constructor(editor: Editor) {
+        this.editor = editor;
+        this.raycaster = new Raycaster();
+    }
 
     protected sampleVoxel(dir: -1 | 1) {
         const buffer: Intersection[] = [];

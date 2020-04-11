@@ -5,6 +5,7 @@ export class SampleTool extends Tool {
     private prevToolId = Tool_ID.Block;
     public readonly id = Tool_ID.Sample;
     public readonly hotkey = KeyCode.ALT;
+    public readonly faicon = "fa-eye-dropper";
 
     public onStart(prevToolId: Tool_ID) {
         this.prevToolId = prevToolId;

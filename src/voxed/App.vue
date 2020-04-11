@@ -76,7 +76,6 @@ import ToolSelect from "./components/ToolSelect.vue";
 import TextureSelect from "./components/TextureSelect.vue";
 import RenderSettings from "./components/RenderSettings.vue";
 import { Editor } from "./Editor";
-import { Tool_ID } from "./tools/Tool";
 
 const editor = Editor.getInstance();
 
@@ -85,12 +84,7 @@ export default {
     computed: {
         toolIcon() {
             const { toolId } = this.$store.state;
-            const icons = {
-                [Tool_ID.Block]: "fa-cube",
-                [Tool_ID.Paint]: "fa-fill-drip",
-                [Tool_ID.Sample]: "fa-eye-dropper"
-            };
-            return icons[toolId];
+            return editor.toolMap[toolId].faicon;
         }
     },
     methods: {
