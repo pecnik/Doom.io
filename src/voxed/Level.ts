@@ -217,7 +217,7 @@ export class Level {
         const darken3 = new Color(0x222222);
         const darken2 = new Color(0x444444);
         const darken1 = new Color(0x888888);
-        const lighten1 = new Color(0xeeeeee);
+        const lighten1 = new Color(0xaaaaaa);
         const lighten2 = new Color(0xffffff);
         const getLight = (normal: Vector3) => {
             if (normal.x === +1) return darken1;
