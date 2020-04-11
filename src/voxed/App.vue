@@ -75,7 +75,8 @@
 import ToolSelect from "./components/ToolSelect.vue";
 import TextureSelect from "./components/TextureSelect.vue";
 import RenderSettings from "./components/RenderSettings.vue";
-import { Editor, Tool_ID } from "./Editor";
+import { Editor } from "./Editor";
+import { Tool_ID } from "./tools/Tool";
 
 const editor = Editor.getInstance();
 

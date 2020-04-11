@@ -1,21 +1,20 @@
-import { Tool_ID } from "../Editor";
 import { KeyCode } from "../../game/core/Input";
 import { MeshBasicMaterial, Color, Vector3 } from "three";
 import { VoxelType, Level } from "../Level";
 import { disposeMeshMaterial } from "../../game/utils/Helpers";
-import { Tool } from "./Tools";
+import { Tool, Tool_ID } from "./Tool";
 
 export class BlockTool extends Tool {
+    public readonly id = Tool_ID.Block;
+    public readonly hotkey = KeyCode.E;
+
     private readonly previewLevel = new Level();
-    private state = {
+    private readonly state = {
         drawing: false,
         tileId: 0,
         begin: new Vector3(),
         end: new Vector3()
     };
-
-    public readonly id = Tool_ID.Block;
-    public readonly hotkey = KeyCode.E;
 
     public onLoad() {
         let material = this.editor.level.mesh.material as MeshBasicMaterial;
@@ -29,7 +28,7 @@ export class BlockTool extends Tool {
         this.editor.scene.add(this.previewLevel.mesh);
     }
 
-    public onMouseDown() {
+    public onLeftPressed() {
         const rsp = this.sampleVoxel(1);
         if (rsp === undefined) {
             return;
@@ -64,14 +63,9 @@ export class BlockTool extends Tool {
         const { x, y, z } = rsp.voxel;
         this.state.end.set(x, y, z);
         this.updatePreview();
-        // if (voxel.type !== VoxelType.Solid) {
-        //     voxel.type = VoxelType.Solid;
-        //     voxel.faces.fill(this.state.tileId);
-        //     this.previewLevel.updateGeometry();
-        // }
     }
 
-    public onMouseUp() {
+    public onLeftReleased() {
         if (this.state.drawing) {
             this.state.drawing = false;
             this.previewLevel.data.voxel.forEach(voxel => {
@@ -83,7 +77,7 @@ export class BlockTool extends Tool {
         }
     }
 
-    public onMouseTwoDown() {
+    public onRightPressed() {
         if (this.state.drawing) {
             this.state.drawing = false;
         } else {

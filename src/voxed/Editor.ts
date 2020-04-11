@@ -15,16 +15,12 @@ import { Level, VoxelType } from "./Level";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import { disposeMeshMaterial, loadTexture } from "../game/utils/Helpers";
-import { PaintTool, SampleTool } from "./tools/Tools";
+import { SampleTool } from "./tools/SampleTool";
+import { PaintTool } from "./tools/PaintTool";
 import { BlockTool } from "./tools/BlockTool";
+import { Tool_ID } from "./tools/Tool";
 
 Vue.use(Vuex);
-
-export enum Tool_ID {
-    Block = "Block",
-    Paint = "Paint",
-    Sample = "Sample"
-}
 
 export class Editor {
     public static readonly getInstance = (() => {
@@ -213,15 +209,15 @@ export class Editor {
                 tool.onUpdate();
 
                 if (this.input.isMousePresed(MouseBtn.Left)) {
-                    tool.onMouseDown();
+                    tool.onLeftPressed();
                 } else if (this.input.isMouseReleased(MouseBtn.Left)) {
-                    tool.onMouseUp();
+                    tool.onLeftReleased();
                 }
 
                 if (this.input.isMousePresed(MouseBtn.Right)) {
-                    tool.onMouseTwoDown();
+                    tool.onRightPressed();
                 } else if (this.input.isMouseReleased(MouseBtn.Right)) {
-                    tool.onMouseTwoUp();
+                    tool.onRightReleased();
                 }
             }
         }

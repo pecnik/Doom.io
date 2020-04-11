@@ -5,7 +5,7 @@
         :items="items"></v-select>
 </template>
 <script>
-import { Tool_ID } from "../Editor";
+import { Tool_ID } from "../tools/Tool";
 export default {
     data() {
         return {
