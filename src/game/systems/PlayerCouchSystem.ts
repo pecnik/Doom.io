@@ -29,13 +29,13 @@ export class PlayerCouchSystem extends System {
             }
 
             if (!input.crouch && collisio.height < PLAYER_HEIGHT) {
-                const voxel = world.level.getVoxel(
+                const voxelType = world.level.getVoxelType(
                     Math.round(position.x),
                     Math.round(position.y + PLAYER_HEIGHT),
                     Math.round(position.z)
                 );
 
-                if (voxel !== undefined && voxel.type === VoxelType.Solid) {
+                if (voxelType === VoxelType.Solid) {
                     return;
                 }
 

@@ -121,6 +121,11 @@ export class CollisionSystem extends System {
 
         const ceiling = box.min.y - height;
         if (next.y > ceiling && prev.y <= ceiling) {
+            const belov = level.getVoxelType(voxel.x, voxel.y - 1, voxel.z);
+            if (belov === VoxelType.Solid) {
+                return; // Ignore, abovr voxel will handle this
+            }
+
             next.y = ceiling;
             velocity.y = 0;
             falg.y = 1;
