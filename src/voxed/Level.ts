@@ -226,10 +226,10 @@ export class Level {
     }
 
     private updateLighing() {
-        const darken2 = new Color(0x999999);
-        const darken1 = new Color(0xbbbbbb);
-        const lighten1 = new Color(0xdddddd);
-        const lighten2 = new Color(0xffffff);
+        const darken2 = new Color(0x222222);
+        const darken1 = new Color(0x444444);
+        const lighten1 = new Color(0x666666);
+        const lighten2 = new Color(0x888888);
         const getBaseLight = (normal: Vector3): Color => {
             if (normal.x === +1) return darken1;
             if (normal.x === -1) return darken1;
@@ -243,17 +243,16 @@ export class Level {
             return lighten2;
         };
 
-        const getShadowMultiply = (vertex: Vector3, normal: Vector3) => {
+        const aggregateLight = (vertex: Vector3, normal: Vector3) => {
             const min_y = Math.ceil(vertex.y + normal.y * 0.25);
             const max_y = this.data.max_y;
 
             const rad = 0.25;
             const x = Math.round(vertex.x + normal.x * rad);
             const z = Math.round(vertex.z + normal.z * rad);
-
             for (let y = min_y; y < max_y; y++) {
                 const voxel1 = this.getVoxel(x, y, z);
-                if (voxel1 && voxel1.type === VoxelType.Solid) return 0.75;
+                if (voxel1 && voxel1.type === VoxelType.Solid) return 0.5;
             }
 
             return 1;
@@ -268,10 +267,10 @@ export class Level {
             vertices[2] = geometry.vertices[face.c];
 
             // Basic lighting
-            const light = getBaseLight(face.normal);
-            face.vertexColors[0] = light.clone();
-            face.vertexColors[1] = light.clone();
-            face.vertexColors[2] = light.clone();
+            const baseLight = getBaseLight(face.normal);
+            face.vertexColors[0] = baseLight.clone();
+            face.vertexColors[1] = baseLight.clone();
+            face.vertexColors[2] = baseLight.clone();
 
             // Get face origin
             const origin = new Vector3();
@@ -279,15 +278,15 @@ export class Level {
             origin.divideScalar(3);
 
             // Cast shadow lighting
-            const shadow = getShadowMultiply(origin, face.normal);
+            const light = aggregateLight(origin, face.normal);
             for (let i = 0; i < 3; i++) {
-                face.vertexColors[i].r *= shadow;
-                face.vertexColors[i].g *= shadow;
-                face.vertexColors[i].b *= shadow;
+                face.vertexColors[i].r += light;
+                face.vertexColors[i].g += light;
+                face.vertexColors[i].b += light;
             }
 
             // Ambient occlusion pass
-            const aofac = 0.85;
+            const aofac = 0.125;
             if (
                 Math.abs(face.normal.x) === 1 ||
                 Math.abs(face.normal.z) === 1
@@ -301,9 +300,9 @@ export class Level {
                 if (above && above.type === VoxelType.Solid) {
                     for (let i = 0; i < vertices.length; i++) {
                         if (vertices[i].y > origin.y) {
-                            face.vertexColors[i].r *= aofac;
-                            face.vertexColors[i].g *= aofac;
-                            face.vertexColors[i].b *= aofac;
+                            face.vertexColors[i].r -= aofac;
+                            face.vertexColors[i].g -= aofac;
+                            face.vertexColors[i].b -= aofac;
                         }
                     }
                 }
@@ -317,13 +316,20 @@ export class Level {
                 if (bottom && bottom.type === VoxelType.Solid) {
                     for (let i = 0; i < vertices.length; i++) {
                         if (vertices[i].y < origin.y) {
-                            face.vertexColors[i].r *= aofac;
-                            face.vertexColors[i].g *= aofac;
-                            face.vertexColors[i].b *= aofac;
+                            face.vertexColors[i].r -= aofac;
+                            face.vertexColors[i].g -= aofac;
+                            face.vertexColors[i].b -= aofac;
                         }
                     }
                 }
             }
+
+            const maxDark = 0.1;
+            face.vertexColors.forEach(color => {
+                color.r = Math.max(color.r, maxDark);
+                color.g = Math.max(color.g, maxDark);
+                color.b = Math.max(color.b, maxDark);
+            });
         });
     }
 }
