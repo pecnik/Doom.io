@@ -121,12 +121,11 @@ export default {
 
         editor.preload().then(() => {
             const json = localStorage.getItem("level");
-            console.log({ json });
             if (json !== null) {
                 editor.level.data = JSON.parse(json);
                 editor.level.updateGeometry();
             } else {
-                editor.newLevel(16, 8, 16);
+                editor.newLevel(24, 12, 24);
             }
 
             requestAnimationFrame(function next(elapsed) {

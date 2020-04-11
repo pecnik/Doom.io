@@ -141,12 +141,12 @@ export class Editor {
 
     private movementSystem(dt: number) {
         // Mouse look
-        const str = 0.1;
+        const str = 0.0025;
         const dx = this.input.mouse.dx;
         const dy = this.input.mouse.dy;
         const rotation = this.camera.rotation.clone();
-        rotation.y -= dx * str * dt;
-        rotation.x -= dy * str * dt;
+        rotation.y -= dx * str;
+        rotation.x -= dy * str;
         rotation.y = modulo(rotation.y, Math.PI * 2);
         rotation.x = clamp(rotation.x, -Math.PI / 2, Math.PI / 2);
         this.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
