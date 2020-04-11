@@ -11,7 +11,8 @@ import {
     Texture,
     TextureLoader,
     NearestFilter,
-    Material
+    Material,
+    Vector3
 } from "three";
 import { World } from "../data/World";
 import { WeaponSpecs, WeaponState } from "../data/Weapon";
@@ -36,6 +37,13 @@ export function onFamilyChange(
     };
 
     world.addEntityListener(listener);
+}
+
+export function getHeadPosition(entity: Entity): Vector3 {
+    const position = entity.getComponent(Comp.Position).clone();
+    const { height } = entity.getComponent(Comp.Collision);
+    position.y += height - 0.125;
+    return position;
 }
 
 export function isScopeActive(entity: Entity): boolean {

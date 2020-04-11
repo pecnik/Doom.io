@@ -78,9 +78,9 @@ export class CollisionSystem extends System {
         voxel: VoxelData,
         entity: Entity
     ) {
-        const aabb = new Box3();
-        aabb.min.set(voxel.x, voxel.y, voxel.z).subScalar(0.5);
-        aabb.max.set(voxel.x, voxel.y, voxel.z).addScalar(0.5);
+        const box = new Box3();
+        box.min.set(voxel.x, voxel.y, voxel.z).subScalar(0.5);
+        box.max.set(voxel.x, voxel.y, voxel.z).addScalar(0.5);
 
         const collision = entity.getComponent(Comp.Collision);
         const velocity = entity.getComponent(Comp.Velocity);
@@ -89,16 +89,16 @@ export class CollisionSystem extends System {
         // Test vertical collision
         const playerMinY = Math.min(next.y, prev.y);
         const playerMaxY = Math.max(next.y, prev.y) + height;
-        if (playerMinY >= aabb.max.y) return;
-        if (playerMaxY <= aabb.min.y) return;
+        if (playerMinY >= box.max.y) return;
+        if (playerMaxY <= box.min.y) return;
 
         // Test horizontal collision
         const position2D = new Vector2();
         const collision2D = new Vector2();
         position2D.x = next.x;
         position2D.y = next.z;
-        collision2D.x = clamp(next.x, aabb.min.x, aabb.max.x);
-        collision2D.y = clamp(next.z, aabb.min.z, aabb.max.z);
+        collision2D.x = clamp(next.x, box.min.x, box.max.x);
+        collision2D.y = clamp(next.z, box.min.z, box.max.z);
 
         const sqrtDist2D = position2D.distanceToSquared(collision2D);
         if (sqrtDist2D > radius ** 2) {
@@ -106,7 +106,7 @@ export class CollisionSystem extends System {
         }
 
         // Resolve vertical collision
-        const floor = aabb.max.y;
+        const floor = box.max.y;
         if (next.y <= floor && prev.y >= floor) {
             const above = level.getVoxelType(voxel.x, voxel.y + 1, voxel.z);
             if (above === VoxelType.Solid) {
@@ -119,7 +119,7 @@ export class CollisionSystem extends System {
             return;
         }
 
-        const ceiling = aabb.min.y - height;
+        const ceiling = box.min.y - height;
         if (next.y > ceiling && prev.y <= ceiling) {
             next.y = ceiling;
             velocity.y = 0;
@@ -136,12 +136,12 @@ export class CollisionSystem extends System {
         next.x = position2D.x;
         next.z = position2D.y;
 
-        if (next.x > aabb.min.x && next.x < aabb.max.x) {
+        if (next.x > box.min.x && next.x < box.max.x) {
             velocity.z = 0;
             collision.falg.z = 1;
         }
 
-        if (next.z > aabb.min.z && next.z < aabb.max.z) {
+        if (next.z > box.min.z && next.z < box.max.z) {
             velocity.x = 0;
             collision.falg.x = 1;
         }

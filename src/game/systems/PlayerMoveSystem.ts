@@ -54,7 +54,7 @@ export class PlayerMoveSystem extends System {
             move.normalize();
 
             const scope = isScopeActive(entity);
-            const speed = input.walk || scope ? WALK_SPEED : RUN_SPEED;
+            const speed = input.crouch || scope ? WALK_SPEED : RUN_SPEED;
             move.multiplyScalar(speed);
             if (move.x !== 0 || move.y !== 0) {
                 move.rotateAround(new Vector2(), -rotation.y);

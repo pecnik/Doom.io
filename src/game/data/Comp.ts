@@ -11,6 +11,7 @@ import {
     Vector3
 } from "three";
 import { WeaponSpecs, WeaponState, WeaponAmmo } from "./Weapon";
+import { PLAYER_HEIGHT, PLAYER_RADIUS } from "./Globals";
 
 export module Comp {
     const NEXT_TAG = () => uniqueId("comp-tag");
@@ -36,8 +37,8 @@ export module Comp {
         public readonly prev = new Vector3();
         public readonly next = new Vector3();
         public readonly falg = new Vector3();
-        public radius = 0.25;
-        public height = 1.5;
+        public radius = PLAYER_RADIUS;
+        public height = PLAYER_HEIGHT;
     }
 
     export class PlayerInput implements Component {
@@ -48,7 +49,7 @@ export module Comp {
         public lookVer = 0;
         public weaponIndex = 0;
         public jump = false;
-        public walk = false;
+        public crouch = false;
         public shoot = false;
         public scope = false;
         public reload = false;
