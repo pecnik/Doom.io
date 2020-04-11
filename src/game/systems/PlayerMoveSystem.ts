@@ -33,7 +33,7 @@ export class PlayerMoveSystem extends System {
             // Jumping
             const elapsed = world.elapsedTime;
             const isGrounded = collision.falg.y === -1;
-            if (input.jump && !input.crouch) {
+            if (input.jump) {
                 jump.triggerTime = elapsed;
             }
 
