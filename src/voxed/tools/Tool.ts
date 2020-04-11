@@ -21,7 +21,8 @@ export abstract class Tool {
     }
 
     public onLoad() {}
-    public onStart() {}
+    public onStart(_: Tool_ID) {}
+    public onEnd() {}
     public onUpdate() {}
     public onLeftPressed() {}
     public onLeftReleased() {}

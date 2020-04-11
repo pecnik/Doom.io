@@ -18,7 +18,7 @@ import { disposeMeshMaterial, loadTexture } from "../game/utils/Helpers";
 import { SampleTool } from "./tools/SampleTool";
 import { PaintTool } from "./tools/PaintTool";
 import { BlockTool } from "./tools/BlockTool";
-import { Tool_ID } from "./tools/Tool";
+import { Tool_ID, Tool } from "./tools/Tool";
 
 Vue.use(Vuex);
 
@@ -53,6 +53,14 @@ export class Editor {
         }
     });
 
+    public readonly toolMap: Record<Tool_ID, Tool> = {
+        [Tool_ID.Block]: new BlockTool(this),
+        [Tool_ID.Paint]: new PaintTool(this),
+        [Tool_ID.Sample]: new SampleTool(this)
+    };
+
+    public readonly tools = Object.values(this.toolMap);
+
     public constructor() {
         this.scene.add(this.floor, this.level.mesh, this.level.wireframe);
 
@@ -65,18 +73,11 @@ export class Editor {
 
         this.store.watch(
             state => state.toolId,
-            toolId => {
-                for (let i = 0; i < this.tools.length; i++) {
-                    if (this.tools[i].id === toolId) {
-                        this.tools[i].onStart();
-                    }
-                }
+            (toolId, prevId) => {
+                this.toolMap[prevId].onEnd();
+                this.toolMap[toolId].onStart(prevId);
             }
         );
-    }
-
-    public getSelectedToolId() {
-        return this.store.state.toolId;
     }
 
     public getSelectedTileId() {
@@ -195,37 +196,25 @@ export class Editor {
     }
 
     private toolSystem() {
-        const toolId = this.getSelectedToolId();
-        for (let i = 0; i < this.tools.length; i++) {
-            const tool = this.tools[i];
+        const tool = this.toolMap[this.store.state.toolId];
+        tool.onUpdate();
 
-            // Hotkey select tool
+        if (this.input.isMousePresed(MouseBtn.Left)) {
+            tool.onLeftPressed();
+        } else if (this.input.isMouseReleased(MouseBtn.Left)) {
+            tool.onLeftReleased();
+        }
+
+        if (this.input.isMousePresed(MouseBtn.Right)) {
+            tool.onRightPressed();
+        } else if (this.input.isMouseReleased(MouseBtn.Right)) {
+            tool.onRightReleased();
+        }
+
+        this.tools.forEach(tool => {
             if (this.input.isKeyPressed(tool.hotkey)) {
                 this.setActiveTool(tool.id);
             }
-
-            // Tool actions
-            if (tool.id === toolId) {
-                tool.onUpdate();
-
-                if (this.input.isMousePresed(MouseBtn.Left)) {
-                    tool.onLeftPressed();
-                } else if (this.input.isMouseReleased(MouseBtn.Left)) {
-                    tool.onLeftReleased();
-                }
-
-                if (this.input.isMousePresed(MouseBtn.Right)) {
-                    tool.onRightPressed();
-                } else if (this.input.isMouseReleased(MouseBtn.Right)) {
-                    tool.onRightReleased();
-                }
-            }
-        }
+        });
     }
-
-    private readonly tools = [
-        new BlockTool(this),
-        new PaintTool(this),
-        new SampleTool(this)
-    ];
 }

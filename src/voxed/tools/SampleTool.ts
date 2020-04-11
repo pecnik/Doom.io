@@ -2,12 +2,14 @@ import { KeyCode } from "../../game/core/Input";
 import { Tool, Tool_ID } from "./Tool";
 
 export class SampleTool extends Tool {
-    private prevTool = Tool_ID.Block;
+    private prevToolId = Tool_ID.Block;
     public readonly id = Tool_ID.Sample;
     public readonly hotkey = KeyCode.ALT;
-    public onStart() {
-        this.prevTool = this.editor.getSelectedToolId();
+
+    public onStart(prevToolId: Tool_ID) {
+        this.prevToolId = prevToolId;
     }
+
     public onLeftPressed() {
         const rsp = this.sampleVoxel(-1);
         if (rsp !== undefined) {
@@ -23,10 +25,11 @@ export class SampleTool extends Tool {
                 const { texture } = this.editor.store.state;
                 texture.slots[texture.index] = tileId;
                 texture.slots = [...texture.slots]; // Force vue update
-                this.editor.setActiveTool(this.prevTool);
+                this.editor.setActiveTool(this.prevToolId);
             }
         }
     }
+
     public onRightPressed() {
         const tileId = this.editor.getSelectedTileId();
         const rsp = this.sampleVoxel(-1);
