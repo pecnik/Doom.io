@@ -58,6 +58,10 @@
 
             <!-- Side menu -->
             <div id="voxed-sidemenu" ref="sidemenu">
+                <v-btn x-large block @click="play">PLAY</v-btn>
+                <br>
+                <br>
+
                 <v-card class="mb-4">
                     <v-card-text>
                         <tool-select></tool-select>
@@ -98,6 +102,13 @@ export default {
             editor.camera.far = 1000;
             editor.camera.updateProjectionMatrix();
             editor.renderer.setSize(width, height);
+        },
+        play() {
+            const json = JSON.stringify(editor.level.data);
+            localStorage.setItem("level", json);
+
+            const url = [location.origin, location.pathname].join("");
+            window.open(url);
         }
     },
     mounted() {
@@ -109,7 +120,15 @@ export default {
         window.addEventListener("resize", this.resize);
 
         editor.preload().then(() => {
-            editor.newLevel(16, 8, 16);
+            const json = localStorage.getItem("level");
+            console.log({ json });
+            if (json !== null) {
+                editor.level.data = JSON.parse(json);
+                editor.level.updateGeometry();
+            } else {
+                editor.newLevel(16, 8, 16);
+            }
+
             requestAnimationFrame(function next(elapsed) {
                 editor.update(elapsed);
                 requestAnimationFrame(next);

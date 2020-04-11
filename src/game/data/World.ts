@@ -5,7 +5,7 @@ import { Particles } from "../utils/Particles";
 import { Level } from "./Level";
 
 export class World extends Engine {
-    public readonly level = new Level.Level();
+    public readonly level = new Level();
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
     public readonly decals = new BulletDecals();
@@ -16,6 +16,7 @@ export class World extends Engine {
 
     public constructor() {
         super();
+        this.scene.add(this.level.mesh);
         this.scene.add(this.particles.scene);
         this.scene.add(this.decals.scene);
         this.scene.add(this.camera);

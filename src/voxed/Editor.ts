@@ -11,7 +11,7 @@ import {
     PlaneGeometry
 } from "three";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
-import { Level, VoxelType } from "./Level";
+import { Level, VoxelType } from "../game/data/Level";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import { disposeMeshMaterial, loadTexture } from "../game/utils/Helpers";

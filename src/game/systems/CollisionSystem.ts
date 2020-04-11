@@ -4,7 +4,7 @@ import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { Box3, Vector2 } from "three";
 import { onFamilyChange } from "../utils/EntityUtils";
-import { Level } from "../data/Level";
+import { Level, VoxelData, VoxelType } from "../data/Level";
 
 export class CollisionSystem extends System {
     private readonly bodies: Family;
@@ -30,7 +30,7 @@ export class CollisionSystem extends System {
                 const collision = entity.getComponent(Comp.Collision);
                 collision.next.copy(position);
                 collision.prev.copy(position);
-            },
+            }
         });
     }
 
@@ -71,7 +71,7 @@ export class CollisionSystem extends System {
                     for (let z = minZ; z < maxZ; z++) {
                         const voxel = world.level.getVoxel(x, y, z);
                         if (voxel === undefined) continue;
-                        if (voxel.type !== Level.VoxelType.Solid) continue;
+                        if (voxel.type !== VoxelType.Solid) continue;
                         this.resolveVoxelCollision(world.level, voxel, entity);
                     }
                 }
@@ -86,8 +86,8 @@ export class CollisionSystem extends System {
     }
 
     private resolveVoxelCollision(
-        level: Level.Level,
-        voxel: Level.Voxel,
+        level: Level,
+        voxel: VoxelData,
         entity: Entity
     ) {
         const aabb = new Box3();
@@ -121,7 +121,7 @@ export class CollisionSystem extends System {
         const floor = aabb.max.y + height * 0.75;
         if (next.y <= floor && prev.y >= floor) {
             const above = level.getVoxelType(voxel.x, voxel.y + 1, voxel.z);
-            if (above === Level.VoxelType.Solid) {
+            if (above === VoxelType.Solid) {
                 return; // Ignore, abovr voxel will handle this
             }
 

@@ -4,12 +4,12 @@ import {
     PointsMaterial,
     VertexColors,
     Color,
-    Points,
+    Points
 } from "three";
 import { random } from "lodash";
 import { GRAVITY } from "../data/Globals";
 import { World } from "../data/World";
-import { Level } from "../data/Level";
+import { VoxelType } from "../data/Level";
 
 export class Particle extends Vector3 {
     public readonly velocity = new Vector3();
@@ -23,7 +23,7 @@ export class Particles {
         // create the particle variables
         const material = new PointsMaterial({
             vertexColors: VertexColors,
-            size: 1 / 24, // TODO - resize based on camera FOV
+            size: 1 / 24 // TODO - resize based on camera FOV
         });
 
         this.particles = new Geometry();
@@ -93,7 +93,7 @@ export class Particles {
 
             // Bounce of floor
             const voxel = world.level.getVoxelAt(particle);
-            if (voxel !== undefined && voxel.type === Level.VoxelType.Solid) {
+            if (voxel !== undefined && voxel.type === VoxelType.Solid) {
                 const floor = voxel.y + 0.5;
                 if (particle.y <= floor) {
                     particle.y = floor;

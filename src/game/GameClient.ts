@@ -37,34 +37,32 @@ export class GameClient implements Game {
             this.world.decals.load(),
 
             // Load level
-            loadTexture("/assets/tileset.png").then((map) => {
-                const { level } = this.world;
+            loadTexture("/assets/tileset.png").then(map => {
+                this.world.level.setMaterial(map);
+
                 const json = localStorage.getItem("level");
                 if (json !== null) {
-                    this.world.level.matrix = JSON.parse(json);
-                    this.world.level.texture = map;
-                    this.world.level.buildMesh();
-                    this.world.level.addLighting();
-                    this.world.scene.add(level.mesh);
+                    this.world.level.data = JSON.parse(json);
+                    this.world.level.updateGeometry();
                 }
             }),
 
             // Preload weapon sprite
-            ...WeaponSpecs.map((weapon) => {
-                return loadTexture(weapon.povSpriteSrc).then((map) => {
+            ...WeaponSpecs.map(weapon => {
+                return loadTexture(weapon.povSpriteSrc).then(map => {
                     weapon.povSpriteTexture = map;
                 });
             }),
 
             // Preload weapon audio
-            ...WeaponSpecs.map((weapon) => {
-                return new Promise((resolve) => {
-                    new AudioLoader().load(weapon.fireSoundSrc, (buffer) => {
+            ...WeaponSpecs.map(weapon => {
+                return new Promise(resolve => {
+                    new AudioLoader().load(weapon.fireSoundSrc, buffer => {
                         weapon.fireSoundBuffer = buffer;
                         resolve();
                     });
                 });
-            }),
+            })
         ]);
     }
 
@@ -88,14 +86,14 @@ export class GameClient implements Game {
         this.world.addSystem(new AudioFootstepSystem(this.world));
 
         // Entities
-        const { width, depth } = this.world.level.matrix;
+        const { max_x, max_y, max_z } = this.world.level.data;
 
         const player = EntityFactory.Player();
-        player.getComponent(Comp.Position).set(width / 2, 8, depth / 2);
+        player.getComponent(Comp.Position).set(max_x / 2, max_y, max_z / 2);
         this.world.addEntity(player);
 
         const barrel = EntityFactory.Barrel();
-        barrel.getComponent(Comp.Position).set(width / 2, 8, depth / 2);
+        barrel.getComponent(Comp.Position).set(max_x / 2, max_y, max_z / 2);
         this.world.addEntity(barrel);
     }
 

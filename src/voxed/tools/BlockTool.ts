@@ -1,6 +1,6 @@
 import { KeyCode } from "../../game/core/Input";
 import { MeshBasicMaterial, Color, Vector3 } from "three";
-import { VoxelType, Level } from "../Level";
+import { VoxelType, Level } from "../../game/data/Level";
 import { disposeMeshMaterial } from "../../game/utils/Helpers";
 import { Tool, Tool_ID } from "./Tool";
 
