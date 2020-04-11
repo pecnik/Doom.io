@@ -8,7 +8,7 @@ import {
     BufferGeometry,
     Box2,
     PositionalAudio,
-    Vector3,
+    Vector3
 } from "three";
 import { WeaponSpecs, WeaponState, WeaponAmmo } from "./Weapon";
 
@@ -37,7 +37,7 @@ export module Comp {
         public readonly next = new Vector3();
         public readonly falg = new Vector3();
         public radius = 0.25;
-        public height = 1.25;
+        public height = 1.5;
     }
 
     export class PlayerInput implements Component {
@@ -61,10 +61,10 @@ export module Comp {
         public shootTime = 0;
         public reloadTime = 0;
         public weaponIndex = 0;
-        public ammo: WeaponAmmo[] = WeaponSpecs.map((spec) => {
+        public ammo: WeaponAmmo[] = WeaponSpecs.map(spec => {
             return {
                 loaded: spec.maxLoadedAmmo,
-                reserved: spec.maxReservedAmmo,
+                reserved: spec.maxReservedAmmo
             };
         });
     }

@@ -40,30 +40,18 @@ export class CollisionSystem extends System {
             const position = entity.getComponent(Comp.Position);
             const collision = entity.getComponent(Comp.Collision);
 
-            const { prev, next } = collision;
+            const { prev, next, height } = collision;
             next.copy(position);
 
             // Reset flags
             collision.falg.setScalar(0);
-
-            // TODO
-            // // Resolve entity collisions
-            // const aabb = new Box2();
-            // for (let j = 0; j < this.colliders.entities.length; j++) {
-            //     const entity = this.colliders.entities[j];
-            //     const collider = entity.getComponent(Comp.Collider);
-            //     const position = entity.getComponent(Comp.Position);
-            //     aabb.min.copy(collider.min).add(position);
-            //     aabb.max.copy(collider.max).add(position);
-            //     this.resolve(aabb, collision, velocity);
-            // }
 
             // Resolve level collision
             const minX = Math.floor(Math.min(prev.x, next.x)) - 2;
             const minY = Math.floor(Math.min(prev.y, next.y)) - 2;
             const minZ = Math.floor(Math.min(prev.z, next.z)) - 2;
             const maxX = Math.ceil(Math.max(prev.x, next.x)) + 2;
-            const maxY = Math.ceil(Math.max(prev.y, next.y)) + 2;
+            const maxY = Math.ceil(Math.max(prev.y, next.y) + height) + 2;
             const maxZ = Math.ceil(Math.max(prev.z, next.z)) + 2;
 
             for (let x = minX; x < maxX; x++) {
@@ -99,8 +87,8 @@ export class CollisionSystem extends System {
         const { prev, next, falg, radius, height } = collision;
 
         // Test vertical collision
-        const playerMinY = Math.min(next.y, prev.y) - height * 0.75;
-        const playerMaxY = Math.max(next.y, prev.y) + height * 0.25;
+        const playerMinY = Math.min(next.y, prev.y);
+        const playerMaxY = Math.max(next.y, prev.y) + height;
         if (playerMinY >= aabb.max.y) return;
         if (playerMaxY <= aabb.min.y) return;
 
@@ -118,7 +106,7 @@ export class CollisionSystem extends System {
         }
 
         // Resolve vertical collision
-        const floor = aabb.max.y + height * 0.75;
+        const floor = aabb.max.y;
         if (next.y <= floor && prev.y >= floor) {
             const above = level.getVoxelType(voxel.x, voxel.y + 1, voxel.z);
             if (above === VoxelType.Solid) {
@@ -131,7 +119,7 @@ export class CollisionSystem extends System {
             return;
         }
 
-        const ceiling = aabb.min.y - height * 0.25;
+        const ceiling = aabb.min.y - height;
         if (next.y > ceiling && prev.y <= ceiling) {
             next.y = ceiling;
             velocity.y = 0;
