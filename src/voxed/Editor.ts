@@ -48,7 +48,7 @@ export class Editor {
             toolId: Tool_ID.Block,
             texture: {
                 slots: [0, 1, 2, 3, 8, 9, 10, 11],
-                index: 0
+                index: 4
             }
         }
     });

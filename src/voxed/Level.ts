@@ -231,7 +231,7 @@ export class Level {
         const darken1 = new Color(0x888888);
         const lighten1 = new Color(0xaaaaaa);
         const lighten2 = new Color(0xffffff);
-        const getLight = (normal: Vector3) => {
+        const getLight = (normal: Vector3): Color => {
             if (normal.x === +1) return darken1;
             if (normal.x === -1) return darken1;
 
@@ -244,13 +244,52 @@ export class Level {
             return lighten2;
         };
 
+        const inShadow = (vertex: Vector3, normal: Vector3) => {
+            if (normal.y !== 1) {
+                return false;
+            }
+
+            const min_y = Math.ceil(vertex.y + normal.y * 0.25);
+            const max_y = this.data.max_y;
+
+            const rad = 0.25;
+            const x = vertex.x + normal.x * rad;
+            const z = vertex.z + normal.z * rad;
+
+            for (let y = min_y; y < max_y; y++) {
+                const voxel1 = this.getVoxel(Math.floor(x), y, Math.floor(z));
+                if (voxel1 && voxel1.type === VoxelType.Solid) return true;
+
+                const voxel2 = this.getVoxel(Math.floor(x), y, Math.ceil(z));
+                if (voxel2 && voxel2.type === VoxelType.Solid) return true;
+
+                const voxel3 = this.getVoxel(Math.ceil(x), y, Math.floor(z));
+                if (voxel3 && voxel3.type === VoxelType.Solid) return true;
+
+                const voxel4 = this.getVoxel(Math.ceil(x), y, Math.ceil(z));
+                if (voxel4 && voxel4.type === VoxelType.Solid) return true;
+            }
+
+            return false;
+        };
+
         const geometry = this.mesh.geometry as Geometry;
+        const vertices = new Array<Vector3>();
         geometry.faces.forEach(face => {
+            vertices[0] = geometry.vertices[face.a];
+            vertices[1] = geometry.vertices[face.b];
+            vertices[2] = geometry.vertices[face.c];
+
             const light = getLight(face.normal);
-            face.vertexColors.length = 3;
-            face.vertexColors[0] = light;
-            face.vertexColors[1] = light;
-            face.vertexColors[2] = light;
+            for (let i = 0; i < vertices.length; i++) {
+                face.vertexColors[i] = light;
+                if (inShadow(vertices[i], face.normal)) {
+                    face.vertexColors[i] = face.vertexColors[i].clone();
+                    face.vertexColors[i].r *= 0.5;
+                    face.vertexColors[i].g *= 0.5;
+                    face.vertexColors[i].b *= 0.5;
+                }
+            }
         });
     }
 }
