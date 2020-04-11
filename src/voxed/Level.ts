@@ -226,17 +226,16 @@ export class Level {
     }
 
     private updateLighing() {
-        const darken3 = new Color(0x222222);
-        const darken2 = new Color(0x444444);
-        const darken1 = new Color(0x888888);
-        const lighten1 = new Color(0xaaaaaa);
+        const darken2 = new Color(0x999999);
+        const darken1 = new Color(0xbbbbbb);
+        const lighten1 = new Color(0xdddddd);
         const lighten2 = new Color(0xffffff);
         const getBaseLight = (normal: Vector3): Color => {
             if (normal.x === +1) return darken1;
             if (normal.x === -1) return darken1;
 
             if (normal.y === +1) return lighten2;
-            if (normal.y === -1) return darken3;
+            if (normal.y === -1) return darken2;
 
             if (normal.z === +1) return darken2;
             if (normal.z === -1) return lighten1;
@@ -244,7 +243,7 @@ export class Level {
             return lighten2;
         };
 
-        const inShadow = (vertex: Vector3, normal: Vector3) => {
+        const getShadowMultiply = (vertex: Vector3, normal: Vector3) => {
             const min_y = Math.ceil(vertex.y + normal.y * 0.25);
             const max_y = this.data.max_y;
 
@@ -254,15 +253,16 @@ export class Level {
 
             for (let y = min_y; y < max_y; y++) {
                 const voxel1 = this.getVoxel(x, y, z);
-                if (voxel1 && voxel1.type === VoxelType.Solid) return true;
+                if (voxel1 && voxel1.type === VoxelType.Solid) return 0.75;
             }
 
-            return false;
+            return 1;
         };
 
         const geometry = this.mesh.geometry as Geometry;
         const vertices = new Array<Vector3>();
         geometry.faces.forEach(face => {
+            // Get face vertices
             vertices[0] = geometry.vertices[face.a];
             vertices[1] = geometry.vertices[face.b];
             vertices[2] = geometry.vertices[face.c];
@@ -273,15 +273,55 @@ export class Level {
             face.vertexColors[1] = light.clone();
             face.vertexColors[2] = light.clone();
 
+            // Get face origin
+            const origin = new Vector3();
+            vertices.forEach(v => origin.add(v));
+            origin.divideScalar(3);
+
             // Cast shadow lighting
-            const point = new Vector3();
-            vertices.forEach(v => point.add(v));
-            point.divideScalar(3);
-            if (inShadow(point, face.normal)) {
-                for (let i = 0; i < 3; i++) {
-                    face.vertexColors[i].r *= 0.5;
-                    face.vertexColors[i].g *= 0.5;
-                    face.vertexColors[i].b *= 0.5;
+            const shadow = getShadowMultiply(origin, face.normal);
+            for (let i = 0; i < 3; i++) {
+                face.vertexColors[i].r *= shadow;
+                face.vertexColors[i].g *= shadow;
+                face.vertexColors[i].b *= shadow;
+            }
+
+            // Ambient occlusion pass
+            const aofac = 0.85;
+            if (
+                Math.abs(face.normal.x) === 1 ||
+                Math.abs(face.normal.z) === 1
+            ) {
+                const above = this.getVoxel(
+                    Math.round(origin.x + face.normal.x * 0.5),
+                    Math.round(origin.y + 1),
+                    Math.round(origin.z + face.normal.z * 0.5)
+                );
+
+                if (above && above.type === VoxelType.Solid) {
+                    for (let i = 0; i < vertices.length; i++) {
+                        if (vertices[i].y > origin.y) {
+                            face.vertexColors[i].r *= aofac;
+                            face.vertexColors[i].g *= aofac;
+                            face.vertexColors[i].b *= aofac;
+                        }
+                    }
+                }
+
+                const bottom = this.getVoxel(
+                    Math.round(origin.x + face.normal.x * 0.5),
+                    Math.round(origin.y - 1),
+                    Math.round(origin.z + face.normal.z * 0.5)
+                );
+
+                if (bottom && bottom.type === VoxelType.Solid) {
+                    for (let i = 0; i < vertices.length; i++) {
+                        if (vertices[i].y < origin.y) {
+                            face.vertexColors[i].r *= aofac;
+                            face.vertexColors[i].g *= aofac;
+                            face.vertexColors[i].b *= aofac;
+                        }
+                    }
                 }
             }
         });
