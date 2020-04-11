@@ -15,7 +15,8 @@ import { Level, VoxelType } from "./Level";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import { disposeMeshMaterial, loadTexture } from "../game/utils/Helpers";
-import { BlockTool, PaintTool, SampleTool } from "./Tools";
+import { PaintTool, SampleTool } from "./tools/Tools";
+import { BlockTool } from "./tools/BlockTool";
 
 Vue.use(Vuex);
 
@@ -34,7 +35,7 @@ export class Editor {
     public elapsedTime = 0;
     public previusTime = 0;
 
-    public readonly renderer = new WebGLRenderer({});
+    public readonly renderer = new WebGLRenderer({ antialias: true });
     public readonly camera = new PerspectiveCamera(90);
     public readonly scene = new Scene();
     public readonly level = new Level();
