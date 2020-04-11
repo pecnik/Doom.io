@@ -1,7 +1,7 @@
 import { System, Family, FamilyBuilder, Entity } from "../core/ecs";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
-import { Hitscan, isScopeActive } from "../utils/Helpers";
+import { Hitscan, isScopeActive, getHeadPosition } from "../utils/Helpers";
 import { Color } from "three";
 import { random } from "lodash";
 import { modulo } from "../core/Utils";
@@ -10,7 +10,7 @@ import {
     WeaponSpecs,
     WeaponState,
     WeaponAmmo,
-    WeaponSpec,
+    WeaponSpec
 } from "../data/Weapon";
 
 export class PlayerShootSystem extends System {
@@ -161,7 +161,7 @@ export class PlayerShootSystem extends System {
     }
 
     private fireBullets(world: World, entity: Entity) {
-        const position = entity.getComponent(Comp.Position);
+        const position = getHeadPosition(entity);
         const rotation = entity.getComponent(Comp.Rotation2D);
         const shooter = entity.getComponent(Comp.Shooter);
         const weapon = WeaponSpecs[shooter.weaponIndex];

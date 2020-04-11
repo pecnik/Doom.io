@@ -3,9 +3,8 @@ import { clamp } from "lodash";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { Input, KeyCode, MouseBtn } from "../core/Input";
-import { modulo, lerp } from "../core/Utils";
+import { modulo } from "../core/Utils";
 import { WeaponSpecs } from "../data/Weapon";
-import { PLAYER_HEIGHT, PLAYER_HEIGHT_CROUCH } from "../data/Globals";
 
 export class PlayerInputSystem extends System {
     private readonly input: Input;
@@ -54,11 +53,6 @@ export class PlayerInputSystem extends System {
             input.scope = scope;
             input.reload = reload;
             input.weaponIndex = this.getWeaponIndex(input);
-
-            // TODO: move to own system?
-            const collisio = entity.getComponent(Comp.Collision);
-            const height = input.crouch ? PLAYER_HEIGHT_CROUCH : PLAYER_HEIGHT;
-            collisio.height = lerp(collisio.height, height, 0.1);
 
             if (entity.hasComponent(Comp.Rotation2D)) {
                 const str = input.scope ? 0.5 : 1;

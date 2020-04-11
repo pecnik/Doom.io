@@ -17,6 +17,7 @@ import { HudDisplaySystem } from "./systems/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Weapon";
 import { Game } from "./core/Engine";
 import { loadTexture } from "./utils/Helpers";
+import { PlayerCouchSystem } from "./systems/PlayerCouchSystem";
 
 export class GameClient implements Game {
     // private readonly socket: SocketIOClient.Socket;
@@ -74,6 +75,7 @@ export class GameClient implements Game {
         // Systems
         this.world.addSystem(new PlayerInputSystem(this.world, this.input));
         this.world.addSystem(new PlayerMoveSystem(this.world));
+        this.world.addSystem(new PlayerCouchSystem(this.world));
         this.world.addSystem(new CollisionSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new PlayerShootSystem(this.world));
