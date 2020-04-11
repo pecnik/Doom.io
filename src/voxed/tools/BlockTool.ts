@@ -4,6 +4,12 @@ import { VoxelType, Level } from "../Level";
 import { disposeMeshMaterial } from "../../game/utils/Helpers";
 import { Tool, Tool_ID } from "./Tool";
 
+enum Mode {
+    Idle,
+    Draw,
+    Erase
+}
+
 export class BlockTool extends Tool {
     public readonly id = Tool_ID.Block;
     public readonly hotkey = KeyCode.E;
@@ -11,7 +17,7 @@ export class BlockTool extends Tool {
 
     private readonly previewLevel = new Level();
     private readonly state = {
-        drawing: false,
+        mode: Mode.Idle,
         tileId: 0,
         begin: new Vector3(),
         end: new Vector3()
@@ -30,6 +36,11 @@ export class BlockTool extends Tool {
     }
 
     public onLeftPressed() {
+        if (this.state.mode === Mode.Erase) {
+            this.state.mode = Mode.Idle;
+            return;
+        }
+
         const rsp = this.sampleVoxel(1);
         if (rsp === undefined) {
             return;
@@ -43,7 +54,33 @@ export class BlockTool extends Tool {
 
         // Set origin
         const { x, y, z } = rsp.voxel;
-        this.state.drawing = true;
+        this.state.mode = Mode.Draw;
+        this.state.tileId = this.editor.getSelectedTileId();
+        this.state.begin.set(x, y, z);
+        this.state.end.set(x, y, z);
+        this.updatePreview();
+    }
+
+    public onRightPressed() {
+        if (this.state.mode === Mode.Draw) {
+            this.state.mode = Mode.Idle;
+            return;
+        }
+
+        const rsp = this.sampleVoxel(-1);
+        if (rsp === undefined) {
+            return;
+        }
+
+        // Init leve
+        const { max_x, max_y, max_z } = this.editor.level.data;
+        this.previewLevel.mesh.visible = true;
+        this.previewLevel.setSize(max_x, max_y, max_z);
+        this.previewLevel.updateGeometry();
+
+        // Set origin
+        const { x, y, z } = rsp.voxel;
+        this.state.mode = Mode.Erase;
         this.state.tileId = this.editor.getSelectedTileId();
         this.state.begin.set(x, y, z);
         this.state.end.set(x, y, z);
@@ -51,12 +88,12 @@ export class BlockTool extends Tool {
     }
 
     public onUpdate() {
-        this.previewLevel.mesh.visible = this.state.drawing;
-        if (!this.state.drawing) {
+        this.previewLevel.mesh.visible = this.state.mode !== Mode.Idle;
+        if (!this.previewLevel.mesh.visible) {
             return;
         }
 
-        const rsp = this.sampleVoxel(1);
+        const rsp = this.sampleVoxel(this.state.mode === Mode.Draw ? 1 : -1);
         if (rsp === undefined) {
             return;
         }
@@ -67,8 +104,8 @@ export class BlockTool extends Tool {
     }
 
     public onLeftReleased() {
-        if (this.state.drawing) {
-            this.state.drawing = false;
+        if (this.state.mode === Mode.Draw) {
+            this.state.mode = Mode.Idle;
             this.previewLevel.data.voxel.forEach(voxel => {
                 if (voxel.type === VoxelType.Solid) {
                     this.editor.level.data.voxel[voxel.index] = voxel;
@@ -78,15 +115,16 @@ export class BlockTool extends Tool {
         }
     }
 
-    public onRightPressed() {
-        if (this.state.drawing) {
-            this.state.drawing = false;
-        } else {
-            const rsp = this.sampleVoxel(-1);
-            if (rsp !== undefined) {
-                rsp.voxel.type = VoxelType.Empty;
-                this.editor.level.updateGeometry();
-            }
+    public onRightReleased() {
+        if (this.state.mode === Mode.Erase) {
+            this.state.mode = Mode.Idle;
+            this.previewLevel.data.voxel.forEach(voxel => {
+                if (voxel.type === VoxelType.Solid) {
+                    const evoxel = this.editor.level.data.voxel[voxel.index];
+                    evoxel.type = VoxelType.Empty;
+                }
+            });
+            this.editor.level.updateGeometry();
         }
     }
 
