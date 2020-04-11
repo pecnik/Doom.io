@@ -10,6 +10,7 @@ import {
     Color
 } from "three";
 import { disposeMeshMaterial } from "../game/utils/Helpers";
+import { clamp } from "lodash";
 
 export const TILE_W = 64;
 export const TILE_H = 64;
@@ -22,20 +23,14 @@ export enum VoxelType {
     Solid
 }
 
-export class VoxelData {
-    public index = 0;
-    public x = 0;
-    public y = 0;
-    public z = 0;
-    public type = VoxelType.Solid;
-    public faces: [number, number, number, number, number, number] = [
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-    ];
+export interface VoxelData {
+    readonly index: number;
+    readonly x: number;
+    readonly y: number;
+    readonly z: number;
+    type: VoxelType;
+    faces: [number, number, number, number, number, number];
+    light: number;
 }
 
 export class LevelData {
@@ -80,6 +75,7 @@ export class Level {
                     const index = x + y * max_x + z * max_x * max_y;
                     this.data.voxel.push({
                         index,
+                        light: 0,
                         faces: [0, 0, 0, 0, 0, 0],
                         type: VoxelType.Empty,
                         x,
@@ -329,6 +325,7 @@ export class Level {
                 }
             }
 
+            // Limit how dark things can get
             const maxDark = 0.1;
             face.vertexColors.forEach(color => {
                 color.r = Math.max(color.r, maxDark);
@@ -336,5 +333,22 @@ export class Level {
                 color.b = Math.max(color.b, maxDark);
             });
         });
+
+        // Backe light level for each voxel
+        const { max_x, max_y, max_z } = this.data;
+        for (let x = 0; x < max_x; x++) {
+            for (let z = 0; z < max_z; z++) {
+                let light = 1;
+                for (let y = max_y - 1; y > 0; y--) {
+                    const voxel = this.getVoxel(x, y, z);
+                    if (voxel !== undefined) {
+                        if (voxel.type === VoxelType.Solid) {
+                            light = 0;
+                        }
+                        voxel.light = clamp(light, 0.25, 1);
+                    }
+                }
+            }
+        }
     }
 }
