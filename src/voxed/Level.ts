@@ -214,6 +214,18 @@ export class Level {
         planes.forEach(plane => plane.dispose());
         geometry.elementsNeedUpdate = true;
 
+        this.mesh.geometry.dispose();
+        this.wireframe.geometry.dispose();
+
+        this.mesh.geometry = geometry;
+        this.wireframe.geometry = geometry;
+
+        this.updateLighing();
+
+        this.updatedAt = Date.now();
+    }
+
+    private updateLighing() {
         const darken3 = new Color(0x222222);
         const darken2 = new Color(0x444444);
         const darken1 = new Color(0x888888);
@@ -232,6 +244,7 @@ export class Level {
             return lighten2;
         };
 
+        const geometry = this.mesh.geometry as Geometry;
         geometry.faces.forEach(face => {
             const light = getLight(face.normal);
             face.vertexColors.length = 3;
@@ -239,13 +252,5 @@ export class Level {
             face.vertexColors[1] = light;
             face.vertexColors[2] = light;
         });
-
-        this.mesh.geometry.dispose();
-        this.wireframe.geometry.dispose();
-
-        this.mesh.geometry = geometry;
-        this.wireframe.geometry = geometry;
-
-        this.updatedAt = Date.now();
     }
 }
