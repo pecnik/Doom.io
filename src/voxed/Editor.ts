@@ -233,10 +233,10 @@ export class Editor {
             this.history.time = this.level.updatedAt;
             this.history.index++;
 
-            const max_history = 10;
-            if (this.history.stack.length > max_history) {
+            const MAX_HISTORY_STACK = 10;
+            if (this.history.stack.length > MAX_HISTORY_STACK) {
                 this.history.stack.shift();
-                this.history.index = max_history;
+                this.history.index = MAX_HISTORY_STACK;
             }
         }
 
