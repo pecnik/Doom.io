@@ -3,7 +3,7 @@ import { Group, PositionalAudio, AudioLoader } from "three";
 import { random } from "lodash";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
-import { onFamilyChange } from "../utils/EntityUtils";
+import { onFamilyChange } from "../utils/Helpers";
 
 export class AudioFootstepSystem extends System {
     private readonly family: Family;

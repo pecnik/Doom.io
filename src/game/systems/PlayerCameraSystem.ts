@@ -2,7 +2,7 @@ import { System, Family, FamilyBuilder } from "../core/ecs";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
 import { lerp } from "../core/Utils";
-import { isScopeActive } from "../utils/EntityUtils";
+import { isScopeActive } from "../utils/Helpers";
 
 export class PlayerCameraSystem extends System {
     private readonly family: Family;

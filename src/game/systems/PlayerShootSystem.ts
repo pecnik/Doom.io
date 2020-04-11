@@ -1,7 +1,7 @@
 import { System, Family, FamilyBuilder, Entity } from "../core/ecs";
 import { World } from "../data/World";
 import { Comp } from "../data/Comp";
-import { Hitscan, isScopeActive } from "../utils/EntityUtils";
+import { Hitscan, isScopeActive } from "../utils/Helpers";
 import { Color } from "three";
 import { random } from "lodash";
 import { modulo } from "../core/Utils";

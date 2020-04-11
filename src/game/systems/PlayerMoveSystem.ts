@@ -4,7 +4,7 @@ import { Comp } from "../data/Comp";
 import { Vector2 } from "three";
 import { WALK_SPEED, RUN_SPEED, GRAVITY, JUMP_SPEED } from "../data/Globals";
 import { lerp } from "../core/Utils";
-import { isScopeActive } from "../utils/EntityUtils";
+import { isScopeActive } from "../utils/Helpers";
 
 export class PlayerMoveSystem extends System {
     private readonly family: Family;
