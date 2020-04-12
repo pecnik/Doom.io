@@ -71,11 +71,13 @@ export default {
     }
 
     #voxed-viewport {
+        z-index: 1;
         grid-row: 1;
         grid-column: 1;
     }
 
     #voxed-viewport-cursor {
+        z-index: 2;
         grid-row: 1;
         grid-column: 1;
         pointer-events: none;
@@ -85,12 +87,13 @@ export default {
         justify-content: space-evenly;
 
         .cursor {
-            $cursor_size: 24px;
+            $cursor_size: 8px;
             border: 1px solid black;
             background-color: white;
             width: $cursor_size;
             height: $cursor_size;
             border-radius: $cursor_size / 2;
+            opacity: 0.5;
         }
     }
 }
