@@ -3,7 +3,7 @@
         <v-tabs v-model="tab">
             <v-tab  key="block">Block</v-tab>
             <v-tab key="texture">Texture</v-tab>
-            <v-tab key="texture">Settings</v-tab>
+            <v-tab key="settings">Settings</v-tab>
         </v-tabs>
         <v-tabs-items v-model="tab">
             <v-tab-item key="0">
