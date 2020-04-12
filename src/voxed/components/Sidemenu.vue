@@ -6,11 +6,13 @@
         </v-tabs>
         <v-tabs-items v-model="tab">
             <v-tab-item key="0">
-                <v-card flat>
+                <v-card>
                     <v-card-text>
+                        <div>Brush</div>
                         <sidemenu-block></sidemenu-block>
                     </v-card-text>
                     <v-card-text>
+                        <div>Texture</div>
                         <sidemenu-texture></sidemenu-texture>
                     </v-card-text>
                 </v-card>

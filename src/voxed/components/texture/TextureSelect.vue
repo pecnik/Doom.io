@@ -1,10 +1,10 @@
 <template>
-    <div>
+    <div class="texture-list mt-4">
         <div v-for="(tile, key) in tiles"
             :key="key + 1"
             :class="{ active: key === index }"
-            @click="$emit('input', key)"
-            class="texture-option">
+            class="texture-option"
+            @click="$emit('input', key)">
             <texture-tile :tile="tile"></texture-tile>
         </div>
     </div>
@@ -20,40 +20,32 @@ export default {
 };
 </script>
 <style scoped lang="scss">
-@import "~vuetify/src/styles/main.sass";
+.texture-list {
+    padding-left: 16px;
+    padding-top: 16px;
+    background: black;
+}
 
 .texture-option {
     position: relative;
     display: inline-block;
-    margin: 4px;
-    padding: 4px;
-    border-radius: 8px;
+    margin-right: 14px;
+    margin-bottom: 16px;
     font-size: 0;
     line-height: 1;
+    border: 1px solid black;
 
     &:hover {
         cursor: pointer;
-        background-color: map-get($teal, "darken-3");
+        -webkit-box-shadow: 0px 0px 4px 2px rgba(255, 255, 255, 0.5);
+        -moz-box-shadow: 0px 0px 4px 2px rgba(255, 255, 255, 0.5);
+        box-shadow: 0px 0px 4px 2px rgba(255, 255, 255, 0.5);
     }
 
     &.active {
-        background-color: map-get($teal, "lighten-3");
-    }
-
-    .texture-dialog-toggle {
-        display: none;
-    }
-
-    &:hover > .texture-dialog-toggle {
-        position: absolute;
-        bottom: 6px;
-        right: 6px;
-        display: block;
-        width: 24px;
-        height: 24px;
-        text-align: center;
-        line-height: 24px;
-        background-color: map-get($teal, "darken-3");
+        -webkit-box-shadow: 0px 0px 8px 2px rgba(255, 255, 255, 1);
+        -moz-box-shadow: 0px 0px 8px 2px rgba(255, 255, 255, 1);
+        box-shadow: 0px 0px 8px 2px rgba(255, 255, 255, 1);
     }
 }
 </style>
