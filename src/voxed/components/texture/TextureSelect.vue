@@ -3,6 +3,7 @@
         <div v-for="(tile, key) in tiles"
             :key="key + 1"
             :class="{ active: key === index }"
+            @click="$emit('input', key)"
             class="texture-option">
             <texture-tile :tile="tile"></texture-tile>
         </div>

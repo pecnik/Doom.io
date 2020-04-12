@@ -27,8 +27,8 @@ export default {
         }
     },
     methods: {
-        selectTexture(idnex) {
-            console.log({ index });
+        selectTexture(index) {
+            this.$store.state.texture.index = index;
         }
     },
     data() {
