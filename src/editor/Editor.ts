@@ -1,5 +1,3 @@
-import Vue from "vue";
-import Vuex from "vuex";
 import {
     WebGLRenderer,
     Scene,
@@ -16,14 +14,7 @@ import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import { loadTexture, disposeMeshMaterial } from "../game/utils/Helpers";
 
-Vue.use(Vuex);
-
 export class Editor {
-    public static readonly getInstance = (() => {
-        const intance = new Editor();
-        return () => intance;
-    })();
-
     public elapsedTime = 0;
     public previusTime = 0;
 
@@ -35,12 +26,6 @@ export class Editor {
     public readonly input = new Input({
         requestPointerLock: true,
         element: this.renderer.domElement
-    });
-
-    public readonly store = new Vuex.Store({
-        state: {
-            // ...
-        }
     });
 
     public constructor() {
@@ -123,3 +108,5 @@ export class Editor {
         this.camera.position.add(velocity);
     }
 }
+
+export const editor = new Editor();

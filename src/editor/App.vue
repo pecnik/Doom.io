@@ -14,18 +14,10 @@
 </template>
 <script>
 import Sidemenu from "./components/Sidemenu.vue";
-import { Editor } from "./Editor";
-
-const editor = Editor.getInstance();
+import { editor } from "./Editor";
 
 export default {
     components: { Sidemenu },
-    computed: {
-        toolIcon() {
-            const { toolId } = this.$store.state;
-            return editor.toolMap[toolId].faicon;
-        }
-    },
     methods: {
         resize() {
             const viewport = this.$refs["viewport"];

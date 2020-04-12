@@ -1,12 +1,11 @@
 import Vue from "vue";
 import Vuetify from "vuetify";
 import App from "./App.vue";
-import { Editor } from "./Editor";
+import { store } from "./Store";
 import "vuetify/dist/vuetify.min.css";
 
 Vue.use(Vuetify);
 
-const { store } = Editor.getInstance();
 const vuetify = new Vuetify({
     theme: { dark: true }
 });
