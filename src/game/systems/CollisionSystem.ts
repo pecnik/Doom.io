@@ -59,7 +59,7 @@ export class CollisionSystem extends System {
                     for (let z = minZ; z < maxZ; z++) {
                         const voxel = world.level.getVoxel(x, y, z);
                         if (voxel === undefined) continue;
-                        if (voxel.type !== VoxelType.Solid) continue;
+                        if (voxel.type !== VoxelType.Block) continue;
                         this.resolveVoxelCollision(world.level, voxel, entity);
                     }
                 }
@@ -109,7 +109,7 @@ export class CollisionSystem extends System {
         const floor = box.max.y;
         if (next.y <= floor && prev.y >= floor) {
             const above = level.getVoxelType(voxel.x, voxel.y + 1, voxel.z);
-            if (above === VoxelType.Solid) {
+            if (above === VoxelType.Block) {
                 return; // Ignore, abovr voxel will handle this
             }
 
@@ -122,7 +122,7 @@ export class CollisionSystem extends System {
         const ceiling = box.min.y - height;
         if (next.y > ceiling && prev.y <= ceiling) {
             const belov = level.getVoxelType(voxel.x, voxel.y - 1, voxel.z);
-            if (belov === VoxelType.Solid) {
+            if (belov === VoxelType.Block) {
                 return; // Ignore, abovr voxel will handle this
             }
 

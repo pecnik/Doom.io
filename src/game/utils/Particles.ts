@@ -93,7 +93,7 @@ export class Particles {
 
             // Bounce of floor
             const voxel = world.level.getVoxelAt(particle);
-            if (voxel !== undefined && voxel.type === VoxelType.Solid) {
+            if (voxel !== undefined && voxel.type === VoxelType.Block) {
                 const floor = voxel.y + 0.5;
                 if (particle.y <= floor) {
                     particle.y = floor;

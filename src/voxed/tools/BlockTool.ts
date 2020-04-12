@@ -107,7 +107,7 @@ export class BlockTool extends Tool {
         if (this.state.mode === Mode.Draw) {
             this.state.mode = Mode.Idle;
             this.previewLevel.data.voxel.forEach(voxel => {
-                if (voxel.type === VoxelType.Solid) {
+                if (voxel.type === VoxelType.Block) {
                     this.editor.level.data.voxel[voxel.index] = voxel;
                 }
             });
@@ -119,7 +119,7 @@ export class BlockTool extends Tool {
         if (this.state.mode === Mode.Erase) {
             this.state.mode = Mode.Idle;
             this.previewLevel.data.voxel.forEach(voxel => {
-                if (voxel.type === VoxelType.Solid) {
+                if (voxel.type === VoxelType.Block) {
                     const evoxel = this.editor.level.data.voxel[voxel.index];
                     evoxel.type = VoxelType.Empty;
                 }
@@ -143,7 +143,7 @@ export class BlockTool extends Tool {
             if (voxel.y < min_y || voxel.y > max_y) return;
             if (voxel.z < min_z || voxel.z > max_z) return;
 
-            voxel.type = VoxelType.Solid;
+            voxel.type = VoxelType.Block;
             voxel.faces.fill(this.state.tileId);
         });
 

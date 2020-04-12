@@ -20,7 +20,8 @@ export const TILE_COLS = TEXTURE_W / TILE_W;
 
 export enum VoxelType {
     Empty,
-    Solid
+    Block,
+    Slope
 }
 
 export interface VoxelData {
@@ -158,7 +159,7 @@ export class Level {
                     origin.y + y,
                     origin.z + z
                 );
-                return voxel !== undefined && voxel.type === VoxelType.Solid;
+                return voxel !== undefined && voxel.type === VoxelType.Block;
             };
 
             if (!hasSolidNeighbor(-1, 0, 0)) {
@@ -219,7 +220,7 @@ export class Level {
 
         const planes = new Array<PlaneGeometry>();
         this.data.voxel.forEach(voxel => {
-            if (voxel.type === VoxelType.Solid) {
+            if (voxel.type === VoxelType.Block) {
                 planes.push(...createVoxelGeometry(voxel));
             }
         });
@@ -270,7 +271,7 @@ export class Level {
             const z = Math.round(vertex.z + normal.z * 0.25);
             for (let y = min_y; y < max_y; y++) {
                 const voxel = this.getVoxel(x, y, z);
-                if (voxel && voxel.type === VoxelType.Solid) {
+                if (voxel && voxel.type === VoxelType.Block) {
                     return 0;
                 }
             }
@@ -317,7 +318,7 @@ export class Level {
                     Math.round(origin.z + face.normal.z * 0.5)
                 );
 
-                if (above && above.type === VoxelType.Solid) {
+                if (above && above.type === VoxelType.Block) {
                     for (let i = 0; i < vertices.length; i++) {
                         if (vertices[i].y > origin.y) {
                             face.vertexColors[i].r -= aofac;
@@ -333,7 +334,7 @@ export class Level {
                     Math.round(origin.z + face.normal.z * 0.5)
                 );
 
-                if (bottom && bottom.type === VoxelType.Solid) {
+                if (bottom && bottom.type === VoxelType.Block) {
                     for (let i = 0; i < vertices.length; i++) {
                         if (vertices[i].y < origin.y) {
                             face.vertexColors[i].r -= aofac;
@@ -361,7 +362,7 @@ export class Level {
                 for (let y = max_y - 1; y > 0; y--) {
                     const voxel = this.getVoxel(x, y, z);
                     if (voxel !== undefined) {
-                        if (voxel.type === VoxelType.Solid) {
+                        if (voxel.type === VoxelType.Block) {
                             light = 0;
                         }
                         voxel.light = clamp(light, 0.25, 1);

@@ -35,7 +35,7 @@ export class PlayerCouchSystem extends System {
                     Math.round(position.z)
                 );
 
-                if (voxelType === VoxelType.Solid) {
+                if (voxelType === VoxelType.Block) {
                     return;
                 }
 

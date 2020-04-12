@@ -96,7 +96,7 @@ export class Editor {
         this.level.setSize(max_x, max_y, max_z);
         this.level.data.voxel.forEach(voxel => {
             if (voxel.y === 0) {
-                voxel.type = VoxelType.Solid;
+                voxel.type = VoxelType.Block;
                 voxel.faces.fill(8);
             }
         });
