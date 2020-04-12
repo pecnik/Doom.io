@@ -8,15 +8,18 @@ import {
     PlaneGeometry,
     MeshBasicMaterial
 } from "three";
-import { Input, KeyCode } from "../game/core/Input";
+import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { Level } from "../game/data/Level";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
 import { loadTexture, disposeMeshMaterial } from "../game/utils/Helpers";
+import { Tool } from "./tools/Tool";
+import { BlockTool } from "./tools/BlockTool";
 
 export class Editor {
     public elapsedTime = 0;
     public previusTime = 0;
+    public tool: Tool = new BlockTool(this);
 
     public readonly renderer = new WebGLRenderer({ antialias: true });
     public readonly camera = new PerspectiveCamera(90);
@@ -29,8 +32,8 @@ export class Editor {
     });
 
     public constructor() {
-        const max_x = 16;
-        const max_z = 16;
+        this.level.setSize(8, 8, 8);
+        const { max_x, max_z } = this.level.data;
 
         // Build scene
         this.scene.add(this.camera, this.floor, this.level.mesh);
@@ -58,6 +61,7 @@ export class Editor {
     public preload() {
         return loadTexture("/assets/tileset.png").then(map => {
             this.level.setMaterial(map);
+            this.tool.preload();
         });
     }
 
@@ -67,6 +71,7 @@ export class Editor {
 
         const delta = (this.elapsedTime - this.previusTime) * 0.001;
         this.movementSystem(delta);
+        this.toolSystem(delta);
         this.input.clear();
 
         this.renderer.render(this.scene, this.camera);
@@ -106,6 +111,18 @@ export class Editor {
             .multiplyScalar(10)
             .multiplyScalar(dt);
         this.camera.position.add(velocity);
+    }
+
+    private toolSystem(dt: number) {
+        this.tool.update(dt);
+
+        if (this.input.isMousePresed(MouseBtn.Left)) {
+            this.tool.onMousePressed();
+        }
+
+        if (this.input.isMouseReleased(MouseBtn.Left)) {
+            this.tool.onMouseReleased();
+        }
     }
 }
 
