@@ -64,7 +64,9 @@ export class Editor {
         disposeMeshMaterial(this.floor.material);
         this.floor.material = new MeshBasicMaterial({
             wireframe: true,
-            color: 0xf2f2f2
+            transparent: true,
+            opacity: 0.25,
+            color: 0xffffff
         });
     }
 
@@ -116,7 +118,7 @@ export class Editor {
         const velocity = new Vector3(move.x, fly, move.y);
         velocity
             .normalize()
-            .multiplyScalar(5)
+            .multiplyScalar(10)
             .multiplyScalar(dt);
         this.camera.position.add(velocity);
     }
