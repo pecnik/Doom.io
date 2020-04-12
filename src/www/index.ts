@@ -2,7 +2,7 @@ const route = location.hash.replace("#", "");
 
 switch (route) {
     case "editor":
-        import("../voxed/index");
+        import("../editor/index");
         break;
 
     case "game":
