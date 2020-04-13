@@ -128,13 +128,20 @@ export class Level {
             const tileU = TILE_W / TEXTURE_W;
             const tileV = TILE_H / TEXTURE_H;
 
-            cords[0][0].set(0, 1);
-            cords[0][1].set(0, 1 - tileV);
-            cords[0][2].set(tileU, 1);
+            // const p = 1 / TEXTURE_W;
 
-            cords[1][0].set(0, 1 - tileV);
-            cords[1][1].set(tileU, 1 - tileV);
-            cords[1][2].set(tileU, 1);
+            const u_min = 0;
+            const u_max = tileU;
+            const v_max = 1;
+            const v_min = 1 - tileV;
+
+            cords[0][0].set(u_min, v_max);
+            cords[0][1].set(u_min, v_min);
+            cords[0][2].set(u_max, v_max);
+
+            cords[1][0].set(u_min, v_min);
+            cords[1][1].set(u_max, v_min);
+            cords[1][2].set(u_max, v_max);
 
             // Offset by tileID
             let x = tileId % TILE_COLS;
