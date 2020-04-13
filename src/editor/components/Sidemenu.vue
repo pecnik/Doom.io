@@ -4,9 +4,10 @@
             <v-card-text>
                 <v-btn v-for="tool in tools"
                     :key="tool"
-                    :color="tool === toolId ? 'primary' : 'default'"
+                    :color="tool === toolId ? 'deep-orange' : 'default'"
                     @click="setToolId(tool)"
-                    class="mr-2">{{ tool }}</v-btn>
+                    block
+                    class="mb-1">{{ tool }}</v-btn>
             </v-card-text>
         </v-card>
 
