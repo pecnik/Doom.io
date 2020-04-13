@@ -10,12 +10,12 @@
             SLOT: {{ index + 1 }} CHANGE TEXTURE
         </v-btn>
 
-        <v-btn small @click="addSlot">Add slot<v-icon>mdi-plus</v-icon></v-btn>
-        <v-btn small @click="removeSlot">Remove slot<v-icon>mdi-minus</v-icon></v-btn>
+        <v-btn small @click="addSlot">Add slot <v-icon small>mdi-plus</v-icon></v-btn>
+        <v-btn small @click="removeSlot">Remove slot <v-icon small>mdi-minus</v-icon></v-btn>
 
-         <v-dialog v-model="dialog.open" max-width="550px">
+         <v-dialog v-model="dialog.open" max-width="500px">
             <v-card>
-                <v-card-title class="headline">Select texture</v-card-title>
+                <v-card-title>Select texture</v-card-title>
                 <v-card-text>
                     <texture-select
                         :tiles="dialog.tiles"
