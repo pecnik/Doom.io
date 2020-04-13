@@ -15,6 +15,7 @@
 <script>
 import Sidemenu from "./components/Sidemenu.vue";
 import { editor } from "./Editor";
+import { debounce } from "lodash";
 
 export default {
     components: { Sidemenu },
@@ -39,6 +40,7 @@ export default {
         }
     },
     mounted() {
+        // Init editor
         const viewport = this.$refs["viewport"];
         editor.renderer.setClearColor(0x4d5c69);
         viewport.appendChild(editor.renderer.domElement);
@@ -47,15 +49,23 @@ export default {
         window.addEventListener("resize", this.resize);
 
         editor.preload().then(() => {
-            const json = localStorage.getItem("level");
-            if (json !== null) {
-                editor.level.data = JSON.parse(json);
+            const level = localStorage.getItem("level");
+            if (level !== null) {
+                editor.level.data = JSON.parse(level);
                 editor.level.updateGeometry();
             }
 
+            const state = localStorage.getItem("store-state");
+            if (state !== null) {
+                Object.assign(this.$store.state, JSON.parse(state));
+            }
+
             setInterval(() => {
-                const json = JSON.stringify(editor.level.data);
-                localStorage.setItem("level", json);
+                const level = JSON.stringify(editor.level.data);
+                localStorage.setItem("level", level);
+
+                const state = JSON.stringify(this.$store.state);
+                localStorage.setItem("store-state", state);
             }, 5000);
 
             requestAnimationFrame(function next(elapsed) {

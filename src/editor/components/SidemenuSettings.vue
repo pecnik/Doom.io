@@ -35,7 +35,7 @@ import { editor } from "../Editor";
 export default {
     computed: {
         renderLighting() {
-            return this.$store.state.renderWireframe;
+            return this.$store.state.renderLighting;
         },
         renderWireframe() {
             return this.$store.state.renderWireframe;
