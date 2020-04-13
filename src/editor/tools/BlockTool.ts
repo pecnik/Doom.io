@@ -28,6 +28,25 @@ export class BlockTool extends Tool {
         this.editor.scene.add(this.previewLevel.mesh);
     }
 
+    public onMousePressed() {
+        // Init preview leve
+        const { max_x, max_y, max_z } = this.editor.level.data;
+        this.previewLevel.mesh.visible = true;
+        this.previewLevel.setSize(max_x, max_y, max_z);
+        this.previewLevel.updateGeometry();
+
+        // Set store active tile
+        this.state.tileId = store.getters.tileId;
+
+        // Set origin
+        const rsp = this.sampleVoxel(1);
+        if (rsp !== undefined) {
+            const { x, y, z } = rsp.voxel;
+            this.state.begin.set(x, y, z);
+            this.updatePreview();
+        }
+    }
+
     public onMouseMove() {
         const rsp = this.sampleVoxel(1);
         if (rsp === undefined) {
@@ -35,26 +54,11 @@ export class BlockTool extends Tool {
         }
 
         const { x, y, z } = rsp.voxel;
-        this.state.end.set(x, y, z);
-        this.updatePreview();
-    }
-
-    public onMousePressed() {
-        // Set to active
-        this.previewLevel.mesh.visible = true;
-        this.state.tileId = store.getters.tileId;
-
-        // Init leve
-        const { max_x, max_y, max_z } = this.editor.level.data;
-        this.previewLevel.mesh.visible = true;
-        this.previewLevel.setSize(max_x, max_y, max_z);
-        this.previewLevel.updateGeometry();
-
-        // Set origin
-        const rsp = this.sampleVoxel(1);
-        if (rsp !== undefined) {
-            const { x, y, z } = rsp.voxel;
-            this.state.begin.set(x, y, z);
+        if (
+            this.state.end.x !== x ||
+            this.state.end.y !== y ||
+            this.state.end.z !== z
+        ) {
             this.state.end.set(x, y, z);
             this.updatePreview();
         }
