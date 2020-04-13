@@ -131,7 +131,7 @@ export class Level {
             const tileH = TILE_H / TEXTURE_H;
 
             // padding to prevent seams
-            const pad = (1 / TEXTURE_W) * 1;
+            const pad = (1 / TEXTURE_W) * 2;
 
             const minU = 0 + pad;
             const maxU = tileW - pad;
