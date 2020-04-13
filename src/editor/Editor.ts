@@ -40,37 +40,14 @@ export class Editor {
     };
 
     public constructor() {
-        const [max_x, max_y, max_z] = [32, 32, 32];
-
-        // Init level data
-        this.level.setSize(max_x, max_y, max_z);
-
         // Build scene
+        this.newLevel();
         this.scene.add(
             this.camera,
             this.floor,
             this.level.mesh,
             this.level.wireframe
         );
-
-        // Set camera
-        this.camera.position.y = 2;
-        this.camera.rotation.set(0, -1.8, 0, "XYZ");
-
-        // Reconstruct floor mesh
-        this.floor.geometry.dispose();
-        this.floor.geometry = new PlaneGeometry(max_x, max_z, max_x, max_z);
-        this.floor.geometry.rotateX(-Math.PI / 2);
-        this.floor.geometry.translate(-0.5, -0.5, -0.5);
-        this.floor.geometry.translate(max_x / 2, 0, max_z / 2);
-
-        disposeMeshMaterial(this.floor.material);
-        this.floor.material = new MeshBasicMaterial({
-            wireframe: true,
-            transparent: true,
-            opacity: 0.25,
-            color: 0xffffff
-        });
 
         // Init tools
         const toolList = [
@@ -119,6 +96,31 @@ export class Editor {
                 }
             }
         );
+    }
+
+    public newLevel(max_x = 32, max_y = 16, max_z = 32) {
+        // Init level data
+        this.level.setSize(max_x, max_y, max_z);
+        this.level.updateGeometry();
+
+        // Set camera
+        this.camera.position.y = 2;
+        this.camera.rotation.set(0, -1.8, 0, "XYZ");
+
+        // Reconstruct floor mesh
+        this.floor.geometry.dispose();
+        this.floor.geometry = new PlaneGeometry(max_x, max_z, max_x, max_z);
+        this.floor.geometry.rotateX(-Math.PI / 2);
+        this.floor.geometry.translate(-0.5, -0.5, -0.5);
+        this.floor.geometry.translate(max_x / 2, 0, max_z / 2);
+
+        disposeMeshMaterial(this.floor.material);
+        this.floor.material = new MeshBasicMaterial({
+            wireframe: true,
+            transparent: true,
+            opacity: 0.25,
+            color: 0xffffff
+        });
     }
 
     public preload() {

@@ -1,13 +1,14 @@
 <template>
     <div>
         <div class="mb-4">
+            <v-btn small @click="newLevel">New level</v-btn>
             <v-btn small>
                 <label>
-                    Open level <v-icon class="ml-2" small>mdi-upload</v-icon>
+                    Open <v-icon class="ml-2" small>mdi-upload</v-icon>
                     <input style="display: none;" type="file" @input="loadLevel">
                 </label>
             </v-btn>
-            <v-btn small @click="saveLevel">Save level <v-icon class="ml-2" small>mdi-content-save</v-icon></v-btn>
+            <v-btn small @click="saveLevel">Save <v-icon class="ml-2" small>mdi-content-save</v-icon></v-btn>
         </div>
         <v-btn small @click="dialog = true">Settings <v-icon class="ml-2" small>mdi-settings</v-icon></v-btn>
         <v-dialog v-model="dialog" max-width="550px">
@@ -46,6 +47,11 @@ export default {
         },
         toggleWireframe(value) {
             this.$store.state.renderWireframe = value;
+        },
+        newLevel() {
+            if (confirm("New level?")) {
+                editor.newLevel();
+            }
         },
         loadLevel(ev) {
             const files = ev.target.files;
