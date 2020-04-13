@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-card color="teal" class="mb-8">
+        <v-card color="teal" class="mb-4">
             <v-card-text>
                 <v-btn v-for="tool in tools"
                     :key="tool"
@@ -9,7 +9,7 @@
                     class="mr-2">{{ tool }}</v-btn>
             </v-card-text>
         </v-card>
-        <v-card color="teal" class="mb-8">
+        <v-card color="teal" class="mb-4">
             <v-card-text>
                 <sidemenu-texture></sidemenu-texture>
             </v-card-text>

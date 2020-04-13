@@ -6,7 +6,7 @@
                 <div class="cursor"></div>
             </div>
             <div id="voxed-sidemenu" ref="sidemenu">
-                <v-btn class="mb-8" x-large block @click="play">PLAY</v-btn>
+                <v-btn class="mb-4" x-large block color="teal" @click="play">PLAY</v-btn>
                 <sidemenu></sidemenu>
             </div>
         </div>
