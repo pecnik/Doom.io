@@ -45,6 +45,7 @@ export class GameClient implements Game {
                 if (json !== null) {
                     this.world.level.data = JSON.parse(json);
                     this.world.level.updateGeometry();
+                    this.world.level.updateLighing();
                 }
             }),
 
