@@ -8,6 +8,7 @@ import {
     PlaneGeometry,
     MeshBasicMaterial
 } from "three";
+import { store } from "./Store";
 import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { Level } from "../game/data/Level";
 import { modulo } from "../game/core/Utils";
@@ -77,6 +78,17 @@ export class Editor {
             paint,
             entity
         };
+
+        store.watch(
+            state => state.toolId,
+            (toolId, prevId) => {
+                const prev = this.tools[prevId];
+                const next = this.tools[toolId];
+                prev.end();
+                next.start();
+                this.tools.active = next;
+            }
+        );
     }
 
     public preload() {
