@@ -69,6 +69,8 @@ export class PlayerMoveSystem extends System {
                 const voxel = world.level.getVoxelAt(position);
                 if (voxel && voxel.bounce > 0) {
                     velocity.y = JUMP_SPEED * Math.sqrt(voxel.bounce);
+                    velocity.x *= 0.25;
+                    velocity.z *= 0.25;
                 }
             }
 
