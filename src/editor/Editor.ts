@@ -42,7 +42,7 @@ export class Editor {
     };
 
     public constructor() {
-        const [max_x, max_y, max_z] = [64, 64, 64];
+        const [max_x, max_y, max_z] = [32, 32, 32];
 
         // Init level data
         this.level.setSize(max_x, max_y, max_z);
