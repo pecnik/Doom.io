@@ -9,17 +9,25 @@
                     class="mr-2">{{ tool }}</v-btn>
             </v-card-text>
         </v-card>
+
         <v-card color="teal" class="mb-4">
             <v-card-text>
                 <sidemenu-texture></sidemenu-texture>
+            </v-card-text>
+        </v-card>
+
+        <v-card class="mb-4">
+            <v-card-text>
+                <sidemenu-settings></sidemenu-settings>
             </v-card-text>
         </v-card>
     </div>
 </template>
 <script>
 import SidemenuTexture from "./SidemenuTexture.vue";
+import SidemenuSettings from "./SidemenuSettings.vue";
 export default {
-    components: { SidemenuTexture },
+    components: { SidemenuTexture, SidemenuSettings },
     computed: {
         toolId() {
             return this.$store.state.toolId;

@@ -5,8 +5,11 @@ Vue.use(Vuex);
 
 export class State {
     public toolId: "block" | "paint" | "entity" = "block";
+
     public textureSlots = [0, 1, 2, 3, 8, 9, 10, 11];
     public textureSlotIndex = 0;
+
+    public renderWireframe = true;
 }
 
 export const store = new Vuex.Store({

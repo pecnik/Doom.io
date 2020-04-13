@@ -48,7 +48,12 @@ export class Editor {
         this.level.setSize(max_x, max_y, max_z);
 
         // Build scene
-        this.scene.add(this.camera, this.floor, this.level.mesh);
+        this.scene.add(
+            this.camera,
+            this.floor,
+            this.level.mesh,
+            this.level.wireframe
+        );
 
         // Set camera
         this.camera.position.y = 2;
@@ -89,6 +94,13 @@ export class Editor {
                 prev.end();
                 next.start();
                 this.tools.active = next;
+            }
+        );
+
+        store.watch(
+            state => state.renderWireframe,
+            renderWireframe => {
+                this.level.wireframe.visible = renderWireframe;
             }
         );
     }
