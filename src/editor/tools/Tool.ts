@@ -9,10 +9,14 @@ export abstract class Tool {
     public preload() {}
     public start() {}
     public end() {}
-    // public update(_: number) {}
+
     public onMousePressed() {}
     public onMouseMove() {}
     public onMouseReleased() {}
+
+    public onRightMousePressed() {}
+    public onRightMouseMove() {}
+    public onRightMouseReleased() {}
 
     protected readonly editor: Editor;
     protected readonly raycaster: Raycaster;

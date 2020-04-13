@@ -4,12 +4,14 @@ import { Vector3, Color, MeshBasicMaterial } from "three";
 import { disposeMeshMaterial } from "../../game/utils/Helpers";
 import { store } from "../Store";
 import { KeyCode } from "../../game/core/Input";
+import { EraseTool } from "./EraseTool";
 
 export class BlockTool extends Tool {
     public readonly name = "block";
     public readonly key = KeyCode.Q;
 
     private readonly previewLevel = new Level();
+    private readonly eraser = new EraseTool(this.editor);
     private readonly state = {
         tileId: 0,
         begin: new Vector3(),
@@ -26,6 +28,20 @@ export class BlockTool extends Tool {
         disposeMeshMaterial(this.previewLevel.mesh.material);
         this.previewLevel.mesh.material = material;
         this.editor.scene.add(this.previewLevel.mesh);
+
+        this.eraser.preload();
+    }
+
+    public onRightMousePressed() {
+        this.eraser.onMousePressed();
+    }
+
+    public onRightMouseMove() {
+        this.eraser.onMouseMove();
+    }
+
+    public onRightMouseReleased() {
+        this.eraser.onMouseReleased();
     }
 
     public onMousePressed() {

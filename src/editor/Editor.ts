@@ -185,7 +185,7 @@ export class Editor {
             store.state.toolId = tool.name;
         }
 
-        // Tool actions
+        // Left mouse actions
         if (this.input.isMousePresed(MouseBtn.Left)) {
             active.onMousePressed();
         }
@@ -196,6 +196,19 @@ export class Editor {
 
         if (this.input.isMouseDown(MouseBtn.Left)) {
             active.onMouseMove();
+        }
+
+        // Right mouse actions
+        if (this.input.isMousePresed(MouseBtn.Right)) {
+            active.onRightMousePressed();
+        }
+
+        if (this.input.isMouseReleased(MouseBtn.Right)) {
+            active.onRightMouseReleased();
+        }
+
+        if (this.input.isMouseDown(MouseBtn.Right)) {
+            active.onRightMouseMove();
         }
     }
 
