@@ -5,6 +5,7 @@
             :color="tool.id === toolId ? 'deep-orange' : 'default'"
             @click="setToolId(tool.id)"
             block
+            small
             class="mb-1">{{ tool.text }}</v-btn>
     </div>
 </template>
