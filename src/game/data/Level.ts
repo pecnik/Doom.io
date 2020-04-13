@@ -20,8 +20,7 @@ export const TILE_COLS = TEXTURE_W / TILE_W;
 
 export enum VoxelType {
     Empty,
-    Block,
-    Slope
+    Block
 }
 
 export interface VoxelData {
