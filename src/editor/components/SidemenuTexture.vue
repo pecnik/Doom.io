@@ -1,17 +1,17 @@
 <template>
-    <div class="mt-2">
-        <v-card>
-            <v-card-text>
-                <texture-select
-                    class="mb-1"
-                    :tiles="slots"
-                    :index="index"
-                    @input="setTextureSlotIndex"></texture-select>
-                <v-btn @click="openTextureDialog"><v-icon>mdi-image</v-icon></v-btn>
-                <v-btn @click="addSlot"><v-icon>mdi-plus</v-icon></v-btn>
-                <v-btn @click="removeSlot"><v-icon>mdi-minus</v-icon></v-btn>
-            </v-card-text>
-        </v-card>
+    <div>
+        <texture-select
+            class="mb-1"
+            :tiles="slots"
+            :index="index"
+            @input="setTextureSlotIndex"></texture-select>
+
+        <v-btn block class="mb-2" @click="openTextureDialog">
+            SLOT: {{ index + 1 }} CHANGE TEXTURE
+        </v-btn>
+
+        <v-btn small @click="addSlot">Add slot<v-icon>mdi-plus</v-icon></v-btn>
+        <v-btn small @click="removeSlot">Remove slot<v-icon>mdi-minus</v-icon></v-btn>
 
          <v-dialog v-model="dialog.open" max-width="550px">
             <v-card>
