@@ -2,12 +2,7 @@
     <div>
         <v-card color="teal" class="mb-4">
             <v-card-text>
-                <v-btn v-for="tool in tools"
-                    :key="tool"
-                    :color="tool === toolId ? 'deep-orange' : 'default'"
-                    @click="setToolId(tool)"
-                    block
-                    class="mb-1">{{ tool }}</v-btn>
+                <sidemenu-tools></sidemenu-tools>
             </v-card-text>
         </v-card>
 
@@ -25,26 +20,12 @@
     </div>
 </template>
 <script>
+import SidemenuTools from "./SidemenuTools.vue";
 import SidemenuTexture from "./SidemenuTexture.vue";
 import SidemenuSettings from "./SidemenuSettings.vue";
 import { editor } from "../Editor";
 
 export default {
-    components: { SidemenuTexture, SidemenuSettings },
-    computed: {
-        toolId() {
-            return this.$store.state.toolId;
-        }
-    },
-    data() {
-        return {
-            tools: editor.tools.list.map(t => t.name)
-        };
-    },
-    methods: {
-        setToolId(tool) {
-            this.$store.state.toolId = tool;
-        }
-    }
+    components: { SidemenuTools, SidemenuTexture, SidemenuSettings }
 };
 </script>

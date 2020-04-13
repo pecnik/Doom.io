@@ -3,9 +3,11 @@ import { VoxelType, Level } from "../../game/data/Level";
 import { Vector3, Color, MeshBasicMaterial } from "three";
 import { disposeMeshMaterial } from "../../game/utils/Helpers";
 import { store } from "../Store";
+import { KeyCode } from "../../game/core/Input";
 
 export class BlockTool extends Tool {
     public readonly name = "block";
+    public readonly key = KeyCode.Q;
 
     private readonly previewLevel = new Level();
     private readonly state = {

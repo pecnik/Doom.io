@@ -3,9 +3,11 @@ import { VoxelType, Level } from "../../game/data/Level";
 import { Vector3, Color, MeshBasicMaterial } from "three";
 import { disposeMeshMaterial } from "../../game/utils/Helpers";
 import { store } from "../Store";
+import { KeyCode } from "../../game/core/Input";
 
 export class EraseTool extends Tool {
     public readonly name = "erase";
+    public readonly key = KeyCode.E;
 
     private readonly previewLevel = new Level();
     private readonly state = {

@@ -187,6 +187,12 @@ export class Editor {
         if (this.input.isMouseReleased(MouseBtn.Left)) {
             active.onMouseReleased();
         }
+
+        this.tools.list.forEach(tool => {
+            if (this.input.isKeyPressed(tool.key)) {
+                store.state.toolId = tool.name;
+            }
+        });
     }
 
     private tileSlotSystem() {

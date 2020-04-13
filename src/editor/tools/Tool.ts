@@ -1,8 +1,10 @@
 import { Editor } from "../Editor";
 import { Raycaster, Intersection, Vector2 } from "three";
+import { KeyCode } from "../../game/core/Input";
 
 export abstract class Tool {
     public abstract name: string;
+    public abstract key: KeyCode;
     public preload() {}
     public start() {}
     public end() {}
