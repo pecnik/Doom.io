@@ -107,6 +107,18 @@ export class Editor {
                 this.level.wireframe.visible = renderWireframe;
             }
         );
+
+        store.watch(
+            state => state.renderLighting,
+            renderLighting => {
+                if (renderLighting) {
+                    this.level.updateGeometry();
+                    this.level.updateLighing();
+                } else {
+                    this.level.updateGeometry();
+                }
+            }
+        );
     }
 
     public preload() {
@@ -126,6 +138,14 @@ export class Editor {
         this.tileSlotSystem();
         this.movementSystem(delta);
         this.input.clear();
+
+        if (store.state.renderLighting) {
+            const { updateGeometryTime, updateLighingTime } = this.level;
+            const delta = updateGeometryTime - updateLighingTime;
+            if (delta > 0) {
+                this.level.updateLighing();
+            }
+        }
 
         this.renderer.render(this.scene, this.camera);
     }
@@ -237,12 +257,12 @@ export class Editor {
         time: 0
     };
     private historySystem() {
-        if (this.history.time !== this.level.updatedAt) {
+        if (this.history.time !== this.level.updateGeometryTime) {
             const json = JSON.stringify(this.level.data);
             this.history.stack[this.history.index] = json;
             this.history.stack.length = this.history.index + 1;
 
-            this.history.time = this.level.updatedAt;
+            this.history.time = this.level.updateGeometryTime;
             this.history.index++;
 
             const MAX_HISTORY_STACK = 10;
@@ -261,7 +281,7 @@ export class Editor {
             this.level.data = JSON.parse(json);
             this.level.updateGeometry();
 
-            this.history.time = this.level.updatedAt;
+            this.history.time = this.level.updateGeometryTime;
             this.history.index--;
         }
 
@@ -274,7 +294,7 @@ export class Editor {
             this.level.data = JSON.parse(json);
             this.level.updateGeometry();
 
-            this.history.time = this.level.updatedAt;
+            this.history.time = this.level.updateGeometryTime;
             this.history.index++;
         }
     }

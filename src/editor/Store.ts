@@ -9,6 +9,7 @@ export class State {
     public textureSlots = [0, 1, 2, 3, 8, 9, 10, 11];
     public textureSlotIndex = 0;
 
+    public renderLighting = true;
     public renderWireframe = true;
 }
 

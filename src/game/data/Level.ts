@@ -44,7 +44,9 @@ export class Level {
     public data = new LevelData();
     public mesh = new Mesh();
     public wireframe = new Mesh();
-    public updatedAt = Date.now();
+
+    public updateGeometryTime = Date.now();
+    public updateLighingTime = Date.now();
 
     public getVoxel(x: number, y: number, z: number) {
         const { voxel, max_x, max_y, max_z } = this.data;
@@ -243,7 +245,7 @@ export class Level {
         this.mesh.geometry = geometry;
         this.wireframe.geometry = geometry;
 
-        this.updatedAt = Date.now();
+        this.updateGeometryTime = Date.now();
     }
 
     public updateLighing() {
@@ -375,5 +377,7 @@ export class Level {
                 }
             }
         }
+
+        this.updateLighingTime = Date.now();
     }
 }

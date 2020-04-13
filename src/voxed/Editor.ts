@@ -225,12 +225,12 @@ export class Editor {
         time: 0
     };
     private historySystem() {
-        if (this.history.time !== this.level.updatedAt) {
+        if (this.history.time !== this.level.updateGeometryTime) {
             const json = JSON.stringify(this.level.data);
             this.history.stack[this.history.index] = json;
             this.history.stack.length = this.history.index + 1;
 
-            this.history.time = this.level.updatedAt;
+            this.history.time = this.level.updateGeometryTime;
             this.history.index++;
 
             const MAX_HISTORY_STACK = 10;
@@ -249,7 +249,7 @@ export class Editor {
             this.level.data = JSON.parse(json);
             this.level.updateGeometry();
 
-            this.history.time = this.level.updatedAt;
+            this.history.time = this.level.updateGeometryTime;
             this.history.index--;
         }
 
@@ -262,7 +262,7 @@ export class Editor {
             this.level.data = JSON.parse(json);
             this.level.updateGeometry();
 
-            this.history.time = this.level.updatedAt;
+            this.history.time = this.level.updateGeometryTime;
             this.history.index++;
         }
     }
