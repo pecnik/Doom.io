@@ -106,6 +106,7 @@ export class Editor {
 
         const delta = (this.elapsedTime - this.previusTime) * 0.001;
         this.historySystem();
+        this.tileSlotSystem();
         this.movementSystem(delta);
         this.toolSystem(delta);
         this.input.clear();
@@ -160,6 +161,25 @@ export class Editor {
 
         if (this.input.isMouseReleased(MouseBtn.Left)) {
             active.onMouseReleased();
+        }
+    }
+
+    private tileSlotSystem() {
+        const KEY_NUM_1 = KeyCode.NUM_1 as number;
+        for (let i = 0; i < 8; i++) {
+            if (this.input.isKeyPressed(KEY_NUM_1 + i)) {
+                store.state.textureSlotIndex = i;
+                return;
+            }
+        }
+
+        const scroll = this.input.mouse.scroll;
+        if (scroll !== 0) {
+            const offset = clamp(scroll * Number.MAX_SAFE_INTEGER, -1, 1);
+            store.state.textureSlotIndex = modulo(
+                store.state.textureSlotIndex + offset,
+                store.state.textureSlots.length
+            );
         }
     }
 
