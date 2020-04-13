@@ -35,12 +35,8 @@ export class Editor {
     });
 
     public readonly tools: {
-        block: BlockTool;
-        paint: PaintTool;
-        erase: EraseTool;
-        entity: EntityTool;
-        list: Tool[];
         active: Tool;
+        list: Tool[];
     };
 
     public constructor() {
@@ -77,24 +73,28 @@ export class Editor {
         });
 
         // Init tools
-        const block = new BlockTool(this);
-        const erase = new EraseTool(this);
-        const paint = new PaintTool(this);
-        const entity = new EntityTool(this);
+        const toolList = [
+            new BlockTool(this),
+            new EraseTool(this),
+            new PaintTool(this),
+            new EntityTool(this)
+        ];
+
+        const getToolNyName = (name: string): Tool => {
+            const tool = toolList.find(t => t.name === name);
+            return tool || toolList[0];
+        };
+
         this.tools = {
-            active: block,
-            list: [block, paint, entity, erase],
-            erase,
-            block,
-            paint,
-            entity
+            active: getToolNyName("block"),
+            list: toolList
         };
 
         store.watch(
             state => state.toolId,
             (toolId, prevId) => {
-                const prev = this.tools[prevId];
-                const next = this.tools[toolId];
+                const prev = getToolNyName(prevId);
+                const next = getToolNyName(toolId);
                 prev.end();
                 next.start();
                 this.tools.active = next;
@@ -170,6 +170,15 @@ export class Editor {
         const { active } = this.tools;
 
         active.update(dt);
+
+        if (this.input.isKeyPressed(KeyCode.TAB)) {
+            let index = this.tools.list.indexOf(active);
+            index += 1;
+            index %= this.tools.list.length;
+
+            const tool = this.tools.list[index];
+            store.state.toolId = tool.name;
+        }
 
         if (this.input.isMousePresed(MouseBtn.Left)) {
             active.onMousePressed();

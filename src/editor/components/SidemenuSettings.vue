@@ -8,13 +8,7 @@
     </div>
 </template>
 <script>
-import { Tool_ID } from "../tools/Tool";
 export default {
-    data() {
-        return {
-            items: Object.keys(Tool_ID)
-        };
-    },
     computed: {
         renderWireframe() {
             return this.$store.state.renderWireframe;

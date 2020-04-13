@@ -5,6 +5,8 @@ import { disposeMeshMaterial } from "../../game/utils/Helpers";
 import { store } from "../Store";
 
 export class EraseTool extends Tool {
+    public readonly name = "erase";
+
     private readonly previewLevel = new Level();
     private readonly state = {
         tileId: 0,

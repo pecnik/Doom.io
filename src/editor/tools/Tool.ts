@@ -2,6 +2,7 @@ import { Editor } from "../Editor";
 import { Raycaster, Intersection, Vector2 } from "three";
 
 export abstract class Tool {
+    public abstract name: string;
     public preload() {}
     public start() {}
     public end() {}

@@ -27,6 +27,8 @@
 <script>
 import SidemenuTexture from "./SidemenuTexture.vue";
 import SidemenuSettings from "./SidemenuSettings.vue";
+import { editor } from "../Editor";
+
 export default {
     components: { SidemenuTexture, SidemenuSettings },
     computed: {
@@ -36,7 +38,7 @@ export default {
     },
     data() {
         return {
-            tools: ["block", "erase", "paint", "entity"]
+            tools: editor.tools.list.map(t => t.name)
         };
     },
     methods: {

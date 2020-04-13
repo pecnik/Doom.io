@@ -5,6 +5,8 @@ import { disposeMeshMaterial } from "../../game/utils/Helpers";
 import { store } from "../Store";
 
 export class BlockTool extends Tool {
+    public readonly name = "block";
+
     private readonly previewLevel = new Level();
     private readonly state = {
         tileId: 0,
