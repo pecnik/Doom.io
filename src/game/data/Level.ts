@@ -7,7 +7,9 @@ import {
     MeshBasicMaterial,
     VertexColors as vertexColors,
     Geometry,
-    Color
+    Color,
+    DoubleSide,
+    CylinderGeometry
 } from "three";
 import { disposeMeshMaterial } from "../utils/Helpers";
 import { clamp } from "lodash";
@@ -31,6 +33,7 @@ export interface VoxelData {
     type: VoxelType;
     faces: [number, number, number, number, number, number];
     light: number;
+    bounce: number;
 }
 
 export class LevelData {
@@ -43,6 +46,7 @@ export class LevelData {
 export class Level {
     public data = new LevelData();
     public mesh = new Mesh();
+    public bounce = new Mesh();
     public wireframe = new Mesh();
 
     public updateGeometryTime = Date.now();
@@ -97,6 +101,7 @@ export class Level {
                     this.data.voxel.push({
                         index,
                         light: 0,
+                        bounce: 0,
                         faces: [0, 0, 0, 0, 0, 0],
                         type: VoxelType.Empty,
                         x,
@@ -119,6 +124,14 @@ export class Level {
         this.wireframe.material = new MeshBasicMaterial({
             color: 0x00ff00,
             wireframe: true
+        });
+
+        disposeMeshMaterial(this.bounce.material);
+        this.bounce.material = new MeshBasicMaterial({
+            transparent: true,
+            opacity: 0.5,
+            color: 0x00ff00,
+            side: DoubleSide
         });
     }
 
@@ -227,23 +240,51 @@ export class Level {
             return planes;
         };
 
-        const planes = new Array<PlaneGeometry>();
+        const createBounceGeometry = (voxel: VoxelData) => {
+            const geometry = new CylinderGeometry(0.45, 0.45, voxel.bounce, 5);
+            geometry.translate(
+                voxel.x,
+                voxel.y + voxel.bounce / 2 - 0.5,
+                voxel.z
+            );
+            return [geometry];
+        };
+
+        const planes = new Array<Geometry>();
+        const bounce = new Array<Geometry>();
         this.data.voxel.forEach(voxel => {
             if (voxel.type === VoxelType.Block) {
                 planes.push(...createVoxelGeometry(voxel));
             }
+
+            if (voxel.bounce > 0) {
+                bounce.push(...createBounceGeometry(voxel));
+            }
         });
 
-        const geometry = new Geometry();
-        planes.forEach(plane => geometry.merge(plane));
-        planes.forEach(plane => plane.dispose());
-        geometry.elementsNeedUpdate = true;
+        {
+            // Update bounce geometry
+            const geometry = new Geometry();
+            bounce.forEach(plane => geometry.merge(plane));
+            bounce.forEach(plane => plane.dispose());
+            geometry.elementsNeedUpdate = true;
+            this.bounce.geometry.dispose();
+            this.bounce.geometry = geometry;
+        }
 
-        this.mesh.geometry.dispose();
-        this.wireframe.geometry.dispose();
+        {
+            // Update level geometry
+            const geometry = new Geometry();
+            planes.forEach(plane => geometry.merge(plane));
+            planes.forEach(plane => plane.dispose());
+            geometry.elementsNeedUpdate = true;
 
-        this.mesh.geometry = geometry;
-        this.wireframe.geometry = geometry;
+            this.mesh.geometry.dispose();
+            this.wireframe.geometry.dispose();
+
+            this.mesh.geometry = geometry;
+            this.wireframe.geometry = geometry;
+        }
 
         this.updateGeometryTime = Date.now();
     }

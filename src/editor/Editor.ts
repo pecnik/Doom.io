@@ -46,6 +46,7 @@ export class Editor {
             this.camera,
             this.floor,
             this.level.mesh,
+            this.level.bounce,
             this.level.wireframe
         );
 
