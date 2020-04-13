@@ -235,12 +235,10 @@ export class Level {
         this.mesh.geometry = geometry;
         this.wireframe.geometry = geometry;
 
-        // this.updateLighing();
-
         this.updatedAt = Date.now();
     }
 
-    private updateLighing() {
+    public updateLighing() {
         const darken2 = new Color(0.5, 0.5, 0.5);
         const darken1 = new Color(0.6, 0.6, 0.6);
         const lighten1 = new Color(0.8, 0.8, 0.8);
