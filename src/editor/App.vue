@@ -47,6 +47,17 @@ export default {
         window.addEventListener("resize", this.resize);
 
         editor.preload().then(() => {
+            const json = localStorage.getItem("level");
+            if (json !== null) {
+                editor.level.data = JSON.parse(json);
+                editor.level.updateGeometry();
+            }
+
+            setInterval(() => {
+                const json = JSON.stringify(editor.level.data);
+                localStorage.setItem("level", json);
+            }, 5000);
+
             requestAnimationFrame(function next(elapsed) {
                 editor.update(elapsed);
                 requestAnimationFrame(next);
