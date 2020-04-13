@@ -15,11 +15,12 @@ import { clamp } from "lodash";
 import { loadTexture, disposeMeshMaterial } from "../game/utils/Helpers";
 import { Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
+import { EntityTool } from "./tools/EntityTool";
+import { PaintTool } from "./tools/PaintTool";
 
 export class Editor {
     public elapsedTime = 0;
     public previusTime = 0;
-    public tool: Tool = new BlockTool(this);
 
     public readonly renderer = new WebGLRenderer({ antialias: true });
     public readonly camera = new PerspectiveCamera(90);
@@ -30,6 +31,14 @@ export class Editor {
         requestPointerLock: true,
         element: this.renderer.domElement
     });
+
+    public readonly tools: {
+        block: BlockTool;
+        paint: PaintTool;
+        entity: EntityTool;
+        list: Tool[];
+        active: Tool;
+    };
 
     public constructor() {
         this.level.setSize(8, 8, 8);
@@ -56,12 +65,24 @@ export class Editor {
             opacity: 0.25,
             color: 0xffffff
         });
+
+        // Init tools
+        const block = new BlockTool(this);
+        const paint = new PaintTool(this);
+        const entity = new EntityTool(this);
+        this.tools = {
+            active: block,
+            list: [block, paint, entity],
+            block,
+            paint,
+            entity
+        };
     }
 
     public preload() {
         return loadTexture("/assets/tileset.png").then(map => {
             this.level.setMaterial(map);
-            this.tool.preload();
+            this.tools.list.forEach(tool => tool.preload());
         });
     }
 
@@ -114,14 +135,16 @@ export class Editor {
     }
 
     private toolSystem(dt: number) {
-        this.tool.update(dt);
+        const { active } = this.tools;
+
+        active.update(dt);
 
         if (this.input.isMousePresed(MouseBtn.Left)) {
-            this.tool.onMousePressed();
+            active.onMousePressed();
         }
 
         if (this.input.isMouseReleased(MouseBtn.Left)) {
-            this.tool.onMouseReleased();
+            active.onMouseReleased();
         }
     }
 }
