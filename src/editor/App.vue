@@ -68,6 +68,7 @@ export default {
         grid-row: 1;
         grid-column: 2;
         padding: 16px;
+        overflow-y: auto;
     }
 
     #voxed-viewport {
