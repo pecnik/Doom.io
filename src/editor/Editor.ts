@@ -103,6 +103,7 @@ export class Editor {
         this.elapsedTime = elapsed;
 
         const delta = (this.elapsedTime - this.previusTime) * 0.001;
+        this.historySystem();
         this.movementSystem(delta);
         this.toolSystem(delta);
         this.input.clear();
@@ -157,6 +158,54 @@ export class Editor {
 
         if (this.input.isMouseReleased(MouseBtn.Left)) {
             active.onMouseReleased();
+        }
+    }
+
+    private readonly history = {
+        stack: new Array<string>(),
+        index: 0,
+        time: 0
+    };
+    private historySystem() {
+        if (this.history.time !== this.level.updatedAt) {
+            const json = JSON.stringify(this.level.data);
+            this.history.stack[this.history.index] = json;
+            this.history.stack.length = this.history.index + 1;
+
+            this.history.time = this.level.updatedAt;
+            this.history.index++;
+
+            const MAX_HISTORY_STACK = 10;
+            if (this.history.stack.length > MAX_HISTORY_STACK) {
+                this.history.stack.shift();
+                this.history.index = MAX_HISTORY_STACK;
+            }
+        }
+
+        if (
+            this.input.isKeyPressed(KeyCode.Z) &&
+            this.input.isKeyDown(KeyCode.CTRL) &&
+            this.history.index > 1
+        ) {
+            const json = this.history.stack[this.history.index - 2];
+            this.level.data = JSON.parse(json);
+            this.level.updateGeometry();
+
+            this.history.time = this.level.updatedAt;
+            this.history.index--;
+        }
+
+        if (
+            this.input.isKeyPressed(KeyCode.Y) &&
+            this.input.isKeyDown(KeyCode.CTRL) &&
+            this.history.index < this.history.stack.length
+        ) {
+            const json = this.history.stack[this.history.index];
+            this.level.data = JSON.parse(json);
+            this.level.updateGeometry();
+
+            this.history.time = this.level.updatedAt;
+            this.history.index++;
         }
     }
 }
