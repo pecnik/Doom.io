@@ -9,7 +9,7 @@ export class EntityTool extends Tool {
         const rsp = this.sampleVoxel(1);
         if (rsp !== undefined) {
             rsp.voxel.bounce++;
-            rsp.voxel.bounce %= 4;
+            rsp.voxel.bounce %= 6;
             this.editor.level.updateGeometry();
         }
     }

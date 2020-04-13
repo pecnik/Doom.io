@@ -129,7 +129,7 @@ export class Level {
         disposeMeshMaterial(this.bounce.material);
         this.bounce.material = new MeshBasicMaterial({
             transparent: true,
-            opacity: 0.5,
+            opacity: 0.25,
             color: 0x00ff00,
             side: DoubleSide
         });

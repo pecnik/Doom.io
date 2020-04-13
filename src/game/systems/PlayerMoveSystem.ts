@@ -64,6 +64,14 @@ export class PlayerMoveSystem extends System {
             velocity.x = lerp(velocity.x, move.x, acc);
             velocity.z = lerp(velocity.z, move.y, acc);
 
+            // bounce
+            if (collision.falg.y === -1 && velocity.y <= 0) {
+                const voxel = world.level.getVoxelAt(position);
+                if (voxel && voxel.bounce > 0) {
+                    velocity.y = JUMP_SPEED * Math.sqrt(voxel.bounce);
+                }
+            }
+
             // Apply gravity
             velocity.y -= GRAVITY * dt;
 
