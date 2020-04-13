@@ -235,7 +235,7 @@ export class Level {
         this.mesh.geometry = geometry;
         this.wireframe.geometry = geometry;
 
-        this.updateLighing();
+        // this.updateLighing();
 
         this.updatedAt = Date.now();
     }

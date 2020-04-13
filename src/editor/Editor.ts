@@ -42,8 +42,10 @@ export class Editor {
     };
 
     public constructor() {
-        this.level.setSize(8, 8, 8);
-        const { max_x, max_z } = this.level.data;
+        const [max_x, max_y, max_z] = [64, 64, 64];
+
+        // Init level data
+        this.level.setSize(max_x, max_y, max_z);
 
         // Build scene
         this.scene.add(this.camera, this.floor, this.level.mesh);
