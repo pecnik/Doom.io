@@ -12,7 +12,6 @@ export class EraseTool extends Tool {
     private readonly previewLevel = new Level();
     private readonly state = {
         tileId: 0,
-        active: false,
         begin: new Vector3(),
         end: new Vector3()
     };
@@ -29,29 +28,20 @@ export class EraseTool extends Tool {
         this.editor.scene.add(this.previewLevel.mesh);
     }
 
-    public update() {
-        this.previewLevel.mesh.visible = this.state.active;
-
-        if (this.state.active) {
-            const rsp = this.sampleVoxel(-1);
-            if (rsp === undefined) {
-                return;
-            }
-
-            const { x, y, z } = rsp.voxel;
-            this.state.end.set(x, y, z);
-            this.updatePreview();
-        }
-    }
-
-    public onMousePressed() {
+    public onMouseMove() {
         const rsp = this.sampleVoxel(-1);
         if (rsp === undefined) {
             return;
         }
 
+        const { x, y, z } = rsp.voxel;
+        this.state.end.set(x, y, z);
+        this.updatePreview();
+    }
+
+    public onMousePressed() {
         // Set to active
-        this.state.active = true;
+        this.previewLevel.mesh.visible = true;
         this.state.tileId = store.getters.tileId;
 
         // Init leve
@@ -61,14 +51,17 @@ export class EraseTool extends Tool {
         this.previewLevel.updateGeometry();
 
         // Set origin
-        const { x, y, z } = rsp.voxel;
-        this.state.begin.set(x, y, z);
-        this.state.end.set(x, y, z);
-        this.updatePreview();
+        const rsp = this.sampleVoxel(-1);
+        if (rsp !== undefined) {
+            const { x, y, z } = rsp.voxel;
+            this.state.begin.set(x, y, z);
+            this.state.end.set(x, y, z);
+            this.updatePreview();
+        }
     }
 
     public onMouseReleased() {
-        this.state.active = false;
+        this.previewLevel.mesh.visible = false;
         this.previewLevel.data.voxel.forEach(voxel => {
             if (voxel.type === VoxelType.Block) {
                 const voxel2 = this.editor.level.data.voxel[voxel.index];
