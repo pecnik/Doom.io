@@ -10,5 +10,11 @@ export class State {
 }
 
 export const store = new Vuex.Store({
-    state: new State()
+    state: new State(),
+    getters: {
+        tileId(state: State) {
+            const { textureSlots, textureSlotIndex } = state;
+            return textureSlots[textureSlotIndex];
+        }
+    }
 });

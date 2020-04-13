@@ -41,8 +41,7 @@ export default {
             return this.$store.state.textureSlotIndex;
         },
         tileId() {
-            const { textureSlots, textureSlotIndex } = this.$store.state;
-            return textureSlots[textureSlotIndex];
+            return this.$store.getters.tileId;
         }
     },
     methods: {

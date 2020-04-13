@@ -2,6 +2,7 @@ import { Tool } from "./Tool";
 import { VoxelType, Level } from "../../game/data/Level";
 import { Vector3, Color, MeshBasicMaterial } from "three";
 import { disposeMeshMaterial } from "../../game/utils/Helpers";
+import { store } from "../Store";
 
 export class BlockTool extends Tool {
     private readonly previewLevel = new Level();
@@ -45,6 +46,10 @@ export class BlockTool extends Tool {
             return;
         }
 
+        // Set to active
+        this.state.active = true;
+        this.state.tileId = store.getters.tileId;
+
         // Init leve
         const { max_x, max_y, max_z } = this.editor.level.data;
         this.previewLevel.mesh.visible = true;
@@ -56,9 +61,6 @@ export class BlockTool extends Tool {
         this.state.begin.set(x, y, z);
         this.state.end.set(x, y, z);
         this.updatePreview();
-
-        // Set to active
-        this.state.active = true;
     }
 
     public onMouseReleased() {
