@@ -10,8 +10,8 @@
             SLOT: {{ index + 1 }} CHANGE TEXTURE
         </v-btn>
 
-        <v-btn small @click="addSlot">Add slot <v-icon small>mdi-plus</v-icon></v-btn>
-        <v-btn small @click="removeSlot">Remove slot <v-icon small>mdi-minus</v-icon></v-btn>
+        <v-btn small @click="addSlot">Add slot <v-icon class="ml-2" small>mdi-plus</v-icon></v-btn>
+        <v-btn small @click="removeSlot">Remove slot <v-icon class="ml-2" small>mdi-minus</v-icon></v-btn>
 
          <v-dialog v-model="dialog.open" max-width="500px">
             <v-card>
