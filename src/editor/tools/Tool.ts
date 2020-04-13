@@ -5,11 +5,13 @@ import { KeyCode } from "../../game/core/Input";
 export abstract class Tool {
     public abstract name: string;
     public abstract key: KeyCode;
+
     public preload() {}
     public start() {}
     public end() {}
-    public update(_: number) {}
+    // public update(_: number) {}
     public onMousePressed() {}
+    public onMouseMove() {}
     public onMouseReleased() {}
 
     protected readonly editor: Editor;

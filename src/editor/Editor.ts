@@ -121,10 +121,10 @@ export class Editor {
         this.elapsedTime = elapsed;
 
         const delta = (this.elapsedTime - this.previusTime) * 0.001;
+        this.toolSystem();
         this.historySystem();
         this.tileSlotSystem();
         this.movementSystem(delta);
-        this.toolSystem(delta);
         this.input.clear();
 
         this.renderer.render(this.scene, this.camera);
@@ -166,10 +166,15 @@ export class Editor {
         this.camera.position.add(velocity);
     }
 
-    private toolSystem(dt: number) {
+    private toolSystem() {
         const { active } = this.tools;
 
-        active.update(dt);
+        // Swap tools
+        this.tools.list.forEach(tool => {
+            if (this.input.isKeyPressed(tool.key)) {
+                store.state.toolId = tool.name;
+            }
+        });
 
         if (this.input.isKeyPressed(KeyCode.TAB)) {
             let index = this.tools.list.indexOf(active);
@@ -180,6 +185,7 @@ export class Editor {
             store.state.toolId = tool.name;
         }
 
+        // Tool actions
         if (this.input.isMousePresed(MouseBtn.Left)) {
             active.onMousePressed();
         }
@@ -188,11 +194,9 @@ export class Editor {
             active.onMouseReleased();
         }
 
-        this.tools.list.forEach(tool => {
-            if (this.input.isKeyPressed(tool.key)) {
-                store.state.toolId = tool.name;
-            }
-        });
+        if (this.input.isMouseDown(MouseBtn.Left)) {
+            active.onMouseMove();
+        }
     }
 
     private tileSlotSystem() {
