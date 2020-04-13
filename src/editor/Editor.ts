@@ -18,6 +18,7 @@ import { Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
 import { EntityTool } from "./tools/EntityTool";
 import { PaintTool } from "./tools/PaintTool";
+import { EraseTool } from "./tools/EraseTool";
 
 export class Editor {
     public elapsedTime = 0;
@@ -36,6 +37,7 @@ export class Editor {
     public readonly tools: {
         block: BlockTool;
         paint: PaintTool;
+        erase: EraseTool;
         entity: EntityTool;
         list: Tool[];
         active: Tool;
@@ -76,11 +78,13 @@ export class Editor {
 
         // Init tools
         const block = new BlockTool(this);
+        const erase = new EraseTool(this);
         const paint = new PaintTool(this);
         const entity = new EntityTool(this);
         this.tools = {
             active: block,
-            list: [block, paint, entity],
+            list: [block, paint, entity, erase],
+            erase,
             block,
             paint,
             entity

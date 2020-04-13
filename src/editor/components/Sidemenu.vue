@@ -35,7 +35,7 @@ export default {
     },
     data() {
         return {
-            tools: ["block", "paint", "entity"]
+            tools: ["block", "erase", "paint", "entity"]
         };
     },
     methods: {
