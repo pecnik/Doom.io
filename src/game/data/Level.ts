@@ -125,31 +125,32 @@ export class Level {
             const cords: Vector2[][] = plane.faceVertexUvs[0];
 
             // preload UV
-            const tileU = TILE_W / TEXTURE_W;
-            const tileV = TILE_H / TEXTURE_H;
+            const tileW = TILE_W / TEXTURE_W;
+            const tileH = TILE_H / TEXTURE_H;
 
-            // const p = 1 / TEXTURE_W;
+            // padding to prevent seams
+            const pad = (1 / TEXTURE_W) * 1;
 
-            const u_min = 0;
-            const u_max = tileU;
-            const v_max = 1;
-            const v_min = 1 - tileV;
+            const minU = 0 + pad;
+            const maxU = tileW - pad;
+            const maxV = 1 - pad;
+            const minV = 1 - tileH + pad;
 
-            cords[0][0].set(u_min, v_max);
-            cords[0][1].set(u_min, v_min);
-            cords[0][2].set(u_max, v_max);
+            cords[0][0].set(minU, maxV);
+            cords[0][1].set(minU, minV);
+            cords[0][2].set(maxU, maxV);
 
-            cords[1][0].set(u_min, v_min);
-            cords[1][1].set(u_max, v_min);
-            cords[1][2].set(u_max, v_max);
+            cords[1][0].set(minU, minV);
+            cords[1][1].set(maxU, minV);
+            cords[1][2].set(maxU, maxV);
 
             // Offset by tileID
             let x = tileId % TILE_COLS;
             let y = Math.floor(tileId / TILE_COLS);
             for (let i = 0; i < 2; i++) {
                 for (let j = 0; j < 3; j++) {
-                    cords[i][j].x += tileU * x;
-                    cords[i][j].y -= tileV * y;
+                    cords[i][j].x += tileW * x;
+                    cords[i][j].y -= tileH * y;
                 }
             }
 
