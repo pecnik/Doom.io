@@ -8,8 +8,8 @@ export class EntityTool extends Tool {
     public onMousePressed() {
         const rsp = this.sampleVoxel(1);
         if (rsp !== undefined) {
-            rsp.voxel.bounce++;
-            rsp.voxel.bounce %= 6;
+            rsp.voxel.bounce+=2;
+            rsp.voxel.bounce %= 12;
             this.editor.level.updateGeometry();
         }
     }
