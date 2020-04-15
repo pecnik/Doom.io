@@ -38,33 +38,40 @@ export class GameClient implements Game {
             this.world.decals.load(),
 
             // Load level
-            loadTexture("/assets/tileset.png").then(map => {
+            loadTexture("/assets/tileset.png").then((map) => {
                 this.world.level.setMaterial(map);
 
-                const json = localStorage.getItem("level");
-                if (json !== null) {
-                    this.world.level.data = JSON.parse(json);
+                const loadLevelData = () => {
+                    const json = localStorage.getItem("level");
+                    if (json !== null) return Promise.resolve(JSON.parse(json));
+
+                    const url = "/assets/levels/castle.json";
+                    return fetch(url).then((rsp) => rsp.json());
+                };
+
+                return loadLevelData().then((data) => {
+                    this.world.level.data = data;
                     this.world.level.updateGeometry();
                     this.world.level.updateLighing();
-                }
+                });
             }),
 
             // Preload weapon sprite
-            ...WeaponSpecs.map(weapon => {
-                return loadTexture(weapon.povSpriteSrc).then(map => {
+            ...WeaponSpecs.map((weapon) => {
+                return loadTexture(weapon.povSpriteSrc).then((map) => {
                     weapon.povSpriteTexture = map;
                 });
             }),
 
             // Preload weapon audio
-            ...WeaponSpecs.map(weapon => {
-                return new Promise(resolve => {
-                    new AudioLoader().load(weapon.fireSoundSrc, buffer => {
+            ...WeaponSpecs.map((weapon) => {
+                return new Promise((resolve) => {
+                    new AudioLoader().load(weapon.fireSoundSrc, (buffer) => {
                         weapon.fireSoundBuffer = buffer;
                         resolve();
                     });
                 });
-            })
+            }),
         ]);
     }
 
