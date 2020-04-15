@@ -73,17 +73,17 @@ export default {
                 a.click();
             }
 
-            const jsonData = JSON.stringify(editor.level.data);
+            const jsonData = JSON.stringify(editor.level.data, null, 4);
             const date = new Date();
             const time = [
+                prompt("name?", "level"),
                 date.getFullYear(),
                 date.getMonth() + 1,
                 date.getDay(),
                 date.getHours(),
                 date.getMinutes(),
-                date.getSeconds()
             ].join("-");
-            download(jsonData, `level_${time}.json`, "text/plain");
+            download(jsonData, `${time}.json`, "text/plain");
         }
     },
     data() {
