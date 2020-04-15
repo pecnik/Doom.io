@@ -16,7 +16,7 @@ export class World extends Engine {
 
     public constructor() {
         super();
-        this.scene.add(this.level.mesh, this.level.bounce);
+        this.scene.add(this.level.mesh);
         this.scene.add(this.particles.scene);
         this.scene.add(this.decals.scene);
         this.scene.add(this.camera);
