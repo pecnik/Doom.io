@@ -9,20 +9,21 @@ import {
     Geometry,
     Color,
     DoubleSide,
-    CylinderGeometry
+    CylinderGeometry,
 } from "three";
 import { disposeMeshMaterial } from "../utils/Helpers";
 import { clamp } from "lodash";
 
-export const TILE_W = 64;
-export const TILE_H = 64;
-export const TEXTURE_W = 512;
-export const TEXTURE_H = 512;
-export const TILE_COLS = TEXTURE_W / TILE_W;
+export const TILE_W = 18;
+export const TILE_H = 18;
+export const TEXTURE_W = 128;
+export const TEXTURE_H = 256;
+export const TILE_COLS = Math.floor(TEXTURE_W / TILE_W);
+export const TILE_ROWS = Math.floor(TEXTURE_H / TILE_H);
 
 export enum VoxelType {
     Empty,
-    Block
+    Block,
 }
 
 export interface VoxelData {
@@ -106,7 +107,7 @@ export class Level {
                         type: VoxelType.Empty,
                         x,
                         y,
-                        z
+                        z,
                     });
                 }
             }
@@ -117,13 +118,14 @@ export class Level {
         disposeMeshMaterial(this.mesh.material);
         this.mesh.material = new MeshBasicMaterial({
             vertexColors,
-            map: texture
+            alphaTest: 0.5,
+            map: texture,
         });
 
         disposeMeshMaterial(this.wireframe.material);
         this.wireframe.material = new MeshBasicMaterial({
             color: 0x00ff00,
-            wireframe: true
+            wireframe: true,
         });
 
         disposeMeshMaterial(this.bounce.material);
@@ -131,7 +133,7 @@ export class Level {
             transparent: true,
             opacity: 0.25,
             color: 0x00ff00,
-            side: DoubleSide
+            side: DoubleSide,
         });
     }
 
@@ -140,16 +142,16 @@ export class Level {
             const cords: Vector2[][] = plane.faceVertexUvs[0];
 
             // preload UV
+            const padU = 1 / TEXTURE_W;
+            const padV = 1 / TEXTURE_H;
             const tileW = TILE_W / TEXTURE_W;
             const tileH = TILE_H / TEXTURE_H;
 
             // padding to prevent seams
-            const pad = (1 / TEXTURE_W) * 1;
-
-            const minU = 0 + pad;
-            const maxU = tileW - pad;
-            const maxV = 1 - pad;
-            const minV = 1 - tileH + pad;
+            const minU = padU;
+            const maxU = tileW - padU;
+            const maxV = 1 - padV;
+            const minV = 1 - tileH + padV;
 
             cords[0][0].set(minU, maxV);
             cords[0][1].set(minU, minV);
@@ -252,7 +254,7 @@ export class Level {
 
         const planes = new Array<Geometry>();
         const bounce = new Array<Geometry>();
-        this.data.voxel.forEach(voxel => {
+        this.data.voxel.forEach((voxel) => {
             if (voxel.type === VoxelType.Block) {
                 planes.push(...createVoxelGeometry(voxel));
             }
@@ -265,8 +267,8 @@ export class Level {
         {
             // Update bounce geometry
             const geometry = new Geometry();
-            bounce.forEach(plane => geometry.merge(plane));
-            bounce.forEach(plane => plane.dispose());
+            bounce.forEach((plane) => geometry.merge(plane));
+            bounce.forEach((plane) => plane.dispose());
             geometry.elementsNeedUpdate = true;
             this.bounce.geometry.dispose();
             this.bounce.geometry = geometry;
@@ -275,8 +277,8 @@ export class Level {
         {
             // Update level geometry
             const geometry = new Geometry();
-            planes.forEach(plane => geometry.merge(plane));
-            planes.forEach(plane => plane.dispose());
+            planes.forEach((plane) => geometry.merge(plane));
+            planes.forEach((plane) => plane.dispose());
             geometry.elementsNeedUpdate = true;
 
             this.mesh.geometry.dispose();
@@ -329,7 +331,7 @@ export class Level {
 
         const geometry = this.mesh.geometry as Geometry;
         const vertices = new Array<Vector3>();
-        geometry.faces.forEach(face => {
+        geometry.faces.forEach((face) => {
             // Get face vertices
             vertices[0] = geometry.vertices[face.a];
             vertices[1] = geometry.vertices[face.b];
@@ -343,7 +345,7 @@ export class Level {
 
             // Get face origin
             const origin = new Vector3();
-            vertices.forEach(v => origin.add(v));
+            vertices.forEach((v) => origin.add(v));
             origin.divideScalar(3);
 
             // Cast shadow lighting
@@ -395,7 +397,7 @@ export class Level {
 
             // Limit how dark things can get
             const maxDark = 0.1;
-            face.vertexColors.forEach(color => {
+            face.vertexColors.forEach((color) => {
                 color.r = Math.max(color.r, maxDark);
                 color.g = Math.max(color.g, maxDark);
                 color.b = Math.max(color.b, maxDark);

@@ -2,14 +2,15 @@
     <div class="tile" :style="style"></div>
 </template>
 <script>
+import { TILE_W, TILE_COLS } from "../../game/data/Level";
 export default {
     props: {
         tile: { type: Number, required: true }
     },
     computed: {
         style() {
-            const cols = 8;
-            const size = 64;
+            const cols = TILE_COLS;
+            const size = TILE_W;
             const url = "/assets/tileset.png";
             const x = Math.floor(this.tile % cols) * size;
             const y = Math.floor(this.tile / cols) * size;
@@ -17,7 +18,7 @@ export default {
                 width: size + "px",
                 height: size + "px",
                 background: `url(${url})`,
-                backgroundSize: "512px",
+                // backgroundSize: "512px",
                 backgroundPosition: `-${x}px -${y}px`
             };
         }

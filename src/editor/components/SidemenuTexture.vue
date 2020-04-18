@@ -31,6 +31,7 @@ import Vue from "vue";
 import TextureTile from "./TextureTile.vue";
 import TextureSelect from "./TextureSelect.vue";
 import { range } from "lodash";
+import { TILE_COLS, TILE_ROWS } from "../../game/data/Level";
 export default {
     components: { TextureSelect },
     computed: {
@@ -70,7 +71,11 @@ export default {
     },
     data() {
         return {
-            dialog: { open: false, index: 0, tiles: range(0, 64) }
+            dialog: {
+                open: false,
+                index: 0,
+                tiles: range(0, TILE_COLS * TILE_ROWS)
+            }
         };
     }
 };
