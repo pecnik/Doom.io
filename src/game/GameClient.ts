@@ -18,6 +18,7 @@ import { WeaponSpecs } from "./data/Weapon";
 import { Game } from "./core/Engine";
 import { loadTexture } from "./utils/Helpers";
 import { PlayerCouchSystem } from "./systems/PlayerCouchSystem";
+import { GenericSystem } from "./systems/GenericSystem";
 
 export class GameClient implements Game {
     // private readonly socket: SocketIOClient.Socket;
@@ -51,8 +52,11 @@ export class GameClient implements Game {
 
                 return loadLevelData().then((data) => {
                     this.world.level.data = data;
+                    this.world.level.updateSpawnPoints();
                     this.world.level.updateGeometry();
                     this.world.level.updateLighing();
+
+                    // this.world.scene.add(this.world.level.debug);
                 });
             }),
 
@@ -85,6 +89,7 @@ export class GameClient implements Game {
         this.world.addSystem(new PlayerMoveSystem(this.world));
         this.world.addSystem(new PlayerCouchSystem(this.world));
         this.world.addSystem(new CollisionSystem(this.world));
+        this.world.addSystem(new GenericSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new PlayerShootSystem(this.world));
         this.world.addSystem(new RenderSystem(this.world));

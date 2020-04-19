@@ -70,6 +70,14 @@ export function isScopeActive(entity: Entity): boolean {
     return input.scope && weapon.scope;
 }
 
+export function setPosition(entity: Entity, pos: Vector3) {
+    const position = entity.getComponent(Comp.Position);
+    const collision = entity.getComponent(Comp.Collision);
+    position.copy(pos);
+    collision.prev.copy(pos);
+    collision.next.copy(pos);
+}
+
 export function loadRenderMesh(entity: Entity, src: string) {
     return new Promise((resolve) => {
         new GLTFLoader().load(src, (glb) => {

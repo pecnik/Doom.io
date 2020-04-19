@@ -10,6 +10,7 @@ import {
     Color,
     DoubleSide,
     CylinderGeometry,
+    BoxGeometry,
 } from "three";
 import { disposeMeshMaterial } from "../utils/Helpers";
 import { clamp } from "lodash";
@@ -47,8 +48,9 @@ export class LevelData {
 export class Level {
     public data = new LevelData();
     public mesh = new Mesh();
-    public bounce = new Mesh();
+    public debug = new Mesh();
     public wireframe = new Mesh();
+    public spawnPoints = new Array<Vector3>();
 
     public updateGeometryTime = Date.now();
     public updateLighingTime = Date.now();
@@ -128,8 +130,8 @@ export class Level {
             wireframe: true,
         });
 
-        disposeMeshMaterial(this.bounce.material);
-        this.bounce.material = new MeshBasicMaterial({
+        disposeMeshMaterial(this.debug.material);
+        this.debug.material = new MeshBasicMaterial({
             transparent: true,
             opacity: 0.25,
             color: 0x00ff00,
@@ -270,8 +272,8 @@ export class Level {
             bounce.forEach((plane) => geometry.merge(plane));
             bounce.forEach((plane) => plane.dispose());
             geometry.elementsNeedUpdate = true;
-            this.bounce.geometry.dispose();
-            this.bounce.geometry = geometry;
+            this.debug.geometry.dispose();
+            this.debug.geometry = geometry;
         }
 
         {
@@ -422,5 +424,47 @@ export class Level {
         }
 
         this.updateLighingTime = Date.now();
+    }
+
+    public updateSpawnPoints() {
+        const floorVoxels = this.data.voxel.filter((voxel) => {
+            if (voxel.y > this.data.max_y - 4) {
+                return false;
+            }
+
+            const rad = 1;
+            const minx = voxel.x - rad;
+            const maxx = voxel.x + rad;
+            const minz = voxel.z - rad;
+            const maxz = voxel.z + rad;
+
+            const y = voxel.y;
+            for (let x = minx; x <= maxx; x++) {
+                for (let z = minz; z < maxz; z++) {
+                    const top = this.getVoxelType(x, y + 1, z);
+                    const mid = this.getVoxelType(x, y, z);
+                    const bot = this.getVoxelType(x, y - 1, z);
+                    if (top !== VoxelType.Empty) return false;
+                    if (mid !== VoxelType.Empty) return false;
+                    if (bot !== VoxelType.Block) return false;
+                }
+            }
+
+            return true;
+        });
+
+        // Fill spawn points array
+        this.spawnPoints = floorVoxels.map((voxel) => {
+            return new Vector3(voxel.x, voxel.y, voxel.z);
+        });
+
+        // Create debug mesh
+        const geo = new BoxGeometry(0.1, 0.1, 0.1);
+        const mat = new MeshBasicMaterial({});
+        this.spawnPoints.forEach((point) => {
+            const mesh = new Mesh(geo, mat);
+            mesh.position.copy(point);
+            this.debug.add(mesh);
+        });
     }
 }
