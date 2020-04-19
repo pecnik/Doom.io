@@ -12,10 +12,11 @@ import {
     TextureLoader,
     NearestFilter,
     Material,
-    Vector3
+    Vector3,
 } from "three";
 import { World } from "../data/World";
 import { WeaponSpecs, WeaponState } from "../data/Weapon";
+import { PLAYER_HEIGHT } from "../data/Globals";
 
 export function onFamilyChange(
     world: World,
@@ -33,7 +34,7 @@ export function onFamilyChange(
             if (family.includesEntity(entity)) {
                 onEntityRemoved(entity);
             }
-        }
+        },
     };
 
     world.addEntityListener(listener);
@@ -44,6 +45,15 @@ export function getHeadPosition(entity: Entity): Vector3 {
     const { height } = entity.getComponent(Comp.Collision);
     position.y += height - 0.125;
     return position;
+}
+
+export function isCrouched(entity: Entity): boolean {
+    if (!entity.getComponent(Comp.Collision)) {
+        return false;
+    }
+
+    const collision = entity.getComponent(Comp.Collision);
+    return collision.height < PLAYER_HEIGHT;
 }
 
 export function isScopeActive(entity: Entity): boolean {
@@ -61,11 +71,11 @@ export function isScopeActive(entity: Entity): boolean {
 }
 
 export function loadRenderMesh(entity: Entity, src: string) {
-    return new Promise(resolve => {
-        new GLTFLoader().load(src, glb => {
+    return new Promise((resolve) => {
+        new GLTFLoader().load(src, (glb) => {
             const render = entity.getComponent(Comp.Render);
             render.obj.add(glb.scene);
-            render.obj.traverse(child => {
+            render.obj.traverse((child) => {
                 if (child instanceof Mesh) {
                     if (child.material instanceof MeshBasicMaterial) {
                         render.mat = child.material;
@@ -119,7 +129,7 @@ export module Hitscan {
         response.intersection = buffer[0];
 
         if (family !== undefined) {
-            family.entities.forEach(entity => {
+            family.entities.forEach((entity) => {
                 const render = entity.getComponent(Comp.Render);
                 raycaster.intersectObject(render.obj, true, buffer);
 
@@ -136,8 +146,8 @@ export module Hitscan {
 }
 
 export function loadTexture(src: string): Promise<Texture> {
-    return new Promise(resolve => {
-        new TextureLoader().load(src, map => {
+    return new Promise((resolve) => {
+        new TextureLoader().load(src, (map) => {
             map.minFilter = NearestFilter;
             map.magFilter = NearestFilter;
             resolve(map);
@@ -149,6 +159,6 @@ export function disposeMeshMaterial(material: Material | Material[]) {
     if (material instanceof Material) {
         material.dispose();
     } else {
-        material.forEach(material => material.dispose());
+        material.forEach((material) => material.dispose());
     }
 }

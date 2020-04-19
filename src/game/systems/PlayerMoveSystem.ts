@@ -4,7 +4,7 @@ import { Comp } from "../data/Comp";
 import { Vector2 } from "three";
 import { WALK_SPEED, RUN_SPEED, GRAVITY, JUMP_SPEED } from "../data/Globals";
 import { lerp } from "../core/Utils";
-import { isScopeActive } from "../utils/Helpers";
+import { isScopeActive, isCrouched } from "../utils/Helpers";
 
 export class PlayerMoveSystem extends System {
     private readonly family: Family;
@@ -53,8 +53,8 @@ export class PlayerMoveSystem extends System {
             const move = new Vector2(input.movex, input.movey);
             move.normalize();
 
-            const scope = isScopeActive(entity);
-            const speed = input.crouch || scope ? WALK_SPEED : RUN_SPEED;
+            const slow = isCrouched(entity) || isScopeActive(entity);
+            const speed = slow ? WALK_SPEED : RUN_SPEED;
             move.multiplyScalar(speed);
             if (move.x !== 0 || move.y !== 0) {
                 move.rotateAround(new Vector2(), -rotation.y);
