@@ -68,10 +68,15 @@ export default {
             this.openTextureDialog();
         },
         removeSlot() {
-            this.$store.state.textureSlots.pop();
+            const index = this.$store.state.textureSlotIndex;
+            const array = this.$store.state.textureSlots;
+
+            array.splice(index, 1);
+
+            this.$store.state.textureSlots = [...array];
             this.$store.state.textureSlotIndex = Math.min(
-                this.$store.state.textureSlots.length - 1,
-                this.$store.state.textureSlotIndex
+                array.length - 1,
+                index
             );
         }
     },
