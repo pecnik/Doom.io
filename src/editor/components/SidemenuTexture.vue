@@ -59,7 +59,13 @@ export default {
             this.dialog.index = this.tileId;
         },
         addSlot() {
-            this.$store.state.textureSlots.push(0);
+            const index = this.index + 1;
+            const head = [...this.slots];
+            const tail = head.splice(index);
+
+            this.$store.state.textureSlots = [...head, 0, ...tail];
+            this.$store.state.textureSlotIndex = index;
+            this.openTextureDialog();
         },
         removeSlot() {
             this.$store.state.textureSlots.pop();

@@ -66,7 +66,7 @@ export default {
 
                 const state = JSON.stringify(this.$store.state);
                 localStorage.setItem("store-state", state);
-            }, 5000);
+            }, 10000);
 
             requestAnimationFrame(function next(elapsed) {
                 editor.update(elapsed);
