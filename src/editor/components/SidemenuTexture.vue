@@ -13,7 +13,7 @@
         <v-btn small @click="addSlot">Add slot <v-icon class="ml-2" small>mdi-plus</v-icon></v-btn>
         <v-btn small @click="removeSlot">Remove slot <v-icon class="ml-2" small>mdi-minus</v-icon></v-btn>
 
-         <v-dialog v-model="dialog.open" max-width="500px">
+         <v-dialog v-model="dialog.open" max-width="580px">
             <v-card>
                 <v-card-title>Select texture</v-card-title>
                 <v-card-text>

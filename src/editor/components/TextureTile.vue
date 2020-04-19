@@ -1,5 +1,7 @@
 <template>
-    <div class="tile" :style="style"></div>
+    <div class="tile-wrapper">
+        <div class="tile" :style="style"></div>
+    </div>
 </template>
 <script>
 import { TILE_W, TILE_COLS } from "../../game/data/Level";
@@ -26,9 +28,15 @@ export default {
 };
 </script>
 <style scoped lang="scss">
-.tile {
+.tile-wrapper {
     display: inline-block;
-    width: 64px;
-    height: 64px;
+    width: 54px;
+    height: 54px;
+    .tile {
+        display: inline-block;
+        transform: scale(3);
+        transform-origin: 0 0;
+        image-rendering: pixelated;
+    }
 }
 </style>
