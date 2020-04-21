@@ -19,9 +19,11 @@ import { loadTexture, setPosition } from "./Helpers";
 import { PlayerCouchSystem } from "./systems/PlayerCouchSystem";
 import { GenericSystem } from "./systems/GenericSystem";
 import { sample } from "lodash";
+import Stats from "stats.js";
 
 export class GameClient implements Game {
     // private readonly socket: SocketIOClient.Socket;
+    private readonly stats = new Stats();
     private readonly input = new Input({ requestPointerLock: true });
     public readonly world = new World();
     public readonly hud = new Hud();
@@ -80,7 +82,10 @@ export class GameClient implements Game {
     }
 
     public create() {
-        // Audio listener
+        // Mount stats
+        document.body.appendChild(this.stats.dom);
+
+        // Init audio listener
         this.world.listener = new AudioListener();
         this.world.camera.add(this.world.listener);
 
@@ -118,8 +123,10 @@ export class GameClient implements Game {
     }
 
     public update(dt: number) {
+        this.stats.begin();
         this.world.elapsedTime += dt;
         this.world.update(dt);
         this.input.clear();
+        this.stats.end();
     }
 }
