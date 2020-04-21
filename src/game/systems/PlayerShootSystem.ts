@@ -1,7 +1,7 @@
 import { System, Entity, AnyComponents } from "../ecs";
 import { World } from "../ecs";
 import { Comp } from "../ecs";
-import { Hitscan, isScopeActive, getHeadPosition } from "../utils/Helpers";
+import { Hitscan, isScopeActive, getHeadPosition } from "../Helpers";
 import { Color } from "three";
 import { random } from "lodash";
 import { modulo } from "../core/Utils";

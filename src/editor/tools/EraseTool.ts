@@ -1,7 +1,7 @@
 import { Tool } from "./Tool";
 import { VoxelType, Level } from "../../game/data/Level";
 import { Vector3, Color, MeshBasicMaterial } from "three";
-import { disposeMeshMaterial } from "../../game/utils/Helpers";
+import { disposeMeshMaterial } from "../../game/Helpers";
 import { store } from "../Store";
 import { KeyCode } from "../../game/core/Input";
 

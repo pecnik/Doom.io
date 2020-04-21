@@ -4,7 +4,7 @@ import { Comp } from "../ecs";
 import { Vector2 } from "three";
 import { WALK_SPEED, RUN_SPEED, GRAVITY, JUMP_SPEED } from "../data/Globals";
 import { lerp } from "../core/Utils";
-import { isScopeActive, isCrouched } from "../utils/Helpers";
+import { isScopeActive, isCrouched } from "../Helpers";
 
 class Archetype implements AnyComponents {
     public jump = new Comp.Jump();

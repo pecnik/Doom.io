@@ -3,7 +3,7 @@ import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { JUMP_SPEED } from "../data/Globals";
 import { sample } from "lodash";
-import { setPosition } from "../utils/Helpers";
+import { setPosition } from "../Helpers";
 
 class Archetype {
     position = new Comp.Position();

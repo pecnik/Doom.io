@@ -13,7 +13,7 @@ import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { Level } from "../game/data/Level";
 import { modulo } from "../game/core/Utils";
 import { clamp } from "lodash";
-import { loadTexture, disposeMeshMaterial } from "../game/utils/Helpers";
+import { loadTexture, disposeMeshMaterial } from "../game/Helpers";
 import { Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
 import { EntityTool } from "./tools/EntityTool";

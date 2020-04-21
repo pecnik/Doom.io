@@ -1,6 +1,6 @@
 import { uniqueId } from "lodash";
 import { Comp } from "../ecs";
-import { loadRenderMesh, setColliderFromMesh } from "./Helpers";
+import { loadRenderMesh, setColliderFromMesh } from "../Helpers";
 
 export module EntityFactory {
     const nextID = () => uniqueId("e");

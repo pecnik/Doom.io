@@ -2,7 +2,7 @@ import { System } from "../ecs";
 import { PositionalAudio } from "three";
 import { World } from "../ecs";
 import { Comp } from "../ecs";
-import { getHeadPosition } from "../utils/Helpers";
+import { getHeadPosition } from "../Helpers";
 import { WeaponSpecs } from "../data/Weapon";
 
 export class AudioGunshotSystem extends System {

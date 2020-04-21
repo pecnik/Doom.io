@@ -14,7 +14,7 @@ import {
 import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
 import { WeaponSpecs, WeaponState } from "../data/Weapon";
 import { Hud } from "../data/Hud";
-import { isScopeActive } from "../utils/Helpers";
+import { isScopeActive } from "../Helpers";
 
 enum Animation {
     Walk,

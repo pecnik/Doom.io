@@ -12,7 +12,7 @@ import {
     CylinderGeometry,
     BoxGeometry,
 } from "three";
-import { disposeMeshMaterial } from "../utils/Helpers";
+import { disposeMeshMaterial } from "../Helpers";
 import { clamp } from "lodash";
 
 export const TILE_W = 18;

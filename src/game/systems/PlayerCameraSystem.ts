@@ -2,7 +2,7 @@ import { System, AnyComponents } from "../ecs";
 import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { lerp } from "../core/Utils";
-import { isScopeActive, getHeadPosition } from "../utils/Helpers";
+import { isScopeActive, getHeadPosition } from "../Helpers";
 
 class PlayerArchetype implements AnyComponents {
     public input = new Comp.PlayerInput();

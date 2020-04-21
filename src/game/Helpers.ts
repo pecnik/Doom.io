@@ -1,6 +1,6 @@
 import GLTFLoader from "three-gltf-loader";
-import { Entity, Family } from "../ecs";
-import { Comp } from "../ecs";
+import { Entity, Family } from "./ecs";
+import { Comp } from "./ecs";
 import {
     Mesh,
     MeshBasicMaterial,
@@ -14,9 +14,9 @@ import {
     Material,
     Vector3,
 } from "three";
-import { World } from "../ecs";
-import { WeaponSpecs, WeaponState } from "../data/Weapon";
-import { PLAYER_HEIGHT } from "../data/Globals";
+import { World } from "./ecs";
+import { WeaponSpecs, WeaponState } from "./data/Weapon";
+import { PLAYER_HEIGHT } from "./data/Globals";
 
 export function getHeadPosition(
     entity: Entity<{
