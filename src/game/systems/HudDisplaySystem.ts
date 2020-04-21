@@ -1,5 +1,5 @@
 import { System } from "../ecs";
-import { World } from "../data/World";
+import { World } from "../ecs";
 import { Hud } from "../data/Hud";
 import { Comp } from "../ecs";
 import {

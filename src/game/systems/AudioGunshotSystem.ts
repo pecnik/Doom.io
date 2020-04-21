@@ -1,33 +1,26 @@
-import { System, Family } from "../ecs";
-import { Group, PositionalAudio } from "three";
-import { World } from "../data/World";
+import { System } from "../ecs";
+import { PositionalAudio } from "three";
+import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { getHeadPosition } from "../utils/Helpers";
 import { WeaponSpecs } from "../data/Weapon";
 
 export class AudioGunshotSystem extends System {
-    private readonly group: Group;
-    private readonly family = new Family(this.engine, {
-        gunshot: new Comp.Gunshot(),
-        shooter: new Comp.Shooter(),
-        position: new Comp.Position(),
-        rotation: new Comp.Rotation2D(),
-        collision: new Comp.Collision(),
-    });
-
-    public constructor(world: World) {
-        super(world);
-
-        this.group = new Group();
-        world.scene.add(this.group);
-
-        this.family.onEntityRemvoed.push((entity) => {
-            const { gunshot } = entity;
+    private readonly group = this.createSceneGroup();
+    private readonly family = this.createEntityFamily({
+        archetype: {
+            gunshot: new Comp.Gunshot(),
+            shooter: new Comp.Shooter(),
+            position: new Comp.Position(),
+            rotation: new Comp.Rotation2D(),
+            collision: new Comp.Collision(),
+        },
+        onEntityRemvoed: ({ gunshot }) => {
             if (gunshot.audio !== undefined) {
                 this.group.remove(gunshot.audio);
             }
-        });
-    }
+        },
+    });
 
     public update(world: World) {
         this.family.entities.forEach((entity) => {

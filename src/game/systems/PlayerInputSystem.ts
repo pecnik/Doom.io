@@ -1,6 +1,6 @@
 import { System, AnyComponents } from "../ecs";
 import { clamp } from "lodash";
-import { World } from "../data/World";
+import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { Input, KeyCode, MouseBtn } from "../core/Input";
 import { modulo } from "../core/Utils";

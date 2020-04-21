@@ -1,5 +1,5 @@
 import { System, Entity } from "../ecs";
-import { World } from "../data/World";
+import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { JUMP_SPEED } from "../data/Globals";
 import { sample } from "lodash";

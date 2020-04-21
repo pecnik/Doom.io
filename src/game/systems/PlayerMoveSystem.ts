@@ -1,5 +1,5 @@
 import { System, AnyComponents } from "../ecs";
-import { World } from "../data/World";
+import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { Vector2 } from "three";
 import { WALK_SPEED, RUN_SPEED, GRAVITY, JUMP_SPEED } from "../data/Globals";

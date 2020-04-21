@@ -1,32 +1,29 @@
-import { System, Family } from "../ecs";
-import { Group, PositionalAudio, AudioLoader } from "three";
+import { System } from "../ecs";
+import { PositionalAudio, AudioLoader } from "three";
 import { random } from "lodash";
-import { World } from "../data/World";
+import { World } from "../ecs";
 import { Comp } from "../ecs";
 
 export class AudioFootstepSystem extends System {
-    private readonly group: Group;
     private buffer?: AudioBuffer;
 
-    private readonly family = new Family(this.engine, {
-        footstep: new Comp.Footstep(),
-        position: new Comp.Position(),
-        velocity: new Comp.Velocity(),
-        collision: new Comp.Collision(),
+    private readonly group = this.createSceneGroup();
+    private readonly family = this.createEntityFamily({
+        archetype: {
+            footstep: new Comp.Footstep(),
+            position: new Comp.Position(),
+            velocity: new Comp.Velocity(),
+            collision: new Comp.Collision(),
+        },
+        onEntityRemvoed: ({ footstep }) => {
+            if (footstep.audio !== undefined) {
+                this.group.remove(footstep.audio);
+            }
+        },
     });
 
     public constructor(world: World) {
         super(world);
-
-        this.family.onEntityRemvoed.push((entity) => {
-            const { footstep } = entity;
-            if (footstep.audio !== undefined) {
-                this.group.remove(footstep.audio);
-            }
-        });
-
-        this.group = new Group();
-        world.scene.add(this.group);
         new AudioLoader().load("/assets/sounds/footstep.wav", (buffer) => {
             this.buffer = buffer;
         });

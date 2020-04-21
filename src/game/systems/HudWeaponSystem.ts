@@ -1,5 +1,5 @@
 import { System, Entity } from "../ecs";
-import { World } from "../data/World";
+import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { lerp, ease } from "../core/Utils";
 import {

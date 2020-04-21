@@ -14,7 +14,7 @@ import {
     Material,
     Vector3,
 } from "three";
-import { World } from "../data/World";
+import { World } from "../ecs";
 import { WeaponSpecs, WeaponState } from "../data/Weapon";
 import { PLAYER_HEIGHT } from "../data/Globals";
 

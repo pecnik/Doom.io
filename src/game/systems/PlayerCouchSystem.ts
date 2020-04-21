@@ -1,5 +1,5 @@
 import { System, AnyComponents } from "../ecs";
-import { World } from "../data/World";
+import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { lerp } from "../core/Utils";
 import { PLAYER_HEIGHT, PLAYER_CROUCH_H } from "../data/Globals";

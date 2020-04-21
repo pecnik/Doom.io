@@ -1,6 +1,6 @@
 import { System, Entity, AnyComponents } from "../ecs";
 import { clamp } from "lodash";
-import { World } from "../data/World";
+import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { Box3, Vector2 } from "three";
 import { Level, VoxelData, VoxelType } from "../data/Level";

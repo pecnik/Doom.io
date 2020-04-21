@@ -7,9 +7,9 @@ import {
     Points
 } from "three";
 import { random } from "lodash";
-import { GRAVITY } from "../data/Globals";
-import { World } from "../data/World";
-import { VoxelType } from "../data/Level";
+import { GRAVITY } from "./Globals";
+import { World } from "../ecs";
+import { VoxelType } from "./Level";
 
 export class Particle extends Vector3 {
     public readonly velocity = new Vector3();

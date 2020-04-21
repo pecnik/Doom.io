@@ -1,6 +1,6 @@
 import { Hud } from "./data/Hud";
 import { Input } from "./core/Input";
-import { World } from "./data/World";
+import { World } from "./ecs";
 import { PlayerInputSystem } from "./systems/PlayerInputSystem";
 import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
 import { EntityFactory } from "./utils/EntityFactory";
@@ -101,7 +101,13 @@ export class GameClient implements Game {
         this.world.addSystem(new AudioFootstepSystem(this.world));
 
         // Entities
-        const entities = [EntityFactory.Player(), EntityFactory.Barrel()];
+        const entities = [
+            EntityFactory.Player(),
+            EntityFactory.Barrel(),
+            EntityFactory.Barrel(),
+            EntityFactory.Barrel(),
+            EntityFactory.Barrel(),
+        ];
         entities.forEach((entity) => {
             const spawn = sample(this.world.level.spawnPoints);
             if (spawn !== undefined) {
