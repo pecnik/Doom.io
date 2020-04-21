@@ -1,27 +1,26 @@
-import { System, Family, FamilyBuilder } from "../core/ecs";
+import { System, AnyComponents } from "../ecs";
 import { World } from "../data/World";
-import { Comp } from "../data/Comp";
+import { Comp } from "../ecs";
 import { lerp } from "../core/Utils";
 import { isScopeActive, getHeadPosition } from "../utils/Helpers";
 
-export class PlayerCameraSystem extends System {
-    private readonly family: Family;
+class PlayerArchetype implements AnyComponents {
+    public input = new Comp.PlayerInput();
+    public shooter = new Comp.Shooter();
+    public position = new Comp.Position();
+    public rotation = new Comp.Rotation2D();
+    public collision = new Comp.Collision();
+}
 
-    public constructor(world: World) {
-        super();
-        this.family = new FamilyBuilder(world)
-            .include(Comp.PlayerInput)
-            .include(Comp.Position)
-            .include(Comp.Rotation2D)
-            .include(Comp.Collision)
-            .build();
-    }
+export class PlayerCameraSystem extends System {
+    private readonly family = this.createEntityFamily({
+        archetype: new PlayerArchetype(),
+    });
 
     public update(world: World) {
-        for (let i = 0; i < this.family.entities.length; i++) {
-            const entity = this.family.entities[i];
+        this.family.entities.forEach((entity) => {
             const position = getHeadPosition(entity);
-            const rotation = entity.getComponent(Comp.Rotation2D);
+            const rotation = entity.rotation;
             world.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
             world.camera.position.copy(position);
 
@@ -30,6 +29,6 @@ export class PlayerCameraSystem extends System {
                 world.camera.fov = lerp(world.camera.fov, fov, 10);
                 world.camera.updateProjectionMatrix();
             }
-        }
+        });
     }
 }

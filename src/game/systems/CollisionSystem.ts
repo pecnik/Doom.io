@@ -1,44 +1,29 @@
-import { System, Family, FamilyBuilder, Entity } from "../core/ecs";
+import { System, Entity, AnyComponents } from "../ecs";
 import { clamp } from "lodash";
 import { World } from "../data/World";
-import { Comp } from "../data/Comp";
+import { Comp } from "../ecs";
 import { Box3, Vector2 } from "three";
-import { onFamilyChange } from "../utils/Helpers";
 import { Level, VoxelData, VoxelType } from "../data/Level";
 
+class Archetype implements AnyComponents {
+    public position = new Comp.Position();
+    public velocity = new Comp.Velocity();
+    public collision = new Comp.Collision();
+}
+
 export class CollisionSystem extends System {
-    private readonly bodies: Family;
-    // private readonly colliders: Family;
-
-    public constructor(world: World) {
-        super();
-
-        this.bodies = new FamilyBuilder(world)
-            .include(Comp.Collision)
-            .include(Comp.Position)
-            .include(Comp.Velocity)
-            .build();
-
-        // this.colliders = new FamilyBuilder(world)
-        //     .include(Comp.Collider)
-        //     .include(Comp.Position)
-        //     .build();
-
-        onFamilyChange(world, this.bodies, {
-            onEntityAdded(entity) {
-                const position = entity.getComponent(Comp.Position);
-                const collision = entity.getComponent(Comp.Collision);
-                collision.next.copy(position);
-                collision.prev.copy(position);
-            }
-        });
-    }
+    private readonly family = this.createEntityFamily({
+        archetype: new Archetype(),
+        onEntityAdded: ({ position, collision }) => {
+            collision.next.copy(position);
+            collision.prev.copy(position);
+        },
+    });
 
     public update(world: World) {
-        for (let i = 0; i < this.bodies.entities.length; i++) {
-            const entity = this.bodies.entities[i];
-            const position = entity.getComponent(Comp.Position);
-            const collision = entity.getComponent(Comp.Collision);
+        this.family.entities.forEach((entity) => {
+            const position = entity.position;
+            const collision = entity.collision;
 
             const { prev, next, height } = collision;
             next.copy(position);
@@ -70,20 +55,20 @@ export class CollisionSystem extends System {
 
             // Store prev position for next update
             prev.copy(next);
-        }
+        });
     }
 
     private resolveVoxelCollision(
         level: Level,
         voxel: VoxelData,
-        entity: Entity
+        entity: Entity<Archetype>
     ) {
         const box = new Box3();
         box.min.set(voxel.x, voxel.y, voxel.z).subScalar(0.5);
         box.max.set(voxel.x, voxel.y, voxel.z).addScalar(0.5);
 
-        const collision = entity.getComponent(Comp.Collision);
-        const velocity = entity.getComponent(Comp.Velocity);
+        const collision = entity.collision;
+        const velocity = entity.velocity;
         const { prev, next, falg, radius, height } = collision;
 
         // Test vertical collision

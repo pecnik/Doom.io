@@ -1,35 +1,32 @@
-import { System, Family, FamilyBuilder, Entity } from "../core/ecs";
+import { System, Entity } from "../ecs";
 import { World } from "../data/World";
-import { Comp } from "../data/Comp";
+import { Comp } from "../ecs";
 import { JUMP_SPEED } from "../data/Globals";
 import { sample } from "lodash";
 import { setPosition } from "../utils/Helpers";
 
-export class GenericSystem extends System {
-    private readonly family: Family;
+class Archetype {
+    position = new Comp.Position();
+    velocity = new Comp.Velocity();
+    collision = new Comp.Collision();
+}
 
-    public constructor(world: World) {
-        super();
-        this.family = new FamilyBuilder(world)
-            .include(Comp.Position)
-            .include(Comp.Velocity)
-            .include(Comp.Collision)
-            .build();
-    }
+export class GenericSystem extends System {
+    private readonly family = this.createEntityFamily({
+        archetype: new Archetype(),
+    });
 
     public update(world: World) {
-        for (let i = 0; i < this.family.entities.length; i++) {
-            const entity = this.family.entities[i];
+        this.family.entities.forEach((entity) => {
             this.bounceSystem(entity, world);
             this.respawnSystem(entity, world);
-        }
+        });
     }
 
-    private respawnSystem(entity: Entity, world: World) {
-        const position = entity.getComponent(Comp.Position);
+    private respawnSystem(entity: Entity<Archetype>, world: World) {
+        const { position, velocity } = entity;
         if (position.y < -3) {
             const spawn = sample(world.level.spawnPoints);
-            const velocity = entity.getComponent(Comp.Velocity);
             if (spawn !== undefined) {
                 setPosition(entity, spawn);
                 velocity.set(0, 0, 0);
@@ -37,10 +34,8 @@ export class GenericSystem extends System {
         }
     }
 
-    private bounceSystem(entity: Entity, world: World) {
-        const position = entity.getComponent(Comp.Position);
-        const velocity = entity.getComponent(Comp.Velocity);
-        const collision = entity.getComponent(Comp.Collision);
+    private bounceSystem(entity: Entity<Archetype>, world: World) {
+        const { position, velocity, collision } = entity;
         if (collision.falg.y === -1 && velocity.y <= 0) {
             const voxel = world.level.getVoxelAt(position);
             if (voxel !== undefined && voxel.bounce > 0) {

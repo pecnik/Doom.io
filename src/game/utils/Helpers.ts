@@ -1,6 +1,6 @@
 import GLTFLoader from "three-gltf-loader";
-import { Entity, Family, EngineEntityListener } from "../core/ecs";
-import { Comp } from "../data/Comp";
+import { Entity, Family } from "../ecs";
+import { Comp } from "../ecs";
 import {
     Mesh,
     MeshBasicMaterial,
@@ -18,70 +18,61 @@ import { World } from "../data/World";
 import { WeaponSpecs, WeaponState } from "../data/Weapon";
 import { PLAYER_HEIGHT } from "../data/Globals";
 
-export function onFamilyChange(
-    world: World,
-    family: Family,
-    handler: Partial<EngineEntityListener>
-) {
-    const { onEntityAdded = () => {}, onEntityRemoved = () => {} } = handler;
-    const listener = {
-        onEntityAdded(entity: Entity) {
-            if (family.includesEntity(entity)) {
-                onEntityAdded(entity);
-            }
-        },
-        onEntityRemoved(entity: Entity) {
-            if (family.includesEntity(entity)) {
-                onEntityRemoved(entity);
-            }
-        },
-    };
-
-    world.addEntityListener(listener);
+export function getHeadPosition(
+    entity: Entity<{
+        position: Comp.Position;
+        collision: Comp.Collision;
+    }>
+): Vector3 {
+    const head = entity.position.clone();
+    head.y += entity.collision.height - 0.125;
+    return head;
 }
 
-export function getHeadPosition(entity: Entity): Vector3 {
-    const position = entity.getComponent(Comp.Position).clone();
-    const { height } = entity.getComponent(Comp.Collision);
-    position.y += height - 0.125;
-    return position;
+export function isCrouched(
+    entity: Entity<{ collision: Comp.Collision }>
+): boolean {
+    return entity.collision.height < PLAYER_HEIGHT;
 }
 
-export function isCrouched(entity: Entity): boolean {
-    if (!entity.getComponent(Comp.Collision)) {
-        return false;
-    }
-
-    const collision = entity.getComponent(Comp.Collision);
-    return collision.height < PLAYER_HEIGHT;
-}
-
-export function isScopeActive(entity: Entity): boolean {
-    if (!entity.getComponent(Comp.Shooter)) {
-        return false;
-    }
-
-    const shooter = entity.getComponent(Comp.Shooter);
+export function isScopeActive(
+    entity: Entity<{
+        shooter: Comp.Shooter;
+        input: Comp.PlayerInput;
+    }>
+): boolean {
+    const { shooter } = entity;
     if (shooter.state == WeaponState.Reload) return false;
     if (shooter.state == WeaponState.Swap) return false;
 
-    const input = entity.getComponent(Comp.PlayerInput);
+    const { input } = entity;
     const weapon = WeaponSpecs[shooter.weaponIndex];
     return input.scope && weapon.scope;
 }
 
-export function setPosition(entity: Entity, pos: Vector3) {
-    const position = entity.getComponent(Comp.Position);
-    const collision = entity.getComponent(Comp.Collision);
+export function setPosition(
+    entity: Entity<{
+        position: Comp.Position;
+    }>,
+    pos: Vector3
+) {
+    const { position, collision } = entity;
     position.copy(pos);
-    collision.prev.copy(pos);
-    collision.next.copy(pos);
+    if (collision !== undefined) {
+        collision.prev.copy(pos);
+        collision.next.copy(pos);
+    }
 }
 
-export function loadRenderMesh(entity: Entity, src: string) {
+export function loadRenderMesh(
+    entity: Entity<{
+        render: Comp.Render;
+    }>,
+    src: string
+) {
     return new Promise((resolve) => {
         new GLTFLoader().load(src, (glb) => {
-            const render = entity.getComponent(Comp.Render);
+            const { render } = entity;
             render.obj.add(glb.scene);
             render.obj.traverse((child) => {
                 if (child instanceof Mesh) {
@@ -102,9 +93,10 @@ export function loadRenderMesh(entity: Entity, src: string) {
     });
 }
 
-export function setColliderFromMesh(entity: Entity) {
-    const render = entity.getComponent(Comp.Render);
-    const collider = entity.getComponent(Comp.Collider);
+export function setColliderFromMesh(
+    entity: Entity<{ render: Comp.Render; collider: Comp.Collider }>
+) {
+    const { render, collider } = entity;
 
     render.geo.computeBoundingBox();
 
@@ -127,7 +119,10 @@ export module Hitscan {
         entity?: Entity;
     } = {};
 
-    export function cast(world: World, family?: Family) {
+    export function cast(
+        world: World,
+        family?: Family<{ render: Comp.Render }>
+    ) {
         response.intersection = undefined;
         response.entity = undefined;
         buffer.length = 0;
@@ -138,7 +133,7 @@ export module Hitscan {
 
         if (family !== undefined) {
             family.entities.forEach((entity) => {
-                const render = entity.getComponent(Comp.Render);
+                const { render } = entity;
                 raycaster.intersectObject(render.obj, true, buffer);
 
                 const [next] = buffer;

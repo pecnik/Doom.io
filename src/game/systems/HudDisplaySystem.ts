@@ -1,7 +1,7 @@
-import { System, FamilyBuilder, Family } from "../core/ecs";
+import { System } from "../ecs";
 import { World } from "../data/World";
 import { Hud } from "../data/Hud";
-import { Comp } from "../data/Comp";
+import { Comp } from "../ecs";
 import {
     TextureLoader,
     AdditiveBlending,
@@ -48,7 +48,12 @@ export class HudElement<T> {
 }
 
 export class HudDisplaySystem extends System {
-    private readonly family: Family;
+    private readonly family = this.createEntityFamily({
+        archetype: {
+            input: new Comp.PlayerInput(),
+            shooter: new Comp.Shooter(),
+        },
+    });
 
     private readonly ammoText = new HudElement({
         width: 256,
@@ -57,12 +62,7 @@ export class HudDisplaySystem extends System {
     });
 
     public constructor(world: World, hud: Hud) {
-        super();
-
-        this.family = new FamilyBuilder(world)
-            .include(Comp.PlayerInput)
-            .include(Comp.Shooter)
-            .build();
+        super(world);
 
         // Ammo text
         hud.scene.add(this.ammoText.plane);
@@ -96,9 +96,7 @@ export class HudDisplaySystem extends System {
     }
 
     public update() {
-        for (let i = 0; i < this.family.entities.length; i++) {
-            const entity = this.family.entities[i];
-            const shooter = entity.getComponent(Comp.Shooter);
+        this.family.entities.forEach(({ shooter }) => {
             const ammo = shooter.ammo[shooter.weaponIndex];
 
             if (
@@ -117,6 +115,6 @@ export class HudDisplaySystem extends System {
                     height / 2
                 );
             }
-        }
+        });
     }
 }

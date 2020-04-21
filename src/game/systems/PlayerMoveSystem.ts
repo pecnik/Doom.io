@@ -1,34 +1,34 @@
-import { System, Family, FamilyBuilder } from "../core/ecs";
+import { System, AnyComponents } from "../ecs";
 import { World } from "../data/World";
-import { Comp } from "../data/Comp";
+import { Comp } from "../ecs";
 import { Vector2 } from "three";
 import { WALK_SPEED, RUN_SPEED, GRAVITY, JUMP_SPEED } from "../data/Globals";
 import { lerp } from "../core/Utils";
 import { isScopeActive, isCrouched } from "../utils/Helpers";
 
-export class PlayerMoveSystem extends System {
-    private readonly family: Family;
+class Archetype implements AnyComponents {
+    public jump = new Comp.Jump();
+    public input = new Comp.PlayerInput();
+    public shooter = new Comp.Shooter();
+    public position = new Comp.Position();
+    public velocity = new Comp.Velocity();
+    public rotation = new Comp.Rotation2D();
+    public collision = new Comp.Collision();
+}
 
-    public constructor(world: World) {
-        super();
-        this.family = new FamilyBuilder(world)
-            .include(Comp.PlayerInput)
-            .include(Comp.Position)
-            .include(Comp.Velocity)
-            .include(Comp.Rotation2D)
-            .include(Comp.Collision)
-            .build();
-    }
+export class PlayerMoveSystem extends System {
+    private readonly family = this.createEntityFamily({
+        archetype: new Archetype(),
+    });
 
     public update(world: World, dt: number) {
-        for (let i = 0; i < this.family.entities.length; i++) {
-            const entity = this.family.entities[i];
-            const jump = entity.getComponent(Comp.Jump);
-            const input = entity.getComponent(Comp.PlayerInput);
-            const position = entity.getComponent(Comp.Position);
-            const rotation = entity.getComponent(Comp.Rotation2D);
-            const velocity = entity.getComponent(Comp.Velocity);
-            const collision = entity.getComponent(Comp.Collision);
+        this.family.entities.forEach((entity) => {
+            const jump = entity.jump;
+            const input = entity.input;
+            const position = entity.position;
+            const rotation = entity.rotation;
+            const velocity = entity.velocity;
+            const collision = entity.collision;
 
             // Jumping
             const elapsed = world.elapsedTime;
@@ -71,6 +71,6 @@ export class PlayerMoveSystem extends System {
             position.x += velocity.x * dt;
             position.y += velocity.y * dt;
             position.z += velocity.z * dt;
-        }
+        });
     }
 }

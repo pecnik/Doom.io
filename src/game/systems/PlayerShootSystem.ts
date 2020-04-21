@@ -1,6 +1,6 @@
-import { System, Family, FamilyBuilder, Entity } from "../core/ecs";
+import { System, Entity, AnyComponents } from "../ecs";
 import { World } from "../data/World";
-import { Comp } from "../data/Comp";
+import { Comp } from "../ecs";
 import { Hitscan, isScopeActive, getHeadPosition } from "../utils/Helpers";
 import { Color } from "three";
 import { random } from "lodash";
@@ -10,29 +10,36 @@ import {
     WeaponSpecs,
     WeaponState,
     WeaponAmmo,
-    WeaponSpec
+    WeaponSpec,
 } from "../data/Weapon";
 
+class TargetArchetype implements AnyComponents {
+    public render = new Comp.Render();
+}
+
+class ShooterArchetype implements AnyComponents {
+    public input = new Comp.PlayerInput();
+    public position = new Comp.Position();
+    public rotation = new Comp.Rotation2D();
+    public shooter = new Comp.Shooter();
+    public collision = new Comp.Collision();
+}
+
 export class PlayerShootSystem extends System {
-    private readonly targets: Family;
-    private readonly shooters: Family;
+    private readonly targets = this.createEntityFamily({
+        archetype: new TargetArchetype(),
+    });
 
-    public constructor(world: World) {
-        super();
+    private readonly shooters = this.createEntityFamily({
+        archetype: new ShooterArchetype(),
+    });
 
-        this.targets = new FamilyBuilder(world).include(Comp.Render).build();
-
-        this.shooters = new FamilyBuilder(world)
-            .include(Comp.PlayerInput)
-            .include(Comp.Position)
-            .include(Comp.Rotation2D)
-            .include(Comp.Shooter)
-            .build();
-    }
-
-    private transition(state: WeaponState, entity: Entity, world: World) {
-        const input = entity.getComponent(Comp.PlayerInput);
-        const shooter = entity.getComponent(Comp.Shooter);
+    private transition(
+        state: WeaponState,
+        entity: Entity<ShooterArchetype>,
+        world: World
+    ) {
+        const { input, shooter } = entity;
 
         if (state === WeaponState.Idle) {
             shooter.state = WeaponState.Idle;
@@ -74,10 +81,9 @@ export class PlayerShootSystem extends System {
     }
 
     public update(world: World) {
-        for (let i = 0; i < this.shooters.entities.length; i++) {
-            const entity = this.shooters.entities[i];
-            const input = entity.getComponent(Comp.PlayerInput);
-            const shooter = entity.getComponent(Comp.Shooter);
+        this.shooters.entities.forEach((entity) => {
+            const input = entity.input;
+            const shooter = entity.shooter;
             const weapon = WeaponSpecs[shooter.weaponIndex];
             const ammo = shooter.ammo[shooter.weaponIndex];
 
@@ -147,7 +153,7 @@ export class PlayerShootSystem extends System {
                     return this.transition(WeaponState.Idle, entity, world);
                 }
             }
-        }
+        });
     }
 
     private getReload(
@@ -160,10 +166,10 @@ export class PlayerShootSystem extends System {
         return input.reload || ammo.loaded < 1;
     }
 
-    private fireBullets(world: World, entity: Entity) {
+    private fireBullets(world: World, entity: Entity<ShooterArchetype>) {
         const position = getHeadPosition(entity);
-        const rotation = entity.getComponent(Comp.Rotation2D);
-        const shooter = entity.getComponent(Comp.Shooter);
+        const rotation = entity.rotation;
+        const shooter = entity.shooter;
         const weapon = WeaponSpecs[shooter.weaponIndex];
 
         // Init hitscan
@@ -202,19 +208,19 @@ export class PlayerShootSystem extends System {
             // Bullet decal
             if (
                 rsp.entity === undefined ||
-                rsp.entity.hasComponent(Comp.RenderDecalTag)
+                rsp.entity.renderdecaltag !== undefined
             ) {
                 world.decals.spawn(point, face.normal);
             }
 
             // Apply damage
             const target = rsp.entity;
-            if (target !== undefined && target.hasComponent(Comp.Health)) {
-                const health = target.getComponent(Comp.Health);
+            if (target !== undefined && target.health !== undefined) {
+                const health = target.health;
                 health.value -= 25;
 
                 if (health.value <= 0) {
-                    world.removeEntity(target);
+                    world.removeEntity(target.id);
                 }
             }
         }

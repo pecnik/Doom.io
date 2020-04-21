@@ -4,7 +4,6 @@ import { World } from "./data/World";
 import { PlayerInputSystem } from "./systems/PlayerInputSystem";
 import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
 import { EntityFactory } from "./utils/EntityFactory";
-import { Comp } from "./data/Comp";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
 import { CollisionSystem } from "./systems/CollisionSystem";
 import { RenderSystem } from "./systems/RenderSystem";
@@ -16,9 +15,10 @@ import { AudioListener, AudioLoader } from "three";
 import { HudDisplaySystem } from "./systems/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Weapon";
 import { Game } from "./core/Engine";
-import { loadTexture } from "./utils/Helpers";
+import { loadTexture, setPosition } from "./utils/Helpers";
 import { PlayerCouchSystem } from "./systems/PlayerCouchSystem";
 import { GenericSystem } from "./systems/GenericSystem";
+import { sample } from "lodash";
 
 export class GameClient implements Game {
     // private readonly socket: SocketIOClient.Socket;
@@ -101,15 +101,14 @@ export class GameClient implements Game {
         this.world.addSystem(new AudioFootstepSystem(this.world));
 
         // Entities
-        const { max_x, max_y, max_z } = this.world.level.data;
-
-        const player = EntityFactory.Player();
-        player.getComponent(Comp.Position).set(max_x / 2, max_y, max_z / 2);
-        this.world.addEntity(player);
-
-        const barrel = EntityFactory.Barrel();
-        barrel.getComponent(Comp.Position).set(max_x / 2, max_y, max_z / 2);
-        this.world.addEntity(barrel);
+        const entities = [EntityFactory.Player(), EntityFactory.Barrel()];
+        entities.forEach((entity) => {
+            const spawn = sample(this.world.level.spawnPoints);
+            if (spawn !== undefined) {
+                setPosition(entity, spawn);
+                this.world.addEntity(entity);
+            }
+        });
     }
 
     public update(dt: number) {

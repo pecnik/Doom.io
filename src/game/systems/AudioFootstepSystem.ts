@@ -1,57 +1,48 @@
-import { System, Family, FamilyBuilder, Entity } from "../core/ecs";
+import { System, Family } from "../ecs";
 import { Group, PositionalAudio, AudioLoader } from "three";
 import { random } from "lodash";
 import { World } from "../data/World";
-import { Comp } from "../data/Comp";
-import { onFamilyChange } from "../utils/Helpers";
+import { Comp } from "../ecs";
 
 export class AudioFootstepSystem extends System {
-    private readonly family: Family;
     private readonly group: Group;
     private buffer?: AudioBuffer;
 
+    private readonly family = new Family(this.engine, {
+        footstep: new Comp.Footstep(),
+        position: new Comp.Position(),
+        velocity: new Comp.Velocity(),
+        collision: new Comp.Collision(),
+    });
+
     public constructor(world: World) {
-        super();
+        super(world);
 
-        this.family = new FamilyBuilder(world)
-            .include(Comp.Footstep)
-            .include(Comp.Position)
-            .include(Comp.Velocity)
-            .include(Comp.Collision)
-            .build();
-
-        this.group = new Group();
-        world.scene.add(this.group);
-
-        onFamilyChange(world, this.family, {
-            onEntityRemoved: (entity: Entity) => {
-                const footstep = entity.getComponent(Comp.Footstep);
-                if (footstep.audio !== undefined) {
-                    this.group.remove(footstep.audio);
-                }
+        this.family.onEntityRemvoed.push((entity) => {
+            const { footstep } = entity;
+            if (footstep.audio !== undefined) {
+                this.group.remove(footstep.audio);
             }
         });
 
-        new AudioLoader().load("/assets/sounds/footstep.wav", buffer => {
+        this.group = new Group();
+        world.scene.add(this.group);
+        new AudioLoader().load("/assets/sounds/footstep.wav", (buffer) => {
             this.buffer = buffer;
         });
     }
 
     public update(world: World) {
-        if (world.listener === undefined) {
-            return;
-        }
+        this.family.entities.forEach((entity) => {
+            const { position, velocity, footstep, collision } = entity;
 
-        if (this.buffer === undefined) {
-            return;
-        }
+            if (world.listener === undefined) {
+                return;
+            }
 
-        for (let i = 0; i < this.family.entities.length; i++) {
-            const entity = this.family.entities[i];
-            const position = entity.getComponent(Comp.Position);
-            const velocity = entity.getComponent(Comp.Velocity);
-            const footstep = entity.getComponent(Comp.Footstep);
-            const collision = entity.getComponent(Comp.Collision);
+            if (this.buffer === undefined) {
+                return;
+            }
 
             if (footstep.audio === undefined) {
                 footstep.audio = new PositionalAudio(world.listener);
@@ -70,6 +61,6 @@ export class AudioFootstepSystem extends System {
             }
 
             footstep.audio.position.copy(position);
-        }
+        });
     }
 }

@@ -1,52 +1,48 @@
-import { System, Family, FamilyBuilder, Entity } from "../core/ecs";
+import { System, Family } from "../ecs";
 import { Group, PositionalAudio } from "three";
 import { World } from "../data/World";
-import { Comp } from "../data/Comp";
-import { onFamilyChange, getHeadPosition } from "../utils/Helpers";
+import { Comp } from "../ecs";
+import { getHeadPosition } from "../utils/Helpers";
 import { WeaponSpecs } from "../data/Weapon";
 
 export class AudioGunshotSystem extends System {
-    private readonly family: Family;
     private readonly group: Group;
+    private readonly family = new Family(this.engine, {
+        gunshot: new Comp.Gunshot(),
+        shooter: new Comp.Shooter(),
+        position: new Comp.Position(),
+        rotation: new Comp.Rotation2D(),
+        collision: new Comp.Collision(),
+    });
 
     public constructor(world: World) {
-        super();
-
-        this.family = new FamilyBuilder(world)
-            .include(Comp.Gunshot)
-            .include(Comp.Shooter)
-            .include(Comp.Position)
-            .include(Comp.Rotation2D)
-            .build();
+        super(world);
 
         this.group = new Group();
         world.scene.add(this.group);
 
-        onFamilyChange(world, this.family, {
-            onEntityRemoved: (entity: Entity) => {
-                const gunshot = entity.getComponent(Comp.Gunshot);
-                if (gunshot.audio !== undefined) {
-                    this.group.remove(gunshot.audio);
-                }
+        this.family.onEntityRemvoed.push((entity) => {
+            const { gunshot } = entity;
+            if (gunshot.audio !== undefined) {
+                this.group.remove(gunshot.audio);
             }
         });
     }
 
     public update(world: World) {
-        if (world.listener === undefined) {
-            return;
-        }
+        this.family.entities.forEach((entity) => {
+            if (world.listener === undefined) {
+                return;
+            }
 
-        for (let i = 0; i < this.family.entities.length; i++) {
-            const entity = this.family.entities[i];
             const position = getHeadPosition(entity);
-            const rotation = entity.getComponent(Comp.Rotation2D);
-            const shooter = entity.getComponent(Comp.Shooter);
-            const gunshot = entity.getComponent(Comp.Gunshot);
+            const rotation = entity.rotation;
+            const shooter = entity.shooter;
+            const gunshot = entity.gunshot;
 
             const weapon = WeaponSpecs[shooter.weaponIndex];
-            if (weapon === undefined) continue;
-            if (weapon.fireSoundBuffer === undefined) continue;
+            if (weapon === undefined) return;
+            if (weapon.fireSoundBuffer === undefined) return;
 
             if (gunshot.audio === undefined) {
                 gunshot.audio = new PositionalAudio(world.listener);
@@ -69,6 +65,6 @@ export class AudioGunshotSystem extends System {
 
             gunshot.origin.rotation.set(rotation.x, rotation.y, 0, "YXZ");
             gunshot.origin.position.copy(position);
-        }
+        });
     }
 }

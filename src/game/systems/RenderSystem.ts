@@ -1,41 +1,26 @@
-import { System, Family, FamilyBuilder, Entity } from "../core/ecs";
-import { Group } from "three";
+import { System } from "../ecs";
 import { World } from "../data/World";
-import { Comp } from "../data/Comp";
-import { onFamilyChange } from "../utils/Helpers";
+import { Comp } from "../ecs";
 
 export class RenderSystem extends System {
-    private readonly family: Family;
-    private readonly group: Group;
+    private readonly group = this.createSceneGroup();
+    private readonly family = this.createEntityFamily({
+        archetype: {
+            position: new Comp.Position(),
+            render: new Comp.Render(),
+        },
 
-    public constructor(world: World) {
-        super();
+        onEntityAdded: ({ render }) => {
+            this.group.add(render.obj);
+        },
 
-        this.family = new FamilyBuilder(world)
-            .include(Comp.Render)
-            .include(Comp.Position)
-            .build();
-
-        this.group = new Group();
-        world.scene.add(this.group);
-
-        onFamilyChange(world, this.family, {
-            onEntityAdded: (entity: Entity) => {
-                const render = entity.getComponent(Comp.Render);
-                this.group.add(render.obj);
-            },
-            onEntityRemoved: (entity: Entity) => {
-                const render = entity.getComponent(Comp.Render);
-                this.group.remove(render.obj);
-            },
-        });
-    }
+        onEntityRemvoed: ({ render }) => {
+            this.group.remove(render.obj);
+        },
+    });
 
     public update(world: World) {
-        for (let i = 0; i < this.family.entities.length; i++) {
-            const entity = this.family.entities[i];
-            const render = entity.getComponent(Comp.Render);
-            const position = entity.getComponent(Comp.Position);
+        this.family.entities.forEach(({ render, position }) => {
             render.obj.position.copy(position);
 
             const light = world.level.getVoxelLightAt(position);
@@ -43,6 +28,6 @@ export class RenderSystem extends System {
                 render.mat.color.lerp(light, 0.125);
                 render.mat.needsUpdate = true;
             }
-        }
+        });
     }
 }

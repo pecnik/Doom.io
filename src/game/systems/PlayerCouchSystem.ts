@@ -1,27 +1,26 @@
-import { System, Family, FamilyBuilder } from "../core/ecs";
+import { System, AnyComponents } from "../ecs";
 import { World } from "../data/World";
-import { Comp } from "../data/Comp";
+import { Comp } from "../ecs";
 import { lerp } from "../core/Utils";
 import { PLAYER_HEIGHT, PLAYER_CROUCH_H } from "../data/Globals";
 import { VoxelType } from "../data/Level";
 
-export class PlayerCouchSystem extends System {
-    private readonly family: Family;
+class Archetype implements AnyComponents {
+    public input = new Comp.PlayerInput();
+    public position = new Comp.Position();
+    public collision = new Comp.Collision();
+}
 
-    public constructor(world: World) {
-        super();
-        this.family = new FamilyBuilder(world)
-            .include(Comp.PlayerInput)
-            .include(Comp.Collision)
-            .build();
-    }
+export class PlayerCouchSystem extends System {
+    private readonly family = this.createEntityFamily({
+        archetype: new Archetype(),
+    });
 
     public update(world: World) {
-        for (let i = 0; i < this.family.entities.length; i++) {
-            const entity = this.family.entities[i];
-            const input = entity.getComponent(Comp.PlayerInput);
-            const position = entity.getComponent(Comp.Position);
-            const collisio = entity.getComponent(Comp.Collision);
+        this.family.entities.forEach((entity) => {
+            const input = entity.input;
+            const position = entity.position;
+            const collisio = entity.collision;
 
             if (input.crouch && collisio.height > PLAYER_CROUCH_H) {
                 collisio.height = lerp(collisio.height, PLAYER_CROUCH_H, 0.1);
@@ -41,6 +40,6 @@ export class PlayerCouchSystem extends System {
 
                 collisio.height = lerp(collisio.height, PLAYER_HEIGHT, 0.1);
             }
-        }
+        });
     }
 }

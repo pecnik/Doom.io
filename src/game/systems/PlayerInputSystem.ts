@@ -1,21 +1,24 @@
-import { System, Family, FamilyBuilder } from "../core/ecs";
+import { System, AnyComponents } from "../ecs";
 import { clamp } from "lodash";
 import { World } from "../data/World";
-import { Comp } from "../data/Comp";
+import { Comp } from "../ecs";
 import { Input, KeyCode, MouseBtn } from "../core/Input";
 import { modulo } from "../core/Utils";
 import { WeaponSpecs } from "../data/Weapon";
 
+class Archetype implements AnyComponents {
+    public input = new Comp.PlayerInput();
+}
+
 export class PlayerInputSystem extends System {
     private readonly input: Input;
-    private readonly family: Family;
+    private readonly family = this.createEntityFamily({
+        archetype: new Archetype(),
+    });
 
     public constructor(world: World, input: Input) {
-        super();
+        super(world);
         this.input = input;
-        this.family = new FamilyBuilder(world)
-            .include(Comp.PlayerInput)
-            .build();
     }
 
     public update(_: World, dt: number) {
@@ -35,9 +38,8 @@ export class PlayerInputSystem extends System {
         const scope = this.input.isMouseDown(MouseBtn.Right);
         const reload = this.input.isKeyDown(KeyCode.R);
 
-        for (let i = 0; i < this.family.entities.length; i++) {
-            const entity = this.family.entities[i];
-            const input = entity.getComponent(Comp.PlayerInput);
+        this.family.entities.forEach((entity) => {
+            const { input, rotation } = entity;
 
             input.movey = 0;
             input.movey -= forward ? 1 : 0;
@@ -54,9 +56,8 @@ export class PlayerInputSystem extends System {
             input.reload = reload;
             input.weaponIndex = this.getWeaponIndex(input);
 
-            if (entity.hasComponent(Comp.Rotation2D)) {
+            if (rotation !== undefined) {
                 const str = input.scope ? 0.5 : 1;
-                const rotation = entity.getComponent(Comp.Rotation2D);
 
                 rotation.y -= lookHor * mouseSensitivity * str * dt;
                 rotation.y = modulo(rotation.y, Math.PI * 2);
@@ -64,7 +65,7 @@ export class PlayerInputSystem extends System {
                 rotation.x -= lookVer * mouseSensitivity * str * dt;
                 rotation.x = clamp(rotation.x, -Math.PI / 2, Math.PI / 2);
             }
-        }
+        });
     }
 
     private getWeaponIndex(input: Comp.PlayerInput) {

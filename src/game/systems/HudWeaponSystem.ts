@@ -1,6 +1,6 @@
-import { System, Family, FamilyBuilder, Entity } from "../core/ecs";
+import { System, Entity } from "../ecs";
 import { World } from "../data/World";
-import { Comp } from "../data/Comp";
+import { Comp } from "../ecs";
 import { lerp, ease } from "../core/Utils";
 import {
     Vector3,
@@ -9,7 +9,7 @@ import {
     Sprite,
     SpriteMaterial,
     Texture,
-    Group
+    Group,
 } from "three";
 import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
 import { WeaponSpecs, WeaponState } from "../data/Weapon";
@@ -24,7 +24,15 @@ enum Animation {
     Land,
     Swap,
     Shoot,
-    Reload
+    Reload,
+}
+
+class ShooterArchetype {
+    input = new Comp.PlayerInput();
+    position = new Comp.Position();
+    velocity = new Comp.Velocity();
+    shooter = new Comp.Shooter();
+    collision = new Comp.Collision();
 }
 
 export class WeaponPovSprite extends Object3D {
@@ -44,22 +52,18 @@ export class WeaponPovSprite extends Object3D {
 }
 
 export class HudWeaponSystem extends System {
-    private readonly family: Family;
     private readonly weapons: WeaponPovSprite[];
+    private readonly family = this.createEntityFamily({
+        archetype: new ShooterArchetype(),
+    });
 
     private animation = Animation.Idle;
     private transition = 0;
 
     public constructor(world: World, hud: Hud) {
-        super();
+        super(world);
 
-        this.family = new FamilyBuilder(world)
-            .include(Comp.PlayerInput)
-            .include(Comp.Velocity)
-            .include(Comp.Shooter)
-            .build();
-
-        this.weapons = WeaponSpecs.map(weapon => {
+        this.weapons = WeaponSpecs.map((weapon) => {
             return new WeaponPovSprite(weapon.povSpriteTexture as Texture);
         });
 
@@ -74,11 +78,9 @@ export class HudWeaponSystem extends System {
     }
 
     public update(world: World) {
-        for (let i = 0; i < this.family.entities.length; i++) {
-            const entity = this.family.entities[i];
-            const shooter = entity.getComponent(Comp.Shooter);
-            const position = entity.getComponent(Comp.Position);
-
+        this.family.entities.forEach((entity) => {
+            const shooter = entity.shooter;
+            const position = entity.position;
             const weaponSprite = this.weapons[shooter.weaponIndex];
             for (let i = 0; i < this.weapons.length; i++) {
                 this.weapons[i].visible = i === shooter.weaponIndex;
@@ -130,7 +132,7 @@ export class HudWeaponSystem extends System {
                 pos.x = ease(pos.x, frame.x, 1 - this.transition);
                 pos.y = ease(pos.y, frame.y, 1 - this.transition);
             }
-        }
+        });
     }
 
     private setLightColor(
@@ -146,13 +148,13 @@ export class HudWeaponSystem extends System {
         }
     }
 
-    private getState(entity: Entity): Animation {
-        const shooter = entity.getComponent(Comp.Shooter);
+    private getState(entity: Entity<ShooterArchetype>): Animation {
+        const shooter = entity.shooter;
         if (shooter.state === WeaponState.Swap) return Animation.Swap;
         if (shooter.state === WeaponState.Shoot) return Animation.Shoot;
         if (shooter.state === WeaponState.Reload) return Animation.Reload;
 
-        const collision = entity.getComponent(Comp.Collision);
+        const collision = entity.collision;
         if (collision.falg.y !== -1) {
             return Animation.Jump;
         }
@@ -161,7 +163,7 @@ export class HudWeaponSystem extends System {
             return Animation.Land;
         }
 
-        const velocity = entity.getComponent(Comp.Velocity);
+        const velocity = entity.velocity;
         if (Math.abs(velocity.x) > 0.01 || Math.abs(velocity.z) > 0.01) {
             return Animation.Walk;
         }
