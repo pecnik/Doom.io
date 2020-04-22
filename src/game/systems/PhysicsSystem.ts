@@ -4,6 +4,7 @@ import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { Box3, Vector2 } from "three";
 import { Level, VoxelData, VoxelType } from "../data/Level";
+import { GRAVITY } from "../data/Globals";
 
 class Archetype implements AnyComponents {
     public position = new Comp.Position();
@@ -11,7 +12,7 @@ class Archetype implements AnyComponents {
     public collision = new Comp.Collision();
 }
 
-export class CollisionSystem extends System {
+export class PhysicsSystem extends System {
     private readonly family = this.createEntityFamily({
         archetype: new Archetype(),
         onEntityAdded: ({ position, collision }) => {
@@ -20,13 +21,21 @@ export class CollisionSystem extends System {
         },
     });
 
-    public update(world: World) {
+    public update(world: World, dt: number) {
         this.family.entities.forEach((entity) => {
-            const position = entity.position;
-            const collision = entity.collision;
+            const { position, velocity, collision } = entity;
 
             const { prev, next, height } = collision;
+
+            // Apply gravity
+            velocity.y -= GRAVITY * dt;
+
+            // Apply velocity
+            prev.copy(position);
             next.copy(position);
+            next.x += velocity.x * dt;
+            next.y += velocity.y * dt;
+            next.z += velocity.z * dt;
 
             // Reset flags
             collision.falg.setScalar(0);
@@ -52,9 +61,6 @@ export class CollisionSystem extends System {
 
             // Store the new resolved position
             position.copy(next);
-
-            // Store prev position for next update
-            prev.copy(next);
         });
     }
 

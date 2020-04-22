@@ -2,7 +2,7 @@ import { System, AnyComponents } from "../ecs";
 import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { Vector2 } from "three";
-import { WALK_SPEED, RUN_SPEED, GRAVITY, JUMP_SPEED } from "../data/Globals";
+import { WALK_SPEED, RUN_SPEED, JUMP_SPEED } from "../data/Globals";
 import { lerp } from "../core/Utils";
 import { isScopeActive, isCrouched } from "../Helpers";
 
@@ -21,11 +21,10 @@ export class PlayerMoveSystem extends System {
         archetype: new Archetype(),
     });
 
-    public update(world: World, dt: number) {
+    public update(world: World) {
         this.family.entities.forEach((entity) => {
             const jump = entity.jump;
             const input = entity.input;
-            const position = entity.position;
             const rotation = entity.rotation;
             const velocity = entity.velocity;
             const collision = entity.collision;
@@ -63,14 +62,6 @@ export class PlayerMoveSystem extends System {
             const acc = isGrounded ? RUN_SPEED * 0.25 : RUN_SPEED * 0.005;
             velocity.x = lerp(velocity.x, move.x, acc);
             velocity.z = lerp(velocity.z, move.y, acc);
-
-            // Apply gravity
-            velocity.y -= GRAVITY * dt;
-
-            // Apply velocity
-            position.x += velocity.x * dt;
-            position.y += velocity.y * dt;
-            position.z += velocity.z * dt;
         });
     }
 }

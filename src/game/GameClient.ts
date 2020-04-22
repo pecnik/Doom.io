@@ -5,7 +5,7 @@ import { PlayerInputSystem } from "./systems/PlayerInputSystem";
 import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
 import { EntityFactory } from "./data/EntityFactory";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
-import { CollisionSystem } from "./systems/CollisionSystem";
+import { PhysicsSystem } from "./systems/PhysicsSystem";
 import { RenderSystem } from "./systems/RenderSystem";
 import { AudioFootstepSystem } from "./systems/AudioFootstepSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
@@ -93,7 +93,7 @@ export class GameClient implements Game {
         this.world.addSystem(new PlayerInputSystem(this.world, this.input));
         this.world.addSystem(new PlayerMoveSystem(this.world));
         this.world.addSystem(new PlayerCouchSystem(this.world));
-        this.world.addSystem(new CollisionSystem(this.world));
+        this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new GenericSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new PlayerShootSystem(this.world));
