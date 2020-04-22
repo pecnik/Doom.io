@@ -4,7 +4,6 @@ import {
     Geometry,
     MeshBasicMaterial,
     BufferGeometry,
-    Box2,
     PositionalAudio,
     Vector3,
 } from "three";
@@ -34,14 +33,6 @@ export module Comp {
 
     export class Rotation extends Vector2 {}
 
-    export class Collision {
-        public readonly prev = new Vector3();
-        public readonly next = new Vector3();
-        public readonly falg = new Vector3();
-        public radius = PLAYER_RADIUS;
-        public height = PLAYER_HEIGHT;
-    }
-
     export class PlayerInput {
         public movey = 0;
         public movex = 0;
@@ -53,6 +44,14 @@ export module Comp {
         public shoot = false;
         public scope = false;
         public reload = false;
+    }
+
+    export class Collision {
+        public readonly prev = new Vector3();
+        public readonly next = new Vector3();
+        public readonly falg = new Vector3();
+        public radius = PLAYER_RADIUS;
+        public height = PLAYER_HEIGHT;
     }
 
     export class Shooter {
