@@ -28,6 +28,10 @@ export module EntityFactory {
             position: new Comp.Position(),
             render: new Comp.Render(),
             health: new Comp.Health(),
+
+            velocity: new Comp.Velocity(),
+            rotation: new Comp.Rotation(),
+            collision: new Comp.Collision(),
         };
 
         loadRenderMesh(entity, "/assets/models/barrel.glb");
