@@ -1,6 +1,6 @@
 import { uniqueId } from "lodash";
 import { Comp } from "../ecs";
-import { loadRenderMesh, setColliderFromMesh } from "../Helpers";
+import { loadRenderMesh } from "../Helpers";
 
 export module EntityFactory {
     const nextID = () => uniqueId("e");
@@ -11,7 +11,7 @@ export module EntityFactory {
             input: new Comp.PlayerInput(),
             position: new Comp.Position(),
             velocity: new Comp.Velocity(),
-            rotation: new Comp.Rotation2D(),
+            rotation: new Comp.Rotation(),
             collision: new Comp.Collision(),
             shooter: new Comp.Shooter(),
             gunshot: new Comp.Gunshot(),
@@ -26,30 +26,11 @@ export module EntityFactory {
         const entity = {
             id: nextID(),
             position: new Comp.Position(),
-            collider: new Comp.Collider(),
             render: new Comp.Render(),
             health: new Comp.Health(),
         };
 
-        loadRenderMesh(entity, "/assets/models/barrel.glb").then(() => {
-            setColliderFromMesh(entity);
-        });
-
-        return entity;
-    }
-
-    export function Wall() {
-        const entity = {
-            id: nextID(),
-            renderdecaltag: new Comp.RenderDecalTag(),
-            position: new Comp.Position(),
-            collider: new Comp.Collider(),
-            render: new Comp.Render(),
-        };
-
-        loadRenderMesh(entity, "/assets/models/metal_box.glb").then(() => {
-            setColliderFromMesh(entity);
-        });
+        loadRenderMesh(entity, "/assets/models/barrel.glb");
 
         return entity;
     }

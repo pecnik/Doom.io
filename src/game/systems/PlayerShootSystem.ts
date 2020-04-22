@@ -20,7 +20,7 @@ class TargetArchetype implements AnyComponents {
 class ShooterArchetype implements AnyComponents {
     public input = new Comp.PlayerInput();
     public position = new Comp.Position();
-    public rotation = new Comp.Rotation2D();
+    public rotation = new Comp.Rotation();
     public shooter = new Comp.Shooter();
     public collision = new Comp.Collision();
 }
@@ -206,10 +206,7 @@ export class PlayerShootSystem extends System {
             world.particles.emit(point, face.normal, new Color(0, 0, 0));
 
             // Bullet decal
-            if (
-                rsp.entity === undefined ||
-                rsp.entity.renderdecaltag !== undefined
-            ) {
+            if (rsp.entity === undefined) {
                 world.decals.spawn(point, face.normal);
             }
 

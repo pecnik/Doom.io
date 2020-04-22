@@ -79,20 +79,6 @@ export function loadRenderMesh(
     });
 }
 
-export function setColliderFromMesh(
-    entity: Entity<{ render: Comp.Render; collider: Comp.Collider }>
-) {
-    const { render, collider } = entity;
-
-    render.geo.computeBoundingBox();
-
-    collider.min.x = render.geo.boundingBox.min.x;
-    collider.min.y = render.geo.boundingBox.min.z;
-
-    collider.max.x = render.geo.boundingBox.max.x;
-    collider.max.y = render.geo.boundingBox.max.z;
-}
-
 export module Hitscan {
     export const caster: { entity?: Entity } = {};
     export const raycaster = new Raycaster();

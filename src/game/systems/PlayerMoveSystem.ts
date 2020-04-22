@@ -12,7 +12,7 @@ class Archetype implements AnyComponents {
     public shooter = new Comp.Shooter();
     public position = new Comp.Position();
     public velocity = new Comp.Velocity();
-    public rotation = new Comp.Rotation2D();
+    public rotation = new Comp.Rotation();
     public collision = new Comp.Collision();
 }
 

@@ -14,11 +14,9 @@ import { WeaponState, WeaponAmmo, WeaponSpecs } from "../data/Weapon";
 export type AnyComponents = Partial<AllComponents>;
 
 export type AllComponents = {
-    renderdecaltag: Comp.RenderDecalTag;
     position: Comp.Position;
     velocity: Comp.Velocity;
-    rotation: Comp.Rotation2D;
-    collider: Comp.Collider;
+    rotation: Comp.Rotation;
     collision: Comp.Collision;
     input: Comp.PlayerInput;
     shooter: Comp.Shooter;
@@ -34,9 +32,7 @@ export module Comp {
 
     export class Velocity extends Vector3 {}
 
-    export class Rotation2D extends Vector2 {}
-
-    export class Collider extends Box2 {}
+    export class Rotation extends Vector2 {}
 
     export class Collision {
         public readonly prev = new Vector3();
@@ -80,8 +76,6 @@ export module Comp {
         public geo = Render.Geo;
         public mat = Render.Mat;
     }
-
-    export class RenderDecalTag {}
 
     export class Footstep {
         public audio?: PositionalAudio;

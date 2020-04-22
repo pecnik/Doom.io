@@ -12,7 +12,7 @@ export class AudioGunshotSystem extends System {
             gunshot: new Comp.Gunshot(),
             shooter: new Comp.Shooter(),
             position: new Comp.Position(),
-            rotation: new Comp.Rotation2D(),
+            rotation: new Comp.Rotation(),
             collision: new Comp.Collision(),
         },
         onEntityRemvoed: ({ gunshot }) => {

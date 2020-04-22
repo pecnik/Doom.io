@@ -8,7 +8,7 @@ class PlayerArchetype implements AnyComponents {
     public input = new Comp.PlayerInput();
     public shooter = new Comp.Shooter();
     public position = new Comp.Position();
-    public rotation = new Comp.Rotation2D();
+    public rotation = new Comp.Rotation();
     public collision = new Comp.Collision();
 }
 
