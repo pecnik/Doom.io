@@ -15,7 +15,7 @@ import { AudioListener, AudioLoader } from "three";
 import { HudDisplaySystem } from "./systems/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Weapon";
 import { Game } from "./core/Engine";
-import { loadTexture, setPosition } from "./Helpers";
+import { loadTexture } from "./Helpers";
 import { PlayerCouchSystem } from "./systems/PlayerCouchSystem";
 import { GenericSystem } from "./systems/GenericSystem";
 import { sample } from "lodash";
@@ -116,7 +116,7 @@ export class GameClient implements Game {
         entities.forEach((entity) => {
             const spawn = sample(this.world.level.spawnPoints);
             if (spawn !== undefined) {
-                setPosition(entity, spawn);
+                entity.position.copy(spawn);
                 this.world.addEntity(entity);
             }
         });

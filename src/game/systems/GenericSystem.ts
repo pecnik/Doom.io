@@ -3,7 +3,6 @@ import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { JUMP_SPEED } from "../data/Globals";
 import { sample } from "lodash";
-import { setPosition } from "../Helpers";
 
 class Archetype {
     position = new Comp.Position();
@@ -24,12 +23,11 @@ export class GenericSystem extends System {
     }
 
     private respawnSystem(entity: Entity<Archetype>, world: World) {
-        const { position, velocity } = entity;
-        if (position.y < -3) {
+        if (entity.position.y < -3) {
             const spawn = sample(world.level.spawnPoints);
             if (spawn !== undefined) {
-                setPosition(entity, spawn);
-                velocity.set(0, 0, 0);
+                entity.position.copy(spawn);
+                entity.velocity.set(0, 0, 0);
             }
         }
     }

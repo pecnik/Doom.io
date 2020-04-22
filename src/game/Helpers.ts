@@ -50,20 +50,6 @@ export function isScopeActive(
     return input.scope && weapon.scope;
 }
 
-export function setPosition(
-    entity: Entity<{
-        position: Comp.Position;
-    }>,
-    pos: Vector3
-) {
-    const { position, collision } = entity;
-    position.copy(pos);
-    if (collision !== undefined) {
-        collision.prev.copy(pos);
-        collision.next.copy(pos);
-    }
-}
-
 export function loadRenderMesh(
     entity: Entity<{
         render: Comp.Render;

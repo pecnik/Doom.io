@@ -15,10 +15,6 @@ class Archetype implements AnyComponents {
 export class PhysicsSystem extends System {
     private readonly family = this.createEntityFamily({
         archetype: new Archetype(),
-        onEntityAdded: ({ position, collision }) => {
-            collision.next.copy(position);
-            collision.prev.copy(position);
-        },
     });
 
     public update(world: World, dt: number) {
