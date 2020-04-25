@@ -206,8 +206,14 @@ export class PlayerShootSystem extends System {
             // Apply damage
             const target = rsp.entity;
             if (target !== undefined && target.health !== undefined) {
+                let damage = 25;
+                if (rsp.intersection.object.name === "__ROBOT__HEAD") {
+                    damage *= 4;
+                    console.log("> Headshot");
+                }
+
                 const health = target.health;
-                health.value -= 25;
+                health.value -= damage;
 
                 if (health.value <= 0) {
                     world.removeEntity(target.id);

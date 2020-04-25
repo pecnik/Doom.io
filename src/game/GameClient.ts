@@ -113,10 +113,8 @@ export class GameClient implements Game {
         // Entities
         const entities = [
             EntityFactory.Player(),
-            // EntityFactory.Barrel(),
-            // EntityFactory.Barrel(),
-            // EntityFactory.Barrel(),
-            // EntityFactory.Barrel(),
+            EntityFactory.Enemy(),
+            EntityFactory.Enemy(),
         ];
         entities.forEach((entity) => {
             const spawn = sample(this.world.level.spawnPoints);

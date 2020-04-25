@@ -82,7 +82,7 @@ export module EntityMesh {
             entity.render.geo = obj.geometry;
             entity.render.mat = (obj.material as MeshBasicMaterial).clone();
 
-            const mesh = new Mesh(entity.render.geo, entity.render.mat);
+            const mesh = obj.clone(true);
             entity.render.obj.add(mesh);
 
             if (entity.render.mat.map) {
