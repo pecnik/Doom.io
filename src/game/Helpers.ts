@@ -13,6 +13,7 @@ import {
     NearestFilter,
     Material,
     Vector3,
+    Scene,
 } from "three";
 import { World } from "./ecs";
 import { WeaponSpecs, WeaponState } from "./data/Weapon";
@@ -50,33 +51,38 @@ export function isScopeActive(
     return input.scope && weapon.scope;
 }
 
-export function loadRenderMesh(
-    entity: Entity<{
-        render: Comp.Render;
-    }>,
-    src: string
-) {
-    return new Promise((resolve) => {
-        new GLTFLoader().load(src, (glb) => {
-            const { render } = entity;
-            render.obj.add(glb.scene);
-            render.obj.traverse((child) => {
-                if (child instanceof Mesh) {
-                    if (child.material instanceof MeshBasicMaterial) {
-                        render.mat = child.material;
-                        render.geo = child.geometry;
-                    }
-                }
-            });
+export module EntityMesh {
+    let glbScene = new Scene();
 
-            if (render.mat.map) {
-                render.mat.map.magFilter = NearestFilter;
-                render.mat.map.minFilter = NearestFilter;
+    export type RenderArchetype = Entity<{ render: Comp.Render }>;
+
+    export function load() {
+        return Promise.all([
+            // Load geometry data
+            new Promise((resolve) => {
+                new GLTFLoader().load("/assets/mesh/mesh_list.glb", (glb) => {
+                    glbScene = glb.scene;
+                    resolve();
+                });
+            }),
+        ]);
+    }
+
+    export function set(entity: RenderArchetype, name: string) {
+        const obj = glbScene.getObjectByName(name);
+        if (obj instanceof Mesh) {
+            entity.render.geo = obj.geometry;
+            entity.render.mat = (obj.material as MeshBasicMaterial).clone();
+
+            const mesh = new Mesh(entity.render.geo, entity.render.mat);
+            entity.render.obj.add(mesh);
+
+            if (entity.render.mat.map) {
+                entity.render.mat.map.minFilter = NearestFilter;
+                entity.render.mat.map.magFilter = NearestFilter;
             }
-
-            resolve();
-        });
-    });
+        }
+    }
 }
 
 export module Hitscan {

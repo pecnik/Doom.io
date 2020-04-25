@@ -15,7 +15,7 @@ import { AudioListener, AudioLoader } from "three";
 import { HudDisplaySystem } from "./systems/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Weapon";
 import { Game } from "./core/Engine";
-import { loadTexture } from "./Helpers";
+import { loadTexture, EntityMesh } from "./Helpers";
 import { PlayerCouchSystem } from "./systems/PlayerCouchSystem";
 import { GenericSystem } from "./systems/GenericSystem";
 import { sample } from "lodash";
@@ -39,6 +39,9 @@ export class GameClient implements Game {
     public preload() {
         return Promise.all([
             this.world.decals.load(),
+
+            // Load entity mesh data
+            EntityMesh.load(),
 
             // Load level
             loadTexture("/assets/tileset.png").then((map) => {

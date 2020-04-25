@@ -1,6 +1,6 @@
 import { uniqueId } from "lodash";
 import { Comp } from "../ecs";
-import { loadRenderMesh } from "../Helpers";
+import { EntityMesh } from "../Helpers";
 
 export module EntityFactory {
     const nextID = () => uniqueId("e");
@@ -34,7 +34,7 @@ export module EntityFactory {
             collision: new Comp.Collision(),
         };
 
-        loadRenderMesh(entity, "/assets/models/barrel.glb");
+        EntityMesh.set(entity, "__BARREL__");
 
         return entity;
     }
