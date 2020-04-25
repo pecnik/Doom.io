@@ -4,7 +4,7 @@ import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { Input, KeyCode, MouseBtn } from "../core/Input";
 import { modulo } from "../core/Utils";
-import { WeaponSpecs } from "../data/Weapon";
+import { WeaponSpecs } from "../weapons/Weapon";
 
 class Archetype implements AnyComponents {
     public input = new Comp.PlayerInput();

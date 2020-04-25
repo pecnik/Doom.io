@@ -12,7 +12,7 @@ import {
     Group,
 } from "three";
 import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
-import { WeaponSpecs, WeaponState } from "../data/Weapon";
+import { WeaponSpecs, WeaponState } from "../weapons/Weapon";
 import { Hud } from "../data/Hud";
 import { isScopeActive } from "../Helpers";
 

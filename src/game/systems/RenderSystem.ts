@@ -20,8 +20,12 @@ export class RenderSystem extends System {
     });
 
     public update(world: World) {
-        this.family.entities.forEach(({ render, position }) => {
+        this.family.entities.forEach(({ render, position, rotation }) => {
             render.obj.position.copy(position);
+
+            if (rotation !== undefined) {
+                render.obj.rotation.set(rotation.x, rotation.y, 0, "YXZ");
+            }
 
             const light = world.level.getVoxelLightAt(position);
             if (!render.mat.color.equals(light)) {

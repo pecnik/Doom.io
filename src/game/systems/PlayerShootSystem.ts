@@ -11,7 +11,7 @@ import {
     WeaponState,
     WeaponAmmo,
     WeaponSpec,
-} from "../data/Weapon";
+} from "../weapons/Weapon";
 import { PlayerArchetype } from "../ecs/Archetypes";
 
 class TargetArchetype implements AnyComponents {

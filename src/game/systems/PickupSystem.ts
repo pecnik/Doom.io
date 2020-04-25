@@ -21,23 +21,26 @@ export class PickupSystem extends System {
 
         // Pickup items ...
         this.playerFamily.entities.forEach((player) => {
-            const ammo = getWeaponAmmo(player);
-            const spec = getWeaponSpec(player);
-            if (ammo.reserved < spec.maxReservedAmmo) {
-                this.pickupFamily.entities.forEach((pickup) => {
-                    const p1 = player.position;
-                    const p2 = pickup.position;
-                    const dist = p1.distanceToSquared(p2);
-                    if (dist < 1 ** 2) {
-                        this.engine.removeEntity(pickup.id);
-                        ammo.reserved += 10;
-                        ammo.reserved = Math.min(
-                            ammo.reserved,
-                            spec.maxReservedAmmo
-                        );
-                    }
-                });
-            }
+            this.pickupFamily.entities.forEach((pickup) => {
+                const ammo = getWeaponAmmo(player, pickup.pickup.weaponIndex);
+                const spec = getWeaponSpec(player, pickup.pickup.weaponIndex);
+
+                if (ammo.reserved >= spec.maxReservedAmmo) {
+                    return;
+                }
+
+                const p1 = player.position;
+                const p2 = pickup.position;
+                const dist = p1.distanceToSquared(p2);
+                if (dist < 1 ** 2) {
+                    this.engine.removeEntity(pickup.id);
+                    ammo.reserved += 10;
+                    ammo.reserved = Math.min(
+                        ammo.reserved,
+                        spec.maxReservedAmmo
+                    );
+                }
+            });
         });
     }
 
@@ -47,11 +50,18 @@ export class PickupSystem extends System {
 
         for (const [, pickup] of this.pickupFamily.entities) {
             const dist = pickup.position.distanceToSquared(spawn);
-            if (dist < 2) return;
+            if (dist < 4) return;
+        }
+
+        for (const [, pickup] of this.playerFamily.entities) {
+            const dist = pickup.position.distanceToSquared(spawn);
+            if (dist < 4) return;
         }
 
         const pickup = EntityFactory.Pikcup();
         pickup.position.copy(spawn);
+        pickup.position.y -= 0.5;
+        pickup.rotation.y = Math.random() * Math.PI;
         this.engine.addEntity(pickup);
     }
 }

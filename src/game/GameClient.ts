@@ -13,7 +13,7 @@ import { AudioGunshotSystem } from "./systems/AudioGunshotSystem";
 import { HudWeaponSystem } from "./systems/HudWeaponSystem";
 import { AudioListener, AudioLoader } from "three";
 import { HudDisplaySystem } from "./systems/HudDisplaySystem";
-import { WeaponSpecs } from "./data/Weapon";
+import { WeaponSpecs } from "./weapons/Weapon";
 import { Game } from "./core/Engine";
 import { loadTexture, EntityMesh } from "./Helpers";
 import { PlayerCouchSystem } from "./systems/PlayerCouchSystem";

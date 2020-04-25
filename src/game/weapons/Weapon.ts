@@ -5,7 +5,7 @@ export enum WeaponState {
     Swap,
     Shoot,
     Cooldown,
-    Reload
+    Reload,
 }
 
 export interface WeaponAmmo {
@@ -23,6 +23,8 @@ export interface WeaponSpec {
     readonly knockback: number;
     readonly bulletsPerShot: number;
 
+    readonly ammoPackName: string;
+
     readonly povSpriteSrc: string;
     povSpriteTexture?: Texture;
 
@@ -36,38 +38,41 @@ export const WeaponSpecs: Readonly<WeaponSpec[]> = Object.freeze([
         spread: 0.1,
         povSpriteSrc: "/assets/sprites/pov-gun.png",
         fireSoundSrc: "/assets/sounds/fire-gun.wav",
+        ammoPackName: "__AMMO_GUN__",
         firerate: 1 / 3,
         reloadSpeed: 2,
 
         knockback: 0.125,
         maxLoadedAmmo: 8,
         maxReservedAmmo: 32,
-        bulletsPerShot: 1
+        bulletsPerShot: 1,
     },
     {
         scope: false,
         spread: 0.25,
         povSpriteSrc: "/assets/sprites/pov-shotgun.png",
         fireSoundSrc: "/assets/sounds/fire-shotgun.wav",
+        ammoPackName: "__AMMO_SHOTGUN__",
         firerate: 0.75,
         reloadSpeed: 2,
 
         knockback: 0.3,
         maxLoadedAmmo: 2,
         maxReservedAmmo: 32,
-        bulletsPerShot: 4
+        bulletsPerShot: 4,
     },
     {
         scope: false,
         spread: 0.125,
         povSpriteSrc: "/assets/sprites/pov-machine-gun.png",
         fireSoundSrc: "/assets/sounds/fire-machine-gun.wav",
+        ammoPackName: "__AMMO_MACHINEGUN__",
         firerate: 1 / 16,
         reloadSpeed: 3,
 
         maxLoadedAmmo: 20,
         maxReservedAmmo: 60,
         knockback: 0.125 / 2,
-        bulletsPerShot: 1
-    }
+        bulletsPerShot: 1,
+    },
 ]);

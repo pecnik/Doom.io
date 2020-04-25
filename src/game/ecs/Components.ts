@@ -8,7 +8,7 @@ import {
     Vector3,
 } from "three";
 import { PLAYER_RADIUS, PLAYER_HEIGHT } from "../data/Globals";
-import { WeaponState, WeaponAmmo, WeaponSpecs } from "../data/Weapon";
+import { WeaponState, WeaponAmmo, WeaponSpecs } from "../weapons/Weapon";
 
 export type AnyComponents = Partial<AllComponents>;
 
@@ -64,7 +64,7 @@ export module Comp {
         public ammo: WeaponAmmo[] = WeaponSpecs.map((spec) => {
             return {
                 loaded: spec.maxLoadedAmmo,
-                reserved: spec.maxReservedAmmo,
+                reserved: 0,
             };
         });
     }
@@ -102,6 +102,6 @@ export module Comp {
 
     export class Pickup {
         public type = PickupType.Ammo;
-        public value = 0;
+        public weaponIndex = 0;
     }
 }

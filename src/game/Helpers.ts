@@ -16,7 +16,7 @@ import {
     Scene,
 } from "three";
 import { World } from "./ecs";
-import { WeaponSpecs, WeaponState } from "./data/Weapon";
+import { WeaponSpecs, WeaponState } from "./weapons/Weapon";
 import { PLAYER_HEIGHT } from "./data/Globals";
 
 export function getHeadPosition(
@@ -30,12 +30,18 @@ export function getHeadPosition(
     return head;
 }
 
-export function getWeaponAmmo(entity: Entity<{ shooter: Comp.Shooter }>) {
-    return entity.shooter.ammo[entity.shooter.weaponIndex];
+export function getWeaponAmmo(
+    entity: Entity<{ shooter: Comp.Shooter }>,
+    weaponIndex = entity.shooter.weaponIndex
+) {
+    return entity.shooter.ammo[weaponIndex];
 }
 
-export function getWeaponSpec(entity: Entity<{ shooter: Comp.Shooter }>) {
-    return WeaponSpecs[entity.shooter.weaponIndex];
+export function getWeaponSpec(
+    entity: Entity<{ shooter: Comp.Shooter }>,
+    weaponIndex = entity.shooter.weaponIndex
+) {
+    return WeaponSpecs[weaponIndex];
 }
 
 export function isCrouched(

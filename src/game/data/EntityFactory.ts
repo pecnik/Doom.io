@@ -1,10 +1,11 @@
-import { uniqueId } from "lodash";
+import { uniqueId, random } from "lodash";
 import { EntityMesh } from "../Helpers";
 import {
     PlayerArchetype,
     PickupArchetype,
     EnemyArchetype,
 } from "../ecs/Archetypes";
+import { WeaponSpecs } from "../weapons/Weapon";
 
 export module EntityFactory {
     const nextID = () => uniqueId("e");
@@ -19,9 +20,11 @@ export module EntityFactory {
         return enemy;
     }
 
-    export function Pikcup() {
+    export function Pikcup(weaponIndex = random(0, WeaponSpecs.length - 1)) {
+        const { ammoPackName } = WeaponSpecs[weaponIndex];
         const pickup = { id: nextID(), ...new PickupArchetype() };
-        EntityMesh.set(pickup, "__HP_PACK__");
+        pickup.pickup.weaponIndex = weaponIndex;
+        EntityMesh.set(pickup, ammoPackName);
         return pickup;
     }
 }
