@@ -24,6 +24,7 @@ export type AllComponents = {
     gunshot: Comp.Gunshot;
     health: Comp.Health;
     jump: Comp.Jump;
+    pickup: Comp.Pickup;
 };
 
 export module Comp {
@@ -92,5 +93,15 @@ export module Comp {
     export class Jump {
         public triggerTime = 0;
         public coyoteTime = 0;
+    }
+
+    export enum PickupType {
+        Ammo,
+        Health,
+    }
+
+    export class Pickup {
+        public type = PickupType.Ammo;
+        public value = 0;
     }
 }

@@ -20,6 +20,7 @@ import { PlayerCouchSystem } from "./systems/PlayerCouchSystem";
 import { GenericSystem } from "./systems/GenericSystem";
 import { sample } from "lodash";
 import Stats from "stats.js";
+import { PickupSystem } from "./systems/PickupSystem";
 
 export class GameClient implements Game {
     // private readonly socket: SocketIOClient.Socket;
@@ -97,6 +98,7 @@ export class GameClient implements Game {
         this.world.addSystem(new PlayerMoveSystem(this.world));
         this.world.addSystem(new PlayerCouchSystem(this.world));
         this.world.addSystem(new PhysicsSystem(this.world));
+        this.world.addSystem(new PickupSystem(this.world));
         this.world.addSystem(new GenericSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new PlayerShootSystem(this.world));
@@ -111,10 +113,10 @@ export class GameClient implements Game {
         // Entities
         const entities = [
             EntityFactory.Player(),
-            EntityFactory.Barrel(),
-            EntityFactory.Barrel(),
-            EntityFactory.Barrel(),
-            EntityFactory.Barrel(),
+            // EntityFactory.Barrel(),
+            // EntityFactory.Barrel(),
+            // EntityFactory.Barrel(),
+            // EntityFactory.Barrel(),
         ];
         entities.forEach((entity) => {
             const spawn = sample(this.world.level.spawnPoints);

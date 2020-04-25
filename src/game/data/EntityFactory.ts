@@ -22,6 +22,19 @@ export module EntityFactory {
         return entity;
     }
 
+    export function Pikcup() {
+        const pickup = {
+            id: nextID(),
+            position: new Comp.Position(),
+            pickup: new Comp.Pickup(),
+            render: new Comp.Render(),
+        };
+
+        EntityMesh.set(pickup, "__BARREL__");
+
+        return pickup;
+    }
+
     export function Barrel() {
         const entity = {
             id: nextID(),

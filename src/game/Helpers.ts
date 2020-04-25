@@ -30,6 +30,14 @@ export function getHeadPosition(
     return head;
 }
 
+export function getWeaponAmmo(entity: Entity<{ shooter: Comp.Shooter }>) {
+    return entity.shooter.ammo[entity.shooter.weaponIndex];
+}
+
+export function getWeaponSpec(entity: Entity<{ shooter: Comp.Shooter }>) {
+    return WeaponSpecs[entity.shooter.weaponIndex];
+}
+
 export function isCrouched(
     entity: Entity<{ collision: Comp.Collision }>
 ): boolean {
