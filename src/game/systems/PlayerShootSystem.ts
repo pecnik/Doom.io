@@ -12,17 +12,10 @@ import {
     WeaponAmmo,
     WeaponSpec,
 } from "../data/Weapon";
+import { PlayerArchetype } from "../ecs/Archetypes";
 
 class TargetArchetype implements AnyComponents {
     public render = new Comp.Render();
-}
-
-class ShooterArchetype implements AnyComponents {
-    public input = new Comp.PlayerInput();
-    public position = new Comp.Position();
-    public rotation = new Comp.Rotation();
-    public shooter = new Comp.Shooter();
-    public collision = new Comp.Collision();
 }
 
 export class PlayerShootSystem extends System {
@@ -31,12 +24,12 @@ export class PlayerShootSystem extends System {
     });
 
     private readonly shooters = this.createEntityFamily({
-        archetype: new ShooterArchetype(),
+        archetype: new PlayerArchetype(),
     });
 
     private transition(
         state: WeaponState,
-        entity: Entity<ShooterArchetype>,
+        entity: Entity<PlayerArchetype>,
         world: World
     ) {
         const { input, shooter } = entity;
@@ -166,7 +159,7 @@ export class PlayerShootSystem extends System {
         return input.reload || ammo.loaded < 1;
     }
 
-    private fireBullets(world: World, entity: Entity<ShooterArchetype>) {
+    private fireBullets(world: World, entity: Entity<PlayerArchetype>) {
         const position = getHeadPosition(entity);
         const rotation = entity.rotation;
         const shooter = entity.shooter;

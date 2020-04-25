@@ -1,3 +1,4 @@
 import { AnyComponents } from "./Components";
 
-export type Entity<T = AnyComponents> = { id: string } & T & AnyComponents;
+export type Entity<T = AnyComponents> = { readonly id: string } & T &
+    AnyComponents;

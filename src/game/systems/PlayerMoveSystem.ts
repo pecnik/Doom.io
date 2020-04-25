@@ -1,24 +1,14 @@
-import { System, AnyComponents } from "../ecs";
+import { System } from "../ecs";
 import { World } from "../ecs";
-import { Comp } from "../ecs";
 import { Vector2 } from "three";
 import { WALK_SPEED, RUN_SPEED, JUMP_SPEED } from "../data/Globals";
 import { lerp } from "../core/Utils";
 import { isScopeActive, isCrouched } from "../Helpers";
-
-class Archetype implements AnyComponents {
-    public jump = new Comp.Jump();
-    public input = new Comp.PlayerInput();
-    public shooter = new Comp.Shooter();
-    public position = new Comp.Position();
-    public velocity = new Comp.Velocity();
-    public rotation = new Comp.Rotation();
-    public collision = new Comp.Collision();
-}
+import { PlayerArchetype } from "../ecs/Archetypes";
 
 export class PlayerMoveSystem extends System {
     private readonly family = this.createEntityFamily({
-        archetype: new Archetype(),
+        archetype: new PlayerArchetype(),
     });
 
     public update(world: World) {

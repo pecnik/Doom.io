@@ -1,19 +1,8 @@
 import { System } from "../ecs";
-import { Comp } from "../ecs";
 import { getWeaponAmmo, getWeaponSpec } from "../Helpers";
 import { sample } from "lodash";
 import { EntityFactory } from "../data/EntityFactory";
-
-class PickupArchetype {
-    position = new Comp.Position();
-    pickup = new Comp.Pickup();
-}
-
-class PlayerArchetype {
-    input = new Comp.PlayerInput();
-    position = new Comp.Position();
-    shooter = new Comp.Shooter();
-}
+import { PickupArchetype, PlayerArchetype } from "../ecs/Archetypes";
 
 export class PickupSystem extends System {
     private readonly pickupFamily = this.createEntityFamily({
