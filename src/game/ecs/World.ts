@@ -7,11 +7,11 @@ import { Particles } from "../data/Particles";
 
 export class World {
     private readonly systems = new Array<System>();
-    private readonly entities = new Map<string, Entity>();
 
     public readonly onEntityAdded = new Array<(e: Entity) => void>();
     public readonly onEntityRemvoed = new Array<(e: Entity) => void>();
 
+    public readonly entities = new Map<string, Entity>();
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
     public readonly level = new Level();

@@ -20,11 +20,23 @@ export class RenderSystem extends System {
     });
 
     public update(world: World) {
-        this.family.entities.forEach(({ render, position, rotation }) => {
+        this.family.entities.forEach((entity) => {
+            const { render, position, rotation } = entity;
+
             render.obj.position.copy(position);
 
             if (rotation !== undefined) {
-                render.obj.rotation.set(rotation.x, rotation.y, 0, "YXZ");
+                if (entity.playerTag === true) {
+                    const body = render.obj;
+                    body.rotation.y = rotation.y;
+
+                    const head = render.obj.getObjectByName("__ROBOT__HEAD");
+                    if (head !== undefined) {
+                        head.rotation.x = rotation.x;
+                    }
+                } else {
+                    render.obj.rotation.set(rotation.x, rotation.y, 0, "YXZ");
+                }
             }
 
             const light = world.level.getVoxelLightAt(position);

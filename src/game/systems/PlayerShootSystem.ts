@@ -1,7 +1,12 @@
 import { System, Entity, AnyComponents } from "../ecs";
 import { World } from "../ecs";
 import { Comp } from "../ecs";
-import { Hitscan, isScopeActive, getHeadPosition } from "../Helpers";
+import {
+    Hitscan,
+    isScopeActive,
+    getHeadPosition,
+    getWeaponSpec,
+} from "../Helpers";
 import { Color } from "three";
 import { random } from "lodash";
 import { modulo } from "../core/Utils";
@@ -13,6 +18,7 @@ import {
     WeaponSpec,
 } from "../weapons/Weapon";
 import { PlayerArchetype } from "../ecs/Archetypes";
+import { Netcode } from "../data/Netcode";
 
 class TargetArchetype implements AnyComponents {
     public render = new Comp.Render();
@@ -23,7 +29,7 @@ export class PlayerShootSystem extends System {
         archetype: new TargetArchetype(),
     });
 
-    private readonly shooters = this.createEntityFamily({
+    private readonly players = this.createEntityFamily({
         archetype: new PlayerArchetype(),
     });
 
@@ -74,7 +80,7 @@ export class PlayerShootSystem extends System {
     }
 
     public update(world: World) {
-        this.shooters.entities.forEach((entity) => {
+        this.players.entities.forEach((entity) => {
             const input = entity.input;
             const shooter = entity.shooter;
             const weapon = WeaponSpecs[shooter.weaponIndex];
@@ -159,24 +165,23 @@ export class PlayerShootSystem extends System {
         return input.reload || ammo.loaded < 1;
     }
 
-    private fireBullets(world: World, entity: Entity<PlayerArchetype>) {
-        const position = getHeadPosition(entity);
-        const rotation = entity.rotation;
-        const shooter = entity.shooter;
-        const weapon = WeaponSpecs[shooter.weaponIndex];
+    private fireBullets(world: World, player: Entity<PlayerArchetype>) {
+        const position = getHeadPosition(player);
+        const rotation = player.rotation;
+        const weaponSpec = getWeaponSpec(player);
 
         // Init hitscan
-        Hitscan.caster.entity = entity;
+        Hitscan.caster.entity = player;
         Hitscan.camera.position.copy(position);
         Hitscan.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
         Hitscan.camera.updateWorldMatrix(false, false);
 
         // Get spread
-        const steady = isScopeActive(entity) ? 0.25 : 1;
-        const spread = weapon.spread * steady;
+        const steady = isScopeActive(player) ? 0.25 : 1;
+        const spread = weaponSpec.spread * steady;
 
         // Fire off all bullets
-        for (let j = 0; j < weapon.bulletsPerShot; j++) {
+        for (let j = 0; j < weaponSpec.bulletsPerShot; j++) {
             Hitscan.origin.set(
                 random(-spread, spread, true),
                 random(-spread, spread, true)
@@ -206,18 +211,13 @@ export class PlayerShootSystem extends System {
             // Apply damage
             const target = rsp.entity;
             if (target !== undefined && target.health !== undefined) {
-                let damage = 25;
-                if (rsp.intersection.object.name === "__ROBOT__HEAD") {
-                    damage *= 4;
-                    console.log("> Headshot");
-                }
-
-                const health = target.health;
-                health.value -= damage;
-
-                if (health.value <= 0) {
-                    world.removeEntity(target.id);
-                }
+                // TODO - if multiple bullets, bundle up into one
+                const hitEvent = new Netcode.HitEntityEvent();
+                hitEvent.attackerId = player.id;
+                hitEvent.targetId = target.id;
+                hitEvent.weaponIindex = player.shooter.weaponIndex;
+                hitEvent.damage = weaponSpec.bulletDamage;
+                player.eventsBuffer.push(hitEvent);
             }
         }
     }

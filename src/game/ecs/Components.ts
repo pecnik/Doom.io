@@ -9,10 +9,15 @@ import {
 } from "three";
 import { PLAYER_RADIUS, PLAYER_HEIGHT } from "../data/Globals";
 import { WeaponState, WeaponAmmo, WeaponSpecs } from "../weapons/Weapon";
+import { Netcode } from "../data/Netcode";
 
 export type AnyComponents = Partial<AllComponents>;
 
 export type AllComponents = {
+    playerTag: boolean;
+    localPlayerTag: boolean;
+    enemyPlayerTag: boolean;
+    eventsBuffer: Netcode.Event[];
     position: Comp.Position;
     velocity: Comp.Velocity;
     rotation: Comp.Rotation;

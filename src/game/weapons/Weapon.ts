@@ -14,6 +14,7 @@ export interface WeaponAmmo {
 }
 
 export interface WeaponSpec {
+    readonly name: string;
     readonly scope: boolean;
     readonly spread: number;
     readonly firerate: number;
@@ -22,6 +23,7 @@ export interface WeaponSpec {
     readonly maxReservedAmmo: number;
     readonly knockback: number;
     readonly bulletsPerShot: number;
+    readonly bulletDamage: number;
 
     readonly ammoPackName: string;
 
@@ -34,6 +36,7 @@ export interface WeaponSpec {
 
 export const WeaponSpecs: Readonly<WeaponSpec[]> = Object.freeze([
     {
+        name: "Hand gun",
         scope: true,
         spread: 0.1,
         povSpriteSrc: "/assets/sprites/pov-gun.png",
@@ -46,8 +49,10 @@ export const WeaponSpecs: Readonly<WeaponSpec[]> = Object.freeze([
         maxLoadedAmmo: 8,
         maxReservedAmmo: 32,
         bulletsPerShot: 1,
+        bulletDamage: 18,
     },
     {
+        name: "Shotgun",
         scope: false,
         spread: 0.25,
         povSpriteSrc: "/assets/sprites/pov-shotgun.png",
@@ -60,8 +65,10 @@ export const WeaponSpecs: Readonly<WeaponSpec[]> = Object.freeze([
         maxLoadedAmmo: 2,
         maxReservedAmmo: 32,
         bulletsPerShot: 4,
+        bulletDamage: 25,
     },
     {
+        name: "Machinegun",
         scope: false,
         spread: 0.125,
         povSpriteSrc: "/assets/sprites/pov-machine-gun.png",
@@ -74,5 +81,6 @@ export const WeaponSpecs: Readonly<WeaponSpec[]> = Object.freeze([
         maxReservedAmmo: 60,
         knockback: 0.125 / 2,
         bulletsPerShot: 1,
+        bulletDamage: 20,
     },
 ]);

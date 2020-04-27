@@ -10,12 +10,12 @@ import { WeaponSpecs } from "../weapons/Weapon";
 export module EntityFactory {
     const nextID = () => uniqueId("e");
 
-    export function Player() {
-        return { id: nextID(), ...new PlayerArchetype() };
+    export function Player(id = nextID()) {
+        return { id, ...new PlayerArchetype() };
     }
 
-    export function Enemy() {
-        const enemy = { id: nextID(), ...new EnemyArchetype() };
+    export function Enemy(id = nextID()) {
+        const enemy = { id, ...new EnemyArchetype() };
         EntityMesh.set(enemy, "__ROBOT__");
         return enemy;
     }

@@ -64,7 +64,10 @@ export class HudWeaponSystem extends System {
         super(world);
 
         this.weapons = WeaponSpecs.map((weapon) => {
-            return new WeaponPovSprite(weapon.povSpriteTexture as Texture);
+            const map = weapon.povSpriteTexture as Texture;
+            const sprite = new WeaponPovSprite(map);
+            sprite.visible = false;
+            return sprite;
         });
 
         const group = new Group();

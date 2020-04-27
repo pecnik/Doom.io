@@ -1,6 +1,9 @@
 import { Comp, AnyComponents } from "./Components";
 
 export class PlayerArchetype implements AnyComponents {
+    public playerTag = true;
+    public localPlayerTag = true;
+    public eventsBuffer = [];
     public input = new Comp.PlayerInput();
     public position = new Comp.Position();
     public velocity = new Comp.Velocity();
@@ -14,6 +17,8 @@ export class PlayerArchetype implements AnyComponents {
 }
 
 export class EnemyArchetype implements AnyComponents {
+    public playerTag = true;
+    public enemyPlayerTag = true;
     public position = new Comp.Position();
     public velocity = new Comp.Velocity();
     public rotation = new Comp.Rotation();
