@@ -1,6 +1,6 @@
 import SocketIOClient from "socket.io-client";
 import { World, System } from "../ecs";
-import { Netcode } from "../data/Netcode";
+import { Netcode } from "../Netcode";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { isEqual } from "lodash";
 

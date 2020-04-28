@@ -1,7 +1,7 @@
 import { System, Comp } from "../../ecs";
 import { GameServer } from "../../GameServer";
 import { PlayerArchetype, AvatarArchetype } from "../../ecs/Archetypes";
-import { Netcode } from "../../data/Netcode";
+import { Netcode } from "../../Netcode";
 import { getPlayerAvatar } from "../../Helpers";
 
 export class ClientConnectionSystem extends System {

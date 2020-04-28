@@ -1,7 +1,7 @@
 import { System } from "../../ecs";
 import { GameServer } from "../../GameServer";
 import { PlayerArchetype, AvatarArchetype } from "../../ecs/Archetypes";
-import { Netcode } from "../../data/Netcode";
+import { Netcode } from "../../Netcode";
 import { sample } from "lodash";
 import { getPlayerAvatar } from "../../Helpers";
 

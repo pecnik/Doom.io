@@ -1,6 +1,6 @@
-import { World, Entity, Comp } from "../ecs";
-import { EntityFactory } from "./EntityFactory";
-import { PlayerArchetype } from "../ecs/Archetypes";
+import { World, Entity, Comp } from "./ecs";
+import { EntityFactory } from "./data/EntityFactory";
+import { PlayerArchetype } from "./ecs/Archetypes";
 import { Vector3 } from "three";
 
 export module Netcode {

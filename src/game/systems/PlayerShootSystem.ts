@@ -18,7 +18,7 @@ import {
     WeaponSpec,
 } from "../weapons/Weapon";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
-import { Netcode } from "../data/Netcode";
+import { Netcode } from "../Netcode";
 
 class TargetArchetype implements AnyComponents {
     public render = new Comp.Render();

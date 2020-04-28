@@ -9,7 +9,7 @@ import {
 } from "three";
 import { PLAYER_RADIUS, PLAYER_HEIGHT } from "../data/Globals";
 import { WeaponState, WeaponAmmo, WeaponSpecs } from "../weapons/Weapon";
-import { Netcode } from "../data/Netcode";
+import { Netcode } from "../Netcode";
 
 export type AnyComponents = Partial<AllComponents>;
 

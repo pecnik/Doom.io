@@ -3,7 +3,7 @@ import SocketIO from "socket.io";
 import { uniqueId } from "lodash";
 import { Clock } from "three";
 import { World } from "./ecs";
-import { Netcode } from "./data/Netcode";
+import { Netcode } from "./Netcode";
 import { ClientConnectionSystem } from "./systems/server/ClientConnectionSystem";
 import { AvatarSpawnSystem } from "./systems/server/AvatarSpawnSystem";
 
