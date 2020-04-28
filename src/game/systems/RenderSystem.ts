@@ -26,7 +26,7 @@ export class RenderSystem extends System {
             render.obj.position.copy(position);
 
             if (rotation !== undefined) {
-                if (entity.playerTag === true) {
+                if (entity.avatarTag === true) {
                     const body = render.obj;
                     body.rotation.y = rotation.y;
 

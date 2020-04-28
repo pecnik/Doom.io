@@ -17,7 +17,7 @@ import {
     WeaponAmmo,
     WeaponSpec,
 } from "../weapons/Weapon";
-import { PlayerArchetype } from "../ecs/Archetypes";
+import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { Netcode } from "../data/Netcode";
 
 class TargetArchetype implements AnyComponents {
@@ -30,12 +30,12 @@ export class PlayerShootSystem extends System {
     });
 
     private readonly players = this.createEntityFamily({
-        archetype: new PlayerArchetype(),
+        archetype: new LocalAvatarArchetype(),
     });
 
     private transition(
         state: WeaponState,
-        entity: Entity<PlayerArchetype>,
+        entity: Entity<LocalAvatarArchetype>,
         world: World
     ) {
         const { input, shooter } = entity;
@@ -158,14 +158,14 @@ export class PlayerShootSystem extends System {
     private getReload(
         ammo: WeaponAmmo,
         weapon: WeaponSpec,
-        input: Comp.PlayerInput
+        input: Comp.Input
     ) {
         if (ammo.loaded >= weapon.maxLoadedAmmo) return false;
         if (ammo.reserved < 1) return false;
         return input.reload || ammo.loaded < 1;
     }
 
-    private fireBullets(world: World, player: Entity<PlayerArchetype>) {
+    private fireBullets(world: World, player: Entity<LocalAvatarArchetype>) {
         const position = getHeadPosition(player);
         const rotation = player.rotation;
         const weaponSpec = getWeaponSpec(player);
@@ -212,7 +212,7 @@ export class PlayerShootSystem extends System {
             const target = rsp.entity;
             if (target !== undefined && target.health !== undefined) {
                 // TODO - if multiple bullets, bundle up into one
-                const hitEvent = new Netcode.HitEntityEvent();
+                const hitEvent = new Netcode.HitEntity();
                 hitEvent.attackerId = player.id;
                 hitEvent.targetId = target.id;
                 hitEvent.weaponIindex = player.shooter.weaponIndex;

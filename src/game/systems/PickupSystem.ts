@@ -2,7 +2,7 @@ import { System } from "../ecs";
 import { getWeaponAmmo, getWeaponSpec } from "../Helpers";
 import { sample } from "lodash";
 import { EntityFactory } from "../data/EntityFactory";
-import { PickupArchetype, PlayerArchetype } from "../ecs/Archetypes";
+import { PickupArchetype, LocalAvatarArchetype } from "../ecs/Archetypes";
 
 export class PickupSystem extends System {
     private readonly pickupFamily = this.createEntityFamily({
@@ -10,7 +10,7 @@ export class PickupSystem extends System {
     });
 
     private readonly playerFamily = this.createEntityFamily({
-        archetype: new PlayerArchetype(),
+        archetype: new LocalAvatarArchetype(),
     });
 
     public update() {

@@ -1,43 +1,83 @@
-import { World, Entity } from "../ecs";
+import { World, Entity, Comp } from "../ecs";
 import { EntityFactory } from "./EntityFactory";
+import { PlayerArchetype } from "../ecs/Archetypes";
+import { Vector3 } from "three";
 
 export module Netcode {
     export type Ctx = { emit: (type: string, data: any) => void };
 
     export type Event =
-        | PlayerSpawnEvent
-        | EnemySpawnEvent
-        | SyncPlayerTranslationEvent
-        | SyncPlayerStatsEvent
-        | HitEntityEvent
+        | CreatePlayer
+        | DeletePlayer
+        | SpawnPlayerAvatar
+        | SpawnEnemyAvatar
+        | SyncAvatar
+        | SyncAvatarStats
+        | HitEntity
         | KillEntityEvent;
 
     export enum EventType {
-        EnemySpawn,
-        PlayerSpawn,
-        SyncPlayerTranslationEvent,
-        SyncPlayerStatsEvent,
+        CreatePlayer,
+        DeletePlayer,
+        SpawnEnemyAvatar,
+        SpawnPlayerAvatar,
+        SyncAvatar,
+        SyncAvatarStats,
         HitEntity,
         KillEntity,
     }
 
-    export class PlayerSpawnEvent {
-        public readonly type = EventType.PlayerSpawn;
-        public id = "";
-        public x = 0;
-        public y = 0;
-        public z = 0;
+    export class CreatePlayer {
+        public readonly type = EventType.CreatePlayer;
+        public readonly playerData: Comp.PlayerData;
+        public constructor(data: Comp.PlayerData) {
+            this.playerData = data;
+        }
     }
 
-    export class EnemySpawnEvent {
-        public readonly type = EventType.EnemySpawn;
-        public id = "";
-        public x = 0;
-        public y = 0;
-        public z = 0;
+    export class DeletePlayer {
+        public readonly type = EventType.DeletePlayer;
+        public readonly playerId: string;
+        public constructor(playerId: string) {
+            this.playerId = playerId;
+        }
     }
 
-    export class HitEntityEvent {
+    export class SpawnPlayerAvatar {
+        public readonly type = EventType.SpawnPlayerAvatar;
+        public readonly avatarId: string;
+        public readonly playerId: string;
+        public readonly x: number;
+        public readonly y: number;
+        public readonly z: number;
+
+        public constructor(player: Entity<PlayerArchetype>, spawn: Vector3) {
+            this.playerId = player.id;
+            this.avatarId = `avt-${player.id}`;
+            this.x = spawn.x;
+            this.y = spawn.y;
+            this.z = spawn.z;
+        }
+    }
+
+    export class SpawnEnemyAvatar {
+        public readonly type = EventType.SpawnEnemyAvatar;
+        public readonly avatarId: string;
+        public readonly playerId: string;
+        public readonly x: number;
+        public readonly y: number;
+        public readonly z: number;
+
+        public constructor(player: Entity<PlayerArchetype>, spawn: Vector3) {
+            this.playerId = player.id;
+            this.avatarId = `avt-${player.id}`;
+            this.x = spawn.x;
+            this.y = spawn.y;
+            this.z = spawn.z;
+        }
+    }
+
+    export class HitEntity {
         public readonly type = EventType.HitEntity;
         public attackerId = "";
         public targetId = "";
@@ -46,8 +86,8 @@ export module Netcode {
         public headshot = false;
     }
 
-    export class SyncPlayerStatsEvent {
-        public readonly type = EventType.SyncPlayerStatsEvent;
+    export class SyncAvatarStats {
+        public readonly type = EventType.SyncAvatarStats;
         public id = "";
         public hp = 0;
         public constructor(entity: Entity) {
@@ -56,8 +96,8 @@ export module Netcode {
         }
     }
 
-    export class SyncPlayerTranslationEvent {
-        public readonly type = EventType.SyncPlayerTranslationEvent;
+    export class SyncAvatar {
+        public readonly type = EventType.SyncAvatar;
         public id = "";
 
         public px = 0;
@@ -82,25 +122,49 @@ export module Netcode {
 
     export function dispatch(world: World, event: Event) {
         switch (event.type) {
-            case EventType.PlayerSpawn: {
-                const { id, x, y, z } = event;
-                const player = EntityFactory.Player(id);
-                player.position.set(x, y, z);
+            case EventType.CreatePlayer: {
+                const { playerData } = event;
+                const { id } = playerData;
+                const player = { ...new PlayerArchetype(), playerData, id };
                 world.addEntity(player);
-                console.log(`> Dispatch::PlayerSpawn`);
+                console.log(`> Dispatch::CreatePlayer(${id})`);
                 break;
             }
 
-            case EventType.EnemySpawn: {
-                const { id, x, y, z } = event;
-                const enemy = EntityFactory.Enemy(id);
-                enemy.position.set(x, y, z);
-                world.addEntity(enemy);
-                console.log(`> Dispatch::EnemySpawn`);
+            case EventType.DeletePlayer: {
+                const { playerId } = event;
+                const ownedByPlayer: string[] = [playerId];
+                world.entities.forEach((entity) => {
+                    if (entity.playerId === playerId) {
+                        ownedByPlayer.push(entity.id);
+                    }
+                });
+                ownedByPlayer.forEach((id) => world.removeEntity(id));
+                console.log(`> Dispatch::DeletePlayer(${playerId})`);
                 break;
             }
 
-            case EventType.SyncPlayerStatsEvent: {
+            case EventType.SpawnPlayerAvatar: {
+                const { avatarId, playerId, x, y, z } = event;
+                const avatar = EntityFactory.LocalAvatar(avatarId);
+                avatar.playerId = playerId;
+                avatar.position.set(x, y, z);
+                world.addEntity(avatar);
+                console.log(`> Dispatch::SpawnPlayerAvatar`);
+                break;
+            }
+
+            case EventType.SpawnEnemyAvatar: {
+                const { avatarId, playerId, x, y, z } = event;
+                const avatar = EntityFactory.EnemyAvatar(avatarId);
+                avatar.playerId = playerId;
+                avatar.position.set(x, y, z);
+                world.addEntity(avatar);
+                console.log(`> Dispatch::SpawnEnemyAvatar`);
+                break;
+            }
+
+            case EventType.SyncAvatarStats: {
                 const { id, hp } = event;
                 const entity = world.entities.get(id);
                 if (entity === undefined) break;
@@ -113,7 +177,7 @@ export module Netcode {
                 break;
             }
 
-            case EventType.SyncPlayerTranslationEvent: {
+            case EventType.SyncAvatar: {
                 const { id, px, py, pz, vx, vy, vz, rx, ry } = event;
                 const entity = world.entities.get(id);
                 if (entity === undefined) break;

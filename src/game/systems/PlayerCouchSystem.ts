@@ -6,7 +6,7 @@ import { PLAYER_HEIGHT, PLAYER_CROUCH_H } from "../data/Globals";
 import { VoxelType } from "../data/Level";
 
 class Archetype implements AnyComponents {
-    public input = new Comp.PlayerInput();
+    public input = new Comp.Input();
     public position = new Comp.Position();
     public collision = new Comp.Collision();
 }

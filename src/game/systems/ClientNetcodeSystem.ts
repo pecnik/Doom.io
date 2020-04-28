@@ -1,16 +1,16 @@
 import SocketIOClient from "socket.io-client";
 import { World, System } from "../ecs";
 import { Netcode } from "../data/Netcode";
-import { PlayerArchetype } from "../ecs/Archetypes";
+import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { isEqual } from "lodash";
 
 export class ClientNetcodeSystem extends System {
     private readonly socket: SocketIOClient.Socket;
-    private readonly syncEvent = new Netcode.SyncPlayerTranslationEvent();
-    private readonly prevSyncEvent = new Netcode.SyncPlayerTranslationEvent();
+    private readonly syncEvent = new Netcode.SyncAvatar();
+    private readonly prevSyncEvent = new Netcode.SyncAvatar();
 
     private readonly family = this.createEntityFamily({
-        archetype: new PlayerArchetype(),
+        archetype: new LocalAvatarArchetype(),
     });
 
     public constructor(world: World) {

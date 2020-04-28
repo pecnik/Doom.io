@@ -50,7 +50,7 @@ export class HudElement<T> {
 export class HudDisplaySystem extends System {
     private readonly family = this.createEntityFamily({
         archetype: {
-            input: new Comp.PlayerInput(),
+            input: new Comp.Input(),
             shooter: new Comp.Shooter(),
         },
     });

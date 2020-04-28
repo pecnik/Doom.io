@@ -18,6 +18,19 @@ import {
 import { World } from "./ecs";
 import { WeaponSpecs, WeaponState } from "./weapons/Weapon";
 import { PLAYER_HEIGHT } from "./data/Globals";
+import { AvatarArchetype } from "./ecs/Archetypes";
+
+export function getPlayerAvatar(
+    playerId: string,
+    avatars: Family<AvatarArchetype>
+) {
+    for (const [, avatar] of avatars.entities) {
+        if (avatar.playerId === playerId) {
+            return avatar;
+        }
+    }
+    return;
+}
 
 export function getHeadPosition(
     entity: Entity<{
@@ -53,7 +66,7 @@ export function isCrouched(
 export function isScopeActive(
     entity: Entity<{
         shooter: Comp.Shooter;
-        input: Comp.PlayerInput;
+        input: Comp.Input;
     }>
 ): boolean {
     const { shooter } = entity;

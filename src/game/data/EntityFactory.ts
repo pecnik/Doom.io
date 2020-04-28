@@ -1,21 +1,21 @@
 import { uniqueId, random } from "lodash";
 import { EntityMesh } from "../Helpers";
 import {
-    PlayerArchetype,
+    LocalAvatarArchetype,
     PickupArchetype,
-    EnemyArchetype,
+    EnemyAvatarArchetype,
 } from "../ecs/Archetypes";
 import { WeaponSpecs } from "../weapons/Weapon";
 
 export module EntityFactory {
     const nextID = () => uniqueId("e");
 
-    export function Player(id = nextID()) {
-        return { id, ...new PlayerArchetype() };
+    export function LocalAvatar(id = nextID()) {
+        return { id, ...new LocalAvatarArchetype() };
     }
 
-    export function Enemy(id = nextID()) {
-        const enemy = { id, ...new EnemyArchetype() };
+    export function EnemyAvatar(id = nextID()) {
+        const enemy = { id, ...new EnemyAvatarArchetype() };
         EntityMesh.set(enemy, "__ROBOT__");
         return enemy;
     }

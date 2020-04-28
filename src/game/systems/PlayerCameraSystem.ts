@@ -5,7 +5,7 @@ import { lerp } from "../core/Utils";
 import { isScopeActive, getHeadPosition } from "../Helpers";
 
 class PlayerArchetype implements AnyComponents {
-    public input = new Comp.PlayerInput();
+    public input = new Comp.Input();
     public shooter = new Comp.Shooter();
     public position = new Comp.Position();
     public rotation = new Comp.Rotation();

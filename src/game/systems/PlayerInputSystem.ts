@@ -7,7 +7,7 @@ import { modulo } from "../core/Utils";
 import { WeaponSpecs } from "../weapons/Weapon";
 
 class Archetype implements AnyComponents {
-    public input = new Comp.PlayerInput();
+    public input = new Comp.Input();
 }
 
 export class PlayerInputSystem extends System {
@@ -68,7 +68,7 @@ export class PlayerInputSystem extends System {
         });
     }
 
-    private getWeaponIndex(input: Comp.PlayerInput) {
+    private getWeaponIndex(input: Comp.Input) {
         if (this.input.isKeyDown(KeyCode.NUM_1)) return 0;
         if (this.input.isKeyDown(KeyCode.NUM_2)) return 1;
         if (this.input.isKeyDown(KeyCode.NUM_3)) return 2;

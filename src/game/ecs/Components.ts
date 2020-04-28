@@ -14,15 +14,16 @@ import { Netcode } from "../data/Netcode";
 export type AnyComponents = Partial<AllComponents>;
 
 export type AllComponents = {
-    playerTag: boolean;
-    localPlayerTag: boolean;
-    enemyPlayerTag: boolean;
+    socketId: string;
+    avatarTag: boolean;
+    playerId: string;
+    playerData: Comp.PlayerData;
     eventsBuffer: Netcode.Event[];
     position: Comp.Position;
     velocity: Comp.Velocity;
     rotation: Comp.Rotation;
     collision: Comp.Collision;
-    input: Comp.PlayerInput;
+    input: Comp.Input;
     shooter: Comp.Shooter;
     render: Comp.Render;
     footstep: Comp.Footstep;
@@ -39,7 +40,7 @@ export module Comp {
 
     export class Rotation extends Vector2 {}
 
-    export class PlayerInput {
+    export class Input {
         public movey = 0;
         public movex = 0;
         public lookHor = 0;
@@ -108,5 +109,12 @@ export module Comp {
     export class Pickup {
         public type = PickupType.Ammo;
         public weaponIndex = 0;
+    }
+
+    export class PlayerData {
+        public id = "";
+        public name = "noname";
+        public kills = 0;
+        public deaths = 0;
     }
 }

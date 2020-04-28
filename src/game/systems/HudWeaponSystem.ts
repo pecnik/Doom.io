@@ -28,7 +28,7 @@ enum Animation {
 }
 
 class ShooterArchetype {
-    input = new Comp.PlayerInput();
+    input = new Comp.Input();
     position = new Comp.Position();
     velocity = new Comp.Velocity();
     shooter = new Comp.Shooter();

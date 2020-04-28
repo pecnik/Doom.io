@@ -4,11 +4,11 @@ import { Vector2 } from "three";
 import { WALK_SPEED, RUN_SPEED, JUMP_SPEED } from "../data/Globals";
 import { lerp } from "../core/Utils";
 import { isScopeActive, isCrouched } from "../Helpers";
-import { PlayerArchetype } from "../ecs/Archetypes";
+import { LocalAvatarArchetype } from "../ecs/Archetypes";
 
 export class PlayerMoveSystem extends System {
     private readonly family = this.createEntityFamily({
-        archetype: new PlayerArchetype(),
+        archetype: new LocalAvatarArchetype(),
     });
 
     public update(world: World) {
