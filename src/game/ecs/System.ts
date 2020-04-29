@@ -24,6 +24,7 @@ export abstract class System {
         }
         return family;
     }
+
     protected createSceneGroup() {
         const group = new Group();
         this.engine.scene.add(group);

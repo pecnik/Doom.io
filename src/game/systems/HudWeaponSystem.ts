@@ -81,6 +81,10 @@ export class HudWeaponSystem extends System {
     }
 
     public update(world: World) {
+        for (let i = 0; i < this.weapons.length; i++) {
+            this.weapons[i].visible = false;
+        }
+
         this.family.entities.forEach((entity) => {
             const shooter = entity.shooter;
             const position = entity.position;
