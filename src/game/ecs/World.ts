@@ -45,6 +45,8 @@ export class World {
     }
 
     public update(dt: number) {
+        this.elapsedTime += dt;
+
         this.systems.forEach((system: System) => {
             system.update(this, dt);
         });

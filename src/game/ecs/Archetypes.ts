@@ -2,6 +2,7 @@ import { Comp, AnyComponents } from "./Components";
 
 export class PlayerArchetype implements AnyComponents {
     public playerData = new Comp.PlayerData();
+    public avatarSpawner = new Comp.AvatarSpawner();
 }
 
 export class AvatarArchetype implements AnyComponents {

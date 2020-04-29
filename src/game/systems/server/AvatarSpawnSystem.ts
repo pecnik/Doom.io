@@ -1,4 +1,4 @@
-import { System } from "../../ecs";
+import { System, Entity } from "../../ecs";
 import { GameServer } from "../../GameServer";
 import { PlayerArchetype, AvatarArchetype } from "../../ecs/Archetypes";
 import { Netcode } from "../../Netcode";
@@ -26,19 +26,31 @@ export class AvatarSpawnSystem extends System {
             const avatar = getPlayerAvatar(player.id, this.avatars);
             if (avatar !== undefined) return;
 
-            const socket = this.server.getSocket(player.id);
-            if (socket === undefined) return;
+            if (player.avatarSpawner.spawnTime === 0) {
+                player.avatarSpawner.spawnTime = this.engine.elapsedTime + 2;
+            }
 
-            const spawn = sample(this.engine.level.spawnPoints);
-            if (spawn === undefined) return;
-
-            // Spawn player avatar
-            const spawnPlayer = new Netcode.SpawnPlayerAvatar(player, spawn);
-            socket.emit("dispatch", spawnPlayer);
-
-            // Spawn enemy avatar
-            const spawnEnemy = new Netcode.SpawnEnemyAvatar(player, spawn);
-            this.server.dispatch(spawnEnemy, socket.broadcast);
+            if (player.avatarSpawner.spawnTime <= this.engine.elapsedTime) {
+                player.avatarSpawner.spawnTime = 0;
+                this.spawnPlayerAvatar(player);
+            }
         });
+    }
+
+    private spawnPlayerAvatar(player: Entity<PlayerArchetype>) {
+        const socket = this.server.getSocket(player.id);
+        if (socket === undefined) return false;
+
+        const spawn = sample(this.engine.level.spawnPoints);
+        if (spawn === undefined) return false;
+
+        // Spawn player avatar
+        const spawnPlayer = new Netcode.SpawnPlayerAvatar(player, spawn);
+        socket.emit("dispatch", spawnPlayer);
+
+        // Spawn enemy avatar
+        const spawnEnemy = new Netcode.SpawnEnemyAvatar(player, spawn);
+        this.server.dispatch(spawnEnemy, socket.broadcast);
+        return true;
     }
 }

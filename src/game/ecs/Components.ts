@@ -31,6 +31,7 @@ export type AllComponents = {
     health: Comp.Health;
     jump: Comp.Jump;
     pickup: Comp.Pickup;
+    avatarSpawner: Comp.AvatarSpawner;
 };
 
 export module Comp {
@@ -116,5 +117,9 @@ export module Comp {
         public name = "noname";
         public kills = 0;
         public deaths = 0;
+    }
+
+    export class AvatarSpawner {
+        public spawnTime = 0;
     }
 }

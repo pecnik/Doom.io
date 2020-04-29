@@ -110,7 +110,6 @@ export class GameClient implements Game {
 
     public update(dt: number) {
         this.stats.begin();
-        this.world.elapsedTime += dt;
         this.world.update(dt);
         this.input.clear();
         this.stats.end();
