@@ -1,5 +1,4 @@
 import { System, AnyComponents } from "../ecs";
-import { World } from "../ecs";
 import { Comp } from "../ecs";
 import { lerp } from "../core/Utils";
 import { isScopeActive, getHeadPosition } from "../Helpers";
@@ -17,17 +16,19 @@ export class PlayerCameraSystem extends System {
         archetype: new PlayerArchetype(),
     });
 
-    public update(world: World) {
+    public update() {
         this.family.entities.forEach((entity) => {
             const position = getHeadPosition(entity);
             const rotation = entity.rotation;
-            world.camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
-            world.camera.position.copy(position);
+
+            const { camera } = this.engine;
+            camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
+            camera.position.copy(position);
 
             const fov = isScopeActive(entity) ? 60 : 90;
-            if (world.camera.fov !== fov) {
-                world.camera.fov = lerp(world.camera.fov, fov, 10);
-                world.camera.updateProjectionMatrix();
+            if (camera.fov !== fov) {
+                camera.fov = lerp(camera.fov, fov, 10);
+                camera.updateProjectionMatrix();
             }
         });
     }
