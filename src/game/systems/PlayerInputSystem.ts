@@ -1,13 +1,13 @@
 import { System, AnyComponents } from "../ecs";
 import { clamp } from "lodash";
 import { World } from "../ecs";
-import { Comp } from "../ecs";
+import { Components } from "../ecs";
 import { Input, KeyCode, MouseBtn } from "../core/Input";
 import { modulo } from "../core/Utils";
 import { WeaponSpecs } from "../weapons/Weapon";
 
 class Archetype implements AnyComponents {
-    public input = new Comp.Input();
+    public input = new Components.Input();
 }
 
 export class PlayerInputSystem extends System {
@@ -68,7 +68,7 @@ export class PlayerInputSystem extends System {
         });
     }
 
-    private getWeaponIndex(input: Comp.Input) {
+    private getWeaponIndex(input: Components.Input) {
         if (this.input.isKeyDown(KeyCode.NUM_1)) return 0;
         if (this.input.isKeyDown(KeyCode.NUM_2)) return 1;
         if (this.input.isKeyDown(KeyCode.NUM_3)) return 2;

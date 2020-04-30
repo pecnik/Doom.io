@@ -1,15 +1,15 @@
 import { System, Entity, AnyComponents } from "../ecs";
 import { clamp } from "lodash";
 import { World } from "../ecs";
-import { Comp } from "../ecs";
+import { Components } from "../ecs";
 import { Box3, Vector2 } from "three";
 import { Level, VoxelData, VoxelType } from "../data/Level";
 import { GRAVITY } from "../data/Globals";
 
 class Archetype implements AnyComponents {
-    public position = new Comp.Position();
-    public velocity = new Comp.Velocity();
-    public collision = new Comp.Collision();
+    public position = new Components.Position();
+    public velocity = new Components.Velocity();
+    public collision = new Components.Collision();
 }
 
 export class PhysicsSystem extends System {

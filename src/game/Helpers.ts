@@ -1,6 +1,6 @@
 import GLTFLoader from "three-gltf-loader";
 import { Entity, Family } from "./ecs";
-import { Comp } from "./ecs";
+import { Components } from "./ecs";
 import {
     Mesh,
     MeshBasicMaterial,
@@ -34,8 +34,8 @@ export function getPlayerAvatar(
 
 export function getHeadPosition(
     entity: Entity<{
-        position: Comp.Position;
-        collision: Comp.Collision;
+        position: Components.Position;
+        collision: Components.Collision;
     }>
 ): Vector3 {
     const head = entity.position.clone();
@@ -44,29 +44,29 @@ export function getHeadPosition(
 }
 
 export function getWeaponAmmo(
-    entity: Entity<{ shooter: Comp.Shooter }>,
+    entity: Entity<{ shooter: Components.Shooter }>,
     weaponIndex = entity.shooter.weaponIndex
 ) {
     return entity.shooter.ammo[weaponIndex];
 }
 
 export function getWeaponSpec(
-    entity: Entity<{ shooter: Comp.Shooter }>,
+    entity: Entity<{ shooter: Components.Shooter }>,
     weaponIndex = entity.shooter.weaponIndex
 ) {
     return WeaponSpecs[weaponIndex];
 }
 
 export function isCrouched(
-    entity: Entity<{ collision: Comp.Collision }>
+    entity: Entity<{ collision: Components.Collision }>
 ): boolean {
     return entity.collision.height < PLAYER_HEIGHT;
 }
 
 export function isScopeActive(
     entity: Entity<{
-        shooter: Comp.Shooter;
-        input: Comp.Input;
+        shooter: Components.Shooter;
+        input: Components.Input;
     }>
 ): boolean {
     const { shooter } = entity;
@@ -81,7 +81,7 @@ export function isScopeActive(
 export module EntityMesh {
     let glbScene = new Scene();
 
-    export type RenderArchetype = Entity<{ render: Comp.Render }>;
+    export type RenderArchetype = Entity<{ render: Components.Render }>;
 
     export function load() {
         return Promise.all([
@@ -126,7 +126,7 @@ export module Hitscan {
 
     export function cast(
         world: World,
-        family?: Family<{ render: Comp.Render }>
+        family?: Family<{ render: Components.Render }>
     ) {
         response.intersection = undefined;
         response.entity = undefined;

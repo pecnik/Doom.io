@@ -1,7 +1,7 @@
 import { System } from "../../ecs";
 import { World } from "../../ecs";
 import { Hud } from "../../data/Hud";
-import { Comp } from "../../ecs";
+import { Components } from "../../ecs";
 import {
     TextureLoader,
     AdditiveBlending,
@@ -50,8 +50,8 @@ export class HudElement<T> {
 export class HudDisplaySystem extends System {
     private readonly family = this.createEntityFamily({
         archetype: {
-            input: new Comp.Input(),
-            shooter: new Comp.Shooter(),
+            input: new Components.Input(),
+            shooter: new Components.Shooter(),
         },
     });
 

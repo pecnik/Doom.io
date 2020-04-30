@@ -1,6 +1,6 @@
 import { System, Entity } from "../../ecs";
 import { World } from "../../ecs";
-import { Comp } from "../../ecs";
+import { Components } from "../../ecs";
 import { lerp, ease } from "../../core/Utils";
 import {
     Vector3,
@@ -28,11 +28,11 @@ enum Animation {
 }
 
 class ShooterArchetype {
-    input = new Comp.Input();
-    position = new Comp.Position();
-    velocity = new Comp.Velocity();
-    shooter = new Comp.Shooter();
-    collision = new Comp.Collision();
+    input = new Components.Input();
+    position = new Components.Position();
+    velocity = new Components.Velocity();
+    shooter = new Components.Shooter();
+    collision = new Components.Collision();
 }
 
 export class WeaponPovSprite extends Object3D {
@@ -145,7 +145,7 @@ export class HudWeaponSystem extends System {
     private setLightColor(
         weaponSprite: WeaponPovSprite,
         world: World,
-        position: Comp.Position
+        position: Components.Position
     ) {
         const sprite = weaponSprite.material;
         const light = world.level.getVoxelLightAt(position);
@@ -178,7 +178,7 @@ export class HudWeaponSystem extends System {
         return Animation.Idle;
     }
 
-    private getFrame(world: World, shooter: Comp.Shooter): Vector3 {
+    private getFrame(world: World, shooter: Components.Shooter): Vector3 {
         const weapon = WeaponSpecs[shooter.weaponIndex];
         const frame = new Vector3(0, 0, 0);
         let elapsed = world.elapsedTime;

@@ -1,4 +1,4 @@
-import { World, Entity, Comp } from "./ecs";
+import { World, Entity, Components } from "./ecs";
 import { EntityFactory } from "./data/EntityFactory";
 import { PlayerArchetype } from "./ecs/Archetypes";
 import { Vector3 } from "three";
@@ -29,8 +29,8 @@ export module Netcode {
 
     export class CreatePlayer {
         public readonly type = EventType.CreatePlayer;
-        public readonly playerData: Comp.PlayerData;
-        public constructor(data: Comp.PlayerData) {
+        public readonly playerData: Components.PlayerData;
+        public constructor(data: Components.PlayerData) {
             this.playerData = data;
         }
     }

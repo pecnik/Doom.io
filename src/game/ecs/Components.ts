@@ -17,24 +17,24 @@ export type AllComponents = {
     socketId: string;
     avatarTag: boolean;
     playerId: string;
-    playerData: Comp.PlayerData;
+    playerData: Components.PlayerData;
     eventsBuffer: Netcode.Event[];
-    position: Comp.Position;
-    velocity: Comp.Velocity;
-    rotation: Comp.Rotation;
-    collision: Comp.Collision;
-    input: Comp.Input;
-    shooter: Comp.Shooter;
-    render: Comp.Render;
-    footstep: Comp.Footstep;
-    gunshot: Comp.Gunshot;
-    health: Comp.Health;
-    jump: Comp.Jump;
-    pickup: Comp.Pickup;
-    avatarSpawner: Comp.AvatarSpawner;
+    position: Components.Position;
+    velocity: Components.Velocity;
+    rotation: Components.Rotation;
+    collision: Components.Collision;
+    input: Components.Input;
+    shooter: Components.Shooter;
+    render: Components.Render;
+    footstep: Components.Footstep;
+    gunshot: Components.Gunshot;
+    health: Components.Health;
+    jump: Components.Jump;
+    pickup: Components.Pickup;
+    avatarSpawner: Components.AvatarSpawner;
 };
 
-export module Comp {
+export module Components {
     export class Position extends Vector3 {}
 
     export class Velocity extends Vector3 {}

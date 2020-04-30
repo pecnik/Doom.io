@@ -2,7 +2,7 @@ import { System } from "../../ecs";
 import { PositionalAudio, AudioLoader } from "three";
 import { random } from "lodash";
 import { World } from "../../ecs";
-import { Comp } from "../../ecs";
+import { Components } from "../../ecs";
 
 export class AudioFootstepSystem extends System {
     private buffer?: AudioBuffer;
@@ -10,10 +10,10 @@ export class AudioFootstepSystem extends System {
     private readonly group = this.createSceneGroup();
     private readonly family = this.createEntityFamily({
         archetype: {
-            footstep: new Comp.Footstep(),
-            position: new Comp.Position(),
-            velocity: new Comp.Velocity(),
-            collision: new Comp.Collision(),
+            footstep: new Components.Footstep(),
+            position: new Components.Position(),
+            velocity: new Components.Velocity(),
+            collision: new Components.Collision(),
         },
         onEntityRemvoed: ({ footstep }) => {
             if (footstep.audio !== undefined) {

@@ -1,14 +1,14 @@
 import { System, AnyComponents } from "../ecs";
 import { World } from "../ecs";
-import { Comp } from "../ecs";
+import { Components } from "../ecs";
 import { lerp } from "../core/Utils";
 import { PLAYER_HEIGHT, PLAYER_CROUCH_H } from "../data/Globals";
 import { VoxelType } from "../data/Level";
 
 class Archetype implements AnyComponents {
-    public input = new Comp.Input();
-    public position = new Comp.Position();
-    public collision = new Comp.Collision();
+    public input = new Components.Input();
+    public position = new Components.Position();
+    public collision = new Components.Collision();
 }
 
 export class PlayerCouchSystem extends System {

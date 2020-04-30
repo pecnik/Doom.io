@@ -1,7 +1,7 @@
 import { System } from "../../ecs";
 import { PositionalAudio } from "three";
 import { World } from "../../ecs";
-import { Comp } from "../../ecs";
+import { Components } from "../../ecs";
 import { getHeadPosition } from "../../Helpers";
 import { WeaponSpecs } from "../../weapons/Weapon";
 
@@ -9,11 +9,11 @@ export class AudioGunshotSystem extends System {
     private readonly group = this.createSceneGroup();
     private readonly family = this.createEntityFamily({
         archetype: {
-            gunshot: new Comp.Gunshot(),
-            shooter: new Comp.Shooter(),
-            position: new Comp.Position(),
-            rotation: new Comp.Rotation(),
-            collision: new Comp.Collision(),
+            gunshot: new Components.Gunshot(),
+            shooter: new Components.Shooter(),
+            position: new Components.Position(),
+            rotation: new Components.Rotation(),
+            collision: new Components.Collision(),
         },
         onEntityRemvoed: ({ gunshot }) => {
             if (gunshot.audio !== undefined) {

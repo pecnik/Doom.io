@@ -1,4 +1,4 @@
-import { System, Comp } from "../../ecs";
+import { System, Components } from "../../ecs";
 import { GameServer } from "../../GameServer";
 import { PlayerArchetype, AvatarArchetype } from "../../ecs/Archetypes";
 import { Netcode } from "../../Netcode";
@@ -36,7 +36,7 @@ export class ClientConnectionSystem extends System {
                 });
 
                 // Create the new player
-                const playerData = new Comp.PlayerData();
+                const playerData = new Components.PlayerData();
                 playerData.id = socket.id;
                 playerData.name = `Player-${socket.id}`;
 

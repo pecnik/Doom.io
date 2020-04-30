@@ -1,6 +1,6 @@
 import { System, Entity, AnyComponents } from "../ecs";
 import { World } from "../ecs";
-import { Comp } from "../ecs";
+import { Components } from "../ecs";
 import {
     Hitscan,
     isScopeActive,
@@ -21,7 +21,7 @@ import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { Netcode } from "../Netcode";
 
 class TargetArchetype implements AnyComponents {
-    public render = new Comp.Render();
+    public render = new Components.Render();
 }
 
 export class PlayerShootSystem extends System {
@@ -158,7 +158,7 @@ export class PlayerShootSystem extends System {
     private getReload(
         ammo: WeaponAmmo,
         weapon: WeaponSpec,
-        input: Comp.Input
+        input: Components.Input
     ) {
         if (ammo.loaded >= weapon.maxLoadedAmmo) return false;
         if (ammo.reserved < 1) return false;

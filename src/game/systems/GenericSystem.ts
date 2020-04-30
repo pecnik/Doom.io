@@ -1,13 +1,13 @@
 import { System, Entity } from "../ecs";
 import { World } from "../ecs";
-import { Comp } from "../ecs";
+import { Components } from "../ecs";
 import { JUMP_SPEED } from "../data/Globals";
 import { sample } from "lodash";
 
 class Archetype {
-    position = new Comp.Position();
-    velocity = new Comp.Velocity();
-    collision = new Comp.Collision();
+    position = new Components.Position();
+    velocity = new Components.Velocity();
+    collision = new Components.Collision();
 }
 
 export class GenericSystem extends System {

@@ -1,13 +1,13 @@
 import { System } from "../ecs";
 import { World } from "../ecs";
-import { Comp } from "../ecs";
+import { Components } from "../ecs";
 
 export class RenderSystem extends System {
     private readonly group = this.createSceneGroup();
     private readonly family = this.createEntityFamily({
         archetype: {
-            position: new Comp.Position(),
-            render: new Comp.Render(),
+            position: new Components.Position(),
+            render: new Components.Render(),
         },
 
         onEntityAdded: ({ render }) => {

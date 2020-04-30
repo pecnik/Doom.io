@@ -1,14 +1,14 @@
 import { System, AnyComponents } from "../ecs";
-import { Comp } from "../ecs";
+import { Components } from "../ecs";
 import { lerp } from "../core/Utils";
 import { isScopeActive, getHeadPosition } from "../Helpers";
 
 class PlayerArchetype implements AnyComponents {
-    public input = new Comp.Input();
-    public shooter = new Comp.Shooter();
-    public position = new Comp.Position();
-    public rotation = new Comp.Rotation();
-    public collision = new Comp.Collision();
+    public input = new Components.Input();
+    public shooter = new Components.Shooter();
+    public position = new Components.Position();
+    public rotation = new Components.Rotation();
+    public collision = new Components.Collision();
 }
 
 export class PlayerCameraSystem extends System {
