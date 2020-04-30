@@ -20,6 +20,7 @@ import { GenericSystem } from "./systems/GenericSystem";
 import Stats from "stats.js";
 import { PickupSystem } from "./systems/PickupSystem";
 import { ClientNetcodeSystem } from "./systems/ClientNetcodeSystem";
+import { LocalAvatarArchetype } from "./ecs/Archetypes";
 
 export class GameClient implements Game {
     // private readonly socket: SocketIOClient.Socket;
@@ -105,7 +106,19 @@ export class GameClient implements Game {
         this.world.addSystem(new AudioGunshotSystem(this.world));
         this.world.addSystem(new AudioFootstepSystem(this.world));
 
-        this.world.addSystem(new ClientNetcodeSystem(this.world));
+        {
+            // Temporary ftw idk
+            const hash = location.hash.replace("#", "");
+            if (hash === "online") {
+                this.world.addSystem(new ClientNetcodeSystem(this.world));
+            } else if (hash === "offline") {
+                const avatar = { id: "p1", ...new LocalAvatarArchetype() };
+                this.world.addEntity(avatar);
+            } else {
+                location.hash = confirm("Online?") ? "online" : "offline";
+                location.reload();
+            }
+        }
     }
 
     public update(dt: number) {
