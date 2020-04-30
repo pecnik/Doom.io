@@ -1,8 +1,8 @@
-import { System } from "../ecs";
+import { System } from "../../ecs";
 import { PositionalAudio, AudioLoader } from "three";
 import { random } from "lodash";
-import { World } from "../ecs";
-import { Comp } from "../ecs";
+import { World } from "../../ecs";
+import { Comp } from "../../ecs";
 
 export class AudioFootstepSystem extends System {
     private buffer?: AudioBuffer;

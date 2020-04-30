@@ -1,7 +1,7 @@
-import { System } from "../ecs";
-import { World } from "../ecs";
-import { Hud } from "../data/Hud";
-import { Comp } from "../ecs";
+import { System } from "../../ecs";
+import { World } from "../../ecs";
+import { Hud } from "../../data/Hud";
+import { Comp } from "../../ecs";
 import {
     TextureLoader,
     AdditiveBlending,
@@ -11,7 +11,7 @@ import {
     PlaneGeometry,
     Mesh,
 } from "three";
-import { HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
+import { HUD_WIDTH, HUD_HEIGHT } from "../../data/Globals";
 
 export class HudElement<T> {
     public readonly props: T;

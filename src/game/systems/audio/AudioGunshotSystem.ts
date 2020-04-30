@@ -1,9 +1,9 @@
-import { System } from "../ecs";
+import { System } from "../../ecs";
 import { PositionalAudio } from "three";
-import { World } from "../ecs";
-import { Comp } from "../ecs";
-import { getHeadPosition } from "../Helpers";
-import { WeaponSpecs } from "../weapons/Weapon";
+import { World } from "../../ecs";
+import { Comp } from "../../ecs";
+import { getHeadPosition } from "../../Helpers";
+import { WeaponSpecs } from "../../weapons/Weapon";
 
 export class AudioGunshotSystem extends System {
     private readonly group = this.createSceneGroup();

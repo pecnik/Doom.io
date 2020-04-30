@@ -1,7 +1,7 @@
-import { System, Entity } from "../ecs";
-import { World } from "../ecs";
-import { Comp } from "../ecs";
-import { lerp, ease } from "../core/Utils";
+import { System, Entity } from "../../ecs";
+import { World } from "../../ecs";
+import { Comp } from "../../ecs";
+import { lerp, ease } from "../../core/Utils";
 import {
     Vector3,
     Object3D,
@@ -11,10 +11,10 @@ import {
     Texture,
     Group,
 } from "three";
-import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../data/Globals";
-import { WeaponSpecs, WeaponState } from "../weapons/Weapon";
-import { Hud } from "../data/Hud";
-import { isScopeActive } from "../Helpers";
+import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../../data/Globals";
+import { WeaponSpecs, WeaponState } from "../../weapons/Weapon";
+import { Hud } from "../../data/Hud";
+import { isScopeActive } from "../../Helpers";
 
 enum Animation {
     Walk,
