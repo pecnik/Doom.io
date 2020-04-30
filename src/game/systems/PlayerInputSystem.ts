@@ -1,19 +1,16 @@
-import { System, AnyComponents } from "../ecs";
+import { System } from "../ecs";
 import { clamp } from "lodash";
 import { World } from "../ecs";
 import { Components } from "../ecs";
 import { Input, KeyCode, MouseBtn } from "../core/Input";
 import { modulo } from "../core/Utils";
 import { WeaponSpecs } from "../weapons/Weapon";
-
-class Archetype implements AnyComponents {
-    public input = new Components.Input();
-}
+import { LocalAvatarArchetype } from "../ecs/Archetypes";
 
 export class PlayerInputSystem extends System {
     private readonly input: Input;
     private readonly family = this.createEntityFamily({
-        archetype: new Archetype(),
+        archetype: new LocalAvatarArchetype(),
     });
 
     public constructor(world: World, input: Input) {

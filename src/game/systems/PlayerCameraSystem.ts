@@ -1,19 +1,11 @@
-import { System, AnyComponents } from "../ecs";
-import { Components } from "../ecs";
+import { System } from "../ecs";
 import { lerp } from "../core/Utils";
 import { isScopeActive, getHeadPosition } from "../Helpers";
-
-class PlayerArchetype implements AnyComponents {
-    public input = new Components.Input();
-    public shooter = new Components.Shooter();
-    public position = new Components.Position();
-    public rotation = new Components.Rotation();
-    public collision = new Components.Collision();
-}
+import { LocalAvatarArchetype } from "../ecs/Archetypes";
 
 export class PlayerCameraSystem extends System {
     private readonly family = this.createEntityFamily({
-        archetype: new PlayerArchetype(),
+        archetype: new LocalAvatarArchetype(),
     });
 
     public update() {

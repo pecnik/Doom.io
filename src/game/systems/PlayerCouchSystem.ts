@@ -1,19 +1,13 @@
-import { System, AnyComponents } from "../ecs";
+import { System } from "../ecs";
 import { World } from "../ecs";
-import { Components } from "../ecs";
 import { lerp } from "../core/Utils";
 import { PLAYER_HEIGHT, PLAYER_CROUCH_H } from "../data/Globals";
 import { VoxelType } from "../data/Level";
-
-class Archetype implements AnyComponents {
-    public input = new Components.Input();
-    public position = new Components.Position();
-    public collision = new Components.Collision();
-}
+import { LocalAvatarArchetype } from "../ecs/Archetypes";
 
 export class PlayerCouchSystem extends System {
     private readonly family = this.createEntityFamily({
-        archetype: new Archetype(),
+        archetype: new LocalAvatarArchetype(),
     });
 
     public update(world: World) {
