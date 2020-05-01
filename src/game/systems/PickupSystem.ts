@@ -1,5 +1,5 @@
 import { System } from "../ecs";
-import { getWeaponAmmo, getWeaponSpec } from "../Helpers";
+import { getWeaponAmmo, getWeaponSpec, Sound } from "../Helpers";
 import { sample } from "lodash";
 import { EntityFactory } from "../data/EntityFactory";
 import { PickupArchetype, LocalAvatarArchetype } from "../ecs/Archetypes";
@@ -32,8 +32,9 @@ export class PickupSystem extends System {
                 const p1 = player.position;
                 const p2 = pickup.position;
                 const dist = p1.distanceToSquared(p2);
-                if (dist < 1 ** 2) {
+                if (dist < 0.5 ** 2) {
                     this.engine.removeEntity(pickup.id);
+                    Sound.play("/assets/sounds/pickup_1.wav");
                     ammo.reserved += 10;
                     ammo.reserved = Math.min(
                         ammo.reserved,
