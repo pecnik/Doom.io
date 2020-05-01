@@ -5,6 +5,7 @@ import { Level } from "../data/Level";
 import { BulletDecals } from "../data/BulletDecals";
 import { Particles } from "../data/Particles";
 import { Family } from "./Family";
+import { AnyComponents } from "./Components";
 
 export class World {
     private readonly systems = new Array<System>();
@@ -41,6 +42,22 @@ export class World {
         if (entity !== undefined) {
             this.entities.delete(entity.id);
             Family.removeEntity(entity.id);
+        }
+    }
+
+    public addComponents(id: string, comps: AnyComponents) {
+        const entity = this.entities.get(id);
+        if (entity !== undefined) {
+            Object.assign(entity, comps);
+            Family.updateEntity(entity);
+        }
+    }
+
+    public removeComponents(id: string, ...comps: Array<keyof AnyComponents>) {
+        const entity = this.entities.get(id);
+        if (entity !== undefined) {
+            comps.forEach((comp) => delete entity[comp]);
+            Family.updateEntity(entity);
         }
     }
 
