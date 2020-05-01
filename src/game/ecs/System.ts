@@ -18,13 +18,16 @@ export abstract class System {
         onEntityAdded?: (e: Entity<T>) => void;
         onEntityRemvoed?: (e: Entity<T>) => void;
     }) {
-        const family = new Family(this.world, props.archetype);
+        const family = Family.findOrCreate(props.archetype);
+
         if (props.onEntityAdded !== undefined) {
             family.onEntityAdded.push(props.onEntityAdded);
         }
+
         if (props.onEntityRemvoed !== undefined) {
             family.onEntityRemvoed.push(props.onEntityRemvoed);
         }
+
         return family;
     }
 

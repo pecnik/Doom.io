@@ -27,7 +27,7 @@ export function createDebugCli(game: GameClient) {
         EnemyAvatarArchetype,
         PickupArchetype,
     ].forEach((Archetype) => {
-        const family = new Family(game.world, new Archetype());
+        const family = Family.findOrCreate(new Archetype());
         command(Archetype.name.replace("Archetype", ""), () => {
             logmap(family.entities);
         });

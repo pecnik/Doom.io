@@ -4,13 +4,10 @@ import { Scene, PerspectiveCamera, AudioListener } from "three";
 import { Level } from "../data/Level";
 import { BulletDecals } from "../data/BulletDecals";
 import { Particles } from "../data/Particles";
+import { Family } from "./Family";
 
 export class World {
     private readonly systems = new Array<System>();
-
-    public readonly onEntityAdded = new Array<(e: Entity) => void>();
-    public readonly onEntityRemvoed = new Array<(e: Entity) => void>();
-
     public readonly entities = new Map<string, Entity>();
     public readonly scene = new Scene();
     public readonly camera = new PerspectiveCamera(90);
@@ -32,15 +29,18 @@ export class World {
     }
 
     public addEntity(entity: Entity) {
+        if (this.entities.has(entity.id)) {
+            throw new Error(`Duplicate Entity ID: "${entity.id}"`);
+        }
         this.entities.set(entity.id, entity);
-        this.onEntityAdded.forEach((fn) => fn(entity));
+        Family.updateEntity(entity);
     }
 
     public removeEntity(id: string) {
         const entity = this.entities.get(id);
         if (entity !== undefined) {
-            this.onEntityRemvoed.forEach((fn) => fn(entity));
-            this.entities.set(entity.id, entity);
+            this.entities.delete(entity.id);
+            Family.removeEntity(entity.id);
         }
     }
 
