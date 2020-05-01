@@ -51,7 +51,7 @@ export class WeaponPovSprite extends Object3D {
     }
 }
 
-export class HudWeaponSystem extends System {
+export class WeaponSpriteSystem extends System {
     private readonly weapons: WeaponPovSprite[];
     private readonly family = this.createEntityFamily({
         archetype: new ShooterArchetype(),

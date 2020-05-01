@@ -9,7 +9,7 @@ import { RenderSystem } from "./systems/RenderSystem";
 import { AudioFootstepSystem } from "./systems/audio/AudioFootstepSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { AudioGunshotSystem } from "./systems/audio/AudioGunshotSystem";
-import { HudWeaponSystem } from "./systems/hud/HudWeaponSystem";
+import { WeaponSpriteSystem } from "./systems/hud/WeaponSpriteSystem";
 import { AudioListener, AudioLoader } from "three";
 import { HudDisplaySystem } from "./systems/hud/HudDisplaySystem";
 import { WeaponSpecs } from "./weapons/Weapon";
@@ -100,8 +100,9 @@ export class GameClient implements Game {
         this.world.addSystem(new PlayerShootSystem(this.world));
         this.world.addSystem(new RenderSystem(this.world));
 
+        // Hud
         this.world.addSystem(new HudDisplaySystem(this.world, this.hud));
-        this.world.addSystem(new HudWeaponSystem(this.world, this.hud));
+        this.world.addSystem(new WeaponSpriteSystem(this.world, this.hud));
 
         this.world.addSystem(new AudioGunshotSystem(this.world));
         this.world.addSystem(new AudioFootstepSystem(this.world));
