@@ -1,5 +1,4 @@
 import { System } from "../ecs";
-import { World } from "../ecs";
 import { Vector2 } from "three";
 import { WALK_SPEED, RUN_SPEED, JUMP_SPEED } from "../data/Globals";
 import { lerp } from "../core/Utils";
@@ -11,7 +10,7 @@ export class PlayerMoveSystem extends System {
         archetype: new LocalAvatarArchetype(),
     });
 
-    public update(world: World) {
+    public update() {
         this.family.entities.forEach((entity) => {
             const jump = entity.jump;
             const input = entity.input;
@@ -20,7 +19,7 @@ export class PlayerMoveSystem extends System {
             const collision = entity.collision;
 
             // Jumping
-            const elapsed = world.elapsedTime;
+            const elapsed = this.world.elapsedTime;
             const isGrounded = collision.falg.y === -1;
             if (input.jump) {
                 jump.triggerTime = elapsed;

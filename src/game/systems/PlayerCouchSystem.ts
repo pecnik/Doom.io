@@ -1,5 +1,4 @@
 import { System } from "../ecs";
-import { World } from "../ecs";
 import { lerp } from "../core/Utils";
 import { PLAYER_HEIGHT, PLAYER_CROUCH_H } from "../data/Globals";
 import { VoxelType } from "../data/Level";
@@ -10,7 +9,7 @@ export class PlayerCouchSystem extends System {
         archetype: new LocalAvatarArchetype(),
     });
 
-    public update(world: World) {
+    public update() {
         this.family.entities.forEach((entity) => {
             const input = entity.input;
             const position = entity.position;
@@ -22,7 +21,7 @@ export class PlayerCouchSystem extends System {
             }
 
             if (!input.crouch && collisio.height < PLAYER_HEIGHT) {
-                const voxelType = world.level.getVoxelType(
+                const voxelType = this.world.level.getVoxelType(
                     Math.round(position.x),
                     Math.round(position.y + PLAYER_HEIGHT),
                     Math.round(position.z)

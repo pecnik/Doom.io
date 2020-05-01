@@ -1,9 +1,8 @@
 import { System, Entity, AnyComponents } from "../ecs";
 import { clamp } from "lodash";
-import { World } from "../ecs";
 import { Components } from "../ecs";
 import { Box3, Vector2 } from "three";
-import { Level, VoxelData, VoxelType } from "../data/Level";
+import { VoxelData, VoxelType } from "../data/Level";
 import { GRAVITY } from "../data/Globals";
 
 class Archetype implements AnyComponents {
@@ -17,7 +16,7 @@ export class PhysicsSystem extends System {
         archetype: new Archetype(),
     });
 
-    public update(world: World, dt: number) {
+    public update(dt: number) {
         this.family.entities.forEach((entity) => {
             const { position, velocity, collision } = entity;
 
@@ -47,10 +46,10 @@ export class PhysicsSystem extends System {
             for (let x = minX; x < maxX; x++) {
                 for (let y = minY; y < maxY; y++) {
                     for (let z = minZ; z < maxZ; z++) {
-                        const voxel = world.level.getVoxel(x, y, z);
+                        const voxel = this.world.level.getVoxel(x, y, z);
                         if (voxel === undefined) continue;
                         if (voxel.type !== VoxelType.Block) continue;
-                        this.resolveVoxelCollision(world.level, voxel, entity);
+                        this.resolveVoxelCollision(voxel, entity);
                     }
                 }
             }
@@ -60,11 +59,9 @@ export class PhysicsSystem extends System {
         });
     }
 
-    private resolveVoxelCollision(
-        level: Level,
-        voxel: VoxelData,
-        entity: Entity<Archetype>
-    ) {
+    private resolveVoxelCollision(voxel: VoxelData, entity: Entity<Archetype>) {
+        const { level } = this.world;
+
         const box = new Box3();
         box.min.set(voxel.x, voxel.y, voxel.z).subScalar(0.5);
         box.max.set(voxel.x, voxel.y, voxel.z).addScalar(0.5);

@@ -11,7 +11,7 @@ export abstract class System {
         this.world = world;
     }
 
-    public abstract update(world: World, _: number): void;
+    public abstract update(_: number): void;
 
     protected createEntityFamily<T extends AnyComponents>(props: {
         archetype: T;

@@ -46,12 +46,10 @@ export class World {
 
     public update(dt: number) {
         this.elapsedTime += dt;
-
-        this.systems.forEach((system: System) => {
-            system.update(this, dt);
-        });
-
         this.decals.update(dt);
         this.particles.update(this, dt);
+        this.systems.forEach((system: System) => {
+            system.update(dt);
+        });
     }
 }

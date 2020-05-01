@@ -1,5 +1,4 @@
 import { System, Entity, AnyComponents } from "../ecs";
-import { World } from "../ecs";
 import { Components } from "../ecs";
 import {
     Hitscan,
@@ -35,8 +34,7 @@ export class PlayerShootSystem extends System {
 
     private transition(
         state: WeaponState,
-        entity: Entity<LocalAvatarArchetype>,
-        world: World
+        entity: Entity<LocalAvatarArchetype>
     ) {
         const { input, shooter } = entity;
 
@@ -47,19 +45,19 @@ export class PlayerShootSystem extends System {
 
         if (state === WeaponState.Shoot) {
             shooter.state = WeaponState.Shoot;
-            shooter.shootTime = world.elapsedTime;
+            shooter.shootTime = this.world.elapsedTime;
 
             const ammo = shooter.ammo[shooter.weaponIndex];
             ammo.loaded--;
-            shooter.shootTime = world.elapsedTime;
-            this.fireBullets(world, entity);
+            shooter.shootTime = this.world.elapsedTime;
+            this.fireBullets(entity);
 
             return;
         }
 
         if (state === WeaponState.Swap) {
             shooter.state = WeaponState.Swap;
-            shooter.swapTime = world.elapsedTime;
+            shooter.swapTime = this.world.elapsedTime;
             shooter.weaponIndex = input.weaponIndex;
             shooter.weaponIndex = modulo(shooter.weaponIndex, 3);
             return;
@@ -72,14 +70,14 @@ export class PlayerShootSystem extends System {
 
         if (state === WeaponState.Reload) {
             shooter.state = WeaponState.Reload;
-            shooter.reloadTime = world.elapsedTime;
+            shooter.reloadTime = this.world.elapsedTime;
             return;
         }
 
         console.warn(`> No state transition for ${state}`);
     }
 
-    public update(world: World) {
+    public update() {
         this.players.entities.forEach((entity) => {
             const input = entity.input;
             const shooter = entity.shooter;
@@ -91,56 +89,56 @@ export class PlayerShootSystem extends System {
 
             if (shooter.state === WeaponState.Idle) {
                 if (swap) {
-                    return this.transition(WeaponState.Swap, entity, world);
+                    return this.transition(WeaponState.Swap, entity);
                 }
 
                 if (reload) {
-                    return this.transition(WeaponState.Reload, entity, world);
+                    return this.transition(WeaponState.Reload, entity);
                 }
 
                 if (input.shoot && ammo.loaded > 0) {
-                    return this.transition(WeaponState.Shoot, entity, world);
+                    return this.transition(WeaponState.Shoot, entity);
                 }
             }
 
             if (shooter.state === WeaponState.Swap) {
-                const swapDelta = world.elapsedTime - shooter.swapTime;
+                const swapDelta = this.world.elapsedTime - shooter.swapTime;
                 if (swapDelta > SWAP_SPEED) {
-                    return this.transition(WeaponState.Idle, entity, world);
+                    return this.transition(WeaponState.Idle, entity);
                 }
 
                 if (reload) {
-                    return this.transition(WeaponState.Reload, entity, world);
+                    return this.transition(WeaponState.Reload, entity);
                 }
 
                 if (swap) {
-                    return this.transition(WeaponState.Swap, entity, world);
+                    return this.transition(WeaponState.Swap, entity);
                 }
             }
 
             if (shooter.state === WeaponState.Shoot) {
                 if (reload) {
-                    return this.transition(WeaponState.Reload, entity, world);
+                    return this.transition(WeaponState.Reload, entity);
                 } else {
-                    return this.transition(WeaponState.Cooldown, entity, world);
+                    return this.transition(WeaponState.Cooldown, entity);
                 }
             }
 
             if (shooter.state === WeaponState.Cooldown) {
                 const fireRate = weapon.firerate;
-                const shootDelta = world.elapsedTime - shooter.shootTime;
+                const shootDelta = this.world.elapsedTime - shooter.shootTime;
                 if (shootDelta > fireRate) {
-                    return this.transition(WeaponState.Idle, entity, world);
+                    return this.transition(WeaponState.Idle, entity);
                 }
             }
 
             if (shooter.state === WeaponState.Reload) {
                 if (swap) {
-                    return this.transition(WeaponState.Swap, entity, world);
+                    return this.transition(WeaponState.Swap, entity);
                 }
 
                 const weapon = WeaponSpecs[shooter.weaponIndex];
-                const reloadDelta = world.elapsedTime - shooter.reloadTime;
+                const reloadDelta = this.world.elapsedTime - shooter.reloadTime;
                 if (reloadDelta > weapon.reloadSpeed) {
                     const reload = Math.min(
                         weapon.maxLoadedAmmo - ammo.loaded,
@@ -149,7 +147,7 @@ export class PlayerShootSystem extends System {
 
                     ammo.loaded += reload;
                     ammo.reserved -= reload;
-                    return this.transition(WeaponState.Idle, entity, world);
+                    return this.transition(WeaponState.Idle, entity);
                 }
             }
         });
@@ -165,7 +163,7 @@ export class PlayerShootSystem extends System {
         return input.reload || ammo.loaded < 1;
     }
 
-    private fireBullets(world: World, player: Entity<LocalAvatarArchetype>) {
+    private fireBullets(player: Entity<LocalAvatarArchetype>) {
         const position = getHeadPosition(player);
         const rotation = player.rotation;
         const weaponSpec = getWeaponSpec(player);
@@ -189,7 +187,7 @@ export class PlayerShootSystem extends System {
 
             Hitscan.raycaster.setFromCamera(Hitscan.origin, Hitscan.camera);
 
-            const rsp = Hitscan.cast(world, this.targets);
+            const rsp = Hitscan.cast(this.world, this.targets);
             if (rsp.intersection === undefined) {
                 continue;
             }
@@ -201,11 +199,11 @@ export class PlayerShootSystem extends System {
             const { point, face } = rsp.intersection;
 
             // Emit particles
-            world.particles.emit(point, face.normal, new Color(0, 0, 0));
+            this.world.particles.emit(point, face.normal, new Color(0, 0, 0));
 
             // Bullet decal
             if (rsp.entity === undefined) {
-                world.decals.spawn(point, face.normal);
+                this.world.decals.spawn(point, face.normal);
             }
 
             // Apply damage

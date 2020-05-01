@@ -1,5 +1,4 @@
 import { System } from "../ecs";
-import { World } from "../ecs";
 import { Components } from "../ecs";
 
 export class RenderSystem extends System {
@@ -19,7 +18,7 @@ export class RenderSystem extends System {
         },
     });
 
-    public update(world: World) {
+    public update() {
         this.family.entities.forEach((entity) => {
             const { render, position, rotation } = entity;
 
@@ -39,7 +38,7 @@ export class RenderSystem extends System {
                 }
             }
 
-            const light = world.level.getVoxelLightAt(position);
+            const light = this.world.level.getVoxelLightAt(position);
             if (!render.mat.color.equals(light)) {
                 render.mat.color.lerp(light, 0.125);
                 render.mat.needsUpdate = true;

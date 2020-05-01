@@ -18,7 +18,7 @@ export class PlayerInputSystem extends System {
         this.input = input;
     }
 
-    public update(_: World, dt: number) {
+    public update(dt: number) {
         // Look input
         const mouseSensitivity = 0.1;
         const lookHor = this.input.mouse.dx;

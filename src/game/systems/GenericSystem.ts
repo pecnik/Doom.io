@@ -1,5 +1,4 @@
 import { System, Entity } from "../ecs";
-import { World } from "../ecs";
 import { Components } from "../ecs";
 import { JUMP_SPEED } from "../data/Globals";
 import { sample } from "lodash";
@@ -15,16 +14,16 @@ export class GenericSystem extends System {
         archetype: new Archetype(),
     });
 
-    public update(world: World) {
+    public update() {
         this.family.entities.forEach((entity) => {
-            this.bounceSystem(entity, world);
-            this.respawnSystem(entity, world);
+            this.bounceSystem(entity);
+            this.respawnSystem(entity);
         });
     }
 
-    private respawnSystem(entity: Entity<Archetype>, world: World) {
+    private respawnSystem(entity: Entity<Archetype>) {
         if (entity.position.y < -3) {
-            const spawn = sample(world.level.spawnPoints);
+            const spawn = sample(this.world.level.spawnPoints);
             if (spawn !== undefined) {
                 entity.position.copy(spawn);
                 entity.velocity.set(0, 0, 0);
@@ -32,10 +31,10 @@ export class GenericSystem extends System {
         }
     }
 
-    private bounceSystem(entity: Entity<Archetype>, world: World) {
+    private bounceSystem(entity: Entity<Archetype>) {
         const { position, velocity, collision } = entity;
         if (collision.falg.y === -1 && velocity.y <= 0) {
-            const voxel = world.level.getVoxelAt(position);
+            const voxel = this.world.level.getVoxelAt(position);
             if (voxel !== undefined && voxel.bounce > 0) {
                 velocity.y = JUMP_SPEED * Math.sqrt(voxel.bounce);
                 velocity.x *= 0.25;

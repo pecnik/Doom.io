@@ -1,6 +1,5 @@
 import { System } from "../../ecs";
 import { PositionalAudio } from "three";
-import { World } from "../../ecs";
 import { Components } from "../../ecs";
 import { getHeadPosition } from "../../Helpers";
 import { WeaponSpecs } from "../../data/Types";
@@ -22,9 +21,9 @@ export class AudioGunshotSystem extends System {
         },
     });
 
-    public update(world: World) {
+    public update() {
         this.family.entities.forEach((entity) => {
-            if (world.listener === undefined) {
+            if (this.world.listener === undefined) {
                 return;
             }
 
@@ -38,13 +37,13 @@ export class AudioGunshotSystem extends System {
             if (weapon.fireSoundBuffer === undefined) return;
 
             if (gunshot.audio === undefined) {
-                gunshot.audio = new PositionalAudio(world.listener);
+                gunshot.audio = new PositionalAudio(this.world.listener);
                 gunshot.audio.position.z = -0.25;
                 gunshot.origin.add(gunshot.audio);
                 this.group.add(gunshot.origin);
             }
 
-            if (shooter.shootTime === world.elapsedTime) {
+            if (shooter.shootTime === this.world.elapsedTime) {
                 if (gunshot.audio.buffer !== weapon.fireSoundBuffer) {
                     gunshot.audio.setBuffer(weapon.fireSoundBuffer);
                 }

@@ -29,11 +29,11 @@ export class AudioFootstepSystem extends System {
         });
     }
 
-    public update(world: World) {
+    public update() {
         this.family.entities.forEach((entity) => {
             const { position, velocity, footstep, collision } = entity;
 
-            if (world.listener === undefined) {
+            if (this.world.listener === undefined) {
                 return;
             }
 
@@ -42,7 +42,7 @@ export class AudioFootstepSystem extends System {
             }
 
             if (footstep.audio === undefined) {
-                footstep.audio = new PositionalAudio(world.listener);
+                footstep.audio = new PositionalAudio(this.world.listener);
                 footstep.audio.setBuffer(this.buffer);
                 this.group.add(footstep.audio);
             }
