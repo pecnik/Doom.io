@@ -185,11 +185,11 @@ export class WeaponSpriteSystem extends System {
         const stateS = avatar.shooter.state;
         const stateA = avatar.avatar.state;
 
-        if (stateA === AvatarState.Land) return this.playAction("land");
-
+        if (stateS === WeaponState.Reload) return this.playLoop("reload");
         if (stateS === WeaponState.Shoot) return this.playAction("fire");
         if (stateS === WeaponState.Swap) return this.playAction("swap");
-        if (stateS === WeaponState.Reload) return this.playLoop("reload");
+
+        if (stateA === AvatarState.Land) return this.playAction("land");
 
         if (stateA === AvatarState.Idle) return this.playLoop("idle");
         if (stateA === AvatarState.Jump) return this.playLoop("jump");
