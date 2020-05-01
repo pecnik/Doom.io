@@ -13,7 +13,7 @@ export class PlayerCameraSystem extends System {
             const position = getHeadPosition(entity);
             const rotation = entity.rotation;
 
-            const { camera } = this.engine;
+            const { camera } = this.world;
             camera.rotation.set(rotation.x, rotation.y, 0, "YXZ");
             camera.position.copy(position);
 

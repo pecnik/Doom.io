@@ -66,7 +66,7 @@ export class ClientConnectionSystem extends System {
     private onClientDispatch(socket: SocketIO.Socket, ev: Netcode.Event) {
         switch (ev.type) {
             case Netcode.EventType.HitEntity: {
-                const target = this.engine.entities.get(ev.targetId);
+                const target = this.world.entities.get(ev.targetId);
                 if (target === undefined) return;
                 if (target.health === undefined) return;
 

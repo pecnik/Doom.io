@@ -33,7 +33,7 @@ export class PickupSystem extends System {
                 const p2 = pickup.position;
                 const dist = p1.distanceToSquared(p2);
                 if (dist < 0.5 ** 2) {
-                    this.engine.removeEntity(pickup.id);
+                    this.world.removeEntity(pickup.id);
                     Sound.play("/assets/sounds/pickup_1.wav");
                     ammo.reserved += 10;
                     ammo.reserved = Math.min(
@@ -46,7 +46,7 @@ export class PickupSystem extends System {
     }
 
     private spawnPickup() {
-        const spawn = sample(this.engine.level.spawnPoints);
+        const spawn = sample(this.world.level.spawnPoints);
         if (spawn === undefined) return;
 
         for (const [, pickup] of this.pickupFamily.entities) {
@@ -63,6 +63,6 @@ export class PickupSystem extends System {
         pickup.position.copy(spawn);
         pickup.position.y -= 0.5;
         pickup.rotation.y = Math.random() * Math.PI;
-        this.engine.addEntity(pickup);
+        this.world.addEntity(pickup);
     }
 }

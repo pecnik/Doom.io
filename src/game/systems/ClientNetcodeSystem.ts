@@ -29,7 +29,7 @@ export class ClientNetcodeSystem extends System {
         });
 
         this.socket.on("dispatch", (ev: Netcode.Event) => {
-            Netcode.dispatch(this.engine, ev);
+            Netcode.dispatch(this.world, ev);
         });
     }
 

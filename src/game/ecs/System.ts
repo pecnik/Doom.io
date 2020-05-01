@@ -5,17 +5,20 @@ import { Entity } from "./Entity";
 import { AnyComponents } from "./Components";
 
 export abstract class System {
-    protected readonly engine: World;
-    public constructor(engine: World) {
-        this.engine = engine;
+    protected readonly world: World;
+
+    public constructor(world: World) {
+        this.world = world;
     }
+
     public abstract update(world: World, _: number): void;
+
     protected createEntityFamily<T extends AnyComponents>(props: {
         archetype: T;
         onEntityAdded?: (e: Entity<T>) => void;
         onEntityRemvoed?: (e: Entity<T>) => void;
     }) {
-        const family = new Family(this.engine, props.archetype);
+        const family = new Family(this.world, props.archetype);
         if (props.onEntityAdded !== undefined) {
             family.onEntityAdded.push(props.onEntityAdded);
         }
@@ -27,7 +30,7 @@ export abstract class System {
 
     protected createSceneGroup() {
         const group = new Group();
-        this.engine.scene.add(group);
+        this.world.scene.add(group);
         return group;
     }
 }

@@ -27,10 +27,10 @@ export class AvatarSpawnSystem extends System {
             if (avatar !== undefined) return;
 
             if (player.avatarSpawner.spawnTime === 0) {
-                player.avatarSpawner.spawnTime = this.engine.elapsedTime + 2;
+                player.avatarSpawner.spawnTime = this.world.elapsedTime + 2;
             }
 
-            if (player.avatarSpawner.spawnTime <= this.engine.elapsedTime) {
+            if (player.avatarSpawner.spawnTime <= this.world.elapsedTime) {
                 player.avatarSpawner.spawnTime = 0;
                 this.spawnPlayerAvatar(player);
             }
@@ -41,7 +41,7 @@ export class AvatarSpawnSystem extends System {
         const socket = this.server.getSocket(player.id);
         if (socket === undefined) return false;
 
-        const spawn = sample(this.engine.level.spawnPoints);
+        const spawn = sample(this.world.level.spawnPoints);
         if (spawn === undefined) return false;
 
         // Spawn player avatar
