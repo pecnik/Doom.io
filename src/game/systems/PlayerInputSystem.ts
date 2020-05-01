@@ -4,7 +4,7 @@ import { World } from "../ecs";
 import { Components } from "../ecs";
 import { Input, KeyCode, MouseBtn } from "../core/Input";
 import { modulo } from "../core/Utils";
-import { WeaponSpecs } from "../weapons/Weapon";
+import { WeaponSpecs } from "../data/Types";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 
 export class PlayerInputSystem extends System {

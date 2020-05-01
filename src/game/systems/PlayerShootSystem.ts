@@ -16,7 +16,7 @@ import {
     WeaponState,
     WeaponAmmo,
     WeaponSpec,
-} from "../weapons/Weapon";
+} from "../data/Types";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { Netcode } from "../Netcode";
 

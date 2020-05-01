@@ -8,8 +8,9 @@ import {
     Vector3,
 } from "three";
 import { PLAYER_RADIUS, PLAYER_HEIGHT } from "../data/Globals";
-import { WeaponState, WeaponAmmo, WeaponSpecs } from "../weapons/Weapon";
+import { WeaponState, WeaponAmmo, WeaponSpecs } from "../data/Types";
 import { Netcode } from "../Netcode";
+import { AvatarState } from "../data/Types";
 
 export type AnyComponents = Partial<AllComponents>;
 
@@ -31,6 +32,7 @@ export type AllComponents = {
     health: Components.Health;
     jump: Components.Jump;
     pickup: Components.Pickup;
+    avatar: Components.Avatar;
     avatarSpawner: Components.AvatarSpawner;
 };
 
@@ -74,6 +76,11 @@ export module Components {
                 reserved: 0,
             };
         });
+    }
+
+    export class Avatar {
+        public state = AvatarState.Idle;
+        public prevVelocityY = 0;
     }
 
     export class Render {

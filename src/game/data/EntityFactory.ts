@@ -5,7 +5,7 @@ import {
     PickupArchetype,
     EnemyAvatarArchetype,
 } from "../ecs/Archetypes";
-import { WeaponSpecs } from "../weapons/Weapon";
+import { WeaponSpecs } from "./Types";
 
 export module EntityFactory {
     const nextID = () => uniqueId("e");

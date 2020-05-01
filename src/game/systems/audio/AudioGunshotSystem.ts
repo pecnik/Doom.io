@@ -3,7 +3,7 @@ import { PositionalAudio } from "three";
 import { World } from "../../ecs";
 import { Components } from "../../ecs";
 import { getHeadPosition } from "../../Helpers";
-import { WeaponSpecs } from "../../weapons/Weapon";
+import { WeaponSpecs } from "../../data/Types";
 
 export class AudioGunshotSystem extends System {
     private readonly group = this.createSceneGroup();

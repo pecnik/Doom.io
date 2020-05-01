@@ -31,4 +31,8 @@ export class Family<T extends AnyComponents> {
             }
         });
     }
+
+    public first(): Entity<T> | undefined {
+        return this.entities.values().next().value;
+    }
 }

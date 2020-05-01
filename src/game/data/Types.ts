@@ -1,3 +1,10 @@
+export enum AvatarState {
+    Idle,
+    Walk,
+    Jump,
+    Land,
+}
+
 import { Texture } from "three";
 
 export enum WeaponState {

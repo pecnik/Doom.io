@@ -16,7 +16,7 @@ import {
     Scene,
 } from "three";
 import { World } from "./ecs";
-import { WeaponSpecs, WeaponState } from "./weapons/Weapon";
+import { WeaponSpecs, WeaponState } from "./data/Types";
 import { PLAYER_HEIGHT } from "./data/Globals";
 import { AvatarArchetype } from "./ecs/Archetypes";
 

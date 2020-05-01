@@ -12,7 +12,7 @@ import { AudioGunshotSystem } from "./systems/audio/AudioGunshotSystem";
 import { WeaponSpriteSystem } from "./systems/hud/WeaponSpriteSystem";
 import { AudioListener, AudioLoader } from "three";
 import { HudDisplaySystem } from "./systems/hud/HudDisplaySystem";
-import { WeaponSpecs } from "./weapons/Weapon";
+import { WeaponSpecs } from "./data/Types";
 import { Game } from "./core/Engine";
 import { loadTexture, EntityMesh } from "./Helpers";
 import { PlayerCouchSystem } from "./systems/PlayerCouchSystem";
@@ -21,6 +21,7 @@ import Stats from "stats.js";
 import { PickupSystem } from "./systems/PickupSystem";
 import { ClientNetcodeSystem } from "./systems/ClientNetcodeSystem";
 import { LocalAvatarArchetype } from "./ecs/Archetypes";
+import { AvatarStateSystem } from "./systems/AvatarStateSystem";
 
 export class GameClient implements Game {
     // private readonly socket: SocketIOClient.Socket;
@@ -96,6 +97,7 @@ export class GameClient implements Game {
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new PickupSystem(this.world));
         this.world.addSystem(new GenericSystem(this.world));
+        this.world.addSystem(new AvatarStateSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new PlayerShootSystem(this.world));
         this.world.addSystem(new RenderSystem(this.world));

@@ -15,6 +15,7 @@ export class AvatarArchetype implements AnyComponents {
     public gunshot = new Components.Gunshot();
     public footstep = new Components.Footstep();
     public health = new Components.Health();
+    public avatar = new Components.Avatar();
 }
 
 export class LocalAvatarArchetype extends AvatarArchetype {
