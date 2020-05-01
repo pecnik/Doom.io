@@ -34,4 +34,6 @@ export function createDebugCli(game: GameClient) {
     });
 
     command("all", () => logmap(game.world.entities));
+
+    command("world", () => game.world);
 }
