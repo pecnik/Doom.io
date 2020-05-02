@@ -1,6 +1,6 @@
 import { Entity } from "./Entity";
 import { System } from "./System";
-import { Scene, PerspectiveCamera, AudioListener } from "three";
+import { Scene, PerspectiveCamera } from "three";
 import { Level } from "../data/Level";
 import { BulletDecals } from "../data/BulletDecals";
 import { Particles } from "../data/Particles";
@@ -16,7 +16,6 @@ export class World {
     public readonly decals = new BulletDecals();
     public readonly particles = new Particles();
     public elapsedTime = 0;
-    public listener?: AudioListener;
 
     public constructor() {
         this.scene.add(this.level.mesh);

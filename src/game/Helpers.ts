@@ -19,7 +19,6 @@ import { World } from "./ecs";
 import { WeaponSpecs, WeaponState } from "./data/Types";
 import { PLAYER_HEIGHT } from "./data/Globals";
 import { AvatarArchetype } from "./ecs/Archetypes";
-import { memoize } from "lodash";
 
 export function getPlayerAvatar(
     playerId: string,
@@ -110,22 +109,6 @@ export module EntityMesh {
                 entity.render.mat.map.magFilter = NearestFilter;
             }
         }
-    }
-}
-
-export module Sound {
-    const getAudio = memoize((src: string) => {
-        const audio = new Audio(src);
-        return audio;
-    });
-
-    export function play(src: string) {
-        const audio = getAudio(src);
-        if (audio.currentTime > 0) {
-            audio.currentTime = 0;
-        }
-
-        audio.play();
     }
 }
 

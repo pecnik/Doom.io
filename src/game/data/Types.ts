@@ -1,11 +1,11 @@
+import { Texture } from "three";
+
 export enum AvatarState {
     Idle,
     Walk,
     Jump,
     Land,
 }
-
-import { Texture } from "three";
 
 export enum WeaponState {
     Idle,
@@ -32,13 +32,11 @@ export interface WeaponSpec {
     readonly bulletsPerShot: number;
     readonly bulletDamage: number;
 
+    readonly fireSoundSrc: string;
     readonly ammoPackName: string;
 
     readonly povSpriteSrc: string;
     povSpriteTexture?: Texture;
-
-    readonly fireSoundSrc: string;
-    fireSoundBuffer?: AudioBuffer;
 }
 
 export const WeaponSpecs: Readonly<WeaponSpec[]> = Object.freeze([

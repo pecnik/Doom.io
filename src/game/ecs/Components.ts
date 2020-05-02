@@ -4,7 +4,6 @@ import {
     Geometry,
     MeshBasicMaterial,
     BufferGeometry,
-    PositionalAudio,
     Vector3,
 } from "three";
 import { PLAYER_RADIUS, PLAYER_HEIGHT } from "../data/Globals";
@@ -27,13 +26,12 @@ export type AllComponents = {
     input: Components.Input;
     shooter: Components.Shooter;
     render: Components.Render;
-    footstep: Components.Footstep;
-    gunshot: Components.Gunshot;
     health: Components.Health;
     jump: Components.Jump;
     pickup: Components.Pickup;
     avatar: Components.Avatar;
     avatarSpawner: Components.AvatarSpawner;
+    footstep: Components.Footstep;
 };
 
 export module Components {
@@ -91,15 +89,6 @@ export module Components {
         public mat = Render.Mat;
     }
 
-    export class Footstep {
-        public audio?: PositionalAudio;
-    }
-
-    export class Gunshot {
-        public audio?: PositionalAudio;
-        public origin = new Object3D();
-    }
-
     export class Health {
         public value = 100;
     }
@@ -128,5 +117,9 @@ export module Components {
 
     export class AvatarSpawner {
         public spawnTime = 0;
+    }
+
+    export class Footstep {
+        public stepTime = 0;
     }
 }

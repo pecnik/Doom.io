@@ -6,11 +6,8 @@ import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
 import { PhysicsSystem } from "./systems/PhysicsSystem";
 import { RenderSystem } from "./systems/RenderSystem";
-import { AudioFootstepSystem } from "./systems/audio/AudioFootstepSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
-import { AudioGunshotSystem } from "./systems/audio/AudioGunshotSystem";
 import { WeaponSpriteSystem } from "./systems/hud/WeaponSpriteSystem";
-import { AudioListener, AudioLoader } from "three";
 import { HudDisplaySystem } from "./systems/hud/HudDisplaySystem";
 import { WeaponSpecs } from "./data/Types";
 import { Game } from "./core/Engine";
@@ -22,9 +19,11 @@ import { PickupSystem } from "./systems/PickupSystem";
 import { ClientNetcodeSystem } from "./systems/ClientNetcodeSystem";
 import { LocalAvatarArchetype } from "./ecs/Archetypes";
 import { AvatarStateSystem } from "./systems/AvatarStateSystem";
+import { ShooterAudioSystem } from "./systems/audio/ShooterAudioSystem";
+import { Sound3D } from "./sound/Sound3D";
+import { FootstepAudioSystem } from "./systems/audio/FootstepAudioSystem";
 
 export class GameClient implements Game {
-    // private readonly socket: SocketIOClient.Socket;
     private readonly stats = new Stats();
     private readonly input = new Input({ requestPointerLock: true });
     public readonly world = new World();
@@ -36,6 +35,10 @@ export class GameClient implements Game {
 
             // Load entity mesh data
             EntityMesh.load(),
+
+            // Preload weapon audio
+            Sound3D.load(WeaponSpecs.map((ws) => ws.fireSoundSrc)),
+            Sound3D.load(["/assets/sounds/footstep.wav"]),
 
             // Load level
             loadTexture("/assets/tileset.png").then((map) => {
@@ -54,41 +57,33 @@ export class GameClient implements Game {
                     this.world.level.updateSpawnPoints();
                     this.world.level.updateGeometry();
                     this.world.level.updateLighing();
-
                     // this.world.scene.add(this.world.level.debug);
                 });
             }),
-
+        ]).then(() => {
             // Preload weapon sprite
-            ...WeaponSpecs.map((weapon) => {
-                return loadTexture(weapon.povSpriteSrc).then((map) => {
-                    weapon.povSpriteTexture = map;
-                });
-            }),
-
-            // Preload weapon audio
-            ...WeaponSpecs.map((weapon) => {
-                return new Promise((resolve) => {
-                    new AudioLoader().load(weapon.fireSoundSrc, (buffer) => {
-                        weapon.fireSoundBuffer = buffer;
-                        resolve();
+            return Promise.all([
+                ...WeaponSpecs.map((weapon) => {
+                    return loadTexture(weapon.povSpriteSrc).then((map) => {
+                        weapon.povSpriteTexture = map;
+                        return undefined;
                     });
-                });
-            }),
-        ]);
+                }),
+            ]);
+        });
     }
 
     public create() {
         // Mount stats
         document.body.appendChild(this.stats.dom);
 
-        // Init audio listener
-        this.world.listener = new AudioListener();
-        this.world.camera.add(this.world.listener);
-
         // Init camera position
         const { max_x, max_y, max_z } = this.world.level.data;
         this.world.camera.position.set(max_x, max_y, max_z).multiplyScalar(0.5);
+
+        // Init Sound3D
+        this.world.camera.add(Sound3D.listener);
+        this.world.scene.add(Sound3D.group);
 
         // Systems
         this.world.addSystem(new PlayerInputSystem(this.world, this.input));
@@ -106,8 +101,9 @@ export class GameClient implements Game {
         this.world.addSystem(new HudDisplaySystem(this.world, this.hud));
         this.world.addSystem(new WeaponSpriteSystem(this.world, this.hud));
 
-        this.world.addSystem(new AudioGunshotSystem(this.world));
-        this.world.addSystem(new AudioFootstepSystem(this.world));
+        // Audio
+        this.world.addSystem(new ShooterAudioSystem(this.world));
+        this.world.addSystem(new FootstepAudioSystem(this.world));
 
         {
             // Temporary ftw idk

@@ -12,16 +12,15 @@ export class AvatarArchetype implements AnyComponents {
     public velocity = new Components.Velocity();
     public rotation = new Components.Rotation();
     public collision = new Components.Collision();
-    public gunshot = new Components.Gunshot();
     public footstep = new Components.Footstep();
     public health = new Components.Health();
     public avatar = new Components.Avatar();
+    public shooter = new Components.Shooter();
 }
 
 export class LocalAvatarArchetype extends AvatarArchetype {
     public jump = new Components.Jump();
     public input = new Components.Input();
-    public shooter = new Components.Shooter();
     public eventsBuffer = [];
 }
 

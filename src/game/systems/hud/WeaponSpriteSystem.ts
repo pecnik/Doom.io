@@ -88,7 +88,6 @@ export class WeaponSpriteSystem extends System {
     });
 
     private readonly origin: Group;
-    private readonly world: World;
     private readonly sprites: Sprite[];
     private readonly offset = new Vector2();
     private readonly animations = [
@@ -103,7 +102,6 @@ export class WeaponSpriteSystem extends System {
 
     public constructor(world: World, hud: Hud) {
         super(world);
-        this.world = world;
 
         this.origin = new Group();
         this.sprites = this.origin.children as Sprite[];
