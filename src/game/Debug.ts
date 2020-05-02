@@ -1,5 +1,5 @@
 import { GameClient } from "./GameClient";
-import { Family } from "./ecs";
+import { Family, AnyComponents } from "./ecs";
 import {
     AvatarArchetype,
     LocalAvatarArchetype,
@@ -20,15 +20,17 @@ export function createDebugCli(game: GameClient) {
         console.table(data);
     };
 
-    [
-        PlayerArchetype,
-        AvatarArchetype,
-        LocalAvatarArchetype,
-        EnemyAvatarArchetype,
-        PickupArchetype,
-    ].forEach((Archetype) => {
-        const family = Family.findOrCreate(new Archetype());
-        command(Archetype.name.replace("Archetype", ""), () => {
+    const archetypeDumps: [string, AnyComponents][] = [
+        ["Player", new PlayerArchetype()],
+        ["Avatar", new AvatarArchetype()],
+        ["LocalAvatar", new LocalAvatarArchetype()],
+        ["EnemyAvatar", new EnemyAvatarArchetype()],
+        ["Pickup", new PickupArchetype()],
+    ];
+
+    archetypeDumps.forEach(([name, archetype]) => {
+        const family = Family.findOrCreate(archetype);
+        command(name, () => {
             logmap(family.entities);
         });
     });
