@@ -11,12 +11,14 @@ export class ShooterAudioSystem extends System {
 
     public update() {
         this.family.entities.forEach((entity) => {
-            if (entity.shooter.state === WeaponState.Shoot) {
-                const weaponSpec = getWeaponSpec(entity);
-                Sound2D.get(weaponSpec.fireSoundSrc).play();
+            if (entity.shooter.sound === WeaponState.Shoot) {
+                entity.shooter.sound = WeaponState.Idle;
+                Sound2D.get(getWeaponSpec(entity).fireSoundSrc).play();
+            }
 
-                // const sound3D = Sound3D.get(weaponSpec.fireSoundSrc);
-                // sound3D.emitFrom(entity);
+            if (entity.shooter.sound === WeaponState.Reload) {
+                entity.shooter.sound = WeaponState.Idle;
+                Sound2D.get("/assets/sounds/reload.wav").play();
             }
         });
     }

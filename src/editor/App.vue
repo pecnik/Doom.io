@@ -36,7 +36,7 @@ export default {
             localStorage.setItem("level", json);
 
             const url = [location.origin, location.pathname].join("");
-            window.open(url);
+            window.open(url + "#offline");
         }
     },
     mounted() {

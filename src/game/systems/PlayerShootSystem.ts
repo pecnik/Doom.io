@@ -45,6 +45,7 @@ export class PlayerShootSystem extends System {
 
         if (state === WeaponState.Shoot) {
             shooter.state = WeaponState.Shoot;
+            shooter.sound = WeaponState.Shoot;
             shooter.shootTime = this.world.elapsedTime;
 
             const ammo = shooter.ammo[shooter.weaponIndex];
@@ -70,6 +71,7 @@ export class PlayerShootSystem extends System {
 
         if (state === WeaponState.Reload) {
             shooter.state = WeaponState.Reload;
+            shooter.sound = WeaponState.Reload;
             shooter.reloadTime = this.world.elapsedTime;
             return;
         }

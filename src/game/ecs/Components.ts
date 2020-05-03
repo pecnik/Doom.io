@@ -64,6 +64,8 @@ export module Components {
 
     export class Shooter {
         public state = WeaponState.Idle;
+        public sound = WeaponState.Idle;
+
         public swapTime = 0;
         public shootTime = 0;
         public reloadTime = 0;

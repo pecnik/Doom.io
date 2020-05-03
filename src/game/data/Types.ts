@@ -48,7 +48,7 @@ export const WeaponSpecs: Readonly<WeaponSpec[]> = Object.freeze([
         fireSoundSrc: "/assets/sounds/fire-gun.wav",
         ammoPackName: "__AMMO_GUN__",
         firerate: 1 / 3,
-        reloadSpeed: 2,
+        reloadSpeed: 1,
 
         knockback: 0.125,
         maxLoadedAmmo: 8,
