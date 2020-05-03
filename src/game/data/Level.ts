@@ -15,9 +15,9 @@ import {
 import { disposeMeshMaterial } from "../Helpers";
 import { clamp } from "lodash";
 
-export const TILE_W = 32;
-export const TILE_H = 32;
-export const TEXTURE_W = 256;
+export const TILE_W = 18;
+export const TILE_H = 18;
+export const TEXTURE_W = 128;
 export const TEXTURE_H = 256;
 export const TILE_COLS = Math.floor(TEXTURE_W / TILE_W);
 export const TILE_ROWS = Math.floor(TEXTURE_H / TILE_H);
