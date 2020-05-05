@@ -105,18 +105,13 @@ export class GameClient implements Game {
         this.world.addSystem(new ShooterAudioSystem(this.world));
         this.world.addSystem(new FootstepAudioSystem(this.world));
 
-        {
-            // Temporary ftw idk
-            const hash = location.hash.replace("#", "");
-            if (hash === "online") {
-                this.world.addSystem(new ClientNetcodeSystem(this.world));
-            } else if (hash === "offline") {
-                const avatar = { id: "p1", ...new LocalAvatarArchetype() };
-                this.world.addEntity(avatar);
-            } else {
-                location.hash = confirm("Online?") ? "online" : "offline";
-                location.reload();
-            }
+        // Temporary ftw idk
+        const route = location.hash.replace("#", "");
+        if (route === "/game/multiplayer") {
+            this.world.addSystem(new ClientNetcodeSystem(this.world));
+        } else {
+            const avatar = { id: "p1", ...new LocalAvatarArchetype() };
+            this.world.addEntity(avatar);
         }
     }
 

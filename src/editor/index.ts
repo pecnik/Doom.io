@@ -14,7 +14,7 @@ new Vue({
     store,
     vuetify,
     render: h => h(App)
-}).$mount("#editor-container");
+}).$mount("#editor");
 
 // Idk ...
 const gamearea = document.getElementById("gamearea");
