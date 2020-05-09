@@ -30,11 +30,11 @@ export default {
 <style scoped lang="scss">
 .tile-wrapper {
     display: inline-block;
-    width: 54px;
-    height: 54px;
+    width: 64px;
+    height: 64px;
     .tile {
         display: inline-block;
-        transform: scale(3);
+        // transform: scale(3);
         transform-origin: 0 0;
         image-rendering: pixelated;
     }

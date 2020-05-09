@@ -17,7 +17,7 @@ export class GameServer {
         this.io = io;
 
         // Init level
-        const levelPath = __dirname + "/../../assets/levels/castle.json";
+        const levelPath = __dirname + "/../../assets/levels/factory.json";
         const levelJson = fs.readFileSync(levelPath);
         this.world.level.data = JSON.parse(String(levelJson));
         this.world.level.updateSpawnPoints();

@@ -48,7 +48,7 @@ export class GameClient implements Game {
                     const json = localStorage.getItem("level");
                     if (json !== null) return Promise.resolve(JSON.parse(json));
 
-                    const url = "/assets/levels/castle.json";
+                    const url = "/assets/levels/factory.json";
                     return fetch(url).then((rsp) => rsp.json());
                 };
 
@@ -56,7 +56,7 @@ export class GameClient implements Game {
                     this.world.level.data = data;
                     this.world.level.updateSpawnPoints();
                     this.world.level.updateGeometry();
-                    // this.world.level.updateLighing();
+                    this.world.level.updateLighing();
                     // this.world.scene.add(this.world.level.debug);
                 });
             }),
