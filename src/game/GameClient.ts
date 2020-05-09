@@ -56,7 +56,7 @@ export class GameClient implements Game {
                     this.world.level.data = data;
                     this.world.level.updateSpawnPoints();
                     this.world.level.updateGeometry();
-                    this.world.level.updateLighing();
+                    // this.world.level.updateLighing();
                     // this.world.scene.add(this.world.level.debug);
                 });
             }),

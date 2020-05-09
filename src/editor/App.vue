@@ -36,7 +36,7 @@ export default {
             localStorage.setItem("level", json);
 
             const url = [location.origin, location.pathname].join("");
-            window.open(url + "#offline");
+            window.open(url + "#/game/singleplayer");
         }
     },
     mounted() {
