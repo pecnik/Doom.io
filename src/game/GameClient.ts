@@ -22,6 +22,7 @@ import { AvatarStateSystem } from "./systems/AvatarStateSystem";
 import { ShooterAudioSystem } from "./systems/audio/ShooterAudioSystem";
 import { Sound3D } from "./sound/Sound3D";
 import { FootstepAudioSystem } from "./systems/audio/FootstepAudioSystem";
+import { createSkybox } from "./data/Skybox";
 
 export class GameClient implements Game {
     private readonly stats = new Stats();
@@ -59,6 +60,11 @@ export class GameClient implements Game {
                     this.world.level.updateLighing();
                     // this.world.scene.add(this.world.level.debug);
                 });
+            }),
+
+            // Create skyboc
+            createSkybox().then((skybox) => {
+                this.world.scene.add(skybox);
             }),
         ]).then(() => {
             // Preload weapon sprite
