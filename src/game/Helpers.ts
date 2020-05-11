@@ -45,14 +45,14 @@ export function getHeadPosition(
 }
 
 export function getWeaponAmmo(
-    entity: Entity<{ shooter: Components.Shooter }>,
+    entity: { shooter: Components.Shooter },
     weaponType = entity.shooter.weaponType
 ) {
     return entity.shooter.ammo[weaponType];
 }
 
 export function getWeaponSpec(
-    entity: Entity<{ shooter: Components.Shooter }>,
+    entity: { shooter: Components.Shooter },
     weaponType = entity.shooter.weaponType
 ) {
     return WEAPON_SPEC_RECORD[weaponType];

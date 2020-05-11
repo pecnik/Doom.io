@@ -1,209 +1,209 @@
-import { Vector2, Group, Sprite, SpriteMaterial, Vector3 } from "three";
-import { LocalAvatarArchetype } from "../../ecs/Archetypes";
-import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../../data/Globals";
+import { LocalAvatarArchetype, AvatarArchetype } from "../../ecs/Archetypes";
 import { System, World } from "../../ecs";
+import { Group, Sprite, Vector3 } from "three";
 import { Hud } from "../../data/Hud";
-import { WeaponState } from "../../data/Types";
-import { lerp } from "../../core/Utils";
-import { isScopeActive, loadTexture } from "../../Helpers";
-import { AvatarState } from "../../data/Types";
-import { WEAPON_SPEC_RECORD, WeaponType } from "../../data/Weapon";
+import { HUD_WIDTH, HUD_HEIGHT, SWAP_SPEED } from "../../data/Globals";
+import { WEAPON_SPEC_RECORD } from "../../data/Weapon";
+import { loadTexture, getWeaponSpec } from "../../Helpers";
+import { AvatarState, WeaponState } from "../../data/Types";
+import { lerp, ease } from "../../core/Utils";
 
-export type AnimationName =
-    | "idle"
-    | "walk"
-    | "jump"
-    | "fire"
-    | "swap"
-    | "land"
-    | "reload";
+class Clip {
+    public time = 0;
+    public weight = 1;
+    public play = false;
+    public position = new Vector3();
 
-abstract class WeaponSpriteAnimation {
-    public weight = 0;
-    public offset = new Vector2();
-    public abstract readonly name: AnimationName;
-    public abstract update(elapsed: number, avatar: LocalAvatarArchetype): void;
-}
+    public update(dt: number) {
+        this.time += dt;
+        this.animation();
+    }
 
-class IdleAnimation extends WeaponSpriteAnimation {
-    public readonly name = "idle";
-    public update(elapsed: number): void {
-        this.offset.y = Math.sin(elapsed) * 0.05 - 0.1;
+    public animation() {
+        // ...
     }
 }
 
-class LandAnimation extends WeaponSpriteAnimation {
-    public readonly name = "land";
-    public update(_: number, avatar: LocalAvatarArchetype): void {
-        if (avatar.avatar.prevVelocityY < 0) {
-            this.offset.y = (avatar.avatar.prevVelocityY / 16) * 0.5;
-        }
+class IdleClip extends Clip {
+    animation() {
+        this.position.y = Math.sin(this.time) * 0.05 - 0.1;
     }
 }
 
-class WalkAnimation extends WeaponSpriteAnimation {
-    public readonly name = "walk";
-    public update(elapsed: number): void {
-        elapsed *= 10;
-        this.offset.x = Math.cos(elapsed) * 0.05;
-        this.offset.y = Math.abs(Math.sin(elapsed) * 0.05) - 0.1;
+class WalkClip extends Clip {
+    animation() {
+        const elapsed = this.time * 10;
+        this.position.x = Math.cos(elapsed) * 0.05;
+        this.position.y = Math.abs(Math.sin(elapsed) * 0.05) - 0.1;
     }
 }
 
-class JumpAnimation extends WeaponSpriteAnimation {
-    public readonly name = "jump";
-    public update(): void {
-        this.offset.y = 0.0625;
+class JumpClip extends Clip {
+    animation() {
+        this.position.y = 0.1;
     }
 }
 
-class FireAnimation extends WeaponSpriteAnimation {
-    public readonly name = "fire";
-    public update() {
-        const knockback = 0.125;
-        this.offset.x = knockback;
-        this.offset.y = -knockback;
+class LandClip extends Clip {
+    animation() {
+        this.position.y = -0.1;
     }
 }
 
-class SwapAnimation extends WeaponSpriteAnimation {
-    public readonly name = "swap";
-    public update(el: number, avatar: LocalAvatarArchetype): void {
-        const swapDelta = el - avatar.shooter.swapTime;
-        this.offset.y = swapDelta / SWAP_SPEED - 1;
-        this.offset.y -= 0.25;
-        this.offset.x = this.offset.y / 2;
-    }
-}
-
-class ReloadAnimation extends WeaponSpriteAnimation {
-    public readonly name = "reload";
-    public update(): void {
-        this.offset.y = -1;
+class ReloadClip extends Clip {
+    animation() {
+        const elapsed = this.time;
+        this.position.x = Math.cos(elapsed) * 0.05;
+        this.position.y = Math.abs(Math.sin(elapsed) * 0.05) - 0.1;
+        this.position.y -= 1;
     }
 }
 
 export class WeaponSpriteSystem extends System {
+    private readonly sprite = new Group();
     private readonly family = this.createEntityFamily({
         archetype: new LocalAvatarArchetype(),
     });
 
-    private readonly origin: Group;
-    private readonly sprites: Record<WeaponType, Sprite>;
-    private readonly offset = new Vector2();
-    private readonly animations = [
-        new IdleAnimation(),
-        new WalkAnimation(),
-        new JumpAnimation(),
-        new FireAnimation(),
-        new SwapAnimation(),
-        new LandAnimation(),
-        new ReloadAnimation(),
+    private readonly idleClip = new IdleClip();
+    private readonly walkClip = new WalkClip();
+    private readonly jumpClip = new JumpClip();
+    private readonly landClip = new LandClip();
+    private readonly reloadClip = new ReloadClip();
+    private readonly animationClips = [
+        this.idleClip,
+        this.walkClip,
+        this.jumpClip,
+        this.landClip,
+        this.reloadClip,
     ];
 
     public constructor(world: World, hud: Hud) {
         super(world);
 
-        this.origin = new Group();
+        // Create weapon sprite container
+        const container = new Group();
+        container.position.x = HUD_WIDTH / 4;
+        container.position.y = -HUD_HEIGHT / 3;
+        container.renderOrder = 0;
+        container.scale.set(2, 1, 1);
+        container.scale.multiplyScalar(256);
+        container.add(this.sprite);
+        hud.scene.add(container);
 
-        this.origin.position.x = HUD_WIDTH / 4;
-        this.origin.position.y = -HUD_HEIGHT / 3;
-        this.origin.renderOrder = 0;
-        this.origin.scale.set(2, 1, 1);
-        this.origin.scale.multiplyScalar(256);
+        // Create individual weapon sprites
+        Object.values(WEAPON_SPEC_RECORD).forEach((weaponSpec) => {
+            const sprite = new Sprite();
+            this.sprite.add(sprite);
 
-        const initSprite = (type: WeaponType) => {
-            const material = new SpriteMaterial({});
-            const sprite = new Sprite(material);
-            this.origin.add(sprite);
-
-            loadTexture(WEAPON_SPEC_RECORD[type].povSprite).then((map) => {
-                material.map = map;
-                material.needsUpdate = true;
+            loadTexture(weaponSpec.povSprite).then((map) => {
+                sprite.name = weaponSpec.povSprite;
+                sprite.material.map = map;
+                sprite.material.needsUpdate = true;
             });
-
-            return sprite;
-        };
-
-        this.sprites = {
-            [WeaponType.Pistol]: initSprite(WeaponType.Pistol),
-            [WeaponType.Shotgun]: initSprite(WeaponType.Shotgun),
-            [WeaponType.Machinegun]: initSprite(WeaponType.Machinegun),
-        };
-
-        hud.scene.add(this.origin);
+        });
     }
 
-    public update() {
-        this.origin.children.forEach((weaponSprite) => {
-            weaponSprite.visible = false;
-        });
-
+    public update(dt: number) {
         const avatar = this.family.first();
         if (avatar === undefined) {
+            this.sprite.visible = false;
             return;
         }
 
-        const sprite = this.sprites[avatar.shooter.weaponType];
-        if (sprite === undefined) {
+        this.sprite.visible = true;
+        this.updateClip(avatar);
+        this.updatePositionAnimation(avatar, dt);
+    }
+
+    private updateClip(avatar: AvatarArchetype) {
+        const weaponSpec = getWeaponSpec(avatar);
+        const frames = this.sprite.children as Sprite[];
+        for (let i = 0; i < frames.length; i++) {
+            const frame = frames[i];
+            frame.visible = frame.name === weaponSpec.povSprite;
+
+            if (frame.visible) {
+                const light = this.world.level.getVoxelLightAt(avatar.position);
+                if (!frame.material.color.equals(light)) {
+                    frame.material.color.lerp(light, 0.125);
+                    frame.material.needsUpdate = true;
+                }
+            }
+        }
+    }
+
+    private updatePositionAnimation(avatar: AvatarArchetype, dt: number) {
+        const astate = avatar.avatar.state;
+        const sstate = avatar.shooter.state;
+
+        const stopClips = () => {
+            this.animationClips.forEach((clip) => {
+                clip.weight = 0;
+                clip.play = false;
+            });
+        };
+
+        const playClip = (loop: Clip, dt = 1 / 30) => {
+            for (let i = 0; i < this.animationClips.length; i++) {
+                const clip = this.animationClips[i];
+                if (clip === loop) {
+                    clip.play = true;
+                    clip.weight = lerp(clip.weight, 1, dt);
+                } else {
+                    clip.play = false;
+                    clip.weight = 0;
+                }
+            }
+        };
+
+        if (sstate === WeaponState.Shoot) {
+            const knockback = 0.125;
+            this.sprite.position.x = knockback;
+            this.sprite.position.y = -knockback;
+            stopClips();
             return;
         }
 
-        // Update animation
-        this.setActiveAnimation(avatar);
-        this.offset.setScalar(0);
-        this.animations.forEach((loop) => {
-            if (loop.weight > 0) {
-                loop.update(this.world.elapsedTime, avatar);
-                this.offset.x += loop.offset.x * loop.weight;
-                this.offset.y += loop.offset.y * loop.weight;
+        if (sstate === WeaponState.Swap) {
+            const swapDelta = this.world.elapsedTime - avatar.shooter.swapTime;
+            const pos = this.sprite.position;
+            pos.y = ease(-1, 0, swapDelta / SWAP_SPEED);
+            pos.x = pos.y / 2;
+            stopClips();
+            return;
+        }
+
+        if (sstate === WeaponState.Reload) {
+            playClip(this.reloadClip);
+        } else if (astate === AvatarState.Walk) {
+            playClip(this.walkClip);
+        } else if (astate === AvatarState.Jump) {
+            playClip(this.jumpClip);
+        } else if (astate === AvatarState.Land) {
+            playClip(this.landClip, 1);
+        } else {
+            playClip(this.idleClip);
+        }
+
+        // Update clips
+        this.animationClips.forEach((clip) => {
+            if (clip.play) {
+                clip.time += dt;
+                clip.animation();
+
+                this.sprite.position.x = ease(
+                    this.sprite.position.x,
+                    clip.position.x,
+                    clip.weight
+                );
+
+                this.sprite.position.y = ease(
+                    this.sprite.position.y,
+                    clip.position.y,
+                    clip.weight
+                );
             }
         });
-
-        // Scale sprite up when scope is active
-        const scale = isScopeActive(avatar) ? 2 : 1;
-        if (sprite.scale.x !== scale) {
-            sprite.scale.lerp(new Vector3(scale, scale, scale), 0.25);
-        }
-
-        // Update light color
-        const light = this.world.level.getVoxelLightAt(avatar.position);
-        if (!sprite.material.color.equals(light)) {
-            sprite.material.color.lerp(light, 0.125);
-            sprite.material.needsUpdate = true;
-        }
-
-        // Update position
-        sprite.visible = true;
-        sprite.position.x = this.offset.x;
-        sprite.position.y = this.offset.y;
-    }
-
-    private playLoop(name: AnimationName) {
-        this.animations.forEach((loop) => {
-            const weight = loop.name === name ? 1 : 0;
-            loop.weight = lerp(loop.weight, weight, 0.1);
-        });
-    }
-
-    private playAction(name: AnimationName) {
-        this.animations.forEach((loop) => {
-            loop.weight = loop.name === name ? 1 : 0;
-        });
-    }
-
-    private setActiveAnimation(avatar: LocalAvatarArchetype) {
-        const stateS = avatar.shooter.state;
-        const stateA = avatar.avatar.state;
-
-        if (stateS === WeaponState.Reload) return this.playLoop("reload");
-        if (stateS === WeaponState.Shoot) return this.playAction("fire");
-        if (stateS === WeaponState.Swap) return this.playAction("swap");
-
-        if (stateA === AvatarState.Land) return this.playAction("land");
-
-        if (stateA === AvatarState.Idle) return this.playLoop("idle");
-        if (stateA === AvatarState.Jump) return this.playLoop("jump");
-        if (stateA === AvatarState.Walk) return this.playLoop("walk");
     }
 }
