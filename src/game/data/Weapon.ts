@@ -46,7 +46,7 @@ export class WeaponSpecBuilder {
         return this;
     }
 
-    public damage(damage: number, count = 4) {
+    public damage(damage: number, count = 1) {
         this.weaponSpec.bulletDamage = damage;
         this.weaponSpec.bulletsPerShot = count;
         return this;
@@ -109,7 +109,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
         .type(WeaponType.Shotgun)
         .ammo(2, 128)
         .damage(25, 4)
-        .accuracy(0.9)
+        .accuracy(0.1)
         .roundsPerSec(2)
         .reloadSpeed(1.25)
         .povSprite("/assets/sprites/pov-shotgun.png")
@@ -124,7 +124,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
         .type(WeaponType.Machinegun)
         .ammo(32, 512)
         .damage(15)
-        .accuracy(0.9)
+        .accuracy(0.75)
         .roundsPerSec(8)
         .reloadSpeed(1.5)
         .povSprite("/assets/sprites/pov-machine-gun.png")
