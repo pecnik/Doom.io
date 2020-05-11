@@ -97,7 +97,7 @@ export class HudDisplaySystem extends System {
 
     public update() {
         this.family.entities.forEach(({ shooter }) => {
-            const ammo = shooter.ammo[shooter.weaponIndex];
+            const ammo = shooter.ammo[shooter.weaponType];
 
             if (
                 this.ammoText.props.loadedAmmo !== ammo.loaded ||

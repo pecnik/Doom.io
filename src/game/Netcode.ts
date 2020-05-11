@@ -2,6 +2,7 @@ import { World, Entity, Components } from "./ecs";
 import { EntityFactory } from "./data/EntityFactory";
 import { PlayerArchetype } from "./ecs/Archetypes";
 import { Vector3 } from "three";
+import { WeaponType } from "./data/Weapon";
 
 export module Netcode {
     export type Ctx = { emit: (type: string, data: any) => void };
@@ -82,7 +83,7 @@ export module Netcode {
         public attackerId = "";
         public targetId = "";
         public damage = 0;
-        public weaponIindex = 0;
+        public weaponType = WeaponType.Pistol;
         public headshot = false;
     }
 

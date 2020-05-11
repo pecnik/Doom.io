@@ -3,10 +3,11 @@ import { LocalAvatarArchetype } from "../../ecs/Archetypes";
 import { SWAP_SPEED, HUD_WIDTH, HUD_HEIGHT } from "../../data/Globals";
 import { System, World } from "../../ecs";
 import { Hud } from "../../data/Hud";
-import { WeaponSpecs, WeaponState } from "../../data/Types";
+import { WeaponState } from "../../data/Types";
 import { lerp } from "../../core/Utils";
-import { isScopeActive } from "../../Helpers";
+import { isScopeActive, loadTexture } from "../../Helpers";
 import { AvatarState } from "../../data/Types";
+import { WEAPON_SPEC_RECORD, WeaponType } from "../../data/Weapon";
 
 export type AnimationName =
     | "idle"
@@ -88,7 +89,7 @@ export class WeaponSpriteSystem extends System {
     });
 
     private readonly origin: Group;
-    private readonly sprites: Sprite[];
+    private readonly sprites: Record<WeaponType, Sprite>;
     private readonly offset = new Vector2();
     private readonly animations = [
         new IdleAnimation(),
@@ -104,7 +105,6 @@ export class WeaponSpriteSystem extends System {
         super(world);
 
         this.origin = new Group();
-        this.sprites = this.origin.children as Sprite[];
 
         this.origin.position.x = HUD_WIDTH / 4;
         this.origin.position.y = -HUD_HEIGHT / 3;
@@ -112,26 +112,39 @@ export class WeaponSpriteSystem extends System {
         this.origin.scale.set(2, 1, 1);
         this.origin.scale.multiplyScalar(256);
 
-        WeaponSpecs.forEach((spec) => {
-            const material = new SpriteMaterial({ map: spec.povSpriteTexture });
+        const initSprite = (type: WeaponType) => {
+            const material = new SpriteMaterial({});
             const sprite = new Sprite(material);
             this.origin.add(sprite);
-        });
+
+            loadTexture(WEAPON_SPEC_RECORD[type].povSprite).then((map) => {
+                material.map = map;
+                material.needsUpdate = true;
+            });
+
+            return sprite;
+        };
+
+        this.sprites = {
+            [WeaponType.Pistol]: initSprite(WeaponType.Pistol),
+            [WeaponType.Shotgun]: initSprite(WeaponType.Shotgun),
+            [WeaponType.Machinegun]: initSprite(WeaponType.Machinegun),
+        };
 
         hud.scene.add(this.origin);
     }
 
     public update() {
-        for (let i = 0; i < this.sprites.length; i++) {
-            this.sprites[i].visible = false;
-        }
+        this.origin.children.forEach((weaponSprite) => {
+            weaponSprite.visible = false;
+        });
 
         const avatar = this.family.first();
         if (avatar === undefined) {
             return;
         }
 
-        const sprite = this.sprites[avatar.shooter.weaponIndex];
+        const sprite = this.sprites[avatar.shooter.weaponType];
         if (sprite === undefined) {
             return;
         }

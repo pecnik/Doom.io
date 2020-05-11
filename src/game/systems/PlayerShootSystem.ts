@@ -8,16 +8,11 @@ import {
 } from "../Helpers";
 import { Color } from "three";
 import { random } from "lodash";
-import { modulo } from "../core/Utils";
 import { SWAP_SPEED } from "../data/Globals";
-import {
-    WeaponSpecs,
-    WeaponState,
-    WeaponAmmo,
-    WeaponSpec,
-} from "../data/Types";
+import { WeaponState, WeaponAmmo } from "../data/Types";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { Netcode } from "../Netcode";
+import { WEAPON_SPEC_RECORD, WeaponSpec } from "../data/Weapon";
 
 class TargetArchetype implements AnyComponents {
     public render = new Components.Render();
@@ -48,7 +43,7 @@ export class PlayerShootSystem extends System {
             shooter.sound = WeaponState.Shoot;
             shooter.shootTime = this.world.elapsedTime;
 
-            const ammo = shooter.ammo[shooter.weaponIndex];
+            const ammo = shooter.ammo[shooter.weaponType];
             ammo.loaded--;
             shooter.shootTime = this.world.elapsedTime;
             this.fireBullets(entity);
@@ -59,8 +54,7 @@ export class PlayerShootSystem extends System {
         if (state === WeaponState.Swap) {
             shooter.state = WeaponState.Swap;
             shooter.swapTime = this.world.elapsedTime;
-            shooter.weaponIndex = input.weaponIndex;
-            shooter.weaponIndex = modulo(shooter.weaponIndex, 3);
+            shooter.weaponType = input.weaponType;
             return;
         }
 
@@ -83,10 +77,10 @@ export class PlayerShootSystem extends System {
         this.players.entities.forEach((entity) => {
             const input = entity.input;
             const shooter = entity.shooter;
-            const weapon = WeaponSpecs[shooter.weaponIndex];
-            const ammo = shooter.ammo[shooter.weaponIndex];
+            const weapon = WEAPON_SPEC_RECORD[shooter.weaponType];
+            const ammo = shooter.ammo[shooter.weaponType];
 
-            const swap = input.weaponIndex !== shooter.weaponIndex;
+            const swap = input.weaponType !== shooter.weaponType;
             const reload = this.getReload(ammo, weapon, input);
 
             if (shooter.state === WeaponState.Idle) {
@@ -135,7 +129,7 @@ export class PlayerShootSystem extends System {
                     return this.transition(WeaponState.Swap, entity);
                 }
 
-                const weapon = WeaponSpecs[shooter.weaponIndex];
+                const weapon = WEAPON_SPEC_RECORD[shooter.weaponType];
                 const reloadDelta = this.world.elapsedTime - shooter.reloadTime;
                 if (reloadDelta > weapon.reloadSpeed) {
                     const reload = Math.min(
@@ -211,7 +205,7 @@ export class PlayerShootSystem extends System {
                 const hitEvent = new Netcode.HitEntity();
                 hitEvent.attackerId = player.id;
                 hitEvent.targetId = target.id;
-                hitEvent.weaponIindex = player.shooter.weaponIndex;
+                hitEvent.weaponType = player.shooter.weaponType;
                 hitEvent.damage = weaponSpec.bulletDamage;
                 player.eventsBuffer.push(hitEvent);
             }

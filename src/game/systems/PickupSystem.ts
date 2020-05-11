@@ -4,6 +4,7 @@ import { Sound2D } from "../sound/Sound2D";
 import { sample } from "lodash";
 import { EntityFactory } from "../data/EntityFactory";
 import { PickupArchetype, LocalAvatarArchetype } from "../ecs/Archetypes";
+import { WeaponType } from "../data/Weapon";
 
 export class PickupSystem extends System {
     private readonly pickupFamily = this.createEntityFamily({
@@ -23,8 +24,8 @@ export class PickupSystem extends System {
         // Pickup items ...
         this.playerFamily.entities.forEach((player) => {
             this.pickupFamily.entities.forEach((pickup) => {
-                const ammo = getWeaponAmmo(player, pickup.pickup.weaponIndex);
-                const spec = getWeaponSpec(player, pickup.pickup.weaponIndex);
+                const ammo = getWeaponAmmo(player, pickup.pickup.weaponType);
+                const spec = getWeaponSpec(player, pickup.pickup.weaponType);
 
                 if (ammo.reserved >= spec.maxReservedAmmo) {
                     return;
@@ -61,10 +62,18 @@ export class PickupSystem extends System {
             if (dist < 4) return;
         }
 
-        const pickup = EntityFactory.Pikcup();
-        pickup.position.copy(spawn);
-        pickup.position.y -= 0.5;
-        pickup.rotation.y = Math.random() * Math.PI;
-        this.world.addEntity(pickup);
+        const weaponType = sample([
+            WeaponType.Pistol,
+            WeaponType.Shotgun,
+            WeaponType.Machinegun,
+        ]);
+
+        if (weaponType !== undefined) {
+            const pickup = EntityFactory.AmmoPikcup(weaponType);
+            pickup.position.copy(spawn);
+            pickup.position.y -= 0.5;
+            pickup.rotation.y = Math.random() * Math.PI;
+            this.world.addEntity(pickup);
+        }
     }
 }

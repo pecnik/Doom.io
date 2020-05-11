@@ -16,9 +16,10 @@ import {
     Scene,
 } from "three";
 import { World } from "./ecs";
-import { WeaponSpecs, WeaponState } from "./data/Types";
+import { WeaponState } from "./data/Types";
 import { PLAYER_HEIGHT } from "./data/Globals";
 import { AvatarArchetype } from "./ecs/Archetypes";
+import { WEAPON_SPEC_RECORD } from "./data/Weapon";
 
 export function getPlayerAvatar(
     playerId: string,
@@ -45,16 +46,16 @@ export function getHeadPosition(
 
 export function getWeaponAmmo(
     entity: Entity<{ shooter: Components.Shooter }>,
-    weaponIndex = entity.shooter.weaponIndex
+    weaponType = entity.shooter.weaponType
 ) {
-    return entity.shooter.ammo[weaponIndex];
+    return entity.shooter.ammo[weaponType];
 }
 
 export function getWeaponSpec(
     entity: Entity<{ shooter: Components.Shooter }>,
-    weaponIndex = entity.shooter.weaponIndex
+    weaponType = entity.shooter.weaponType
 ) {
-    return WeaponSpecs[weaponIndex];
+    return WEAPON_SPEC_RECORD[weaponType];
 }
 
 export function isCrouched(
@@ -74,7 +75,7 @@ export function isScopeActive(
     if (shooter.state == WeaponState.Swap) return false;
 
     const { input } = entity;
-    const weapon = WeaponSpecs[shooter.weaponIndex];
+    const weapon = WEAPON_SPEC_RECORD[shooter.weaponType];
     return input.scope && weapon.scope;
 }
 

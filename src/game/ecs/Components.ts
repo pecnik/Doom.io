@@ -7,9 +7,10 @@ import {
     Vector3,
 } from "three";
 import { PLAYER_RADIUS, PLAYER_HEIGHT } from "../data/Globals";
-import { WeaponState, WeaponAmmo, WeaponSpecs } from "../data/Types";
+import { WeaponState, WeaponAmmo } from "../data/Types";
 import { Netcode } from "../Netcode";
 import { AvatarState } from "../data/Types";
+import { WeaponType, WEAPON_SPEC_RECORD } from "../data/Weapon";
 
 export type AnyComponents = Partial<AllComponents>;
 
@@ -46,7 +47,7 @@ export module Components {
         public movex = 0;
         public lookHor = 0;
         public lookVer = 0;
-        public weaponIndex = 0;
+        public weaponType = WeaponType.Pistol;
         public jump = false;
         public crouch = false;
         public shoot = false;
@@ -69,13 +70,20 @@ export module Components {
         public swapTime = 0;
         public shootTime = 0;
         public reloadTime = 0;
-        public weaponIndex = 0;
-        public ammo: WeaponAmmo[] = WeaponSpecs.map((spec) => {
+        public weaponType = WeaponType.Pistol;
+        public ammo: Record<WeaponType, WeaponAmmo> = {
+            [WeaponType.Pistol]: Shooter.initAmmo(WeaponType.Pistol),
+            [WeaponType.Shotgun]: Shooter.initAmmo(WeaponType.Shotgun),
+            [WeaponType.Machinegun]: Shooter.initAmmo(WeaponType.Machinegun),
+        };
+
+        private static initAmmo(type: WeaponType) {
+            const spec = WEAPON_SPEC_RECORD[type];
             return {
                 loaded: spec.maxLoadedAmmo,
-                reserved: 0,
+                reserved: Math.floor(spec.maxReservedAmmo / 2),
             };
-        });
+        }
     }
 
     export class Avatar {
@@ -107,7 +115,7 @@ export module Components {
 
     export class Pickup {
         public type = PickupType.Ammo;
-        public weaponIndex = 0;
+        public weaponType = WeaponType.Pistol;
     }
 
     export class PlayerData {

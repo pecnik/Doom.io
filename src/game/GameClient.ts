@@ -9,7 +9,6 @@ import { RenderSystem } from "./systems/RenderSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { WeaponSpriteSystem } from "./systems/hud/WeaponSpriteSystem";
 import { HudDisplaySystem } from "./systems/hud/HudDisplaySystem";
-import { WeaponSpecs } from "./data/Types";
 import { Game } from "./core/Engine";
 import { loadTexture, EntityMesh } from "./Helpers";
 import { PlayerCouchSystem } from "./systems/PlayerCouchSystem";
@@ -23,6 +22,8 @@ import { ShooterAudioSystem } from "./systems/audio/ShooterAudioSystem";
 import { Sound3D } from "./sound/Sound3D";
 import { FootstepAudioSystem } from "./systems/audio/FootstepAudioSystem";
 import { createSkybox } from "./data/Skybox";
+import { WEAPON_SPEC_RECORD } from "./data/Weapon";
+import { uniq } from "lodash";
 
 export class GameClient implements Game {
     private readonly stats = new Stats();
@@ -31,6 +32,13 @@ export class GameClient implements Game {
     public readonly hud = new Hud();
 
     public preload() {
+        let weaponSounds: string[] = [];
+        Object.values(WEAPON_SPEC_RECORD).forEach((spec) => {
+            weaponSounds.push(spec.fireSound);
+            weaponSounds.push(spec.reloadSound);
+        });
+        weaponSounds = uniq(weaponSounds);
+
         return Promise.all([
             this.world.decals.load(),
 
@@ -38,8 +46,8 @@ export class GameClient implements Game {
             EntityMesh.load(),
 
             // Preload weapon audio
-            Sound3D.load(WeaponSpecs.map((ws) => ws.fireSoundSrc)),
             Sound3D.load(["/assets/sounds/footstep.wav"]),
+            Sound3D.load(weaponSounds),
 
             // Load level
             loadTexture("/assets/tileset.png").then((map) => {
@@ -66,17 +74,7 @@ export class GameClient implements Game {
             createSkybox().then((skybox) => {
                 this.world.scene.add(skybox);
             }),
-        ]).then(() => {
-            // Preload weapon sprite
-            return Promise.all([
-                ...WeaponSpecs.map((weapon) => {
-                    return loadTexture(weapon.povSpriteSrc).then((map) => {
-                        weapon.povSpriteTexture = map;
-                        return undefined;
-                    });
-                }),
-            ]);
-        });
+        ]);
     }
 
     public create() {

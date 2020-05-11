@@ -4,8 +4,8 @@ import { World } from "../ecs";
 import { Components } from "../ecs";
 import { Input, KeyCode, MouseBtn } from "../core/Input";
 import { modulo } from "../core/Utils";
-import { WeaponSpecs } from "../data/Types";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
+import { WeaponType, WEAPON_SPEC_RECORD } from "../data/Weapon";
 
 export class PlayerInputSystem extends System {
     private readonly input: Input;
@@ -51,7 +51,7 @@ export class PlayerInputSystem extends System {
             input.shoot = shoot;
             input.scope = scope;
             input.reload = reload;
-            input.weaponIndex = this.getWeaponIndex(input);
+            input.weaponType = this.getWeaponType(input);
 
             if (rotation !== undefined) {
                 const str = input.scope ? 0.5 : 1;
@@ -65,17 +65,23 @@ export class PlayerInputSystem extends System {
         });
     }
 
-    private getWeaponIndex(input: Components.Input) {
-        if (this.input.isKeyDown(KeyCode.NUM_1)) return 0;
-        if (this.input.isKeyDown(KeyCode.NUM_2)) return 1;
-        if (this.input.isKeyDown(KeyCode.NUM_3)) return 2;
+    private getWeaponType(input: Components.Input): WeaponType {
+        if (this.input.isKeyDown(KeyCode.NUM_1)) return WeaponType.Pistol;
+        if (this.input.isKeyDown(KeyCode.NUM_2)) return WeaponType.Shotgun;
+        if (this.input.isKeyDown(KeyCode.NUM_3)) return WeaponType.Machinegun;
 
         const scroll = this.input.mouse.scroll;
         if (scroll === 0) {
-            return input.weaponIndex;
+            return input.weaponType;
         }
 
-        const weaponIndex = input.weaponIndex + (scroll > 0 ? 1 : -1);
-        return modulo(weaponIndex, WeaponSpecs.length);
+        // TODO: fix me
+        const weaponSpec = WEAPON_SPEC_RECORD[input.weaponType];
+        const weaponSpecs = Object.values(WEAPON_SPEC_RECORD);
+
+        let index = weaponSpecs.indexOf(weaponSpec);
+        index += scroll > 0 ? 1 : -1;
+        index = modulo(index, weaponSpecs.length);
+        return weaponSpecs[index].type;
     }
 }
