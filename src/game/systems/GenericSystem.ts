@@ -2,6 +2,7 @@ import { System, Entity } from "../ecs";
 import { Components } from "../ecs";
 import { JUMP_SPEED } from "../data/Globals";
 import { sample } from "lodash";
+import { Sound2D } from "../sound/Sound2D";
 
 class Archetype {
     position = new Components.Position();
@@ -39,6 +40,7 @@ export class GenericSystem extends System {
                 velocity.y = JUMP_SPEED * Math.sqrt(voxel.bounce);
                 velocity.x *= 0.25;
                 velocity.z *= 0.25;
+                Sound2D.get("/assets/sounds/bounce.wav").play();
             }
         }
     }

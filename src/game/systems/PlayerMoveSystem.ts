@@ -4,6 +4,7 @@ import { WALK_SPEED, RUN_SPEED, JUMP_SPEED } from "../data/Globals";
 import { lerp } from "../core/Utils";
 import { isScopeActive, isCrouched } from "../Helpers";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
+import { Sound2D } from "../sound/Sound2D";
 
 export class PlayerMoveSystem extends System {
     private readonly family = this.createEntityFamily({
@@ -38,10 +39,11 @@ export class PlayerMoveSystem extends System {
                     jump.triggerTime = 0;
                     jump.coyoteTime = 0;
                 } else if (jump.doubleJump) {
-                    velocity.y = JUMP_SPEED;
+                    velocity.y = JUMP_SPEED * 1.25;
                     jump.triggerTime = 0;
                     jump.coyoteTime = 0;
                     jump.doubleJump = false;
+                    Sound2D.get("/assets/sounds/double_jump.wav").play();
                 }
             }
 
