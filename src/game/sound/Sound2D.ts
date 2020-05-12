@@ -1,7 +1,7 @@
 import { memoize } from "lodash";
 
 export class SoundAsset2D {
-    private readonly audio: HTMLAudioElement;
+    public readonly audio: HTMLAudioElement;
 
     public constructor(src: string) {
         this.audio = new Audio(src);

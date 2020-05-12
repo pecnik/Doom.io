@@ -3,6 +3,7 @@ import { WeaponState } from "../../data/Types";
 import { getWeaponSpec } from "../../Helpers";
 import { AvatarArchetype } from "../../ecs/Archetypes";
 import { Sound2D } from "../../sound/Sound2D";
+import { WEAPON_SPEC_RECORD } from "../../data/Weapon";
 
 export class ShooterAudioSystem extends System {
     private readonly family = this.createEntityFamily({
@@ -19,6 +20,20 @@ export class ShooterAudioSystem extends System {
             if (entity.shooter.sound === WeaponState.Reload) {
                 entity.shooter.sound = WeaponState.Idle;
                 Sound2D.get(getWeaponSpec(entity).reloadSound).play();
+            }
+
+            // Stop reload sound effect
+            if (entity.shooter.state === WeaponState.Swap) {
+                Object.values(WEAPON_SPEC_RECORD).forEach((spec) => {
+                    const reloadSound = Sound2D.get(spec.reloadSound);
+                    if (
+                        reloadSound.audio.duration > 0 &&
+                        !reloadSound.audio.paused
+                    ) {
+                        reloadSound.audio.currentTime = 0;
+                        reloadSound.audio.pause();
+                    }
+                });
             }
         });
     }
