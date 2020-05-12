@@ -27,14 +27,22 @@ export class PlayerMoveSystem extends System {
 
             if (isGrounded) {
                 jump.coyoteTime = elapsed;
+                jump.doubleJump = true;
             }
 
             const tdelta = elapsed - jump.triggerTime;
             const cdelta = elapsed - jump.coyoteTime;
-            if (tdelta < 0.1 && cdelta < 0.1) {
-                velocity.y = JUMP_SPEED;
-                jump.triggerTime = 0;
-                jump.coyoteTime = 0;
+            if (tdelta < 0.1) {
+                if (cdelta < 0.1) {
+                    velocity.y = JUMP_SPEED;
+                    jump.triggerTime = 0;
+                    jump.coyoteTime = 0;
+                } else if (jump.doubleJump) {
+                    velocity.y = JUMP_SPEED;
+                    jump.triggerTime = 0;
+                    jump.coyoteTime = 0;
+                    jump.doubleJump = false;
+                }
             }
 
             // horizontal movement

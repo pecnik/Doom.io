@@ -106,6 +106,7 @@ export module Components {
     export class Jump {
         public triggerTime = 0;
         public coyoteTime = 0;
+        public doubleJump = false;
     }
 
     export enum PickupType {
