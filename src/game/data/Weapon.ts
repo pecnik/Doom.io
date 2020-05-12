@@ -9,19 +9,18 @@ export class WeaponSpec {
 
     public scope = false;
 
-    public maxLoadedAmmo = 1;
-    public maxReservedAmmo = 1;
-
-    public bulletsPerShot = 1;
-    public bulletDamage = 1;
-
     public spread = 0;
-
+    public bulletDamage = 1;
+    public bulletsPerShot = 1;
     public firerate = 0; // sec
     public reloadSpeed = 0; // Sec
 
+    public maxLoadedAmmo = 1;
+    public maxReservedAmmo = 1;
+
     // Assets
     public povSprite = "";
+    public povFireSprites: string[] = [];
     public fireSound = "";
     public reloadSound = "";
     public ammoPickupMesh = "";
@@ -62,8 +61,9 @@ export class WeaponSpecBuilder {
         return this;
     }
 
-    public povSprite(sprite: string) {
+    public povSprite(sprite: string, povFireSprites = [sprite]) {
         this.weaponSpec.povSprite = sprite;
+        this.weaponSpec.povFireSprites = povFireSprites;
         return this;
     }
 
@@ -96,7 +96,12 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
         .accuracy(0.9)
         .roundsPerSec(6)
         .reloadSpeed(1)
-        .povSprite("/assets/sprites/pov-gun.png")
+        .povSprite("/assets/sprites/Pistol/PIS001.png", [
+            "/assets/sprites/Pistol/PIS002.png",
+            "/assets/sprites/Pistol/PIS003.png",
+            "/assets/sprites/Pistol/PIS004.png",
+            "/assets/sprites/Pistol/PIS001.png",
+        ])
         .ammoPickupMesh("__AMMO_GUN__")
         .sound({
             fire: "/assets/sounds/fire-gun.wav",
@@ -107,12 +112,18 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
 
     [WeaponType.Shotgun]: new WeaponSpecBuilder()
         .type(WeaponType.Shotgun)
-        .ammo(2, 128)
+        .ammo(3, 128)
         .damage(25, 4)
         .accuracy(0.1)
         .roundsPerSec(2)
         .reloadSpeed(1.25)
-        .povSprite("/assets/sprites/pov-shotgun.png")
+        .povSprite("/assets/sprites/Shotgun/SHT001.png", [
+            "/assets/sprites/Shotgun/SHT002.png",
+            "/assets/sprites/Shotgun/SHT003.png",
+            "/assets/sprites/Shotgun/SHT004.png",
+            "/assets/sprites/Shotgun/SHT005.png",
+            "/assets/sprites/Shotgun/SHT006.png",
+        ])
         .ammoPickupMesh("__AMMO_SHOTGUN__")
         .sound({
             fire: "/assets/sounds/fire-shotgun.wav",
@@ -127,7 +138,11 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
         .accuracy(0.75)
         .roundsPerSec(8)
         .reloadSpeed(1.5)
-        .povSprite("/assets/sprites/pov-machine-gun.png")
+        .povSprite("/assets/sprites/Machinegun/MG0001.png", [
+            "/assets/sprites/Machinegun/MG0002.png",
+            "/assets/sprites/Machinegun/MG0003.png",
+            "/assets/sprites/Machinegun/MG0004.png",
+        ])
         .ammoPickupMesh("__AMMO_MACHINEGUN__")
         .sound({
             fire: "/assets/sounds/fire-machine-gun.wav",

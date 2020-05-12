@@ -4,7 +4,7 @@ import { Group, Sprite, Vector3 } from "three";
 import { Hud } from "../../data/Hud";
 import { HUD_WIDTH, HUD_HEIGHT, SWAP_SPEED } from "../../data/Globals";
 import { WEAPON_SPEC_RECORD } from "../../data/Weapon";
-import { loadTexture, getWeaponSpec } from "../../Helpers";
+import { loadTexture, getWeaponSpec, isScopeActive } from "../../Helpers";
 import { AvatarState, WeaponState } from "../../data/Types";
 import { lerp, ease } from "../../core/Utils";
 
@@ -78,29 +78,44 @@ export class WeaponSpriteSystem extends System {
         this.reloadClip,
     ];
 
+    private readonly shootFrames = {
+        frame: 0,
+        time: 0,
+        play: false,
+    };
+
     public constructor(world: World, hud: Hud) {
         super(world);
 
         // Create weapon sprite container
         const container = new Group();
-        container.position.x = HUD_WIDTH / 4;
-        container.position.y = -HUD_HEIGHT / 3;
+        container.position.x = HUD_WIDTH / 8;
+        container.position.y = -HUD_HEIGHT / 4;
         container.renderOrder = 0;
         container.scale.set(2, 1, 1);
-        container.scale.multiplyScalar(256);
+        container.scale.multiplyScalar(380);
         container.add(this.sprite);
         hud.scene.add(container);
 
         // Create individual weapon sprites
-        Object.values(WEAPON_SPEC_RECORD).forEach((weaponSpec) => {
-            const sprite = new Sprite();
-            this.sprite.add(sprite);
+        const createSprite = (src: string) => {
+            const exists = this.sprite.getObjectByName(src);
+            if (exists !== undefined) {
+                return;
+            }
 
-            loadTexture(weaponSpec.povSprite).then((map) => {
-                sprite.name = weaponSpec.povSprite;
+            const sprite = new Sprite();
+            sprite.name = src;
+            this.sprite.add(sprite);
+            loadTexture(src).then((map) => {
                 sprite.material.map = map;
                 sprite.material.needsUpdate = true;
             });
+        };
+
+        Object.values(WEAPON_SPEC_RECORD).forEach((weaponSpec) => {
+            createSprite(weaponSpec.povSprite);
+            weaponSpec.povFireSprites.forEach(createSprite);
         });
     }
 
@@ -112,16 +127,40 @@ export class WeaponSpriteSystem extends System {
         }
 
         this.sprite.visible = true;
-        this.updateClip(avatar);
+        this.updateFrameAnimation(avatar, dt);
         this.updatePositionAnimation(avatar, dt);
+
+        const scale = isScopeActive(avatar) ? 2 : 1;
+        if (this.sprite.scale.x !== scale) {
+            this.sprite.scale.lerp(new Vector3(scale, scale, scale), 0.25);
+        }
     }
 
-    private updateClip(avatar: AvatarArchetype) {
+    private updateFrameAnimation(avatar: AvatarArchetype, dt: number) {
         const weaponSpec = getWeaponSpec(avatar);
         const frames = this.sprite.children as Sprite[];
+
+        let activeSprite = weaponSpec.povSprite;
+        if (this.shootFrames.play) {
+            this.shootFrames.time += dt;
+            if (this.shootFrames.time > 1 / 20) {
+                this.shootFrames.time = 0;
+                this.shootFrames.frame++;
+            }
+
+            if (this.shootFrames.frame >= weaponSpec.povFireSprites.length) {
+                this.shootFrames.frame = 0;
+                this.shootFrames.time = 0;
+                this.shootFrames.play = false;
+            } else {
+                activeSprite =
+                    weaponSpec.povFireSprites[this.shootFrames.frame];
+            }
+        }
+
         for (let i = 0; i < frames.length; i++) {
             const frame = frames[i];
-            frame.visible = frame.name === weaponSpec.povSprite;
+            frame.visible = frame.name === activeSprite;
 
             if (frame.visible) {
                 const light = this.world.level.getVoxelLightAt(avatar.position);
@@ -158,10 +197,14 @@ export class WeaponSpriteSystem extends System {
         };
 
         if (sstate === WeaponState.Shoot) {
-            const knockback = 0.125;
-            this.sprite.position.x = knockback;
-            this.sprite.position.y = -knockback;
+            const weaponSpec = getWeaponSpec(avatar);
+            const knockback = weaponSpec.firerate / 8;
+            this.sprite.position.x += knockback;
+            this.sprite.position.y -= knockback / 0.25;
             stopClips();
+            this.shootFrames.frame = 0;
+            this.shootFrames.time = 0;
+            this.shootFrames.play = true;
             return;
         }
 
