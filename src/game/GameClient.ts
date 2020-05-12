@@ -24,6 +24,7 @@ import { FootstepAudioSystem } from "./systems/audio/FootstepAudioSystem";
 import { createSkybox } from "./data/Skybox";
 import { WEAPON_SPEC_RECORD } from "./data/Weapon";
 import { uniq } from "lodash";
+import { CrosshairSystem } from "./systems/hud/CrosshairSystem";
 
 export class GameClient implements Game {
     private readonly stats = new Stats();
@@ -102,6 +103,7 @@ export class GameClient implements Game {
         this.world.addSystem(new RenderSystem(this.world));
 
         // Hud
+        this.world.addSystem(new CrosshairSystem(this.world, this.hud));
         this.world.addSystem(new HudDisplaySystem(this.world, this.hud));
         this.world.addSystem(new WeaponSpriteSystem(this.world, this.hud));
 

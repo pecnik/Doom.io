@@ -9,12 +9,13 @@ export class WeaponSpec {
 
     public scope = false;
 
+    public accuracy = 1;
     public spread = 0;
+
     public bulletDamage = 1;
     public bulletsPerShot = 1;
     public firerate = 0; // sec
     public reloadSpeed = 0; // Sec
-
     public maxLoadedAmmo = 1;
     public maxReservedAmmo = 1;
 
@@ -41,6 +42,7 @@ export class WeaponSpecBuilder {
     }
 
     public accuracy(accuracy: number) {
+        this.weaponSpec.accuracy = accuracy;
         this.weaponSpec.spread = 0.3 * (1 - accuracy);
         return this;
     }

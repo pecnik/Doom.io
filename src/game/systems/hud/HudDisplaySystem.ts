@@ -3,8 +3,6 @@ import { World } from "../../ecs";
 import { Hud } from "../../data/Hud";
 import { Components } from "../../ecs";
 import {
-    TextureLoader,
-    AdditiveBlending,
     NearestFilter,
     Texture,
     MeshBasicMaterial,
@@ -78,21 +76,6 @@ export class HudDisplaySystem extends System {
             -(HUD_HEIGHT / 2 - this.ammoText.height / 2),
             0
         );
-
-        // Load crosshair srpite
-        new TextureLoader().load("/assets/sprites/crosshair.png", (map) => {
-            const material = new MeshBasicMaterial({
-                map,
-                blending: AdditiveBlending,
-            });
-
-            map.magFilter = NearestFilter;
-            map.minFilter = NearestFilter;
-
-            const geometry = new PlaneGeometry(64, 64);
-            const crosshair = new Mesh(geometry, material);
-            hud.scene.add(crosshair);
-        });
     }
 
     public update() {
