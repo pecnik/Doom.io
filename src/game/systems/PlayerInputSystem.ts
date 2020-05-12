@@ -30,7 +30,7 @@ export class PlayerInputSystem extends System {
         const left = this.input.isKeyDown(KeyCode.A);
         const right = this.input.isKeyDown(KeyCode.D);
         const jump = this.input.isKeyPressed(KeyCode.SPACE);
-        const walk = this.input.isKeyDown(KeyCode.SHIFT);
+        const dash = this.input.isKeyPressed(KeyCode.SHIFT);
         const shoot = this.input.isMouseDown(MouseBtn.Left);
         const scope = this.input.isMouseDown(MouseBtn.Right);
         const reload = this.input.isKeyDown(KeyCode.R);
@@ -47,7 +47,7 @@ export class PlayerInputSystem extends System {
             input.movex += right ? 1 : 0;
 
             input.jump = jump;
-            input.crouch = walk;
+            input.dash = dash;
             input.shoot = shoot;
             input.scope = scope;
             input.reload = reload;

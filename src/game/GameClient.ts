@@ -11,7 +11,6 @@ import { WeaponSpriteSystem } from "./systems/hud/WeaponSpriteSystem";
 import { HudDisplaySystem } from "./systems/hud/HudDisplaySystem";
 import { Game } from "./core/Engine";
 import { loadTexture, EntityMesh } from "./Helpers";
-import { PlayerCouchSystem } from "./systems/PlayerCouchSystem";
 import { GenericSystem } from "./systems/GenericSystem";
 import Stats from "stats.js";
 import { PickupSystem } from "./systems/PickupSystem";
@@ -25,6 +24,7 @@ import { createSkybox } from "./data/Skybox";
 import { WEAPON_SPEC_RECORD } from "./data/Weapon";
 import { uniq } from "lodash";
 import { CrosshairSystem } from "./systems/hud/CrosshairSystem";
+import { PlayerDashSystem } from "./systems/PlayerDashSystem";
 
 export class GameClient implements Game {
     private readonly stats = new Stats();
@@ -93,7 +93,7 @@ export class GameClient implements Game {
         // Systems
         this.world.addSystem(new PlayerInputSystem(this.world, this.input));
         this.world.addSystem(new PlayerMoveSystem(this.world));
-        this.world.addSystem(new PlayerCouchSystem(this.world));
+        this.world.addSystem(new PlayerDashSystem(this.world));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new PickupSystem(this.world));
         this.world.addSystem(new GenericSystem(this.world));

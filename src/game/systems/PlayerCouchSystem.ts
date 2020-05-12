@@ -15,12 +15,12 @@ export class PlayerCouchSystem extends System {
             const position = entity.position;
             const collisio = entity.collision;
 
-            if (input.crouch && collisio.height > PLAYER_CROUCH_H) {
+            if (input.dash && collisio.height > PLAYER_CROUCH_H) {
                 collisio.height = lerp(collisio.height, PLAYER_CROUCH_H, 0.1);
                 return;
             }
 
-            if (!input.crouch && collisio.height < PLAYER_HEIGHT) {
+            if (!input.dash && collisio.height < PLAYER_HEIGHT) {
                 const voxelType = this.world.level.getVoxelType(
                     Math.round(position.x),
                     Math.round(position.y + PLAYER_HEIGHT),

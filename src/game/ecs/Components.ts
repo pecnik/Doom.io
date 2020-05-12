@@ -49,7 +49,7 @@ export module Components {
         public lookVer = 0;
         public weaponType = WeaponType.Pistol;
         public jump = false;
-        public crouch = false;
+        public dash = false;
         public shoot = false;
         public scope = false;
         public reload = false;
@@ -107,6 +107,9 @@ export module Components {
         public triggerTime = 0;
         public coyoteTime = 0;
         public doubleJump = false;
+        public dashing = false;
+        public dashTime = 0;
+        public dashCharge = 2;
     }
 
     export enum PickupType {
