@@ -1,6 +1,6 @@
 import { LocalAvatarArchetype, AvatarArchetype } from "../../ecs/Archetypes";
 import { System, World } from "../../ecs";
-import { Group, Sprite, Vector3 } from "three";
+import { Group, Sprite, Vector3, Scene } from "three";
 import { Hud } from "../../data/Hud";
 import { HUD_WIDTH, HUD_HEIGHT, SWAP_SPEED } from "../../data/Globals";
 import { WEAPON_SPEC_RECORD } from "../../data/Weapon";
@@ -84,7 +84,7 @@ export class WeaponSpriteSystem extends System {
         play: false,
     };
 
-    public constructor(world: World, hud: Hud) {
+    public constructor(world: World, layer: Scene) {
         super(world);
 
         // Create weapon sprite container
@@ -95,7 +95,7 @@ export class WeaponSpriteSystem extends System {
         container.scale.set(2, 1, 1);
         container.scale.multiplyScalar(380);
         container.add(this.sprite);
-        hud.scene.add(container);
+        layer.add(container);
 
         // Create individual weapon sprites
         const createSprite = (src: string) => {

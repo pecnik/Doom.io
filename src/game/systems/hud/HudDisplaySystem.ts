@@ -1,12 +1,12 @@
 import { System } from "../../ecs";
 import { World } from "../../ecs";
-import { Hud } from "../../data/Hud";
 import {
     NearestFilter,
     Texture,
     MeshBasicMaterial,
     PlaneGeometry,
     Mesh,
+    Scene,
 } from "three";
 import { HUD_WIDTH, HUD_HEIGHT } from "../../data/Globals";
 import { LocalAvatarArchetype } from "../../ecs/Archetypes";
@@ -58,7 +58,7 @@ export class HudDisplaySystem extends System {
 
     private readonly dashMeter: Mesh;
 
-    public constructor(world: World, hud: Hud) {
+    public constructor(world: World, layer: Scene) {
         super(world);
 
         // Ammo text
@@ -73,7 +73,7 @@ export class HudDisplaySystem extends System {
                 -(HUD_HEIGHT / 2 - this.ammoText.height / 2),
                 0
             );
-            hud.scene.add(this.ammoText.plane);
+            layer.add(this.ammoText.plane);
         }
 
         // Dash meter
@@ -83,7 +83,6 @@ export class HudDisplaySystem extends System {
 
             const mat = new MeshBasicMaterial({
                 color: 0xff00ff,
-                transparent: true,
             });
             this.dashMeter = new Mesh(geo, mat);
             this.dashMeter.renderOrder = 100;
@@ -92,7 +91,7 @@ export class HudDisplaySystem extends System {
                 HUD_HEIGHT / 2 -
                 this.ammoText.height / 2
             );
-            hud.scene.add(this.dashMeter);
+            layer.add(this.dashMeter);
         }
     }
 

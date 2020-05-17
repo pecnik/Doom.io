@@ -3,7 +3,7 @@ import { clamp } from "lodash";
 
 export interface Game {
     readonly world: { scene: Scene; camera: PerspectiveCamera };
-    readonly hud: { scene: Scene; camera: Camera };
+    readonly hud: { layers: Scene[]; camera: Camera };
     preload(): Promise<any>;
     create(): void;
     update(dt: number): void;
@@ -27,7 +27,7 @@ export class Engine {
         this.gamearea = gamearea;
         this.renderer = new WebGLRenderer({
             canvas: this.viewport,
-            antialias: true
+            antialias: true,
         });
         this.renderer.autoClear = false;
         this.renderer.setClearColor(0x6495ed);
@@ -60,7 +60,9 @@ export class Engine {
         const { world, hud } = this.game;
         this.game.update(dt);
         this.renderer.render(world.scene, world.camera);
-        this.renderer.render(hud.scene, hud.camera);
+        for (let i = 0; i < hud.layers.length; i++) {
+            this.renderer.render(hud.layers[i], hud.camera);
+        }
     }
 
     private loop(gameTime: number) {

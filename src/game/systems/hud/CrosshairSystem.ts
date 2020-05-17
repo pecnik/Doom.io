@@ -1,7 +1,6 @@
 import { System } from "../../ecs";
 import { World } from "../../ecs";
-import { Hud } from "../../data/Hud";
-import { MeshBasicMaterial, Mesh, RingGeometry } from "three";
+import { MeshBasicMaterial, Mesh, RingGeometry, Scene } from "three";
 import { LocalAvatarArchetype } from "../../ecs/Archetypes";
 import { getWeaponSpec } from "../../Helpers";
 
@@ -11,7 +10,7 @@ export class CrosshairSystem extends System {
         archetype: new LocalAvatarArchetype(),
     });
 
-    public constructor(world: World, hud: Hud) {
+    public constructor(world: World, layer: Scene) {
         super(world);
 
         const geo = new RingGeometry(4, 4.1, 16);
@@ -22,7 +21,7 @@ export class CrosshairSystem extends System {
             transparent: true,
         });
         this.crosshair = new Mesh(geo, mat);
-        hud.scene.add(this.crosshair);
+        layer.add(this.crosshair);
     }
 
     public update() {

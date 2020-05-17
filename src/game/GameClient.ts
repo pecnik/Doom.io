@@ -6,7 +6,7 @@ import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
 import { PhysicsSystem } from "./systems/PhysicsSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
-import { WeaponSpriteSystem } from "./systems/hud/WeaponSpriteSystem";
+import { WeaponSpriteSystem } from "./systems/rendering/WeaponSpriteSystem";
 import { HudDisplaySystem } from "./systems/hud/HudDisplaySystem";
 import { Game } from "./core/Engine";
 import { loadTexture } from "./Helpers";
@@ -27,6 +27,7 @@ import { PlayerDashSystem } from "./systems/PlayerDashSystem";
 import { AvatarMeshSystem } from "./systems/rendering/AvatarMeshSystem";
 import { EntityMeshSystem } from "./systems/rendering/EntityMeshSystem";
 import { PickupMeshSystem } from "./systems/rendering/PickupMeshSystem";
+import { Scene } from "three";
 
 export class GameClient implements Game {
     private readonly stats = new Stats();
@@ -103,15 +104,19 @@ export class GameClient implements Game {
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new PlayerShootSystem(this.world));
 
-        // Rendering
+        // World rendering
         this.world.addSystem(new EntityMeshSystem(this.world));
         this.world.addSystem(new AvatarMeshSystem(this.world));
         this.world.addSystem(new PickupMeshSystem(this.world));
 
-        // Hud
-        this.world.addSystem(new CrosshairSystem(this.world, this.hud));
-        this.world.addSystem(new HudDisplaySystem(this.world, this.hud));
-        this.world.addSystem(new WeaponSpriteSystem(this.world, this.hud));
+        {
+            // Hud rendering
+            const layers = [new Scene(), new Scene()];
+            this.hud.layers.push(...layers);
+            this.world.addSystem(new WeaponSpriteSystem(this.world, layers[0]));
+            this.world.addSystem(new CrosshairSystem(this.world, layers[1]));
+            this.world.addSystem(new HudDisplaySystem(this.world, layers[1]));
+        }
 
         // Audio
         this.world.addSystem(new ShooterAudioSystem(this.world));
