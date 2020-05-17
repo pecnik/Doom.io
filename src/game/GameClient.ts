@@ -26,6 +26,7 @@ import { CrosshairSystem } from "./systems/hud/CrosshairSystem";
 import { PlayerDashSystem } from "./systems/PlayerDashSystem";
 import { AvatarMeshSystem } from "./systems/rendering/AvatarMeshSystem";
 import { EntityMeshSystem } from "./systems/rendering/EntityMeshSystem";
+import { PickupMeshSystem } from "./systems/rendering/PickupMeshSystem";
 
 export class GameClient implements Game {
     private readonly stats = new Stats();
@@ -105,6 +106,7 @@ export class GameClient implements Game {
         // Rendering
         this.world.addSystem(new EntityMeshSystem(this.world));
         this.world.addSystem(new AvatarMeshSystem(this.world));
+        this.world.addSystem(new PickupMeshSystem(this.world));
 
         // Hud
         this.world.addSystem(new CrosshairSystem(this.world, this.hud));
