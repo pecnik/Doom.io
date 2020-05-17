@@ -55,7 +55,7 @@ class ReloadClip extends Clip {
         const elapsed = this.time;
         this.position.x = Math.cos(elapsed) * 0.05;
         this.position.y = Math.abs(Math.sin(elapsed) * 0.05) - 0.1;
-        this.position.y -= 1;
+        this.position.y -= 0.6;
     }
 }
 
