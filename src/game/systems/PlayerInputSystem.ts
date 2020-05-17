@@ -50,7 +50,7 @@ export class PlayerInputSystem extends System {
             input.dash = dash;
             input.shoot = shoot;
             input.scope = scope;
-            input.reload = reload;
+            input.reloadQueue = input.reloadQueue || reload;
             input.weaponType = this.getWeaponType(input);
 
             if (rotation !== undefined) {

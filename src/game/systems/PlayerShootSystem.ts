@@ -55,6 +55,7 @@ export class PlayerShootSystem extends System {
             shooter.state = WeaponState.Swap;
             shooter.swapTime = this.world.elapsedTime;
             shooter.weaponType = input.weaponType;
+            input.reloadQueue = false;
             return;
         }
 
@@ -67,6 +68,7 @@ export class PlayerShootSystem extends System {
             shooter.state = WeaponState.Reload;
             shooter.sound = WeaponState.Reload;
             shooter.reloadTime = this.world.elapsedTime;
+            input.reloadQueue = false;
             return;
         }
 
@@ -113,11 +115,7 @@ export class PlayerShootSystem extends System {
             }
 
             if (shooter.state === WeaponState.Shoot) {
-                if (reload) {
-                    return this.transition(WeaponState.Reload, entity);
-                } else {
-                    return this.transition(WeaponState.Cooldown, entity);
-                }
+                return this.transition(WeaponState.Cooldown, entity);
             }
 
             if (shooter.state === WeaponState.Cooldown) {
@@ -143,6 +141,9 @@ export class PlayerShootSystem extends System {
 
                     ammo.loaded += reload;
                     ammo.reserved -= reload;
+
+                    input.reloadQueue = false;
+
                     return this.transition(WeaponState.Idle, entity);
                 }
             }
@@ -156,7 +157,7 @@ export class PlayerShootSystem extends System {
     ) {
         if (ammo.loaded >= weapon.maxLoadedAmmo) return false;
         if (ammo.reserved < 1) return false;
-        return input.reload || ammo.loaded < 1;
+        return input.reloadQueue || ammo.loaded < 1;
     }
 
     private fireBullets(player: Entity<LocalAvatarArchetype>) {

@@ -46,7 +46,7 @@ export module Components {
         public dash = false;
         public shoot = false;
         public scope = false;
-        public reload = false;
+        public reloadQueue = false;
     }
 
     export class Collision {
