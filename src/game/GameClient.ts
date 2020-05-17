@@ -28,6 +28,7 @@ import { EntityMeshSystem } from "./systems/rendering/EntityMeshSystem";
 import { PickupMeshSystem } from "./systems/rendering/PickupMeshSystem";
 import { Scene } from "three";
 import { AmmoCountSystem } from "./systems/hud/AmmoCountSystem";
+import { DashChargeSystem } from "./systems/hud/DashChargeSystem";
 
 export class GameClient implements Game {
     private readonly stats = new Stats();
@@ -116,7 +117,7 @@ export class GameClient implements Game {
             this.world.addSystem(new WeaponSpriteSystem(this.world, layers[0]));
             this.world.addSystem(new CrosshairSystem(this.world, layers[1]));
             this.world.addSystem(new AmmoCountSystem(this.world, layers[1]));
-            // this.world.addSystem(new HudDisplaySystem(this.world, layers[1]));
+            this.world.addSystem(new DashChargeSystem(this.world, layers[1]));
         }
 
         // Audio

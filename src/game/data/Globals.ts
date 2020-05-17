@@ -10,6 +10,7 @@ export const PLAYER_CROUCH_H = 0.25;
 export const RUN_SPEED = 3;
 export const WALK_SPEED = 1;
 export const SWAP_SPEED = 0.25;
+export const DASH_CHARGE = 2;
 
 export const JUMP_HEIGHT = 0.4;
 export const JUMP_TIME = 0.75; // sec

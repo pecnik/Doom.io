@@ -2,7 +2,7 @@ import { System } from "../ecs";
 import { lerp } from "../core/Utils";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { Vector2 } from "three";
-import { RUN_SPEED, JUMP_SPEED } from "../data/Globals";
+import { RUN_SPEED, JUMP_SPEED, DASH_CHARGE } from "../data/Globals";
 import { Sound2D } from "../sound/Sound2D";
 
 export class PlayerDashSystem extends System {
@@ -12,10 +12,10 @@ export class PlayerDashSystem extends System {
 
     public update(dt: number) {
         this.family.entities.forEach((avatar) => {
-            if (avatar.jump.dashCharge < 2) {
+            if (avatar.jump.dashCharge < DASH_CHARGE) {
                 avatar.jump.dashCharge = lerp(
                     avatar.jump.dashCharge,
-                    2,
+                    DASH_CHARGE,
                     0.1 * dt
                 );
             }
