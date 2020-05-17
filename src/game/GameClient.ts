@@ -5,12 +5,11 @@ import { PlayerInputSystem } from "./systems/PlayerInputSystem";
 import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
 import { PhysicsSystem } from "./systems/PhysicsSystem";
-import { RenderSystem } from "./systems/RenderSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { WeaponSpriteSystem } from "./systems/hud/WeaponSpriteSystem";
 import { HudDisplaySystem } from "./systems/hud/HudDisplaySystem";
 import { Game } from "./core/Engine";
-import { loadTexture, EntityMesh } from "./Helpers";
+import { loadTexture } from "./Helpers";
 import { GenericSystem } from "./systems/GenericSystem";
 import Stats from "stats.js";
 import { PickupSystem } from "./systems/PickupSystem";
@@ -25,6 +24,8 @@ import { WEAPON_SPEC_RECORD } from "./data/Weapon";
 import { uniq } from "lodash";
 import { CrosshairSystem } from "./systems/hud/CrosshairSystem";
 import { PlayerDashSystem } from "./systems/PlayerDashSystem";
+import { AvatarMeshSystem } from "./systems/rendering/AvatarMeshSystem";
+import { EntityMeshSystem } from "./systems/rendering/EntityMeshSystem";
 
 export class GameClient implements Game {
     private readonly stats = new Stats();
@@ -42,9 +43,6 @@ export class GameClient implements Game {
 
         return Promise.all([
             this.world.decals.load(),
-
-            // Load entity mesh data
-            EntityMesh.load(),
 
             // Preload weapon audio
             Sound3D.load(["/assets/sounds/footstep.wav"]),
@@ -85,6 +83,9 @@ export class GameClient implements Game {
         // Init camera position
         const { max_x, max_y, max_z } = this.world.level.data;
         this.world.camera.position.set(max_x, max_y, max_z).multiplyScalar(0.5);
+        this.world.camera.near = 0.01;
+        this.world.camera.far = 512;
+        this.world.camera.updateProjectionMatrix();
 
         // Init Sound3D
         this.world.camera.add(Sound3D.listener);
@@ -100,7 +101,10 @@ export class GameClient implements Game {
         this.world.addSystem(new AvatarStateSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new PlayerShootSystem(this.world));
-        this.world.addSystem(new RenderSystem(this.world));
+
+        // Rendering
+        this.world.addSystem(new EntityMeshSystem(this.world));
+        this.world.addSystem(new AvatarMeshSystem(this.world));
 
         // Hud
         this.world.addSystem(new CrosshairSystem(this.world, this.hud));

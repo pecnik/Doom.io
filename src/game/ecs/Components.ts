@@ -1,11 +1,4 @@
-import {
-    Vector2,
-    Object3D,
-    Geometry,
-    MeshBasicMaterial,
-    BufferGeometry,
-    Vector3,
-} from "three";
+import { Vector2, Vector3 } from "three";
 import { PLAYER_RADIUS, PLAYER_HEIGHT } from "../data/Globals";
 import { WeaponState, WeaponAmmo } from "../data/Types";
 import { Netcode } from "../Netcode";
@@ -17,6 +10,7 @@ export type AnyComponents = Partial<AllComponents>;
 export type AllComponents = {
     socketId: string;
     avatarTag: boolean;
+    enemyAvatarTag: boolean;
     playerId: string;
     playerData: Components.PlayerData;
     eventsBuffer: Netcode.Event[];
@@ -26,13 +20,13 @@ export type AllComponents = {
     collision: Components.Collision;
     input: Components.Input;
     shooter: Components.Shooter;
-    render: Components.Render;
     health: Components.Health;
     jump: Components.Jump;
     pickup: Components.Pickup;
     avatar: Components.Avatar;
     avatarSpawner: Components.AvatarSpawner;
     footstep: Components.Footstep;
+    entityMesh: Components.EntityMesh;
 };
 
 export module Components {
@@ -91,14 +85,6 @@ export module Components {
         public prevVelocityY = 0;
     }
 
-    export class Render {
-        public static Geo: Geometry | BufferGeometry = new Geometry();
-        public static Mat: MeshBasicMaterial = new MeshBasicMaterial();
-        public obj = new Object3D();
-        public geo = Render.Geo;
-        public mat = Render.Mat;
-    }
-
     export class Health {
         public value = 100;
     }
@@ -135,5 +121,14 @@ export module Components {
 
     export class Footstep {
         public stepTime = 0;
+    }
+
+    export class EntityMesh {
+        public readonly src: string;
+        public objectId = -1;
+
+        public constructor(src = "/assets/mesh/missing.glb") {
+            this.src = src;
+        }
     }
 }

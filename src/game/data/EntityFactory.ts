@@ -1,11 +1,11 @@
 import { uniqueId } from "lodash";
-import { EntityMesh } from "../Helpers";
 import {
     LocalAvatarArchetype,
     PickupArchetype,
     EnemyAvatarArchetype,
 } from "../ecs/Archetypes";
 import { WeaponType, WEAPON_SPEC_RECORD } from "./Weapon";
+import { Components } from "../ecs";
 
 export module EntityFactory {
     const nextID = () => uniqueId("e");
@@ -16,7 +16,7 @@ export module EntityFactory {
 
     export function EnemyAvatar(id = nextID()) {
         const enemy = { id, ...new EnemyAvatarArchetype() };
-        EntityMesh.set(enemy, "__ROBOT__");
+
         return enemy;
     }
 
@@ -24,8 +24,8 @@ export module EntityFactory {
         const pickup = { id: nextID(), ...new PickupArchetype() };
         pickup.pickup.weaponType = weaponType;
 
-        const weaponSpec = WEAPON_SPEC_RECORD[weaponType];
-        EntityMesh.set(pickup, weaponSpec.ammoPickupMesh);
+        const mesh = WEAPON_SPEC_RECORD[weaponType].ammoPickupMesh;
+        pickup.entityMesh = new Components.EntityMesh(mesh);
 
         return pickup;
     }

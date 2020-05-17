@@ -1,9 +1,6 @@
-import GLTFLoader from "three-gltf-loader";
 import { Entity, Family } from "./ecs";
 import { Components } from "./ecs";
 import {
-    Mesh,
-    MeshBasicMaterial,
     Raycaster,
     PerspectiveCamera,
     Vector2,
@@ -13,13 +10,21 @@ import {
     NearestFilter,
     Material,
     Vector3,
-    Scene,
+    Object3D,
 } from "three";
 import { World } from "./ecs";
 import { WeaponState } from "./data/Types";
 import { PLAYER_HEIGHT } from "./data/Globals";
 import { AvatarArchetype } from "./ecs/Archetypes";
 import { WEAPON_SPEC_RECORD } from "./data/Weapon";
+
+export function getEntityMesh(
+    world: World,
+    entity: Entity
+): Object3D | undefined {
+    if (entity.entityMesh === undefined) return;
+    return world.scene.getObjectById(entity.entityMesh.objectId);
+}
 
 export function getPlayerAvatar(
     playerId: string,
@@ -79,40 +84,6 @@ export function isScopeActive(
     return input.scope && weapon.scope;
 }
 
-export module EntityMesh {
-    let glbScene = new Scene();
-
-    export type RenderArchetype = Entity<{ render: Components.Render }>;
-
-    export function load() {
-        return Promise.all([
-            // Load geometry data
-            new Promise((resolve) => {
-                new GLTFLoader().load("/assets/mesh/mesh_list.glb", (glb) => {
-                    glbScene = glb.scene;
-                    resolve();
-                });
-            }),
-        ]);
-    }
-
-    export function set(entity: RenderArchetype, name: string) {
-        const obj = glbScene.getObjectByName(name);
-        if (obj instanceof Mesh) {
-            entity.render.geo = obj.geometry;
-            entity.render.mat = (obj.material as MeshBasicMaterial).clone();
-
-            const mesh = obj.clone(true);
-            entity.render.obj.add(mesh);
-
-            if (entity.render.mat.map) {
-                entity.render.mat.map.minFilter = NearestFilter;
-                entity.render.mat.map.magFilter = NearestFilter;
-            }
-        }
-    }
-}
-
 export module Hitscan {
     export const caster: { entity?: Entity } = {};
     export const raycaster = new Raycaster();
@@ -127,7 +98,7 @@ export module Hitscan {
 
     export function cast(
         world: World,
-        family?: Family<{ render: Components.Render }>
+        family?: Family<{ entityMesh: Components.EntityMesh }>
     ) {
         response.intersection = undefined;
         response.entity = undefined;
@@ -139,8 +110,10 @@ export module Hitscan {
 
         if (family !== undefined) {
             family.entities.forEach((entity) => {
-                const { render } = entity;
-                raycaster.intersectObject(render.obj, true, buffer);
+                const obj = getEntityMesh(world, entity);
+                if (obj === undefined) return;
+
+                raycaster.intersectObject(obj, true, buffer);
 
                 const [next] = buffer;
                 if (next !== undefined && next !== response.intersection) {

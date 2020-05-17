@@ -25,12 +25,13 @@ export class LocalAvatarArchetype extends AvatarArchetype {
 }
 
 export class EnemyAvatarArchetype extends AvatarArchetype {
-    public render = new Components.Render();
+    public enemyAvatarTag = true;
+    public entityMesh = new Components.EntityMesh("/assets/mesh/snowman.glb");
 }
 
 export class PickupArchetype implements AnyComponents {
     public position = new Components.Position();
     public rotation = new Components.Rotation();
-    public render = new Components.Render();
     public pickup = new Components.Pickup();
+    public entityMesh = new Components.EntityMesh();
 }

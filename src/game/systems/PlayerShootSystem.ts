@@ -15,7 +15,7 @@ import { Netcode } from "../Netcode";
 import { WEAPON_SPEC_RECORD, WeaponSpec } from "../data/Weapon";
 
 class TargetArchetype implements AnyComponents {
-    public render = new Components.Render();
+    public entityMesh = new Components.EntityMesh();
 }
 
 export class PlayerShootSystem extends System {
