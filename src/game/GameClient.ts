@@ -7,7 +7,6 @@ import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
 import { PhysicsSystem } from "./systems/PhysicsSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { WeaponSpriteSystem } from "./systems/rendering/WeaponSpriteSystem";
-import { HudDisplaySystem } from "./systems/hud/HudDisplaySystem";
 import { Game } from "./core/Engine";
 import { loadTexture } from "./Helpers";
 import { GenericSystem } from "./systems/GenericSystem";
@@ -28,6 +27,7 @@ import { AvatarMeshSystem } from "./systems/rendering/AvatarMeshSystem";
 import { EntityMeshSystem } from "./systems/rendering/EntityMeshSystem";
 import { PickupMeshSystem } from "./systems/rendering/PickupMeshSystem";
 import { Scene } from "three";
+import { AmmoCountSystem } from "./systems/hud/AmmoCountSystem";
 
 export class GameClient implements Game {
     private readonly stats = new Stats();
@@ -115,7 +115,8 @@ export class GameClient implements Game {
             this.hud.layers.push(...layers);
             this.world.addSystem(new WeaponSpriteSystem(this.world, layers[0]));
             this.world.addSystem(new CrosshairSystem(this.world, layers[1]));
-            this.world.addSystem(new HudDisplaySystem(this.world, layers[1]));
+            this.world.addSystem(new AmmoCountSystem(this.world, layers[1]));
+            // this.world.addSystem(new HudDisplaySystem(this.world, layers[1]));
         }
 
         // Audio

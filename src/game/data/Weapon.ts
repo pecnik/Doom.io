@@ -6,6 +6,7 @@ export enum WeaponType {
 
 export class WeaponSpec {
     public type = WeaponType.Pistol;
+    public name = "Gun";
 
     public scope = false;
 
@@ -29,6 +30,11 @@ export class WeaponSpec {
 
 export class WeaponSpecBuilder {
     private readonly weaponSpec = new WeaponSpec();
+
+    public name(name: string) {
+        this.weaponSpec.name = name;
+        return this;
+    }
 
     public type(type: WeaponType) {
         this.weaponSpec.type = type;
@@ -93,6 +99,7 @@ export class WeaponSpecBuilder {
 export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
     [WeaponType.Pistol]: new WeaponSpecBuilder()
         .type(WeaponType.Pistol)
+        .name("Pistol")
         .ammo(8, 256)
         .damage(20)
         .accuracy(0.9)
@@ -114,6 +121,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
 
     [WeaponType.Shotgun]: new WeaponSpecBuilder()
         .type(WeaponType.Shotgun)
+        .name("Shotgun")
         .ammo(3, 128)
         .damage(25, 4)
         .accuracy(0.1)
@@ -135,6 +143,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
 
     [WeaponType.Machinegun]: new WeaponSpecBuilder()
         .type(WeaponType.Machinegun)
+        .name("Machinegun")
         .ammo(32, 512)
         .damage(15)
         .accuracy(0.75)
