@@ -195,12 +195,14 @@ export class PlayerShootSystem extends System {
 
             const { point, face } = rsp.intersection;
 
-            // Emit particles
-            this.world.particles.emit(point, face.normal, new Color(0, 0, 0));
-
             // Bullet decal
             if (rsp.entity === undefined) {
                 this.world.decals.spawn(point, face.normal);
+                this.world.particles.emit(
+                    point,
+                    face.normal,
+                    new Color(0, 0, 0)
+                );
             }
 
             // Apply damage
@@ -213,6 +215,13 @@ export class PlayerShootSystem extends System {
                 hitEvent.weaponType = player.shooter.weaponType;
                 hitEvent.damage = weaponSpec.bulletDamage;
                 player.eventsBuffer.push(hitEvent);
+
+                this.world.particles.emit(
+                    point,
+                    face.normal,
+                    new Color(1, 0, 0),
+                    hitEvent.damage
+                );
             }
         }
     }
