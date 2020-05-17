@@ -129,8 +129,9 @@ export module Hitscan {
 
 export function loadTexture(src: string): Promise<Texture> {
     return new Promise((resolve) => {
+        // Pixelated when near, smooth when far
         new TextureLoader().load(src, (map) => {
-            map.minFilter = NearestFilter;
+            // map.minFilter = NearestFilter;
             map.magFilter = NearestFilter;
             resolve(map);
         });
