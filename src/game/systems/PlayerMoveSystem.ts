@@ -11,7 +11,7 @@ export class PlayerMoveSystem extends System {
         archetype: new LocalAvatarArchetype(),
     });
 
-    public update() {
+    public update(dt: number) {
         this.family.entities.forEach((entity) => {
             const jump = entity.jump;
             const input = entity.input;
@@ -47,20 +47,47 @@ export class PlayerMoveSystem extends System {
                 }
             }
 
-            // horizontal movement
-            const move = new Vector2(input.movex, input.movey);
-            move.normalize();
+            if (!entity.jump.dashing) {
+                let targetSpeed = RUN_SPEED;
+                if (input.movex === 0 && input.movey === 0) {
+                    targetSpeed = 0;
+                } else if (isCrouched(entity) || isScopeActive(entity)) {
+                    targetSpeed = WALK_SPEED;
+                }
 
-            const slow = isCrouched(entity) || isScopeActive(entity);
-            const speed = slow ? WALK_SPEED : RUN_SPEED;
-            move.multiplyScalar(speed);
-            if (move.x !== 0 || move.y !== 0) {
-                move.rotateAround(new Vector2(), -rotation.y);
+                const lerpSpeed = RUN_SPEED * dt * 4;
+                entity.jump.speed = lerp(
+                    entity.jump.speed,
+                    targetSpeed,
+                    lerpSpeed
+                );
+
+                // horizontal movement
+                const move = new Vector2(input.movex, input.movey);
+                if (targetSpeed === 0) {
+                    move.x = entity.velocity.x;
+                    move.y = entity.velocity.z;
+                    move.normalize();
+                    move.multiplyScalar(entity.jump.speed);
+                } else {
+                    move.normalize();
+                    move.rotateAround(new Vector2(), -rotation.y);
+                    move.multiplyScalar(entity.jump.speed);
+                }
+
+                if (isGrounded) {
+                    entity.velocity.x = move.x;
+                    entity.velocity.z = move.y;
+                } else {
+                    const velocity = new Vector2(
+                        entity.velocity.x,
+                        entity.velocity.z
+                    );
+                    velocity.lerp(move, dt * 2);
+                    entity.velocity.x = velocity.x;
+                    entity.velocity.z = velocity.y;
+                }
             }
-
-            const acc = isGrounded ? RUN_SPEED * 0.25 : RUN_SPEED * 0.005;
-            velocity.x = lerp(velocity.x, move.x, acc);
-            velocity.z = lerp(velocity.z, move.y, acc);
         });
     }
 }

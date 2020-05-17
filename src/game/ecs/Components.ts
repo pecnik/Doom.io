@@ -89,6 +89,7 @@ export module Components {
         public value = 100;
     }
 
+    // TODO: Rename to move
     export class Jump {
         public triggerTime = 0;
         public coyoteTime = 0;
@@ -96,6 +97,7 @@ export module Components {
         public dashing = false;
         public dashTime = 0;
         public dashCharge = 2;
+        public speed = 0;
     }
 
     export enum PickupType {

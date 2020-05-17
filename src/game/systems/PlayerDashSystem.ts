@@ -22,8 +22,8 @@ export class PlayerDashSystem extends System {
                 avatar.jump.dashCharge -= 1;
 
                 // Accelerate
-                const move = new Vector2(0, -5);
-                move.multiplyScalar(RUN_SPEED);
+                const dashSpeed = RUN_SPEED * 5;
+                const move = new Vector2(0, -dashSpeed);
                 if (move.x !== 0 || move.y !== 0) {
                     move.rotateAround(new Vector2(), -avatar.rotation.y);
                 }
