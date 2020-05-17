@@ -1,7 +1,6 @@
 import { LocalAvatarArchetype, AvatarArchetype } from "../../ecs/Archetypes";
 import { System, World } from "../../ecs";
 import { Group, Sprite, Vector3, Scene } from "three";
-import { Hud } from "../../data/Hud";
 import { HUD_WIDTH, HUD_HEIGHT, SWAP_SPEED } from "../../data/Globals";
 import { WEAPON_SPEC_RECORD } from "../../data/Weapon";
 import { loadTexture, getWeaponSpec, isScopeActive } from "../../Helpers";
@@ -158,16 +157,17 @@ export class WeaponSpriteSystem extends System {
             }
         }
 
+        let light = this.world.level.getVoxelLightAt(avatar.position);
         for (let i = 0; i < frames.length; i++) {
             const frame = frames[i];
             frame.visible = frame.name === activeSprite;
 
-            if (frame.visible) {
-                const light = this.world.level.getVoxelLightAt(avatar.position);
-                if (!frame.material.color.equals(light)) {
-                    frame.material.color.lerp(light, 0.125);
-                    frame.material.needsUpdate = true;
-                }
+            if (avatar.shooter.state === WeaponState.Shoot) {
+                frame.material.color.setRGB(1.25, 1.25, 1.25);
+                frame.material.needsUpdate = true;
+            } else if (!frame.material.color.equals(light)) {
+                frame.material.color.lerp(light, 0.125);
+                frame.material.needsUpdate = true;
             }
         }
     }
