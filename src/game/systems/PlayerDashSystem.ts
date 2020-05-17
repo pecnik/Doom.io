@@ -13,7 +13,11 @@ export class PlayerDashSystem extends System {
     public update(dt: number) {
         this.family.entities.forEach((avatar) => {
             if (avatar.jump.dashCharge < 2) {
-                avatar.jump.dashCharge = lerp(avatar.jump.dashCharge, 2, dt);
+                avatar.jump.dashCharge = lerp(
+                    avatar.jump.dashCharge,
+                    2,
+                    0.1 * dt
+                );
             }
 
             if (avatar.input.dash && avatar.jump.dashCharge > 1) {

@@ -1,7 +1,6 @@
 import { System } from "../../ecs";
 import { World } from "../../ecs";
 import { Hud } from "../../data/Hud";
-import { Components } from "../../ecs";
 import {
     NearestFilter,
     Texture,
@@ -10,8 +9,9 @@ import {
     Mesh,
 } from "three";
 import { HUD_WIDTH, HUD_HEIGHT } from "../../data/Globals";
+import { LocalAvatarArchetype } from "../../ecs/Archetypes";
 
-export class HudElement<T> {
+class HudElement<T> {
     public readonly props: T;
     public readonly plane: Mesh;
     public readonly width: number;
@@ -47,10 +47,7 @@ export class HudElement<T> {
 
 export class HudDisplaySystem extends System {
     private readonly family = this.createEntityFamily({
-        archetype: {
-            input: new Components.Input(),
-            shooter: new Components.Shooter(),
-        },
+        archetype: new LocalAvatarArchetype(),
     });
 
     private readonly ammoText = new HudElement({
@@ -59,29 +56,54 @@ export class HudDisplaySystem extends System {
         props: { loadedAmmo: 0, reservedAmmo: 0 },
     });
 
+    private readonly dashMeter: Mesh;
+
     public constructor(world: World, hud: Hud) {
         super(world);
 
         // Ammo text
-        hud.scene.add(this.ammoText.plane);
+        {
+            this.ammoText.ctx.font = "Normal 40px Arial";
+            this.ammoText.ctx.textAlign = "center";
+            this.ammoText.ctx.textBaseline = "middle";
+            this.ammoText.ctx.fillStyle = "white";
+            this.ammoText.plane.renderOrder = 100;
+            this.ammoText.plane.position.set(
+                HUD_WIDTH / 2 - this.ammoText.width / 2,
+                -(HUD_HEIGHT / 2 - this.ammoText.height / 2),
+                0
+            );
+            hud.scene.add(this.ammoText.plane);
+        }
 
-        this.ammoText.ctx.font = "Normal 40px Arial";
-        this.ammoText.ctx.textAlign = "center";
-        this.ammoText.ctx.textBaseline = "middle";
-        this.ammoText.ctx.fillStyle = "white";
+        // Dash meter
+        {
+            const geo = new PlaneGeometry(64, 8);
+            geo.translate(32, 0, 0);
 
-        this.ammoText.plane.renderOrder = 100;
-        this.ammoText.plane.position.set(
-            HUD_WIDTH / 2 - this.ammoText.width / 2,
-            -(HUD_HEIGHT / 2 - this.ammoText.height / 2),
-            0
-        );
+            const mat = new MeshBasicMaterial({
+                color: 0xff00ff,
+                transparent: true,
+            });
+            this.dashMeter = new Mesh(geo, mat);
+            this.dashMeter.renderOrder = 100;
+            this.dashMeter.position.x = -HUD_WIDTH / 2;
+            this.dashMeter.position.y = -(
+                HUD_HEIGHT / 2 -
+                this.ammoText.height / 2
+            );
+            hud.scene.add(this.dashMeter);
+        }
     }
 
     public update() {
-        this.family.entities.forEach(({ shooter }) => {
-            const ammo = shooter.ammo[shooter.weaponType];
+        this.family.entities.forEach((entity) => {
+            // Update dash meter
+            this.dashMeter.scale.x = entity.jump.dashCharge;
 
+            // Update ammo
+            const { shooter } = entity;
+            const ammo = shooter.ammo[shooter.weaponType];
             if (
                 this.ammoText.props.loadedAmmo !== ammo.loaded ||
                 this.ammoText.props.reservedAmmo !== ammo.reserved
