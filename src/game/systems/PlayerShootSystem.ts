@@ -113,7 +113,11 @@ export class PlayerShootSystem extends System {
             }
 
             if (shooter.state === WeaponState.Shoot) {
-                return this.transition(WeaponState.Cooldown, entity);
+                if (reload) {
+                    return this.transition(WeaponState.Reload, entity);
+                } else {
+                    return this.transition(WeaponState.Cooldown, entity);
+                }
             }
 
             if (shooter.state === WeaponState.Cooldown) {
