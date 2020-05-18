@@ -16,14 +16,14 @@ export class PlayerDashSystem extends System {
                 avatar.jump.dashCharge = lerp(
                     avatar.jump.dashCharge,
                     DASH_CHARGE,
-                    0.1 * dt
+                    0.25 * dt
                 );
             }
 
             if (avatar.input.dash && avatar.jump.dashCharge > 1) {
                 avatar.jump.dashing = true;
                 avatar.jump.dashTime = this.world.elapsedTime;
-                avatar.jump.dashCharge -= 1;
+                avatar.jump.dashCharge -= 0.9;
 
                 // Accelerate
                 const dashSpeed = RUN_SPEED * 5;

@@ -3,12 +3,12 @@ import { World } from "../../ecs";
 import { Scene } from "three";
 import { LocalAvatarArchetype } from "../../ecs/Archetypes";
 import { HudElement } from "../../data/HudElement";
-import { HUD_WIDTH, HUD_HEIGHT, DASH_CHARGE } from "../../data/Globals";
+import { HUD_WIDTH, HUD_HEIGHT } from "../../data/Globals";
 import { clamp } from "lodash";
 
 export class DashChargeSystem extends System {
     private readonly el = new HudElement({
-        width: 256,
+        width: 64,
         height: 64,
         props: {
             jump: new Components.Jump(),
@@ -23,7 +23,7 @@ export class DashChargeSystem extends System {
         super(world);
         this.el.plane.position.x = -HUD_WIDTH / 2;
         this.el.plane.position.y = -HUD_HEIGHT / 2;
-        this.el.plane.geometry.translate(128, 32, 0);
+        this.el.plane.geometry.translate(32, 32, 0);
         layer.add(this.el.plane);
         this.render();
     }
@@ -51,29 +51,31 @@ export class DashChargeSystem extends System {
         this.el.ctx.clearRect(0, 0, this.el.width, this.el.height);
 
         const x = 32;
-        const y = 32;
-        const r = 12;
+        const y = 20;
+        const r = 16;
 
-        const charge = this.el.props.jump.dashCharge;
-        for (let i = 0; i < DASH_CHARGE; i++) {
-            const val = clamp(charge - i, 0, 1);
-            if (val === 0) continue;
-
-            this.el.ctx.lineWidth = 8;
-            this.el.ctx.strokeStyle = val === 1 ? "#f53b57" : "#747d8c";
+        const stroke = (x: number, y: number, s: number, e: number) => {
+            this.el.ctx.strokeStyle = "black";
             this.el.ctx.beginPath();
-            this.el.ctx.arc(x + i * 64, y, r, 0, 2 * Math.PI);
+            this.el.ctx.arc(x + 2, y + 2, r, s, e);
             this.el.ctx.stroke();
             this.el.ctx.closePath();
 
-            if (val < 1) {
-                this.el.ctx.lineWidth = 4;
-                this.el.ctx.strokeStyle = "#ffa502";
-                this.el.ctx.beginPath();
-                this.el.ctx.arc(x + i * 64, y, r, 0, 2 * Math.PI * val);
-                this.el.ctx.stroke();
-                this.el.ctx.closePath();
-            }
-        }
+            this.el.ctx.strokeStyle = "white";
+            this.el.ctx.beginPath();
+            this.el.ctx.arc(x, y, r, s, e);
+            this.el.ctx.stroke();
+            this.el.ctx.closePath();
+        };
+
+        this.el.ctx.lineWidth = 6;
+
+        const s1 = Math.PI * 0.5;
+        const c1 = clamp(this.el.props.jump.dashCharge, 0, 1);
+        stroke(x, y, s1, s1 + Math.PI * c1);
+
+        const s2 = s1 + Math.PI;
+        const c2 = clamp(this.el.props.jump.dashCharge - 1, 0, 1);
+        stroke(x + 2, y, s2, s2 + Math.PI * c2);
     }
 }

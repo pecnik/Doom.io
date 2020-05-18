@@ -21,6 +21,7 @@ export class WeaponSpec {
     public maxReservedAmmo = 1;
 
     // Assets
+    public icon = "/assets/sprites/hud/icon_hg.png";
     public povSprite = "";
     public povFireSprites: string[] = [];
     public fireSound = "";
@@ -31,13 +32,18 @@ export class WeaponSpec {
 export class WeaponSpecBuilder {
     private readonly weaponSpec = new WeaponSpec();
 
+    public type(type: WeaponType) {
+        this.weaponSpec.type = type;
+        return this;
+    }
+
     public name(name: string) {
         this.weaponSpec.name = name;
         return this;
     }
 
-    public type(type: WeaponType) {
-        this.weaponSpec.type = type;
+    public icon(icon: string) {
+        this.weaponSpec.icon = icon;
         return this;
     }
 
@@ -100,6 +106,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
     [WeaponType.Pistol]: new WeaponSpecBuilder()
         .type(WeaponType.Pistol)
         .name("Pistol")
+        .icon("/assets/sprites/hud/icon_hg.png")
         .ammo(8, 256)
         .damage(20)
         .accuracy(0.9)
@@ -122,6 +129,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
     [WeaponType.Shotgun]: new WeaponSpecBuilder()
         .type(WeaponType.Shotgun)
         .name("Shotgun")
+        .icon("/assets/sprites/hud/icon_sg.png")
         .ammo(3, 128)
         .damage(25, 4)
         .accuracy(0.1)
@@ -144,6 +152,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
     [WeaponType.Machinegun]: new WeaponSpecBuilder()
         .type(WeaponType.Machinegun)
         .name("Machinegun")
+        .icon("/assets/sprites/hud/icon_mg.png")
         .ammo(32, 512)
         .damage(15)
         .accuracy(0.75)
