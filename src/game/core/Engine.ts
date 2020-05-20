@@ -2,8 +2,8 @@ import { WebGLRenderer, Scene, Camera, PerspectiveCamera } from "three";
 import { clamp } from "lodash";
 
 export interface Game {
-    readonly world: { scene: Scene; camera: PerspectiveCamera };
-    readonly hud: { layers: Scene[]; camera: Camera };
+    readonly world: { scene: Scene; camera: PerspectiveCamera; };
+    readonly hud: { layers: Scene[]; camera: Camera; };
     preload(): Promise<any>;
     create(): void;
     update(dt: number): void;

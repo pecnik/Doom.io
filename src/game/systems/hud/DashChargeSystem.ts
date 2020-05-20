@@ -3,7 +3,6 @@ import { World } from "../../ecs";
 import { Scene } from "three";
 import { LocalAvatarArchetype } from "../../ecs/Archetypes";
 import { HudElement } from "../../data/HudElement";
-import { HUD_WIDTH, HUD_HEIGHT } from "../../data/Globals";
 import { clamp } from "lodash";
 
 export class DashChargeSystem extends System {
@@ -21,10 +20,10 @@ export class DashChargeSystem extends System {
 
     public constructor(world: World, layer: Scene) {
         super(world);
-        this.el.plane.position.x = -HUD_WIDTH / 2;
-        this.el.plane.position.y = -HUD_HEIGHT / 2;
-        this.el.plane.geometry.translate(32, 32, 0);
-        layer.add(this.el.plane);
+        this.el.moveLeft();
+        this.el.moveBottom();
+        layer.add(this.el.sprite);
+        // layer.add(this.el.boxHelper());
         this.render();
     }
 
@@ -51,7 +50,7 @@ export class DashChargeSystem extends System {
         this.el.ctx.clearRect(0, 0, this.el.width, this.el.height);
 
         const x = 32;
-        const y = 20;
+        const y = 32;
         const r = 16;
 
         const stroke = (x: number, y: number, s: number, e: number) => {

@@ -1,8 +1,9 @@
-import { Mesh, Texture, MeshBasicMaterial, PlaneGeometry } from "three";
+import { Texture, SpriteMaterial, Sprite, BoxHelper } from "three";
+import { HUD_WIDTH, HUD_HEIGHT } from "./Globals";
 
 export class HudElement<T> {
     public readonly props: T;
-    public readonly plane: Mesh;
+    public readonly sprite: Sprite;
     public readonly width: number;
     public readonly height: number;
 
@@ -10,7 +11,7 @@ export class HudElement<T> {
     public readonly canvas: HTMLCanvasElement;
     public readonly ctx: CanvasRenderingContext2D;
 
-    public constructor(config: { props: T; width: number; height: number }) {
+    public constructor(config: { props: T; width: number; height: number; }) {
         const { props, width, height } = config;
         this.props = props;
         this.width = width;
@@ -23,12 +24,10 @@ export class HudElement<T> {
         this.texture = new Texture(this.canvas);
         this.texture.needsUpdate = true;
 
-        const material = new MeshBasicMaterial({ map: this.texture });
-        material.transparent = true;
-
-        const geometry = new PlaneGeometry(width, height);
-        this.plane = new Mesh(geometry, material);
-        this.plane.renderOrder = 100;
+        const material = new SpriteMaterial({ map: this.texture });
+        this.sprite = new Sprite(material);
+        this.sprite.renderOrder = 100;
+        this.sprite.scale.set(width, height, 1);
 
         this.ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
         this.ctx.font = "Normal 24px Arial";
@@ -36,4 +35,34 @@ export class HudElement<T> {
         this.ctx.textBaseline = "middle";
         this.ctx.fillStyle = "white";
     }
+
+    public boxHelper() {
+        return new BoxHelper(this.sprite);
+    }
+
+    public moveRight() {
+        this.sprite.position.x = HUD_WIDTH / 2;
+        this.sprite.position.x -= this.width / 2;
+        return this;
+    }
+
+    public moveLeft() {
+        this.sprite.position.x = -HUD_WIDTH / 2;
+        this.sprite.position.x += this.width / 2;
+        return this;
+    }
+
+    public moveBottom() {
+        this.sprite.position.y = -HUD_HEIGHT / 2;
+        this.sprite.position.y += this.height / 2;
+        return this;
+    }
+
+    public moveTop() {
+        this.sprite.position.y = HUD_HEIGHT / 2;
+        this.sprite.position.y -= this.height / 2;
+        return this;
+    }
+
 }
+

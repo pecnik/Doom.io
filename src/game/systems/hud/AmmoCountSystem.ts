@@ -4,14 +4,13 @@ import { Scene } from "three";
 import { LocalAvatarArchetype } from "../../ecs/Archetypes";
 import { HudElement } from "../../data/HudElement";
 import { WEAPON_SPEC_RECORD, WeaponType } from "../../data/Weapon";
-import { HUD_WIDTH, HUD_HEIGHT } from "../../data/Globals";
 import { memoize } from "lodash";
 
 export class AmmoCountSystem extends System {
     private readonly weaponSpecs = Object.values(WEAPON_SPEC_RECORD);
     private readonly el = new HudElement({
-        width: 256,
-        height: 256,
+        width: 128,
+        height: 128,
         props: {
             active: WeaponType.Pistol,
             shooter: new Components.Shooter(),
@@ -25,21 +24,19 @@ export class AmmoCountSystem extends System {
     private readonly getImage = memoize((src: string) => {
         const img = new Image();
         img.src = src;
-        img.onload = () => console.log(`> loaded: ${src}`);
+        img.onload = () => {
+            console.log(`> loaded: ${src}`);
+            this.render();
+        };
         return img;
     });
 
     public constructor(world: World, layer: Scene) {
         super(world);
-        this.el.plane.position.x = HUD_WIDTH / 2;
-        this.el.plane.position.y = -HUD_HEIGHT / 2;
-        this.el.plane.geometry.translate(
-            -this.el.width / 2,
-            this.el.height / 2,
-            0
-        );
-        layer.add(this.el.plane);
-
+        this.el.moveRight();
+        this.el.moveBottom();
+        layer.add(this.el.sprite);
+        // layer.add(this.el.boxHelper());
         this.render();
     }
 
@@ -80,6 +77,8 @@ export class AmmoCountSystem extends System {
         this.el.texture.needsUpdate = true;
         this.el.ctx.clearRect(0, 0, this.el.width, this.el.height);
 
+
+
         const fillText = (text: string, x: number, y: number) => {
             this.el.ctx.fillStyle = "black";
             this.el.ctx.fillText(text, x + 2, y + 2);
@@ -88,38 +87,46 @@ export class AmmoCountSystem extends System {
         };
 
         this.weaponSpecs.forEach((weaponSpec, index) => {
+            const x = 64;
+            const y = 24 * index;
+
             const active = this.el.props.active === weaponSpec.type;
             const ammo = this.el.props.shooter.ammo[weaponSpec.type];
-            const x = this.el.width - 48;
-            const y = 16 + 28 * index;
-
             this.el.ctx.globalAlpha = active ? 1 : 0.5;
 
             const icon = this.getImage(weaponSpec.icon);
             if (icon.width > 0) {
-                this.el.ctx.drawImage(icon, x - 48, y - 12, 24, 24);
+                active
+                    ? this.el.ctx.drawImage(icon, x - 32, y, 18, 18)
+                    : this.el.ctx.drawImage(icon, x - 32, y, 16, 16);
             }
 
-            this.el.ctx.font = "Bold 12px 'Share Tech Mono'";
+            this.el.ctx.font = `Bold 14px 'Share Tech Mono'`;
+            this.el.ctx.textBaseline = "top";
 
             this.el.ctx.textAlign = "right";
-            fillText(ammo.loaded.toString() + "|", x, y);
+            fillText(ammo.loaded.toString() + "|", x + 32, y);
 
             this.el.ctx.textAlign = "left";
-            fillText(ammo.reserved.toString(), x, y);
+            fillText(ammo.reserved.toString(), x + 32, y);
 
             if (active) {
-                const x = this.el.width - 128;
-                const y = this.el.height - 48;
+                const PADD = 8;
+                const TILE = 64;
+                const SIZE = TILE - PADD * 2;
+
+                const x = 0;
+                const y = this.el.height - TILE;
 
                 const icon = this.getImage(weaponSpec.icon);
                 if (icon.width > 0) {
-                    this.el.ctx.drawImage(icon, x, y - 24, 48, 48);
+                    this.el.ctx.drawImage(icon, x + PADD, y + PADD, SIZE, SIZE);
                 }
 
+                this.el.ctx.font = `Bold ${SIZE}px 'Share Tech Mono'`;
                 this.el.ctx.textAlign = "left";
-                this.el.ctx.font = "Bold 44px 'Share Tech Mono'";
-                fillText(ammo.loaded.toString(), x + 64, y);
+                this.el.ctx.textBaseline = "top";
+                fillText(ammo.loaded.toString(), x + TILE + PADD, y + PADD);
             }
         });
     }
