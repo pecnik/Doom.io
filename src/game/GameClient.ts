@@ -29,12 +29,26 @@ import { PickupMeshSystem } from "./systems/rendering/PickupMeshSystem";
 import { Scene } from "three";
 import { AmmoCountSystem } from "./systems/hud/AmmoCountSystem";
 import { DashChargeSystem } from "./systems/hud/DashChargeSystem";
+import { Settings } from "./Settings";
 
 export class GameClient implements Game {
-    private readonly stats = new Stats();
+    private readonly stats = GameClient.createStats();
     private readonly input = new Input({ requestPointerLock: true });
     public readonly world = new World();
     public readonly hud = new Hud();
+
+    private static createStats() {
+        if (Settings.props.fpsMeter) {
+            const stats = new Stats();
+            document.body.appendChild(stats.dom);
+            return stats;
+        }
+
+        return {
+            begin() {},
+            end() {},
+        };
+    }
 
     public preload() {
         let weaponSounds: string[] = [];
@@ -80,9 +94,6 @@ export class GameClient implements Game {
     }
 
     public create() {
-        // Mount stats
-        document.body.appendChild(this.stats.dom);
-
         // Init camera position
         const { max_x, max_y, max_z } = this.world.level.data;
         this.world.camera.position.set(max_x, max_y, max_z).multiplyScalar(0.5);
