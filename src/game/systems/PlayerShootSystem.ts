@@ -216,12 +216,7 @@ export class PlayerShootSystem extends System {
                 hitEvent.damage = weaponSpec.bulletDamage;
                 player.eventsBuffer.push(hitEvent);
 
-                this.world.particles.emit(
-                    point,
-                    face.normal,
-                    new Color(1, 0, 0),
-                    hitEvent.damage
-                );
+                this.world.particles.emitBlood(point, face.normal);
             }
         }
     }

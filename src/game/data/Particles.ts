@@ -4,7 +4,7 @@ import {
     PointsMaterial,
     VertexColors,
     Color,
-    Points
+    Points,
 } from "three";
 import { random } from "lodash";
 import { GRAVITY } from "./Globals";
@@ -23,7 +23,7 @@ export class Particles {
         // create the particle variables
         const material = new PointsMaterial({
             vertexColors: VertexColors,
-            size: 1 / 12 // TODO - resize based on camera FOV
+            size: 1 / 12, // TODO - resize based on camera FOV
         });
 
         this.particles = new Geometry();
@@ -44,6 +44,16 @@ export class Particles {
             }
         }
         return -1;
+    }
+
+    public emitBlood(position: Vector3, direction: Vector3) {
+        const color = new Color(1, 0, 0);
+        for (let i = 0; i < 5; i++) {
+            color.r = random(0.75, 1.5, true);
+            color.g = random(0, 0.1, true);
+            color.b = random(0, 0.1, true);
+            this.emit(position, direction, color, 2);
+        }
     }
 
     public emit(
