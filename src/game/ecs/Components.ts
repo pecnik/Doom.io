@@ -11,6 +11,7 @@ export type AllComponents = {
     socketId: string;
     avatarTag: boolean;
     enemyAvatarTag: boolean;
+    localAvatarTag: boolean;
     playerId: string;
     playerData: Components.PlayerData;
     eventsBuffer: Netcode.Event[];

@@ -19,6 +19,7 @@ export class AvatarArchetype implements AnyComponents {
 }
 
 export class LocalAvatarArchetype extends AvatarArchetype {
+    public localAvatarTag = true;
     public jump = new Components.Jump();
     public input = new Components.Input();
     public eventsBuffer = [];

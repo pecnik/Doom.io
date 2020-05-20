@@ -30,6 +30,7 @@ import { Scene } from "three";
 import { AmmoCountSystem } from "./systems/hud/AmmoCountSystem";
 import { DashChargeSystem } from "./systems/hud/DashChargeSystem";
 import { Settings } from "./Settings";
+import { PlayerBounceSystem } from "./systems/PlayerBounceSystem";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();
@@ -62,8 +63,12 @@ export class GameClient implements Game {
             this.world.decals.load(),
 
             // Preload weapon audio
-            Sound3D.load(["/assets/sounds/footstep.wav"]),
-            Sound3D.load(weaponSounds),
+            Sound3D.load([
+                ...weaponSounds,
+                "/assets/sounds/footstep.wav",
+                "/assets/sounds/whoosh.wav",
+                "/assets/sounds/bounce.wav",
+            ]),
 
             // Load level
             loadTexture("/assets/tileset.png").then((map) => {
@@ -109,6 +114,7 @@ export class GameClient implements Game {
         this.world.addSystem(new PlayerInputSystem(this.world, this.input));
         this.world.addSystem(new PlayerMoveSystem(this.world));
         this.world.addSystem(new PlayerDashSystem(this.world));
+        this.world.addSystem(new PlayerBounceSystem(this.world));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new PickupSystem(this.world));
         this.world.addSystem(new GenericSystem(this.world));
@@ -137,9 +143,10 @@ export class GameClient implements Game {
 
         // Temporary ftw idk
         const route = location.hash.replace("#", "");
-        if (route === "/game/multiplayer") {
-            this.world.addSystem(new ClientNetcodeSystem(this.world));
-        } else {
+        const connect = route === "/game/multiplayer";
+        this.world.addSystem(new ClientNetcodeSystem(this.world, connect));
+
+        if (!connect) {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };
             this.world.addEntity(avatar);
         }

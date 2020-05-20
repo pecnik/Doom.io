@@ -15,7 +15,8 @@ export module Netcode {
         | SyncAvatar
         | SyncAvatarStats
         | HitEntity
-        | KillEntityEvent;
+        | KillEntityEvent
+        | EmitSound;
 
     export enum EventType {
         CreatePlayer,
@@ -26,6 +27,7 @@ export module Netcode {
         SyncAvatarStats,
         HitEntity,
         KillEntity,
+        EmitSound,
     }
 
     export class CreatePlayer {
@@ -118,6 +120,16 @@ export module Netcode {
         public id = "";
         public constructor(entity: Entity) {
             this.id = entity.id;
+        }
+    }
+
+    export class EmitSound {
+        public readonly type = EventType.EmitSound;
+        public readonly id: string;
+        public readonly sound: string;
+        public constructor(id: string, sound: string) {
+            this.id = id;
+            this.sound = sound;
         }
     }
 
