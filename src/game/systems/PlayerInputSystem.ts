@@ -6,6 +6,7 @@ import { Input, KeyCode, MouseBtn } from "../core/Input";
 import { modulo } from "../core/Utils";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { WeaponType, WEAPON_SPEC_RECORD } from "../data/Weapon";
+import { Settings } from "../Settings";
 
 export class PlayerInputSystem extends System {
     private readonly input: Input;
@@ -20,7 +21,7 @@ export class PlayerInputSystem extends System {
 
     public update(dt: number) {
         // Look input
-        const mouseSensitivity = 0.1;
+        const mouseSensitivity = Settings.props.mouseSensitivity;
         const lookHor = this.input.mouse.dx;
         const lookVer = this.input.mouse.dy;
 
