@@ -1,16 +1,17 @@
-import { System, Components } from "../../ecs";
+import { System } from "../../ecs";
 import { World } from "../../ecs";
 import { Scene } from "three";
 import { LocalAvatarArchetype } from "../../ecs/Archetypes";
 import { HudElement } from "../../data/HudElement";
 import { clamp } from "lodash";
+import { lerp } from "../../core/Utils";
 
 export class HealthBarSystem extends System {
     private readonly el = new HudElement({
         width: 256,
         height: 64,
         props: {
-            health: new Components.Health(),
+            health: 0,
         },
     });
 
@@ -28,21 +29,17 @@ export class HealthBarSystem extends System {
     }
 
     public update() {
-        const avatar = this.family.first();
-        if (avatar === undefined) {
-            return;
-        }
-
-        let cahnge = false;
-
-        if (this.el.props.health.value !== avatar.health.value) {
-            this.el.props.health.value = avatar.health.value;
-            cahnge = true;
-        }
-
-        if (cahnge) {
+        const health = this.getLocalAvatarHealth();
+        if (this.el.props.health !== health) {
+            this.el.props.health = lerp(this.el.props.health, health, 5);
             this.render();
         }
+    }
+
+    private getLocalAvatarHealth() {
+        const avatar = this.family.first();
+        if (avatar === undefined) return 0;
+        return avatar.health.value;
     }
 
     private render() {
@@ -57,7 +54,7 @@ export class HealthBarSystem extends System {
             this.el.ctx.fillStyle = "black";
             this.el.ctx.fillRect(x + 2, y + 2, w, h);
 
-            let value = this.el.props.health.value - i * 20;
+            let value = this.el.props.health - i * 20;
             value = clamp(value, 0, 20);
             if (value > 0) {
                 this.el.ctx.fillStyle = "white";
