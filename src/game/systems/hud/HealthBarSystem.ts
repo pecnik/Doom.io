@@ -7,6 +7,13 @@ import { clamp } from "lodash";
 import { lerp } from "../../core/Utils";
 
 export class HealthBarSystem extends System {
+    private readonly colors = [
+        "#FF0000",
+        "#EE8716",
+        "#E7EE16",
+        "#8ED930",
+        "#11D329",
+    ];
     private readonly el = new HudElement({
         width: 256,
         height: 64,
@@ -24,7 +31,7 @@ export class HealthBarSystem extends System {
         this.el.moveLeft(64);
         this.el.moveBottom();
         layer.add(this.el.sprite);
-        layer.add(this.el.boxHelper());
+        // layer.add(this.el.boxHelper());
         this.render();
     }
 
@@ -46,6 +53,10 @@ export class HealthBarSystem extends System {
         this.el.texture.needsUpdate = true;
         this.el.ctx.clearRect(0, 0, this.el.width, this.el.height);
 
+        let cindex = Math.floor((this.el.props.health - 10) / 20);
+        cindex = clamp(cindex, 0, 4);
+        const color = this.colors[cindex];
+
         const w = 32;
         for (let i = 0; i < 5; i++) {
             const x = 8 + i * (w + 4);
@@ -57,7 +68,7 @@ export class HealthBarSystem extends System {
             let value = this.el.props.health - i * 20;
             value = clamp(value, 0, 20);
             if (value > 0) {
-                this.el.ctx.fillStyle = "white";
+                this.el.ctx.fillStyle = color;
                 this.el.ctx.fillRect(x, y, w * (value / 20), h);
             }
         }
