@@ -31,6 +31,7 @@ import { AmmoCountSystem } from "./systems/hud/AmmoCountSystem";
 import { DashChargeSystem } from "./systems/hud/DashChargeSystem";
 import { Settings } from "./Settings";
 import { PlayerBounceSystem } from "./systems/PlayerBounceSystem";
+import { HealthBarSystem } from "./systems/hud/HealthBarSystem";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();

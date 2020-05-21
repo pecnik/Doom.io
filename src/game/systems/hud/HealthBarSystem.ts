@@ -7,10 +7,10 @@ import { clamp } from "lodash";
 
 export class HealthBarSystem extends System {
     private readonly el = new HudElement({
-        width: 128,
+        width: 256,
         height: 64,
         props: {
-            jump: new Components.Jump(),
+            health: new Components.Health(),
         },
     });
 
@@ -20,10 +20,10 @@ export class HealthBarSystem extends System {
 
     public constructor(world: World, layer: Scene) {
         super(world);
-        this.el.moveLeft();
+        this.el.moveLeft(64);
         this.el.moveBottom();
         layer.add(this.el.sprite);
-        // layer.add(this.el.boxHelper());
+        layer.add(this.el.boxHelper());
         this.render();
     }
 
@@ -35,8 +35,8 @@ export class HealthBarSystem extends System {
 
         let cahnge = false;
 
-        if (this.el.props.jump.dashCharge !== avatar.jump.dashCharge) {
-            this.el.props.jump.dashCharge = avatar.jump.dashCharge;
+        if (this.el.props.health.value !== avatar.health.value) {
+            this.el.props.health.value = avatar.health.value;
             cahnge = true;
         }
 
@@ -49,32 +49,20 @@ export class HealthBarSystem extends System {
         this.el.texture.needsUpdate = true;
         this.el.ctx.clearRect(0, 0, this.el.width, this.el.height);
 
-        const x = 32;
-        const y = 32;
-        const r = 16;
+        const w = 32;
+        for (let i = 0; i < 5; i++) {
+            const x = 8 + i * (w + 4);
+            const y = 20;
+            const h = 24;
+            this.el.ctx.fillStyle = "black";
+            this.el.ctx.fillRect(x + 2, y + 2, w, h);
 
-        const stroke = (x: number, y: number, s: number, e: number) => {
-            this.el.ctx.strokeStyle = "black";
-            this.el.ctx.beginPath();
-            this.el.ctx.arc(x + 2, y + 2, r, s, e);
-            this.el.ctx.stroke();
-            this.el.ctx.closePath();
-
-            this.el.ctx.strokeStyle = "white";
-            this.el.ctx.beginPath();
-            this.el.ctx.arc(x, y, r, s, e);
-            this.el.ctx.stroke();
-            this.el.ctx.closePath();
-        };
-
-        this.el.ctx.lineWidth = 6;
-
-        const s1 = Math.PI * 0.5;
-        const c1 = clamp(this.el.props.jump.dashCharge, 0, 1);
-        stroke(x, y, s1, s1 + Math.PI * c1);
-
-        const s2 = s1 + Math.PI;
-        const c2 = clamp(this.el.props.jump.dashCharge - 1, 0, 1);
-        stroke(x + 2, y, s2, s2 + Math.PI * c2);
+            let value = this.el.props.health.value - i * 20;
+            value = clamp(value, 0, 20);
+            if (value > 0) {
+                this.el.ctx.fillStyle = "white";
+                this.el.ctx.fillRect(x, y, w * (value / 20), h);
+            }
+        }
     }
 }
