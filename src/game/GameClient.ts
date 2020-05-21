@@ -135,6 +135,7 @@ export class GameClient implements Game {
             this.world.addSystem(new CrosshairSystem(this.world, layers[1]));
             this.world.addSystem(new AmmoCountSystem(this.world, layers[1]));
             this.world.addSystem(new DashChargeSystem(this.world, layers[1]));
+            this.world.addSystem(new HealthBarSystem(this.world, layers[1]));
         }
 
         // Audio
