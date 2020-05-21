@@ -3,7 +3,6 @@ import { lerp } from "../core/Utils";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { Vector2 } from "three";
 import { RUN_SPEED, JUMP_SPEED, DASH_CHARGE } from "../data/Globals";
-import { Sound2D } from "../sound/Sound2D";
 import { Netcode } from "../Netcode";
 
 export class PlayerDashSystem extends System {
