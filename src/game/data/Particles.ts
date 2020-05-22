@@ -28,13 +28,16 @@ export class Particles {
             map: new Texture(),
         });
 
+        this.scene = new Points(this.geometry, material);
+        this.scene.frustumCulled = false;
+    }
+
+    public load() {
         loadTexture("/assets/sprites/blood.png").then((map) => {
+            const material = this.scene.material as PointsMaterial;
             material.map = map;
             material.needsUpdate = true;
         });
-
-        this.scene = new Points(this.geometry, material);
-        this.scene.frustumCulled = false;
     }
 
     public blood(point: Vector3, normal: Vector3) {

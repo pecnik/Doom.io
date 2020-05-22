@@ -6,7 +6,7 @@ import {
     getHeadPosition,
     getWeaponSpec,
 } from "../Helpers";
-import { Color, Matrix3, Vector3 } from "three";
+import { Matrix3 } from "three";
 import { random } from "lodash";
 import { SWAP_SPEED } from "../data/Globals";
 import { WeaponState, WeaponAmmo } from "../data/Types";

@@ -62,6 +62,7 @@ export class GameClient implements Game {
 
         return Promise.all([
             this.world.decals.load(),
+            this.world.particles.load(),
 
             // Preload weapon audio
             Sound3D.load([
