@@ -6,7 +6,7 @@ import {
     getHeadPosition,
     getWeaponSpec,
 } from "../Helpers";
-import { Color } from "three";
+import { Color, Matrix3, Vector3 } from "three";
 import { random } from "lodash";
 import { SWAP_SPEED } from "../data/Globals";
 import { WeaponState, WeaponAmmo } from "../data/Types";
@@ -198,11 +198,6 @@ export class PlayerShootSystem extends System {
             // Bullet decal
             if (rsp.entity === undefined) {
                 this.world.decals.spawn(point, face.normal);
-                this.world.particles.emit(
-                    point,
-                    face.normal,
-                    new Color(0, 0, 0)
-                );
             }
 
             // Apply damage
@@ -216,7 +211,15 @@ export class PlayerShootSystem extends System {
                 hitEvent.damage = weaponSpec.bulletDamage;
                 player.eventsBuffer.push(hitEvent);
 
-                this.world.particles.emitBlood(point, face.normal);
+                // Emit particle
+                const matrix = new Matrix3();
+                matrix.getNormalMatrix(rsp.intersection.object.matrixWorld);
+
+                const worldNormal = face.normal
+                    .clone()
+                    .applyMatrix3(matrix)
+                    .normalize();
+                this.world.particles.blood(point, worldNormal);
             }
         }
     }
