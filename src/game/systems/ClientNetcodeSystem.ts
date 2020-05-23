@@ -42,6 +42,7 @@ export class ClientNetcodeSystem extends System {
             // Sync state
             if (this.socket.connected) {
                 this.syncEvent.id = player.id;
+                this.syncEvent.wt = player.shooter.weaponType;
                 this.syncEvent.px = player.position.x;
                 this.syncEvent.py = player.position.y;
                 this.syncEvent.pz = player.position.z;
