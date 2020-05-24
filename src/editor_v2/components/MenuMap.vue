@@ -3,7 +3,7 @@
         <v-menu offset-y min-width="200px">
             <template v-slot:activator="{ on }">
                 <v-btn color="teal" v-on="on">
-                    Level
+                    Actions
                 </v-btn>
             </template>
             <v-list>
