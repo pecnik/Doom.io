@@ -9,7 +9,7 @@ import {
     Vector2,
 } from "three";
 import { Level } from "./Level";
-import { Input, MouseBtn } from "../game/core/Input";
+import { Input, MouseBtn, KeyCode } from "../game/core/Input";
 import { ToolType, Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
 import { forEach, cloneDeep } from "lodash";
@@ -161,6 +161,11 @@ export class Editor {
     }
 
     private selectActiveTool() {
+        if (this.input.isKeyDown(KeyCode.SPACE)) {
+            this.setActiveTool(ToolType.Move);
+            return;
+        }
+
         if (
             !this.input.isMouseDown(MouseBtn.Left) &&
             !this.input.isMouseDown(MouseBtn.Right)
