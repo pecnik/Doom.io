@@ -8,8 +8,11 @@ import {
     Vector2,
     Geometry,
     VertexColors,
+    BackSide,
+    BoxGeometry,
 } from "three";
 import { disposeMeshMaterial, loadTexture } from "../game/Helpers";
+import { degToRad } from "../game/core/Utils";
 
 export const TILE_W = 64;
 export const TILE_H = 64;
@@ -65,6 +68,8 @@ export class Level {
 
     public readonly mesh = new Mesh();
 
+    public readonly skybox = new Mesh();
+
     public readonly floor = new Mesh(
         new PlaneGeometry(),
         new MeshBasicMaterial({
@@ -110,6 +115,31 @@ export class Level {
                 vertexColors: VertexColors,
                 map,
             });
+        });
+    }
+
+    public loadSkybox() {
+        const loadMaterial = (src: string) => {
+            return loadTexture(src).then((map) => {
+                return new MeshBasicMaterial({ map, side: BackSide });
+            });
+        };
+
+        return Promise.all([
+            loadMaterial("/assets/skybox/hell_ft.png"),
+            loadMaterial("/assets/skybox/hell_bk.png"),
+
+            loadMaterial("/assets/skybox/hell_up.png"),
+            loadMaterial("/assets/skybox/hell_dn.png"),
+
+            loadMaterial("/assets/skybox/hell_rt.png"),
+            loadMaterial("/assets/skybox/hell_lf.png"),
+        ]).then((materials) => {
+            const geometry = new BoxGeometry(512, 512, 512);
+            geometry.rotateY(degToRad(45));
+
+            const skybox = new Mesh(geometry, materials);
+            this.skybox.add(skybox);
         });
     }
 

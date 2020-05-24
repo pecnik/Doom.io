@@ -69,11 +69,20 @@ export class Editor {
     };
 
     public constructor() {
+        this.level.loadSkybox();
+        this.level.loadMaterial();
+        this.scene.add(
+            this.level.mesh,
+            this.level.skybox,
+            this.level.floor,
+            this.level.wireframe
+        );
+
         this.camera.position.set(0, 10, 0);
         this.camera.rotation.set(-Math.PI / 2, 0, 0, "YXZ");
+
         this.renderer.setClearColor(0x35c8dc);
-        this.level.loadMaterial();
-        this.scene.add(this.level.mesh, this.level.floor, this.level.wireframe);
+
         this.setActiveTool(ToolType.Move);
     }
 
