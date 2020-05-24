@@ -1,6 +1,6 @@
 <template>
     <div>
-        <v-menu offset-y>
+        <v-menu offset-y min-width="200px">
             <template v-slot:activator="{ on }">
                 <v-btn color="teal" v-on="on">
                     Level
@@ -10,13 +10,16 @@
                 <v-list-item @click="resizeDialog.open = true">
                     <v-list-item-title>Resize level</v-list-item-title>
                 </v-list-item>
+                <v-list-item @click="floorDialog.open = true">
+                    <v-list-item-title>Create floor</v-list-item-title>
+                </v-list-item>
             </v-list>
         </v-menu>
 
         <!-- Resize dialog -->
         <v-dialog v-model="resizeDialog.open" max-width="580px">
             <v-card>
-                <v-card-title>Resize dialog</v-card-title>
+                <v-card-title>Resize map</v-card-title>
                 <v-card-text>
                     <v-slider
                         label="Width"
@@ -83,6 +86,39 @@
                 </v-card-actions>
             </v-card>
          </v-dialog>
+
+         <!-- Floor dialog -->
+        <v-dialog v-model="floorDialog.open" max-width="580px">
+            <v-card>
+                <v-card-title>Create floor</v-card-title>
+                <v-card-text>
+                    <v-slider
+                        label="Height"
+                        v-model="floorDialog.height"
+                        min="1"
+                        max="8"
+                        step="1"
+                        thumb-label
+                    >
+                        <template v-slot:append>
+                            <v-text-field
+                                v-model="floorDialog.height"
+                                class="mt-0 pt-0"
+                                hide-details
+                                single-line
+                                type="number"
+                                style="width: 60px"
+                            ></v-text-field>
+                        </template>
+                    </v-slider>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" text @click="floorDialog.open = false">Close</v-btn>
+                    <v-btn color="blue darken-1" text @click="createFloor">Create</v-btn>
+                </v-card-actions>
+            </v-card>
+         </v-dialog>
     </div>
 </template>
 <script>
@@ -96,6 +132,23 @@ export default {
                 this.resizeDialog.height,
                 this.resizeDialog.depth
             );
+        },
+        createFloor() {
+            this.floorDialog.open = false;
+
+            const tileId = 16; // TODO
+            for (let x = 0; x < editor.level.width; x++) {
+                for (let z = 0; z < editor.level.depth; z++) {
+                    for (let y = 0; y < this.floorDialog.height; y++) {
+                        const block = editor.level.getBlock(x, y, z);
+                        if (block !== undefined) {
+                            block.solid = true;
+                        }
+                    }
+                }
+            }
+
+            editor.level.updateGeometry();
         }
     },
     data() {
@@ -105,6 +158,10 @@ export default {
                 width: 16,
                 height: 8,
                 depth: 16
+            },
+            floorDialog: {
+                open: false,
+                height: 1
             }
         };
     }
