@@ -39,6 +39,13 @@ export class LevelBlock {
         Object.freeze(this.aabb.max);
     }
 
+    public copy(block: LevelBlock) {
+        this.faces = block.faces.concat([]);
+        this.solid = block.solid;
+        this.bounce = block.bounce;
+        this.emitLight = block.emitLight;
+    }
+
     public getFaceIndex(normal: Vector3) {
         if (normal.x === -1) return 0;
         if (normal.x === +1) return 1;
@@ -79,13 +86,13 @@ export class Level {
     );
 
     public getBlock(x: number, y: number, z: number) {
-        const { blocks, width, height, depth } = this;
+        const { width, height, depth } = this;
         if (x < 0 || x >= width) return;
         if (y < 0 || y >= height) return;
         if (z < 0 || z >= depth) return;
 
         const index = x + y * width + z * width * height;
-        return blocks[index];
+        return this.blocks[index];
     }
 
     public getBlockAt(vec: Vector3) {
@@ -106,16 +113,16 @@ export class Level {
         });
     }
 
-    public resize(w: number, h: number, d: number) {
-        this.width = w;
-        this.height = h;
-        this.depth = d;
-
+    public resize(width: number, height: number, depth: number) {
+        this.width = width;
+        this.height = height;
+        this.depth = depth;
         this.blocks = [];
-        for (let z = 0; z < w; z++) {
-            for (let y = 0; y < h; y++) {
-                for (let x = 0; x < d; x++) {
-                    const index = x + y * w + z * w * h;
+
+        for (let z = 0; z < depth; z++) {
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const index = x + y * width + z * width * height;
                     const block = new LevelBlock(index, x, y, z);
                     this.blocks.push(block);
                 }
