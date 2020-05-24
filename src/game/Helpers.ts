@@ -84,6 +84,12 @@ export function isScopeActive(
     return input.scope && weapon.scope;
 }
 
+export function getNormalAxis(normal: Vector3): "x" | "y" | "z" {
+    if (Math.abs(Math.round(normal.x)) === 1) return "x";
+    if (Math.abs(Math.round(normal.y)) === 1) return "y";
+    return "z";
+}
+
 export module Hitscan {
     export const caster: { entity?: Entity } = {};
     export const raycaster = new Raycaster();

@@ -1,13 +1,14 @@
 export enum MouseBtn {
     Left = 0,
     Mid = 1,
-    Right = 2
+    Right = 2,
 }
 
 export enum KeyCode {
     W = 87,
     S = 83,
     A = 65,
+    B = 66,
     D = 68,
     E = 69,
     R = 82,
@@ -30,7 +31,7 @@ export enum KeyCode {
     DOWN = 40,
     NUM_1 = 49,
     NUM_2 = 50,
-    NUM_3 = 51
+    NUM_3 = 51,
 }
 
 export class Input {
@@ -42,7 +43,7 @@ export class Input {
         prev: [false, false, false],
         dx: 0,
         dy: 0,
-        scroll: 0
+        scroll: 0,
     };
 
     public readonly destroy: () => void;
@@ -127,14 +128,22 @@ export class Input {
         this.el.addEventListener("mousedown", onmousedown, false);
         this.el.addEventListener("mouseup", onmouseup, false);
         this.el.addEventListener("wheel", onmousescroll, {
-            passive: false
+            passive: false,
         });
+
+        document.oncontextmenu = (ev) => {
+            if (ev.target === this.el) {
+                ev.preventDefault();
+            }
+        };
 
         this.destroy = () => {
             if (requestPointerLock) {
                 this.el.removeEventListener("click", requestlock);
                 document.removeEventListener("pointerlockchange", onLockChange);
             }
+
+            document.oncontextmenu = () => {};
 
             window.removeEventListener("keyup", onkeyup);
             window.removeEventListener("keydown", onkeydown);
