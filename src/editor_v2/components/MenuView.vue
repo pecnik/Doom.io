@@ -31,15 +31,21 @@ export default {
                 editor.level.wireframe.visible = view.wireframe;
                 editor.level.skybox.visible = view.skybox;
                 editor.level.floor.visible = view.floor;
+
+                view = JSON.stringify(view);
+                localStorage.setItem("menu-viewport", view);
             }
         }
     },
     data() {
+        const json = localStorage.getItem("menu-viewport") || "{}";
+        const view = JSON.parse(json);
         return {
             view: {
                 wireframe: true,
                 skybox: true,
-                floor: true
+                floor: true,
+                ...view
             }
         };
     }
