@@ -1,11 +1,17 @@
 <template>
     <div>
-        <menu-tools></menu-tools>
+        <div class="mb-4">
+            <menu-map></menu-map>
+        </div>
+        <div class="mb-4">
+            <menu-tools></menu-tools>
+        </div>
     </div>
 </template>
 <script>
+import MenuMap from "./MenuMap.vue";
 import MenuTools from "./MenuTools.vue";
 export default {
-    components: { MenuTools }
+    components: { MenuMap, MenuTools }
 };
 </script>

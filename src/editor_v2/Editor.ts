@@ -12,7 +12,7 @@ import { Level } from "./Level";
 import { Input, MouseBtn } from "../game/core/Input";
 import { ToolType, Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
-import { forEach } from "lodash";
+import { forEach, cloneDeep } from "lodash";
 import { EraserTool } from "./tools/EraserTool";
 import { PaintTool } from "./tools/PaintTool";
 import { MoveTool } from "./tools/MoveTool";
@@ -69,6 +69,8 @@ export class Editor {
     };
 
     public constructor() {
+        this.camera.position.set(0, 10, 0);
+        this.camera.rotation.set(-Math.PI / 2, 0, 0, "YXZ");
         this.renderer.setClearColor(0x35c8dc);
         this.level.loadMaterial();
         this.scene.add(this.level.mesh, this.level.floor, this.level.wireframe);
@@ -112,9 +114,16 @@ export class Editor {
     }
 
     public resizeLevel(w: number, h: number, d: number) {
-        this.camera.position.set(w / 2, h, d / 2);
-        this.camera.rotation.set(-Math.PI / 2, 0, 0, "YXZ");
+        const blocks = cloneDeep(this.level.blocks);
         this.level.resize(w, h, d);
+
+        blocks.forEach((oldBlock) => {
+            const newBlock = this.level.getBlockAt(oldBlock.origin);
+            if (newBlock !== undefined) {
+                newBlock.copy(oldBlock);
+            }
+        });
+
         this.level.updateGeometry();
     }
 
