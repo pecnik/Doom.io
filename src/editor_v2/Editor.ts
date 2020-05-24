@@ -127,6 +127,22 @@ export class Editor {
         this.level.updateGeometry();
     }
 
+    public createLevelFloor(height: number, tileId: number) {
+        for (let x = 0; x < this.level.width; x++) {
+            for (let z = 0; z < this.level.depth; z++) {
+                for (let y = 0; y < height; y++) {
+                    const block = this.level.getBlock(x, y, z);
+                    if (block !== undefined) {
+                        block.solid = true;
+                        block.faces.fill(tileId);
+                    }
+                }
+            }
+        }
+
+        editor.level.updateGeometry();
+    }
+
     public update() {
         this.getActiveTool().update();
         this.selectActiveTool();

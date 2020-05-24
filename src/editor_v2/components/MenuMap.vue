@@ -135,20 +135,10 @@ export default {
         },
         createFloor() {
             this.floorDialog.open = false;
-
-            const tileId = 16; // TODO
-            for (let x = 0; x < editor.level.width; x++) {
-                for (let z = 0; z < editor.level.depth; z++) {
-                    for (let y = 0; y < this.floorDialog.height; y++) {
-                        const block = editor.level.getBlock(x, y, z);
-                        if (block !== undefined) {
-                            block.solid = true;
-                        }
-                    }
-                }
-            }
-
-            editor.level.updateGeometry();
+            editor.createLevelFloor(
+                this.floorDialog.height,
+                this.floorDialog.tileId
+            );
         }
     },
     data() {
@@ -161,7 +151,8 @@ export default {
             },
             floorDialog: {
                 open: false,
-                height: 1
+                height: 1,
+                tileId: 1
             }
         };
     }
