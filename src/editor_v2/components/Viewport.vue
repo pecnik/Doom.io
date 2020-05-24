@@ -13,7 +13,7 @@ export default {
                 [ToolType.Paint]: "cursor-tool-paint",
                 [ToolType.Block]: "cursor-tool-block",
                 [ToolType.Eraser]: "cursor-tool-eraser"
-            }[defaultToolType];
+            }[activeToolType];
         }
     },
     methods: {
