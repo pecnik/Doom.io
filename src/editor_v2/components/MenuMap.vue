@@ -92,6 +92,10 @@
             <v-card>
                 <v-card-title>Create floor</v-card-title>
                 <v-card-text>
+                    <div class="mb-2">
+                        <texture-input v-model="floorDialog.tileId"></texture-input>
+                    </div>
+
                     <v-slider
                         label="Height"
                         v-model="floorDialog.height"
@@ -122,8 +126,10 @@
     </div>
 </template>
 <script>
+import TextureInput from "./TextureInput.vue";
 import { editor } from "../Editor";
 export default {
+    components: { TextureInput },
     methods: {
         resizeMap() {
             this.resizeDialog.open = false;
@@ -152,7 +158,7 @@ export default {
             floorDialog: {
                 open: false,
                 height: 1,
-                tileId: 1
+                tileId: 16
             }
         };
     }
