@@ -6,6 +6,7 @@ export enum ToolType {
     Block,
     Eraser,
     Paint,
+    Light,
 }
 
 export abstract class Tool {

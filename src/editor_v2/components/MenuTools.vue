@@ -44,6 +44,9 @@
                     <div v-if="activeTool.type === ToolType.Paint">
                         <texture-input v-model="$store.state.paint.tileId"></texture-input>
                     </div>
+                    <div v-if="activeTool.type === ToolType.Light">
+                        <v-color-picker width="250px" type="rgba" v-model="$store.state.light.rgba"></v-color-picker>
+                    </div>
                 </v-card-text>
             </v-card>
         </div>

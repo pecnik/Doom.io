@@ -1,6 +1,6 @@
 import { Tool, ToolType } from "./Tool";
 import { KeyCode } from "../../game/core/Input";
-import { OrbitControls } from "../OrbitControls";
+import { OrbitControls } from "../utils/OrbitControls";
 
 export class MoveTool extends Tool {
     public readonly name = "Move tool";

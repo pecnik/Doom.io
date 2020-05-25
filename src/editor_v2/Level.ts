@@ -10,6 +10,7 @@ import {
     VertexColors,
     BackSide,
     BoxGeometry,
+    Group,
 } from "three";
 import { disposeMeshMaterial, loadTexture } from "../game/Helpers";
 import { degToRad } from "../game/core/Utils";
@@ -29,7 +30,7 @@ export class LevelBlock {
     public faces = [0, 0, 0, 0, 0, 0].map((x) => x + 16);
     public solid = false;
     public bounce = 0;
-    public emitLight: undefined | Color = undefined;
+    public light = new Color();
 
     public constructor(index: number, x: number, y: number, z: number) {
         this.index = index;
@@ -43,10 +44,10 @@ export class LevelBlock {
     }
 
     public copy(block: LevelBlock) {
+        this.light.copy(block.light);
         this.faces = block.faces.concat([]);
         this.solid = block.solid;
         this.bounce = block.bounce;
-        this.emitLight = block.emitLight;
     }
 
     public getFaceIndex(normal: Vector3) {
@@ -67,7 +68,6 @@ export class Level {
     public blocks: LevelBlock[] = [];
 
     public readonly mesh = new Mesh();
-
     public readonly skybox = new Mesh();
 
     public readonly floor = new Mesh(

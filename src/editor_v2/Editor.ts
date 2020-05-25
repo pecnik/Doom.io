@@ -6,7 +6,6 @@ import {
     Scene,
     Raycaster,
     Intersection,
-    Vector2,
 } from "three";
 import { Level } from "./Level";
 import { Input, MouseBtn, KeyCode } from "../game/core/Input";
@@ -16,6 +15,7 @@ import { forEach, cloneDeep } from "lodash";
 import { EraserTool } from "./tools/EraserTool";
 import { PaintTool } from "./tools/PaintTool";
 import { MoveTool } from "./tools/MoveTool";
+import { LightTool } from "./tools/LightTool";
 
 Vue.use(Vuex);
 
@@ -46,6 +46,9 @@ export class Editor {
             paint: {
                 tileId: 16,
             },
+            light: {
+                rgba: { r: 255, g: 255, b: 255, a: 1 },
+            },
         },
         actions: {
             setActiveTool: (ctx, toolType: ToolType) => {
@@ -66,6 +69,7 @@ export class Editor {
         [ToolType.Block]: new BlockTool(this),
         [ToolType.Eraser]: new EraserTool(this),
         [ToolType.Paint]: new PaintTool(this),
+        [ToolType.Light]: new LightTool(this),
     };
 
     public constructor() {
@@ -94,17 +98,17 @@ export class Editor {
         this.store.dispatch("setActiveTool", toolType);
     }
 
-    public sampleBlock(dir: -1 | 1) {
+    public hitscan() {
         const buffer: Intersection[] = [];
-        const origin = new Vector2(
-            this.store.state.cursor.x,
-            this.store.state.cursor.y
-        );
+        const origin = this.store.state.cursor;
         this.raycaster.setFromCamera(origin, this.camera);
         this.raycaster.intersectObject(this.level.mesh, true, buffer);
         this.raycaster.intersectObject(this.level.floor, true, buffer);
+        return buffer;
+    }
 
-        const [hit] = buffer;
+    public sampleBlock(dir: -1 | 1) {
+        const [hit] = this.hitscan();
         if (!hit) return;
         if (!hit.face) return;
 
