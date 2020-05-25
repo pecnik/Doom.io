@@ -10,10 +10,11 @@ import {
     VertexColors,
     BackSide,
     BoxGeometry,
-    Group,
+    Ray,
 } from "three";
 import { disposeMeshMaterial, loadTexture } from "../game/Helpers";
 import { degToRad } from "../game/core/Utils";
+import { clamp } from "lodash";
 
 export const TILE_W = 64;
 export const TILE_H = 64;
@@ -21,6 +22,11 @@ export const TEXTURE_W = 512;
 export const TEXTURE_H = 512;
 export const TILE_COLS = Math.floor(TEXTURE_W / TILE_W);
 export const TILE_ROWS = Math.floor(TEXTURE_H / TILE_H);
+
+export interface LevelLight {
+    position: Vector3;
+    color: Color;
+}
 
 export class LevelBlock {
     public readonly index: number;
@@ -318,5 +324,70 @@ export class Level {
         this.floor.geometry.rotateX(-Math.PI / 2);
         this.floor.geometry.translate(-0.5, -0.5, -0.5);
         this.floor.geometry.translate(width / 2, 0, depth / 2);
+    }
+
+    public updateGeometryShading(lights: LevelLight[]) {
+        const ray = new Ray();
+        const box = new Box3();
+        const reachedLight = (origin: Vector3, light: Vector3) => {
+            ray.origin.copy(origin);
+            ray.direction.subVectors(light, origin).normalize();
+
+            for (let i = 0; i < this.blocks.length; i++) {
+                const block = this.blocks[i];
+                if (block.solid) {
+                    box.copy(block.aabb);
+                    box.min.addScalar(0.1);
+                    box.max.addScalar(-0.1);
+                    if (ray.intersectsBox(box)) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        };
+
+        const aggregateLight = (point: Vector3, normal: Vector3) => {
+            const result = new Color(0.2, 0.2, 0.3);
+
+            for (let l = 0; l < lights.length; l++) {
+                const light = lights[l].position;
+                const color = lights[l].color;
+
+                // Test if facing light
+                if (normal.x === +1 && light.x < point.x) continue;
+                if (normal.x === -1 && light.x > point.x) continue;
+                if (normal.y === +1 && light.y < point.y) continue;
+                if (normal.y === -1 && light.y > point.y) continue;
+                if (normal.z === +1 && light.z < point.z) continue;
+                if (normal.z === -1 && light.z > point.z) continue;
+
+                // Test if point reaches
+                if (reachedLight(point, light)) {
+                    const lightRad = 8;
+
+                    let value = point.distanceToSquared(light);
+                    value = clamp(value, 0, lightRad);
+                    value = (lightRad - value) / lightRad;
+
+                    result.r += color.r * value;
+                    result.g += color.g * value;
+                    result.b += color.b * value;
+                }
+            }
+
+            return result;
+        };
+
+        const geometry = this.mesh.geometry as Geometry;
+        geometry.elementsNeedUpdate = true;
+        for (let i = 0; i < geometry.faces.length; i++) {
+            const face = geometry.faces[i];
+            const verts = geometry.vertices;
+            face.vertexColors[0] = aggregateLight(verts[face.a], face.normal);
+            face.vertexColors[1] = aggregateLight(verts[face.b], face.normal);
+            face.vertexColors[2] = aggregateLight(verts[face.c], face.normal);
+        }
     }
 }

@@ -9,6 +9,7 @@ import {
     Mesh,
     Intersection,
 } from "three";
+import { debounce } from "lodash";
 
 class LightMesh extends Mesh {
     private static readonly geometry = new BoxGeometry(0.5, 0.5, 0.5);
@@ -31,6 +32,17 @@ export class LightTool extends Tool {
         this.editor.renderer.domElement
     );
 
+    private readonly queueShadingUpdate = debounce(() => {
+        const lights = this.lights.children.map((obj) => {
+            const mesh = obj as LightMesh;
+            return {
+                position: mesh.position,
+                color: mesh.material.color,
+            };
+        });
+        this.editor.level.updateGeometryShading(lights);
+    });
+
     public constructor(editor: Editor) {
         super(editor);
         this.editor.scene.add(this.lights, this.controls);
@@ -39,6 +51,7 @@ export class LightTool extends Tool {
             (rgba) => {
                 const light = this.controls.object as LightMesh;
                 if (light !== undefined) {
+                    this.queueShadingUpdate();
                     light.material.color.setRGB(
                         rgba.r / 255,
                         rgba.g / 255,
@@ -57,6 +70,7 @@ export class LightTool extends Tool {
                 const light = this.createLight(hit);
                 this.controls.attach(light);
                 this.controls.update();
+                this.queueShadingUpdate();
             }
         }
 
