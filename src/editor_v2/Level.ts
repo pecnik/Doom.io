@@ -337,8 +337,8 @@ export class Level {
                 const block = this.blocks[i];
                 if (block.solid) {
                     box.copy(block.aabb);
-                    box.min.addScalar(0.1);
-                    box.max.addScalar(-0.1);
+                    box.min.addScalar(0.001);
+                    box.max.addScalar(-0.001);
                     if (ray.intersectsBox(box)) {
                         return false;
                     }
