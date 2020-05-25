@@ -34,9 +34,23 @@ export class LightTool extends Tool {
     public constructor(editor: Editor) {
         super(editor);
         this.editor.scene.add(this.lights, this.controls);
+        this.editor.store.watch(
+            (state) => state.light.rgba,
+            (rgba) => {
+                const light = this.controls.object as LightMesh;
+                if (light !== undefined) {
+                    light.material.color.setRGB(
+                        rgba.r / 255,
+                        rgba.g / 255,
+                        rgba.b / 255
+                    );
+                }
+            }
+        );
     }
 
     public update() {
+        // Add light
         if (this.input.isMousePresed(MouseBtn.Right)) {
             const [hit] = this.editor.hitscan();
             if (hit !== undefined) {
@@ -46,14 +60,23 @@ export class LightTool extends Tool {
             }
         }
 
+        // Select light
         if (this.input.isMousePresed(MouseBtn.Left)) {
             const [hit] = this.editor.hitscan(this.lights);
             if (hit !== undefined && hit.object instanceof LightMesh) {
                 this.controls.attach(hit.object);
                 this.controls.update();
+
+                const light = hit.object as LightMesh;
+                const { rgba } = this.editor.store.state.light;
+                rgba.r = Math.floor(light.material.color.r * 255);
+                rgba.g = Math.floor(light.material.color.g * 255);
+                rgba.b = Math.floor(light.material.color.b * 255);
+                rgba.a = 1;
             }
         }
 
+        // Delete light
         if (this.input.isKeyPressed(KeyCode.DEL)) {
             if (this.controls.object !== undefined) {
                 this.lights.remove(this.controls.object);
