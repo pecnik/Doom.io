@@ -48,7 +48,7 @@ export default {
         this.resize();
         window.addEventListener("resize", this.resize);
 
-        editor.resizeLevel(8, 4, 8);
+        editor.resizeLevel(16, 16, 16);
         editor.level.blocks.forEach(block => {
             block.solid = block.origin.y === 0;
         });

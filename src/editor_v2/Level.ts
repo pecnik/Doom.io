@@ -365,11 +365,12 @@ export class Level {
 
                 // Test if point reaches
                 if (reachedLight(point, light)) {
-                    const lightRad = 8;
+                    const lightRad = 256; // TODO - export as light prop
+                    const lightStr = 1.5; // TODO - export as light prop
 
                     let value = point.distanceToSquared(light);
-                    value = clamp(value, 0, lightRad);
                     value = (lightRad - value) / lightRad;
+                    value = clamp(value, 0, 5) * lightStr;
 
                     result.r += color.r * value;
                     result.g += color.g * value;

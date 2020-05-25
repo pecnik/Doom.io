@@ -41,7 +41,7 @@ export class LightTool extends Tool {
             };
         });
         this.editor.level.updateGeometryShading(lights);
-    });
+    }, 250);
 
     public constructor(editor: Editor) {
         super(editor);
