@@ -6,6 +6,7 @@ import {
     Scene,
     Raycaster,
     Intersection,
+    Object3D,
 } from "three";
 import { Level } from "./Level";
 import { Input, MouseBtn, KeyCode } from "../game/core/Input";
@@ -98,10 +99,14 @@ export class Editor {
         this.store.dispatch("setActiveTool", toolType);
     }
 
-    public hitscan() {
+    public hitscan(scene?: Object3D) {
         const buffer: Intersection[] = [];
-        const origin = this.store.state.cursor;
-        this.raycaster.setFromCamera(origin, this.camera);
+        this.raycaster.setFromCamera(this.store.state.cursor, this.camera);
+        if (scene !== undefined) {
+            this.raycaster.intersectObject(scene, true, buffer);
+            return buffer;
+        }
+
         this.raycaster.intersectObject(this.level.mesh, true, buffer);
         this.raycaster.intersectObject(this.level.floor, true, buffer);
         return buffer;
