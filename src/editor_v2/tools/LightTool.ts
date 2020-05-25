@@ -45,6 +45,7 @@ export class LightTool extends Tool {
 
     public constructor(editor: Editor) {
         super(editor);
+        this.controls.addEventListener("objectChange", this.queueShadingUpdate);
         this.editor.scene.add(this.lights, this.controls);
         this.editor.store.watch(
             (state) => state.light.rgba,
@@ -87,6 +88,8 @@ export class LightTool extends Tool {
                 rgba.g = Math.floor(light.material.color.g * 255);
                 rgba.b = Math.floor(light.material.color.b * 255);
                 rgba.a = 1;
+
+                this.queueShadingUpdate();
             }
         }
 
@@ -96,6 +99,7 @@ export class LightTool extends Tool {
                 this.lights.remove(this.controls.object);
                 this.controls.detach();
                 this.controls.update();
+                this.queueShadingUpdate();
             }
         }
     }
