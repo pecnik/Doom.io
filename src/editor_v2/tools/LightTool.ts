@@ -63,6 +63,10 @@ export class LightTool extends Tool {
         );
     }
 
+    public start() {
+        this.queueShadingUpdate();
+    }
+
     public update() {
         // Add light
         if (this.input.isMousePresed(MouseBtn.Right)) {

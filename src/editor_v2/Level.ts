@@ -328,20 +328,35 @@ export class Level {
 
     public updateGeometryShading(lights: LevelLight[]) {
         const ray = new Ray();
-        const box = new Box3();
+        const areaBox = new Box3();
+        const blockBox = new Box3();
+
         const reachedLight = (origin: Vector3, light: Vector3) => {
             ray.origin.copy(origin);
             ray.direction.subVectors(light, origin).normalize();
 
+            areaBox.min.set(
+                Math.min(origin.x, light.x) - 1,
+                Math.min(origin.y, light.y) - 1,
+                Math.min(origin.z, light.z) - 1
+            );
+
+            areaBox.max.set(
+                Math.max(origin.x, light.x) + 1,
+                Math.max(origin.y, light.y) + 1,
+                Math.max(origin.z, light.z) + 1
+            );
+
             for (let i = 0; i < this.blocks.length; i++) {
                 const block = this.blocks[i];
-                if (block.solid) {
-                    box.copy(block.aabb);
-                    box.min.addScalar(0.001);
-                    box.max.addScalar(-0.001);
-                    if (ray.intersectsBox(box)) {
-                        return false;
-                    }
+                if (!block.solid) continue;
+                if (!areaBox.intersectsBox(block.aabb)) continue;
+
+                blockBox.copy(block.aabb);
+                blockBox.min.addScalar(0.001);
+                blockBox.max.addScalar(-0.001);
+                if (ray.intersectsBox(blockBox)) {
+                    return false;
                 }
             }
 
