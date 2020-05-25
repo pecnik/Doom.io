@@ -89,6 +89,7 @@ export class Editor {
         this.renderer.setClearColor(0x35c8dc);
 
         this.setActiveTool(ToolType.Move);
+        this.setActiveTool(ToolType.Block);
     }
 
     public getActiveTool() {
@@ -175,19 +176,17 @@ export class Editor {
             return;
         }
 
+        if (this.input.isKeyReleased(KeyCode.SPACE)) {
+            this.setActiveTool(this.store.state.defaultToolType);
+            return;
+        }
+
         if (
             !this.input.isMouseDown(MouseBtn.Left) &&
             !this.input.isMouseDown(MouseBtn.Right)
         ) {
             const rsp = this.sampleBlock(1) || this.sampleBlock(-1);
             const { activeToolType, defaultToolType } = this.store.state;
-
-            // The move tool should be active when the cursor is outside the level
-            if (rsp === undefined && activeToolType !== ToolType.Move) {
-                this.setActiveTool(ToolType.Move);
-                return;
-            }
-
             if (rsp !== undefined && activeToolType !== defaultToolType) {
                 this.setActiveTool(defaultToolType);
                 return;

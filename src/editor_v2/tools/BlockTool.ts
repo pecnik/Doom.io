@@ -42,6 +42,7 @@ export class BlockTool extends Tool {
 
     public update() {
         const rsp = this.editor.sampleBlock(1);
+        this.brush.mesh.visible = rsp !== undefined;
 
         if (!this.state.drawing) {
             if (this.input.isMousePresed(MouseBtn.Left)) {
