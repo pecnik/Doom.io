@@ -53,6 +53,14 @@ export class LightTool extends Tool {
                 this.controls.update();
             }
         }
+
+        if (this.input.isKeyPressed(KeyCode.DEL)) {
+            if (this.controls.object !== undefined) {
+                this.lights.remove(this.controls.object);
+                this.controls.detach();
+                this.controls.update();
+            }
+        }
     }
 
     private createLight(hit: Intersection) {
