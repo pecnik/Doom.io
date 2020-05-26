@@ -16,6 +16,7 @@ import { forEach, cloneDeep } from "lodash";
 import { PaintTool } from "./tools/PaintTool";
 import { MoveTool } from "./tools/MoveTool";
 import { LightTool } from "./tools/LightTool";
+import { BounceTool } from "./tools/BounceTool";
 
 Vue.use(Vuex);
 
@@ -46,6 +47,10 @@ export class Editor {
             light: {
                 rgba: { r: 255, g: 255, b: 255, a: 1 },
             },
+            bounce: {
+                blockIndex: -1,
+                bounceValue: 0,
+            },
         },
         actions: {
             setActiveTool: (ctx, toolType: ToolType) => {
@@ -66,6 +71,7 @@ export class Editor {
         [ToolType.Block]: new BlockTool(this),
         [ToolType.Paint]: new PaintTool(this),
         [ToolType.Light]: new LightTool(this),
+        [ToolType.Bounce]: new BounceTool(this),
     };
 
     public constructor() {

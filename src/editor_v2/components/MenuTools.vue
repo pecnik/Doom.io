@@ -37,6 +37,16 @@
                     <div v-if="activeTool.type === ToolType.Light">
                         <v-color-picker width="250px" type="rgba" v-model="$store.state.light.rgba"></v-color-picker>
                     </div>
+                    <div v-if="activeTool.type === ToolType.Bounce">
+                        <v-slider
+                            label="Bounce force"
+                            v-model="$store.state.bounce.bounceValue"
+                            min="0"
+                            max="16"
+                            step="1"
+                            thumb-label
+                        ></v-slider>
+                    </div>
                 </v-card-text>
             </v-card>
         </div>
