@@ -4,7 +4,6 @@ import { KeyCode, Input } from "../../game/core/Input";
 export enum ToolType {
     Move,
     Block,
-    Eraser,
     Paint,
     Light,
 }

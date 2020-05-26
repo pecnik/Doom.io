@@ -13,7 +13,6 @@ import { Input, MouseBtn, KeyCode } from "../game/core/Input";
 import { ToolType, Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
 import { forEach, cloneDeep } from "lodash";
-import { EraserTool } from "./tools/EraserTool";
 import { PaintTool } from "./tools/PaintTool";
 import { MoveTool } from "./tools/MoveTool";
 import { LightTool } from "./tools/LightTool";
@@ -41,9 +40,6 @@ export class Editor {
                 brushSize: 1,
                 tileId: 16,
             },
-            eraser: {
-                brushSize: 1,
-            },
             paint: {
                 tileId: 16,
             },
@@ -68,7 +64,6 @@ export class Editor {
     public readonly tools: Record<ToolType, Tool> = {
         [ToolType.Move]: new MoveTool(this),
         [ToolType.Block]: new BlockTool(this),
-        [ToolType.Eraser]: new EraserTool(this),
         [ToolType.Paint]: new PaintTool(this),
         [ToolType.Light]: new LightTool(this),
     };

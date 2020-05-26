@@ -12,7 +12,6 @@ export default {
                 [ToolType.Move]: "cursor-tool-move",
                 [ToolType.Paint]: "cursor-tool-paint",
                 [ToolType.Block]: "cursor-tool-block",
-                [ToolType.Eraser]: "cursor-tool-eraser"
             }[activeToolType];
         }
     },

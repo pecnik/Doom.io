@@ -15,7 +15,7 @@ class LightMesh extends Mesh {
     private static readonly geometry = new BoxGeometry(0.5, 0.5, 0.5);
     public readonly material: MeshBasicMaterial;
     public constructor() {
-        const material = new MeshBasicMaterial();
+        const material = new MeshBasicMaterial({ transparent: true });
         super(LightMesh.geometry, material);
         this.material = material;
     }
@@ -65,6 +65,21 @@ export class LightTool extends Tool {
 
     public start() {
         this.queueShadingUpdate();
+        this.controls.visible = true;
+        this.lights.children.forEach((obj) => {
+            const light = obj as LightMesh;
+            light.material.opacity = 1;
+            light.material.needsUpdate = true;
+        });
+    }
+
+    public end() {
+        this.controls.visible = false;
+        this.lights.children.forEach((obj) => {
+            const light = obj as LightMesh;
+            light.material.opacity = 0.25;
+            light.material.needsUpdate = true;
+        });
     }
 
     public update() {

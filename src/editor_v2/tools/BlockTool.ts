@@ -2,68 +2,187 @@ import { Tool, ToolType } from "./Tool";
 import { KeyCode, MouseBtn } from "../../game/core/Input";
 import { Level, LevelBlock } from "../Level";
 import { Editor } from "../Editor";
-import { Vector3, MeshBasicMaterial } from "three";
+import { Vector3, MeshBasicMaterial, Scene } from "three";
+
+enum BlockToolState {
+    Idle,
+    Block,
+    Erase,
+}
 
 export class BlockTool extends Tool {
     public readonly name = "Block tool";
     public readonly type = ToolType.Block;
     public readonly hotkey = KeyCode.D;
 
-    private readonly brush = new Level();
+    private readonly scene = new Scene();
+    private readonly eraseBrush = new Level();
+    private readonly blockBrush = new Level();
     private readonly state = {
-        drawing: false,
+        state: BlockToolState.Idle,
         v1: new Vector3(),
         v2: new Vector3(),
     };
 
     public constructor(editor: Editor) {
         super(editor);
-        editor.scene.add(this.brush.mesh);
-        this.brush.loadMaterial().then(() => {
-            const material = this.brush.mesh.material as MeshBasicMaterial;
+
+        this.blockBrush.mesh.renderOrder = 2;
+        this.blockBrush.loadMaterial().then(() => {
+            const material = this.blockBrush.mesh.material as MeshBasicMaterial;
             material.color.setRGB(0, 1, 0);
         });
+
+        this.eraseBrush.mesh.renderOrder = 2;
+        this.eraseBrush.loadMaterial().then(() => {
+            const material = this.eraseBrush.mesh.material as MeshBasicMaterial;
+            material.color.setRGB(1, 0, 0);
+        });
+
+        this.scene.add(this.blockBrush.mesh, this.eraseBrush.mesh);
+        this.editor.scene.add(this.scene);
     }
 
     public start() {
-        this.brush.resize(
+        this.blockBrush.resize(
             this.editor.level.width,
             this.editor.level.height,
             this.editor.level.depth
         );
-        this.brush.updateGeometry();
-        this.brush.mesh.visible = true;
-        this.state.drawing = false;
+
+        this.eraseBrush.resize(
+            this.editor.level.width,
+            this.editor.level.height,
+            this.editor.level.depth
+        );
+
+        this.blockBrush.updateGeometry();
+        this.eraseBrush.updateGeometry();
+
+        this.scene.visible = true;
+        this.state.state = BlockToolState.Idle;
     }
 
     public end() {
-        this.brush.mesh.visible = false;
+        this.scene.visible = false;
+        this.state.state = BlockToolState.Idle;
     }
 
     public update() {
-        const rsp = this.editor.sampleBlock(1);
-        this.brush.mesh.visible = rsp !== undefined;
+        this.blockBrush.mesh.visible = false;
+        this.eraseBrush.mesh.visible = false;
 
-        if (!this.state.drawing) {
-            if (this.input.isMousePresed(MouseBtn.Left)) {
-                this.state.drawing = true;
+        switch (this.state.state) {
+            case BlockToolState.Idle: {
+                const rsp = this.editor.sampleBlock(1);
+                if (rsp !== undefined) {
+                    this.blockBrush.mesh.visible = true;
+                    this.state.v1.copy(rsp.point);
+                    this.state.v2.copy(rsp.point);
+                    this.updateBrush(this.blockBrush);
+
+                    // Start drawing blocks
+                    if (this.input.isMousePresed(MouseBtn.Left)) {
+                        this.state.state = BlockToolState.Block;
+                    }
+                }
+
+                // Star erasing blocks
+                if (this.input.isMousePresed(MouseBtn.Right)) {
+                    const rsp = this.editor.sampleBlock(-1);
+                    if (rsp !== undefined) {
+                        this.state.state = BlockToolState.Erase;
+                        this.state.v1.copy(rsp.point);
+                        this.state.v2.copy(rsp.point);
+                    }
+                }
+
+                break;
             }
 
-            if (rsp !== undefined) {
-                this.state.v1.copy(rsp.point);
-                this.state.v2.copy(rsp.point);
-                this.updateBrush();
-            }
-        } else {
-            if (rsp !== undefined) {
-                this.state.v2.copy(rsp.point);
-                this.updateBrush();
+            case BlockToolState.Block: {
+                this.blockBrush.mesh.visible = true;
+
+                const rsp = this.editor.sampleBlock(1);
+                if (rsp !== undefined) {
+                    this.state.v1.copy(rsp.point);
+                    this.updateBrush(this.blockBrush);
+                }
+
+                // Apply
+                if (this.input.isMouseReleased(MouseBtn.Left)) {
+                    this.applyBlockBrush();
+                    this.state.state = BlockToolState.Idle;
+                }
+
+                // Cancel
+                if (this.input.isMousePresed(MouseBtn.Right)) {
+                    this.state.state = BlockToolState.Idle;
+                }
+
+                break;
             }
 
-            if (this.input.isMouseReleased(MouseBtn.Left)) {
-                this.state.drawing = false;
-                this.applyBrush();
+            case BlockToolState.Erase: {
+                this.eraseBrush.mesh.visible = true;
+
+                const rsp = this.editor.sampleBlock(-1);
+                if (rsp !== undefined) {
+                    this.state.v1.copy(rsp.point);
+                    this.updateBrush(this.eraseBrush);
+                }
+
+                // Apply
+                if (this.input.isMouseReleased(MouseBtn.Right)) {
+                    this.applyEraseBrush();
+                    this.state.state = BlockToolState.Idle;
+                }
+
+                // Cancel
+                if (this.input.isMousePresed(MouseBtn.Left)) {
+                    this.state.state = BlockToolState.Idle;
+                }
+
+                break;
             }
+        }
+    }
+
+    private applyEraseBrush() {
+        this.editor.level.blocks.forEach((block) => {
+            if (this.insideBrush(block)) {
+                block.solid = false;
+            }
+        });
+        this.editor.level.updateGeometry();
+    }
+
+    private applyBlockBrush() {
+        const { tileId } = this.editor.store.state.block;
+        this.editor.level.blocks.forEach((block) => {
+            if (this.insideBrush(block)) {
+                block.solid = true;
+                block.faces.fill(tileId);
+            }
+        });
+        this.editor.level.updateGeometry();
+    }
+
+    private updateBrush(brush: Level) {
+        const { tileId } = this.editor.store.state.block;
+
+        let updateGeometry = false;
+        brush.blocks.forEach((block) => {
+            const solid = this.insideBrush(block);
+            if (block.solid !== solid) {
+                block.solid = solid;
+                block.faces.fill(tileId);
+                updateGeometry = true;
+            }
+        });
+
+        if (updateGeometry) {
+            brush.updateGeometry();
         }
     }
 
@@ -93,34 +212,5 @@ export class BlockTool extends Tool {
         if (block.origin.y > maxy) return false;
         if (block.origin.z > maxz) return false;
         return true;
-    }
-
-    private updateBrush() {
-        const { tileId } = this.editor.store.state.block;
-
-        let updateGeometry = false;
-        this.brush.blocks.forEach((block) => {
-            const solid = this.insideBrush(block);
-            if (block.solid !== solid) {
-                block.solid = solid;
-                block.faces.fill(tileId);
-                updateGeometry = true;
-            }
-        });
-
-        if (updateGeometry) {
-            this.brush.updateGeometry();
-        }
-    }
-
-    private applyBrush() {
-        const { tileId } = this.editor.store.state.block;
-        this.editor.level.blocks.forEach((block) => {
-            if (this.insideBrush(block)) {
-                block.solid = true;
-                block.faces.fill(tileId);
-            }
-        });
-        this.editor.level.updateGeometry();
     }
 }

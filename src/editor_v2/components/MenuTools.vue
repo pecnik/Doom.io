@@ -31,16 +31,6 @@
                         ></v-slider>
                         <texture-input v-model="$store.state.block.tileId"></texture-input>
                     </div>
-                    <div v-if="activeTool.type === ToolType.Eraser">
-                        <v-slider
-                            label="Brush size"
-                            v-model="$store.state.eraser.brushSize"
-                            min="1"
-                            max="8"
-                            step="1"
-                            thumb-label
-                        ></v-slider>
-                    </div>
                     <div v-if="activeTool.type === ToolType.Paint">
                         <texture-input v-model="$store.state.paint.tileId"></texture-input>
                     </div>
