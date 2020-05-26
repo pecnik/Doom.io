@@ -33,6 +33,10 @@ export class LightTool extends Tool {
     );
 
     private readonly queueShadingUpdate = debounce(() => {
+        if (this.editor.getActiveTool() !== this) {
+            return;
+        }
+
         const lights = this.lights.children.map((obj) => {
             const mesh = obj as LightMesh;
             return {
@@ -40,7 +44,10 @@ export class LightTool extends Tool {
                 color: mesh.material.color,
             };
         });
+        this.editor.level.lights.length = 0;
+        this.editor.level.lights.push(...lights);
         this.editor.level.updateGeometryShading(lights);
+        this.editor.commitChange();
     }, 250);
 
     public constructor(editor: Editor) {
@@ -64,16 +71,16 @@ export class LightTool extends Tool {
     }
 
     public start() {
-        this.queueShadingUpdate();
         this.controls.visible = true;
-        this.lights.children.forEach((obj) => {
-            const light = obj as LightMesh;
-            light.material.opacity = 1;
-            light.material.needsUpdate = true;
-        });
+        this.queueShadingUpdate();
+        this.updatePreview();
     }
 
-    public end() {
+    public end(prevTool: ToolType) {
+        if (prevTool !== ToolType.Move) {
+            this.editor.level.updateGeometry();
+        }
+
         this.controls.visible = false;
         this.lights.children.forEach((obj) => {
             const light = obj as LightMesh;
@@ -107,8 +114,6 @@ export class LightTool extends Tool {
                 rgba.g = Math.floor(light.material.color.g * 255);
                 rgba.b = Math.floor(light.material.color.b * 255);
                 rgba.a = 1;
-
-                this.queueShadingUpdate();
             }
         }
 
@@ -133,5 +138,29 @@ export class LightTool extends Tool {
         }
         this.lights.add(light);
         return light;
+    }
+
+    private updatePreview() {
+        let count = 0;
+        this.editor.level.lights.forEach((light) => {
+            let lightMesh = this.lights.children[count] as
+                | LightMesh
+                | undefined;
+            if (lightMesh === undefined) {
+                lightMesh = new LightMesh();
+                this.lights.add(lightMesh);
+            }
+
+            lightMesh.visible = true;
+            lightMesh.position.copy(light.position);
+            lightMesh.material.color.copy(light.color);
+            lightMesh.material.opacity = 1;
+            count++;
+        });
+
+        // Hide remaining bounces
+        for (let i = count; i < this.lights.children.length; i++) {
+            this.lights.children[i].visible = false;
+        }
     }
 }

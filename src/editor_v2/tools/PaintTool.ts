@@ -66,16 +66,19 @@ export class PaintTool extends Tool {
                 case "x":
                     this.floodFillX(rsp.block, rsp.normal, tileId);
                     this.editor.level.updateGeometry();
+                    this.editor.commitChange();
                     return;
 
                 case "y":
                     this.floodFillY(rsp.block, rsp.normal, tileId);
                     this.editor.level.updateGeometry();
+                    this.editor.commitChange();
                     return;
 
                 case "z":
                     this.floodFillZ(rsp.block, rsp.normal, tileId);
                     this.editor.level.updateGeometry();
+                    this.editor.commitChange();
                     return;
             }
         }

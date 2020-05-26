@@ -11,7 +11,7 @@ export default {
             return {
                 [ToolType.Move]: "cursor-tool-move",
                 [ToolType.Paint]: "cursor-tool-paint",
-                [ToolType.Block]: "cursor-tool-block",
+                [ToolType.Block]: "cursor-tool-block"
             }[activeToolType];
         }
     },
@@ -46,12 +46,6 @@ export default {
 
         this.resize();
         window.addEventListener("resize", this.resize);
-
-        editor.resizeLevel(16, 16, 16);
-        editor.level.blocks.forEach(block => {
-            block.solid = block.origin.y === 0;
-        });
-        editor.level.updateGeometry();
 
         requestAnimationFrame(function next() {
             editor.update();

@@ -8,7 +8,7 @@ import {
     Intersection,
     Object3D,
 } from "three";
-import { Level } from "./Level";
+import { Level, LevelJSON } from "./Level";
 import { Input, MouseBtn, KeyCode } from "../game/core/Input";
 import { ToolType, Tool } from "./tools/Tool";
 import { BlockTool } from "./tools/BlockTool";
@@ -17,15 +17,20 @@ import { PaintTool } from "./tools/PaintTool";
 import { MoveTool } from "./tools/MoveTool";
 import { LightTool } from "./tools/LightTool";
 import { BounceTool } from "./tools/BounceTool";
+import { History } from "./History";
 
 Vue.use(Vuex);
+
+const STORAGE_KEY = "editor-level";
 
 export class Editor {
     public readonly raycaster = new Raycaster();
     public readonly renderer = new WebGLRenderer({ antialias: true });
     public readonly camera = new PerspectiveCamera(60);
     public readonly scene = new Scene();
-    public readonly level = new Level();
+    public readonly history = new History();
+
+    public readonly level = this.initLevel();
 
     public readonly input = new Input({
         requestPointerLock: false,
@@ -58,8 +63,8 @@ export class Editor {
                     const prevType = this.store.state.activeToolType;
                     const prevTool = this.tools[prevType];
                     const nextNext = this.tools[toolType];
-                    prevTool.end();
-                    nextNext.start();
+                    prevTool.end(toolType);
+                    nextNext.start(prevType);
                     ctx.state.activeToolType = toolType;
                 }
             },
@@ -89,8 +94,27 @@ export class Editor {
 
         this.renderer.setClearColor(0x35c8dc);
 
-        this.setActiveTool(ToolType.Move);
+        // Init all tools
+        forEach(this.tools, (tool) => this.setActiveTool(tool.type));
         this.setActiveTool(ToolType.Block);
+    }
+
+    private initLevel(): Level {
+        const level = new Level();
+
+        const json = localStorage.getItem(STORAGE_KEY);
+        if (json !== null) {
+            const jsonLevel = JSON.parse(json) as LevelJSON;
+            level.readJson(jsonLevel);
+        } else {
+            level.resize(16, 16, 16);
+            level.blocks.forEach((block) => {
+                block.solid = block.origin.y === 0;
+            });
+        }
+
+        level.updateGeometry();
+        return level;
     }
 
     public getActiveTool() {
@@ -163,9 +187,41 @@ export class Editor {
         editor.level.updateGeometry();
     }
 
+    public commitChange() {
+        console.log(`> Editor::change`);
+        const json = this.level.toJSON();
+        this.history.push(json);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(json));
+    }
+
     public update() {
         this.getActiveTool().update();
         this.selectActiveTool();
+
+        if (this.input.isKeyDown(KeyCode.CTRL)) {
+            const apply = (json: LevelJSON) => {
+                const { activeToolType } = this.store.state;
+                this.level.readJson(json);
+                forEach(this.tools, (tool) => {
+                    this.setActiveTool(tool.type);
+                });
+                this.setActiveTool(activeToolType);
+            };
+
+            if (this.input.isKeyPressed(KeyCode.Z)) {
+                const json = this.history.undo();
+                if (json !== undefined) {
+                    apply(json);
+                }
+            }
+
+            if (this.input.isKeyPressed(KeyCode.Y)) {
+                const json = this.history.redo();
+                if (json !== undefined) {
+                    apply(json);
+                }
+            }
+        }
 
         this.input.clear();
         this.renderer.render(this.scene, this.camera);

@@ -22,7 +22,7 @@ export abstract class Tool {
         this.input = editor.input;
     }
 
-    public start() {}
+    public start(_?: ToolType) {}
     public update() {}
-    public end() {}
+    public end(_?: ToolType) {}
 }

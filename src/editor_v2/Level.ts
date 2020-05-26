@@ -23,6 +23,25 @@ export const TEXTURE_H = 512;
 export const TILE_COLS = Math.floor(TEXTURE_W / TILE_W);
 export const TILE_ROWS = Math.floor(TEXTURE_H / TILE_H);
 
+export interface LevelJSON {
+    width: number;
+    height: number;
+    depth: number;
+    lights: {
+        x: number;
+        y: number;
+        z: number;
+        r: number;
+        g: number;
+        b: number;
+    }[];
+    blocks: {
+        solid: boolean;
+        bounce: number;
+        faces: number[];
+    }[];
+}
+
 export interface LevelLight {
     position: Vector3;
     color: Color;
@@ -71,6 +90,7 @@ export class Level {
     public width = 0;
     public height = 0;
     public depth = 0;
+    public lights: LevelLight[] = [];
     public blocks: LevelBlock[] = [];
 
     public readonly mesh = new Mesh();
@@ -405,5 +425,44 @@ export class Level {
             face.vertexColors[1] = aggregateLight(verts[face.b], face.normal);
             face.vertexColors[2] = aggregateLight(verts[face.c], face.normal);
         }
+    }
+
+    public readJson(json: LevelJSON) {
+        this.resize(json.width, json.height, json.depth);
+        this.blocks.forEach((block, index) => {
+            const jsonBlock = json.blocks[index];
+            block.bounce = jsonBlock.bounce;
+            block.solid = jsonBlock.solid;
+            Object.assign(block.faces, jsonBlock.faces);
+        });
+
+        this.lights.length = 0;
+        json.lights.forEach((jsonLight) => {
+            const { x, y, z } = jsonLight;
+            const { r, g, b } = jsonLight;
+            this.lights.push({
+                position: new Vector3(x, y, z),
+                color: new Color(r, g, b),
+            });
+        });
+    }
+
+    public toJSON(): LevelJSON {
+        const json: LevelJSON = {
+            width: this.width,
+            height: this.height,
+            depth: this.depth,
+            blocks: this.blocks.map((block) => {
+                const { solid, bounce, faces } = block;
+                return { solid, bounce, faces };
+            }),
+            lights: this.lights.map((light) => {
+                const { x, y, z } = light.position;
+                const { r, g, b } = light.color;
+                return { x, y, z, r, g, b };
+            }),
+        };
+
+        return json;
     }
 }

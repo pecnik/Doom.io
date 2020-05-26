@@ -56,6 +56,7 @@ export class BounceTool extends Tool {
                 if (block !== undefined) {
                     block.bounce = value;
                     this.updatePreview();
+                    this.editor.commitChange();
                 }
             }
         );

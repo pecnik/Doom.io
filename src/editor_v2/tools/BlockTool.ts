@@ -155,6 +155,7 @@ export class BlockTool extends Tool {
             }
         });
         this.editor.level.updateGeometry();
+        this.editor.commitChange();
     }
 
     private applyBlockBrush() {
@@ -166,6 +167,7 @@ export class BlockTool extends Tool {
             }
         });
         this.editor.level.updateGeometry();
+        this.editor.commitChange();
     }
 
     private updateBrush(brush: Level) {
