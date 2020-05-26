@@ -1,5 +1,19 @@
 <template>
     <div>
+        <v-slider
+            label="Brush size"
+            v-model="$store.state.block.brushSize"
+            min="1"
+            max="8"
+            step="1"
+            thumb-label
+        ></v-slider>
+
+        <div class="mb-2">
+            <texture-input v-model="$store.state.block.tileId"></texture-input>
+        </div>
+
+        <!-- Actions -->
         <v-menu offset-y min-width="200px">
             <template v-slot:activator="{ on }">
                 <v-btn color="teal" v-on="on">
@@ -11,7 +25,7 @@
                     <v-list-item-title>Resize level</v-list-item-title>
                 </v-list-item>
                 <v-list-item @click="floorDialog.open = true">
-                    <v-list-item-title>Create floor</v-list-item-title>
+                    <v-list-item-title>Fill floor</v-list-item-title>
                 </v-list-item>
             </v-list>
         </v-menu>

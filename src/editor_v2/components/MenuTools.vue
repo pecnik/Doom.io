@@ -21,15 +21,7 @@
                         <pre>{{ $store.state.cursor }}</pre>
                     </div>
                     <div v-if="activeTool.type === ToolType.Block">
-                        <v-slider
-                            label="Brush size"
-                            v-model="$store.state.block.brushSize"
-                            min="1"
-                            max="8"
-                            step="1"
-                            thumb-label
-                        ></v-slider>
-                        <texture-input v-model="$store.state.block.tileId"></texture-input>
+                        <menu-tools-block></menu-tools-block>
                     </div>
                     <div v-if="activeTool.type === ToolType.Paint">
                         <texture-input v-model="$store.state.paint.tileId"></texture-input>
@@ -54,12 +46,13 @@
 </template>
 <script>
 import TextureInput from "./TextureInput.vue";
+import MenuToolsBlock from "./MenuToolsBlock.vue";
 import { ToolType } from "../tools/Tool";
 import { KeyCode } from "../../game/core/Input";
 import { editor } from "../Editor";
 import { map, cloneDeep } from "lodash";
 export default {
-    components: { TextureInput },
+    components: { MenuToolsBlock, TextureInput },
     computed: {
         tools() {
             const type = this.$store.state.defaultToolType;

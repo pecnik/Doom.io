@@ -80,6 +80,7 @@ export class Editor {
     };
 
     public constructor() {
+        this.commitChange();
         this.level.loadSkybox();
         this.level.loadMaterial();
         this.scene.add(
@@ -169,6 +170,7 @@ export class Editor {
         });
 
         this.level.updateGeometry();
+        this.commitChange();
     }
 
     public createLevelFloor(height: number, tileId: number) {
@@ -184,7 +186,8 @@ export class Editor {
             }
         }
 
-        editor.level.updateGeometry();
+        this.level.updateGeometry();
+        this.commitChange();
     }
 
     public commitChange() {
