@@ -23,7 +23,7 @@ Vue.use(Vuex);
 export class Editor {
     public readonly raycaster = new Raycaster();
     public readonly renderer = new WebGLRenderer({ antialias: true });
-    public readonly camera = new PerspectiveCamera(90);
+    public readonly camera = new PerspectiveCamera(60);
     public readonly scene = new Scene();
     public readonly level = new Level();
 
