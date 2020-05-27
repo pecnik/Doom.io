@@ -118,6 +118,15 @@ export class Editor {
         return level;
     }
 
+    public setJson(json: LevelJSON) {
+        const { activeToolType } = this.store.state;
+        this.level.readJson(json);
+        forEach(this.tools, (tool) => {
+            this.setActiveTool(tool.type);
+        });
+        this.setActiveTool(activeToolType);
+    }
+
     public getActiveTool() {
         return this.tools[this.store.state.activeToolType];
     }
@@ -202,26 +211,17 @@ export class Editor {
         this.selectActiveTool();
 
         if (this.input.isKeyDown(KeyCode.CTRL)) {
-            const apply = (json: LevelJSON) => {
-                const { activeToolType } = this.store.state;
-                this.level.readJson(json);
-                forEach(this.tools, (tool) => {
-                    this.setActiveTool(tool.type);
-                });
-                this.setActiveTool(activeToolType);
-            };
-
             if (this.input.isKeyPressed(KeyCode.Z)) {
                 const json = this.history.undo();
                 if (json !== undefined) {
-                    apply(json);
+                    this.setJson(json);
                 }
             }
 
             if (this.input.isKeyPressed(KeyCode.Y)) {
                 const json = this.history.redo();
                 if (json !== undefined) {
-                    apply(json);
+                    this.setJson(json);
                 }
             }
         }

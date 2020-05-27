@@ -375,7 +375,7 @@ export class Level {
 
                 blockBox.copy(block.aabb);
                 blockBox.min.addScalar(pad);
-                blockBox.max.addScalar(-pad);
+                blockBox.max.subScalar(pad);
                 if (ray.intersectsBox(blockBox)) {
                     return false;
                 }
@@ -385,7 +385,7 @@ export class Level {
         };
 
         const aggregateLight = (point: Vector3, normal: Vector3) => {
-            const result = new Color(0.5, 0.5, 0.5);
+            const result = new Color(0.2, 0.2, 0.3);
 
             for (let l = 0; l < lights.length; l++) {
                 const light = lights[l].position;
@@ -401,7 +401,7 @@ export class Level {
 
                 // Test if point reaches
                 if (reachedLight(point, light)) {
-                    const lightRad = 8; // TODO - export as light prop
+                    const lightRad = 16; // TODO - export as light prop
                     const lightStr = 1.5; // TODO - export as light prop
 
                     let value = point.distanceTo(light);
@@ -425,6 +425,46 @@ export class Level {
             face.vertexColors[0] = aggregateLight(verts[face.a], face.normal);
             face.vertexColors[1] = aggregateLight(verts[face.b], face.normal);
             face.vertexColors[2] = aggregateLight(verts[face.c], face.normal);
+        }
+    }
+
+    public updateAmbientOcclusion() {
+        const occlusion = (color: Color, vec: Vector3) => {
+            const xmin = Math.min(vec.x - 0.5);
+            const ymin = Math.min(vec.y - 0.5);
+            const zmin = Math.min(vec.z - 0.5);
+
+            const xmax = Math.max(vec.x + 0.5);
+            const ymax = Math.max(vec.y + 0.5);
+            const zmax = Math.max(vec.z + 0.5);
+
+            let count = 0;
+            for (let x = xmin; x <= xmax; x++) {
+                for (let y = ymin; y <= ymax; y++) {
+                    for (let z = zmin; z <= zmax; z++) {
+                        const block = this.getBlock(x, y, z);
+                        if (block && block.solid) {
+                            count++;
+                        }
+                    }
+                }
+            }
+
+            if (count > 4) {
+                color.r *= 0.5;
+                color.g *= 0.5;
+                color.b *= 0.5;
+            }
+        };
+
+        const geometry = this.mesh.geometry as Geometry;
+        geometry.elementsNeedUpdate = true;
+        for (let i = 0; i < geometry.faces.length; i++) {
+            const face = geometry.faces[i];
+            const verts = geometry.vertices;
+            occlusion(face.vertexColors[0], verts[face.a]);
+            occlusion(face.vertexColors[1], verts[face.b]);
+            occlusion(face.vertexColors[2], verts[face.c]);
         }
     }
 

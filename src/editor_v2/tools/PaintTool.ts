@@ -55,6 +55,7 @@ export class PaintTool extends Tool {
             const face = rsp.block.getFaceIndex(rsp.normal);
             block.faces[face] = tileId;
             this.editor.level.updateGeometry();
+            this.editor.commitChange();
             return;
         }
 

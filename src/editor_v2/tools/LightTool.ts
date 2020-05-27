@@ -47,6 +47,7 @@ export class LightTool extends Tool {
         this.editor.level.lights.length = 0;
         this.editor.level.lights.push(...lights);
         this.editor.level.updateGeometryShading(lights);
+        this.editor.level.updateAmbientOcclusion();
         this.editor.commitChange();
     }, 250);
 
