@@ -355,16 +355,17 @@ export class Level {
             ray.origin.copy(origin);
             ray.direction.subVectors(light, origin).normalize();
 
+            const pad = 0.001;
             areaBox.min.set(
-                Math.min(origin.x, light.x) - 1,
-                Math.min(origin.y, light.y) - 1,
-                Math.min(origin.z, light.z) - 1
+                Math.min(origin.x, light.x) - pad,
+                Math.min(origin.y, light.y) - pad,
+                Math.min(origin.z, light.z) - pad
             );
 
             areaBox.max.set(
-                Math.max(origin.x, light.x) + 1,
-                Math.max(origin.y, light.y) + 1,
-                Math.max(origin.z, light.z) + 1
+                Math.max(origin.x, light.x) + pad,
+                Math.max(origin.y, light.y) + pad,
+                Math.max(origin.z, light.z) + pad
             );
 
             for (let i = 0; i < this.blocks.length; i++) {
@@ -373,8 +374,8 @@ export class Level {
                 if (!areaBox.intersectsBox(block.aabb)) continue;
 
                 blockBox.copy(block.aabb);
-                blockBox.min.addScalar(0.001);
-                blockBox.max.addScalar(-0.001);
+                blockBox.min.addScalar(pad);
+                blockBox.max.addScalar(-pad);
                 if (ray.intersectsBox(blockBox)) {
                     return false;
                 }
@@ -384,7 +385,7 @@ export class Level {
         };
 
         const aggregateLight = (point: Vector3, normal: Vector3) => {
-            const result = new Color(0.2, 0.2, 0.3);
+            const result = new Color(0.5, 0.5, 0.5);
 
             for (let l = 0; l < lights.length; l++) {
                 const light = lights[l].position;
@@ -400,12 +401,12 @@ export class Level {
 
                 // Test if point reaches
                 if (reachedLight(point, light)) {
-                    const lightRad = 256; // TODO - export as light prop
+                    const lightRad = 8; // TODO - export as light prop
                     const lightStr = 1.5; // TODO - export as light prop
 
-                    let value = point.distanceToSquared(light);
+                    let value = point.distanceTo(light);
                     value = (lightRad - value) / lightRad;
-                    value = clamp(value, 0, 5) * lightStr;
+                    value = clamp(value, 0, 1) * lightStr;
 
                     result.r += color.r * value;
                     result.g += color.g * value;
