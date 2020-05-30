@@ -29,12 +29,6 @@ switch (route) {
         break;
     }
 
-    case "/editor_v2": {
-        removeGamearea();
-        import("../editor_v2");
-        break;
-    }
-
     case "/settings": {
         removeGamearea();
         import("../settings");
