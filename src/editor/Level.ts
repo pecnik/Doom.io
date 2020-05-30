@@ -540,7 +540,7 @@ export class Level {
         };
 
         const aggregateLight = (point: Vector3, normal: Vector3) => {
-            const result = new Color(0.2, 0.2, 0.3);
+            const result = new Color(0.25, 0.25, 0.25);
 
             for (let l = 0; l < lights.length; l++) {
                 const light = lights[l].origin;
@@ -606,9 +606,9 @@ export class Level {
             }
 
             if (count > 4) {
-                color.r *= 0.5;
-                color.g *= 0.5;
-                color.b *= 0.5;
+                color.r *= 0.75;
+                color.g *= 0.75;
+                color.b *= 0.75;
             }
         };
 
