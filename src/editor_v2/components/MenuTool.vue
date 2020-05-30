@@ -19,6 +19,18 @@
             <v-card-title>Block props</v-card-title>
             <v-card-text>
                 <v-checkbox v-model="block.solid" @change="writeBlock" label="Solid"></v-checkbox>
+                <v-checkbox v-model="block.emit" @change="writeBlock" label="Emit light"></v-checkbox>
+                <v-checkbox v-model="block.jumpPad" @change="writeBlock" label="Jump pad"></v-checkbox>
+                 <v-slider
+                    v-if="block.jumpPad"
+                    v-model="block.jumpPadForce"
+                    min="0"
+                    max="8"
+                    label="Jump pad force"
+                    :thumb-size="24"
+                    thumb-label="always"
+                    @change="writeBlock"
+                ></v-slider>
                 <pre>{{ block }}</pre>
             </v-card-text>
         </v-card>
@@ -59,16 +71,29 @@ export default {
             }
 
             this.block.index = index;
+            this.block.emit = block.emit;
             this.block.solid = block.solid;
+            this.block.jumpPad = block.jumpPadForce > 0;
+            this.block.jumpPadForce = block.jumpPadForce;
+
             this.block.x = block.origin.x;
             this.block.y = block.origin.y;
             this.block.z = block.origin.z;
         },
         writeBlock() {
             const block = editor.level.blocks[this.block.index];
+
+            if (this.block.jumpPad) {
+                this.block.jumpPadForce = Math.max(this.block.jumpPadForce, 1);
+            }
+
             if (block !== undefined) {
                 editor.commitLevelMutation(() => {
                     block.solid = this.block.solid;
+                    block.emit = this.block.emit;
+                    block.jumpPadForce = this.block.jumpPad
+                        ? this.block.jumpPadForce
+                        : 0;
                 });
             }
         }
@@ -77,7 +102,10 @@ export default {
         return {
             block: {
                 index: -1,
+                emit: false,
                 solid: false,
+                jumpPad: false,
+                jumpPadForce: 0,
                 x: 0,
                 y: 0,
                 z: 0
