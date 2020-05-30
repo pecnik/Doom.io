@@ -137,8 +137,28 @@ export class Level {
     }
 
     public isBlockSolidAt(vec: Vector3) {
-        const block = this.getBlockAt(vec);
-        return block !== undefined && block.solid;
+        return this.isBlockSolid(
+            Math.round(vec.x),
+            Math.round(vec.y),
+            Math.round(vec.z)
+        );
+    }
+
+    public getBlockLight(x: number, y: number, z: number) {
+        const block = this.getBlock(
+            clamp(x, 0, this.width - 1),
+            clamp(y, 0, this.width - 1),
+            clamp(z, 0, this.depth - 1)
+        ) as LevelBlock;
+        return block.light;
+    }
+
+    public getBlockLightAt(vec: Vector3) {
+        return this.getBlockLight(
+            Math.round(vec.x),
+            Math.round(vec.y),
+            Math.round(vec.z)
+        );
     }
 
     public getLights() {

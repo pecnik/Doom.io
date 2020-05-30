@@ -157,7 +157,7 @@ export class WeaponSpriteSystem extends System {
             }
         }
 
-        let light = this.world.level.getVoxelLightAt(avatar.position);
+        const light = this.world.level.getBlockLightAt(avatar.position);
         for (let i = 0; i < frames.length; i++) {
             const frame = frames[i];
             frame.visible = frame.name === activeSprite;
