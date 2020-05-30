@@ -28,9 +28,9 @@ export default {
             deep: true,
             immediate: true,
             handler(view) {
-                editor.level.wireframe.visible = view.wireframe;
-                editor.level.skybox.visible = view.skybox;
-                editor.level.floor.visible = view.floor;
+                editor.level.wireframeMesh.visible = view.wireframe;
+                editor.level.skyboxMesh.visible = view.skybox;
+                editor.level.floorMesh.visible = view.floor;
 
                 view = JSON.stringify(view);
                 localStorage.setItem("menu-viewport", view);

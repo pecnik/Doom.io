@@ -11,6 +11,8 @@ import {
     BackSide,
     BoxGeometry,
     Ray,
+    Group,
+    IcosahedronGeometry,
 } from "three";
 import { disposeMeshMaterial, loadTexture } from "../game/Helpers";
 import { degToRad } from "../game/core/Utils";
@@ -81,6 +83,7 @@ export class Level {
 
     public readonly meshMesh = new Mesh();
     public readonly skyboxMesh = new Mesh();
+    public readonly lightsMesh = new Group();
     public readonly floorMesh = this.createFloorMesh();
     public readonly wireframeMesh = this.createWireframeMesh();
 
@@ -124,6 +127,25 @@ export class Level {
             Math.round(vec.y),
             Math.round(vec.z)
         );
+    }
+
+    public getLights() {
+        interface Light {
+            origin: Vector3;
+            color: Color;
+        }
+
+        const lights: Light[] = [];
+        this.blocks.forEach((block) => {
+            if (block.emit) {
+                lights.push({
+                    origin: block.origin.clone(),
+                    color: block.light.clone(),
+                });
+            }
+        });
+
+        return lights;
     }
 
     public loadMaterial() {
@@ -180,7 +202,8 @@ export class Level {
 
     public updateGeometry() {
         this.updateMeshGeometry();
-        this.updateFloorGeometry();
+        this.updateLightsMesh();
+        this.updateFloorMesh();
         this.wireframeMesh.geometry.dispose();
         this.wireframeMesh.geometry = this.meshMesh.geometry.clone();
     }
@@ -328,7 +351,7 @@ export class Level {
         })();
     }
 
-    private updateFloorGeometry() {
+    private updateFloorMesh() {
         const { width, depth } = this;
         this.floorMesh.geometry.dispose();
 
@@ -338,21 +361,31 @@ export class Level {
         this.floorMesh.geometry.translate(width / 2, 0, depth / 2);
     }
 
-    public updateGeometryLightning() {
-        interface Light {
-            origin: Vector3;
-            color: Color;
+    private lightMeshGeo = new IcosahedronGeometry(0.5);
+    private updateLightsMesh() {
+        const lights = this.getLights();
+
+        for (let i = 0; i < lights.length; i++) {
+            const light = lights[i];
+            let mesh = this.lightsMesh.children[i] as Mesh;
+            if (mesh === undefined) {
+                mesh = new Mesh(this.lightMeshGeo);
+                this.lightsMesh.add(mesh);
+            }
+
+            mesh.visible = true;
+            mesh.position.copy(light.origin);
+            (mesh.material as MeshBasicMaterial).color.copy(light.color);
         }
 
-        const lights: Light[] = [];
-        this.blocks.forEach((block) => {
-            if (block.emit) {
-                lights.push({
-                    origin: block.origin,
-                    color: block.light,
-                });
-            }
-        });
+        // Hide rememain light meshes
+        for (let i = lights.length; i < this.lightsMesh.children.length; i++) {
+            this.lightsMesh.children[i].visible = false;
+        }
+    }
+
+    public updateGeometryLightning() {
+        const lights = this.getLights();
 
         const ray = new Ray();
         const areaBox = new Box3();
