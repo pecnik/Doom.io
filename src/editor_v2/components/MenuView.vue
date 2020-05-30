@@ -17,6 +17,11 @@
                 label="Floor grid"
                 v-model="view.floor"
             ></v-switch>
+            <v-switch
+                color="teal"
+                label="Light orbs"
+                v-model="view.lightOrbs"
+            ></v-switch>
         </v-card-text>
     </v-card>
 </template>
@@ -30,6 +35,7 @@ export default {
             handler(view) {
                 editor.level.wireframeMesh.visible = view.wireframe;
                 editor.level.skyboxMesh.visible = view.skybox;
+                editor.level.lightsMesh.visible = view.lightOrbs;
                 editor.level.floorMesh.visible = view.floor;
 
                 view = JSON.stringify(view);
@@ -45,6 +51,7 @@ export default {
                 wireframe: true,
                 skybox: true,
                 floor: true,
+                lightOrbs: true,
                 ...view
             }
         };
