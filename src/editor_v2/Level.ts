@@ -14,7 +14,7 @@ import {
 } from "three";
 import { disposeMeshMaterial, loadTexture } from "../game/Helpers";
 import { degToRad } from "../game/core/Utils";
-import { clamp } from "lodash";
+import { clamp, isEqual } from "lodash";
 
 export const TILE_W = 64;
 export const TILE_H = 64;
@@ -27,23 +27,11 @@ export interface LevelJSON {
     width: number;
     height: number;
     depth: number;
-    lights: {
-        x: number;
-        y: number;
-        z: number;
-        r: number;
-        g: number;
-        b: number;
-    }[];
-    blocks: {
-        solid: boolean;
-        faces: number[];
-    }[];
-}
-
-export interface LevelLight {
-    position: Vector3;
-    color: Color;
+    skins: number[][];
+    blocks: number[];
+    solidBlocks: number[];
+    jumpPadBlocks: { index: number; force: number }[];
+    emmitionBlocks: { index: number; color: number }[];
 }
 
 export class LevelBlock {
@@ -53,6 +41,8 @@ export class LevelBlock {
 
     public faces = [0, 0, 0, 0, 0, 0].map((x) => x + 16);
     public solid = false;
+    public emit = false;
+    public jumpPadForce = 0;
     public light = new Color();
 
     public constructor(index: number, x: number, y: number, z: number) {
@@ -87,7 +77,6 @@ export class Level {
     public width = 0;
     public height = 0;
     public depth = 0;
-    public lights: LevelLight[] = [];
     public blocks: LevelBlock[] = [];
 
     public readonly mesh = new Mesh();
@@ -343,26 +332,41 @@ export class Level {
         this.floor.geometry.translate(width / 2, 0, depth / 2);
     }
 
-    public updateGeometryShading(lights: LevelLight[]) {
+    public updateGeometryShading() {
+        interface Light {
+            origin: Vector3;
+            color: Color;
+        }
+
+        const lights: Light[] = [];
+        this.blocks.forEach((block) => {
+            if (block.emit) {
+                lights.push({
+                    origin: block.origin,
+                    color: block.light,
+                });
+            }
+        });
+
         const ray = new Ray();
         const areaBox = new Box3();
         const blockBox = new Box3();
 
-        const reachedLight = (origin: Vector3, light: Vector3) => {
-            ray.origin.copy(origin);
-            ray.direction.subVectors(light, origin).normalize();
+        const reachedLight = (point: Vector3, light: Vector3) => {
+            ray.origin.copy(point);
+            ray.direction.subVectors(light, point).normalize();
 
             const pad = 0.001;
             areaBox.min.set(
-                Math.min(origin.x, light.x) - pad,
-                Math.min(origin.y, light.y) - pad,
-                Math.min(origin.z, light.z) - pad
+                Math.min(point.x, light.x) - pad,
+                Math.min(point.y, light.y) - pad,
+                Math.min(point.z, light.z) - pad
             );
 
             areaBox.max.set(
-                Math.max(origin.x, light.x) + pad,
-                Math.max(origin.y, light.y) + pad,
-                Math.max(origin.z, light.z) + pad
+                Math.max(point.x, light.x) + pad,
+                Math.max(point.y, light.y) + pad,
+                Math.max(point.z, light.z) + pad
             );
 
             for (let i = 0; i < this.blocks.length; i++) {
@@ -385,7 +389,7 @@ export class Level {
             const result = new Color(0.2, 0.2, 0.3);
 
             for (let l = 0; l < lights.length; l++) {
-                const light = lights[l].position;
+                const light = lights[l].origin;
                 const color = lights[l].color;
 
                 // Test if facing light
@@ -467,20 +471,29 @@ export class Level {
 
     public readJson(json: LevelJSON) {
         this.resize(json.width, json.height, json.depth);
-        this.blocks.forEach((block, index) => {
-            const jsonBlock = json.blocks[index];
-            block.solid = jsonBlock.solid;
-            Object.assign(block.faces, jsonBlock.faces);
+
+        // Apply the block skins, event to the invisible blocks
+        this.blocks.forEach((block, blockIndex) => {
+            const skinIndex = json.blocks[blockIndex];
+            const skin = json.skins[skinIndex];
+            block.faces.length = 0;
+            block.faces.push(...skin);
         });
 
-        this.lights.length = 0;
-        json.lights.forEach((jsonLight) => {
-            const { x, y, z } = jsonLight;
-            const { r, g, b } = jsonLight;
-            this.lights.push({
-                position: new Vector3(x, y, z),
-                color: new Color(r, g, b),
-            });
+        json.solidBlocks.forEach((index) => {
+            const block = this.blocks[index];
+            block.solid = true;
+        });
+
+        json.emmitionBlocks.forEach((data) => {
+            const block = this.blocks[data.index];
+            block.emit = true;
+            block.light.setHex(data.color);
+        });
+
+        json.jumpPadBlocks.forEach((data) => {
+            const block = this.blocks[data.index];
+            block.jumpPadForce = data.force;
         });
     }
 
@@ -489,16 +502,44 @@ export class Level {
             width: this.width,
             height: this.height,
             depth: this.depth,
-            blocks: this.blocks.map((block) => {
-                const { solid, faces } = block;
-                return { solid, faces };
-            }),
-            lights: this.lights.map((light) => {
-                const { x, y, z } = light.position;
-                const { r, g, b } = light.color;
-                return { x, y, z, r, g, b };
-            }),
+            skins: [],
+            blocks: [],
+            solidBlocks: [],
+            jumpPadBlocks: [],
+            emmitionBlocks: [],
         };
+
+        const getSkinIndex = (block: LevelBlock): number => {
+            for (let i = 0; i < json.skins.length; i++) {
+                if (isEqual(json.skins[i], block.faces)) {
+                    return i;
+                }
+            }
+            json.skins.push([...block.faces]);
+            return json.skins.length - 1;
+        };
+
+        this.blocks.forEach((block) => {
+            json.blocks.push(getSkinIndex(block));
+
+            if (block.solid) {
+                json.solidBlocks.push(block.index);
+            }
+
+            if (block.emit) {
+                json.emmitionBlocks.push({
+                    index: block.index,
+                    color: block.light.getHex(),
+                });
+            }
+
+            if (block.jumpPadForce > 0) {
+                json.jumpPadBlocks.push({
+                    index: block.index,
+                    force: block.jumpPadForce,
+                });
+            }
+        });
 
         return json;
     }
