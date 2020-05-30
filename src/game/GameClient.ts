@@ -31,6 +31,7 @@ import { DashChargeSystem } from "./systems/hud/DashChargeSystem";
 import { Settings } from "./Settings";
 import { PlayerBounceSystem } from "./systems/PlayerBounceSystem";
 import { HealthBarSystem } from "./systems/hud/HealthBarSystem";
+import { LevelJSON } from "../editor/Level";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();
@@ -73,19 +74,23 @@ export class GameClient implements Game {
 
             // Load level
             this.world.level.loadMaterial().then(() => {
-                const json = localStorage.getItem("level");
-                if (json) {
-                    this.world.level.readJson(JSON.parse(json));
-                } else {
-                    this.world.level.resize(16, 16, 16);
-                    this.world.level.blocks.forEach((block) => {
-                        block.solid = block.origin.y === 0;
-                    });
-                }
+                const loadLevelJson = (): Promise<LevelJSON> => {
+                    const route = location.hash.replace("#", "");
+                    const json = localStorage.getItem("level");
+                    if (json !== null && route === "/game/singleplayer") {
+                        return Promise.resolve(JSON.parse(json));
+                    }
 
-                this.world.level.updateGeometry();
-                this.world.level.updateGeometryLightning();
-                this.world.level.updateAmbientOcclusion();
+                    const url = "/assets/levels/test_arena.json";
+                    return fetch(url).then((rsp) => rsp.json());
+                };
+
+                return loadLevelJson().then((json) => {
+                    this.world.level.readJson(json);
+                    this.world.level.updateGeometry();
+                    this.world.level.updateGeometryLightning();
+                    this.world.level.updateAmbientOcclusion();
+                });
             }),
 
             // Create skyboc
