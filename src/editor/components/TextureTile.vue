@@ -4,7 +4,9 @@
     </div>
 </template>
 <script>
-import { TILE_W, TILE_COLS } from "../../game/data/Level";
+const TILE_W = 64;
+const TILE_COLS = 512 / TILE_W;
+
 export default {
     props: {
         tile: { type: Number, required: true }

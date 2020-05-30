@@ -1,7 +1,6 @@
 import { System } from "../ecs";
 import { lerp } from "../core/Utils";
 import { PLAYER_HEIGHT, PLAYER_CROUCH_H } from "../data/Globals";
-import { VoxelType } from "../data/Level";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 
 export class PlayerCouchSystem extends System {
@@ -21,13 +20,13 @@ export class PlayerCouchSystem extends System {
             }
 
             if (!input.dash && collisio.height < PLAYER_HEIGHT) {
-                const voxelType = this.world.level.getVoxelType(
+                const isBlockSolid = this.world.level.isBlockSolid(
                     Math.round(position.x),
                     Math.round(position.y + PLAYER_HEIGHT),
                     Math.round(position.z)
                 );
 
-                if (voxelType === VoxelType.Block) {
+                if (isBlockSolid) {
                     return;
                 }
 

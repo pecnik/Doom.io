@@ -131,6 +131,16 @@ export class Level {
         );
     }
 
+    public isBlockSolid(x: number, y: number, z: number) {
+        const block = this.getBlock(x, y, z);
+        return block !== undefined && block.solid;
+    }
+
+    public isBlockSolidAt(vec: Vector3) {
+        const block = this.getBlockAt(vec);
+        return block !== undefined && block.solid;
+    }
+
     public getLights() {
         interface Light {
             origin: Vector3;

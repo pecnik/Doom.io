@@ -1,8 +1,8 @@
 import { System, Entity, AnyComponents } from "../ecs";
 import { clamp } from "lodash";
 import { Components } from "../ecs";
-import { Box3, Vector2 } from "three";
-import { VoxelData, VoxelType } from "../data/Level";
+import { Vector2 } from "three";
+import { LevelBlock } from "../../editor/Level";
 import { GRAVITY } from "../data/Globals";
 
 class Archetype implements AnyComponents {
@@ -46,10 +46,10 @@ export class PhysicsSystem extends System {
             for (let x = minX; x < maxX; x++) {
                 for (let y = minY; y < maxY; y++) {
                     for (let z = minZ; z < maxZ; z++) {
-                        const voxel = this.world.level.getVoxel(x, y, z);
-                        if (voxel === undefined) continue;
-                        if (voxel.type !== VoxelType.Block) continue;
-                        this.resolveVoxelCollision(voxel, entity);
+                        const block = this.world.level.getBlock(x, y, z);
+                        if (block !== undefined && block.solid) {
+                            this.resolveVBlockCollision(block, entity);
+                        }
                     }
                 }
             }
@@ -59,12 +59,13 @@ export class PhysicsSystem extends System {
         });
     }
 
-    private resolveVoxelCollision(voxel: VoxelData, entity: Entity<Archetype>) {
+    private resolveVBlockCollision(
+        block: LevelBlock,
+        entity: Entity<Archetype>
+    ) {
         const { level } = this.world;
 
-        const box = new Box3();
-        box.min.set(voxel.x, voxel.y, voxel.z).subScalar(0.5);
-        box.max.set(voxel.x, voxel.y, voxel.z).addScalar(0.5);
+        const box = block.aabb;
 
         const collision = entity.collision;
         const velocity = entity.velocity;
@@ -92,8 +93,13 @@ export class PhysicsSystem extends System {
         // Resolve vertical collision
         const floor = box.max.y;
         if (next.y <= floor && prev.y >= floor) {
-            const above = level.getVoxelType(voxel.x, voxel.y + 1, voxel.z);
-            if (above === VoxelType.Block) {
+            if (
+                level.isBlockSolid(
+                    block.origin.x,
+                    block.origin.y + 1,
+                    block.origin.z
+                )
+            ) {
                 return; // Ignore, abovr voxel will handle this
             }
 
@@ -105,8 +111,13 @@ export class PhysicsSystem extends System {
 
         const ceiling = box.min.y - height;
         if (next.y > ceiling && prev.y <= ceiling) {
-            const belov = level.getVoxelType(voxel.x, voxel.y - 1, voxel.z);
-            if (belov === VoxelType.Block) {
+            if (
+                level.isBlockSolid(
+                    block.origin.x,
+                    block.origin.y - 1,
+                    block.origin.z
+                )
+            ) {
                 return; // Ignore, abovr voxel will handle this
             }
 
