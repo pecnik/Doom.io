@@ -1,6 +1,6 @@
 <template>
     <div>
-         <v-menu offset-y min-width="200px">
+         <v-menu offset-y open-on-hover min-width="200px">
             <template v-slot:activator="{ on }">
                 <v-btn color="teal" small v-on="on">
                     File
@@ -8,15 +8,21 @@
             </template>
             <v-list>
                 <v-list-item @click="newFile">
-                    <v-list-item-title>New</v-list-item-title>
+                    <v-list-item-title>
+                        New
+                    </v-list-item-title>
                 </v-list-item>
                 <v-divider></v-divider>
                 <v-list-item @click="save">
-                    <v-list-item-title>Save</v-list-item-title>
+                    <v-list-item-title>
+                        Save
+                        <!-- <v-icon class="ml-2" small>mdi-content-save</v-icon> -->
+                    </v-list-item-title>
                 </v-list-item>
                 <v-list-item @click="() => {}" tag="label" for="levelSelect">
                     <v-list-item-title>
                         Load
+                        <!-- <v-icon class="ml-2" small>mdi-upload</v-icon> -->
                         <input id="levelSelect" style="display: none;" type="file" @input="load">
                     </v-list-item-title>
                 </v-list-item>
