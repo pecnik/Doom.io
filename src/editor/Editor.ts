@@ -51,7 +51,6 @@ export class Editor {
     });
 
     public constructor() {
-        this.level.resize(16, 16, 16);
         this.level.loadSkybox();
         this.level.loadMaterial();
         this.level.updateGeometry();
@@ -65,9 +64,15 @@ export class Editor {
         );
 
         this.commitLevelMutation((level) => {
-            level.blocks.forEach((block) => {
-                block.solid = block.origin.y === 0;
-            });
+            const json = localStorage.getItem("level");
+            if (json) {
+                level.readJson(JSON.parse(json));
+            } else {
+                level.resize(16, 16, 16);
+                level.blocks.forEach((block) => {
+                    block.solid = block.origin.y === 0;
+                });
+            }
         });
 
         this.camera.position.set(0, 10, 0);
