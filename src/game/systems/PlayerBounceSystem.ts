@@ -1,5 +1,5 @@
 import { System } from "../ecs";
-import { JUMP_SPEED, GRAVITY, JUMP_TIME } from "../data/Globals";
+import { JUMP_SPEED } from "../data/Globals";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { Netcode } from "../Netcode";
 
