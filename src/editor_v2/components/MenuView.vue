@@ -22,6 +22,11 @@
                 label="Light orbs"
                 v-model="view.lightOrbs"
             ></v-switch>
+            <v-switch
+                color="teal"
+                label="Jump pads"
+                v-model="view.jumpPads"
+            ></v-switch>
         </v-card-text>
     </v-card>
 </template>
@@ -36,6 +41,7 @@ export default {
                 editor.level.wireframeMesh.visible = view.wireframe;
                 editor.level.skyboxMesh.visible = view.skybox;
                 editor.level.lightsMesh.visible = view.lightOrbs;
+                editor.level.jumpPadsMesh.visible = view.jumpPads;
                 editor.level.floorMesh.visible = view.floor;
 
                 view = JSON.stringify(view);
@@ -52,6 +58,7 @@ export default {
                 skybox: true,
                 floor: true,
                 lightOrbs: true,
+                jumpPads: true,
                 ...view
             }
         };
