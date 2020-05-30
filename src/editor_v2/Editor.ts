@@ -170,7 +170,7 @@ export class Editor {
         this.level.updateGeometry();
         this.level.updateGeometryLightning();
         this.level.updateAmbientOcclusion();
-        this.history.push(this.level.toJSON());
+        this.history.push(this.level.toJson());
         this.store.state.levelMutations++;
     }
 

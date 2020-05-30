@@ -1,6 +1,9 @@
 <template>
     <div>
         <div class="mb-4">
+            <menu-file></menu-file>
+        </div>
+        <div class="mb-4">
             <menu-tool></menu-tool>
         </div>
         <div class="mb-4">
@@ -9,10 +12,10 @@
     </div>
 </template>
 <script>
-// import MenuFile from "./MenuFile.vue";
+import MenuFile from "./MenuFile.vue";
 import MenuView from "./MenuView.vue";
 import MenuTool from "./MenuTool.vue";
 export default {
-    components: { MenuView, MenuTool }
+    components: { MenuFile, MenuView, MenuTool }
 };
 </script>

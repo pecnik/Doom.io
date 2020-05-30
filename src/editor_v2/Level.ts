@@ -594,7 +594,7 @@ export class Level {
         });
     }
 
-    public toJSON(): LevelJSON {
+    public toJson(): LevelJSON {
         const json: LevelJSON = {
             width: this.width,
             height: this.height,

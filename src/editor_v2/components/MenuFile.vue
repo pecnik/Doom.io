@@ -2,7 +2,7 @@
     <div>
          <v-menu offset-y min-width="200px">
             <template v-slot:activator="{ on }">
-                <v-btn color="teal" v-on="on">
+                <v-btn color="teal" small v-on="on">
                     File
                 </v-btn>
             </template>
@@ -14,12 +14,10 @@
                 <v-list-item @click="save">
                     <v-list-item-title>Save</v-list-item-title>
                 </v-list-item>
-                <v-list-item @click="() => {}">
+                <v-list-item @click="() => {}" tag="label" for="levelSelect">
                     <v-list-item-title>
-                        <label>
-                            Load
-                            <input style="display: none;" type="file" @input="load">
-                        </label>
+                        Load
+                        <input id="levelSelect" style="display: none;" type="file" @input="load">
                     </v-list-item-title>
                 </v-list-item>
                 <v-divider></v-divider>
@@ -35,19 +33,17 @@ import { editor } from "../Editor";
 export default {
     methods: {
         newFile() {
-            if (confirm("New level?")) {
-                editor.level.resize(
-                    editor.level.width,
-                    editor.level.height,
-                    editor.level.depth
-                );
-                editor.resizeLevel(
-                    editor.level.width,
-                    editor.level.height,
-                    editor.level.depth
-                );
-                editor.commitChange();
-            }
+            setTimeout(() => {
+                if (confirm("New level?")) {
+                    editor.commitLevelMutation(level => {
+                        level.resize(
+                            editor.level.width,
+                            editor.level.height,
+                            editor.level.depth
+                        );
+                    });
+                }
+            }, 100);
         },
         save() {
             function download(content, fileName, contentType) {
@@ -58,28 +54,27 @@ export default {
                 a.click();
             }
 
-            const name = prompt("name?");
-            if (name) {
-                const jsonData = JSON.stringify(editor.level.toJSON(), null, 4);
-                download(jsonData, `${name}.json`, "text/plain");
-            }
+            setTimeout(() => {
+                const name = prompt("name?");
+                if (name) {
+                    const json = editor.level.toJson();
+                    const text = JSON.stringify(json, null, 4);
+                    download(text, `${name}.json`, "text/plain");
+                }
+            }, 100);
         },
         load(ev) {
             const files = ev.target.files;
             const file = files[0];
             const reader = new FileReader();
             reader.onload = ev => {
-                const level = JSON.parse(ev.target.result);
-                editor.setJson(level);
+                editor.commitLevelMutation(level => {
+                    const json = JSON.parse(ev.target.result);
+                    level.readJson(json);
+                });
             };
             reader.readAsText(file);
         }
     }
 };
 </script>
-<style scoped lang="scss">
-label {
-    width: 100%;
-    display: block;
-}
-</style>
