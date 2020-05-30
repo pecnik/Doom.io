@@ -43,6 +43,7 @@ export class Editor {
             tileId: 16,
             brushSize: 1,
             blockIndex: -1,
+            fancyLighting: true,
         },
     });
 
@@ -77,6 +78,11 @@ export class Editor {
         this.camera.rotation.set(-Math.PI / 2, 0, 0, "YXZ");
 
         this.renderer.setClearColor(0x35c8dc);
+
+        this.store.watch(
+            (state) => state.fancyLighting,
+            () => this.updateLevelMesh()
+        );
     }
 
     private createTools() {
@@ -201,11 +207,17 @@ export class Editor {
 
     public commitLevelMutation(mutation: (level: Level) => void) {
         mutation(this.level);
-        this.level.updateGeometry();
-        this.level.updateGeometryLightning();
-        this.level.updateAmbientOcclusion();
+        this.updateLevelMesh();
         this.history.push(this.level.toJson());
         this.store.state.levelMutations++;
+    }
+
+    private updateLevelMesh() {
+        this.level.updateGeometry();
+        if (this.store.state.fancyLighting) {
+            this.level.updateGeometryLightning();
+            this.level.updateAmbientOcclusion();
+        }
     }
 
     //#region Utils

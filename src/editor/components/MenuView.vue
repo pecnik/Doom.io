@@ -27,6 +27,11 @@
                 label="Jump pads"
                 v-model="view.jumpPads"
             ></v-switch>
+            <v-switch
+                color="teal"
+                label="Fancy lighting"
+                v-model="view.fancyLighting"
+            ></v-switch>
         </v-card-text>
     </v-card>
 </template>
@@ -43,6 +48,7 @@ export default {
                 editor.level.floorMesh.visible = view.floor;
                 editor.level.lightMeshGroup.visible = view.lightOrbs;
                 editor.level.jumpPadMeshGroup.visible = view.jumpPads;
+                editor.store.state.fancyLighting = view.fancyLighting;
 
                 view = JSON.stringify(view);
                 localStorage.setItem("menu-viewport", view);
@@ -59,6 +65,7 @@ export default {
                 floor: true,
                 lightOrbs: true,
                 jumpPads: true,
+                fancyLighting: true,
                 ...view
             }
         };
