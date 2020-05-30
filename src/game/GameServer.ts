@@ -16,11 +16,10 @@ export class GameServer {
         (io.engine as any).generateId = () => uniqueId("p");
         this.io = io;
 
-        // Init level
-        const levelPath = __dirname + "/../../assets/levels/factory.json";
+        // // Init level
+        const levelPath = __dirname + "/../../assets/levels/test_arena.json";
         const levelJson = fs.readFileSync(levelPath);
-        this.world.level.data = JSON.parse(String(levelJson));
-        this.world.level.updateSpawnPoints();
+        this.world.level.readJson(JSON.parse(String(levelJson)));
 
         // Init systems
         this.world.addSystem(new ClientConnectionSystem(this));

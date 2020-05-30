@@ -15,7 +15,8 @@ export module Netcode {
         | SyncAvatar
         | SyncAvatarStats
         | HitEntity
-        | KillEntityEvent;
+        | KillEntityEvent
+        | EmitSound;
 
     export enum EventType {
         CreatePlayer,
@@ -26,6 +27,7 @@ export module Netcode {
         SyncAvatarStats,
         HitEntity,
         KillEntity,
+        EmitSound,
     }
 
     export class CreatePlayer {
@@ -101,6 +103,8 @@ export module Netcode {
         public readonly type = EventType.SyncAvatar;
         public id = "";
 
+        public wt = WeaponType.Pistol;
+
         public px = 0;
         public py = 0;
         public pz = 0;
@@ -118,6 +122,16 @@ export module Netcode {
         public id = "";
         public constructor(entity: Entity) {
             this.id = entity.id;
+        }
+    }
+
+    export class EmitSound {
+        public readonly type = EventType.EmitSound;
+        public readonly id: string;
+        public readonly sound: string;
+        public constructor(id: string, sound: string) {
+            this.id = id;
+            this.sound = sound;
         }
     }
 
@@ -179,9 +193,13 @@ export module Netcode {
             }
 
             case EventType.SyncAvatar: {
-                const { id, px, py, pz, vx, vy, vz, rx, ry } = event;
+                const { id, wt, px, py, pz, vx, vy, vz, rx, ry } = event;
                 const entity = world.entities.get(id);
                 if (entity === undefined) break;
+
+                if (entity.shooter !== undefined) {
+                    entity.shooter.weaponType = wt;
+                }
 
                 if (entity.position !== undefined) {
                     entity.position.set(px, py, pz);

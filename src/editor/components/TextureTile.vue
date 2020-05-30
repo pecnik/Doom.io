@@ -4,7 +4,9 @@
     </div>
 </template>
 <script>
-import { TILE_W, TILE_COLS } from "../../game/data/Level";
+const TILE_W = 64;
+const TILE_COLS = 512 / TILE_W;
+
 export default {
     props: {
         tile: { type: Number, required: true }
@@ -20,7 +22,6 @@ export default {
                 width: size + "px",
                 height: size + "px",
                 background: `url(${url})`,
-                // backgroundSize: "512px",
                 backgroundPosition: `-${x}px -${y}px`
             };
         }
@@ -34,7 +35,6 @@ export default {
     height: 64px;
     .tile {
         display: inline-block;
-        // transform: scale(3);
         transform-origin: 0 0;
         image-rendering: pixelated;
     }

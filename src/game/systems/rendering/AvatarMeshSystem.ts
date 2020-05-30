@@ -1,6 +1,7 @@
 import { System } from "../../ecs";
 import { EnemyAvatarArchetype } from "../../ecs/Archetypes";
 import { getEntityMesh } from "../../Helpers";
+import { WeaponType } from "../../data/Weapon";
 
 export class AvatarMeshSystem extends System {
     private readonly family = this.createEntityFamily({
@@ -29,6 +30,23 @@ export class AvatarMeshSystem extends System {
                 const arms = body.getObjectByName("ARMS");
                 if (arms !== undefined) {
                     arms.rotation.x = -rot2;
+
+                    // Guns
+                    const type = avatar.shooter.weaponType;
+                    const shtg = arms.getObjectByName("SHOTGUN");
+                    if (shtg !== undefined) {
+                        shtg.visible = type === WeaponType.Shotgun;
+                    }
+
+                    const pist = arms.getObjectByName("PISTOL");
+                    if (pist !== undefined) {
+                        pist.visible = type === WeaponType.Pistol;
+                    }
+
+                    const mchg = arms.getObjectByName("MACHINEGUN");
+                    if (mchg !== undefined) {
+                        mchg.visible = type === WeaponType.Machinegun;
+                    }
                 }
             }
         });

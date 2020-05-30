@@ -1,11 +1,11 @@
 import { Entity } from "./Entity";
 import { System } from "./System";
 import { Scene, PerspectiveCamera } from "three";
-import { Level } from "../data/Level";
 import { BulletDecals } from "../data/BulletDecals";
 import { Particles } from "../data/Particles";
 import { Family } from "./Family";
 import { AnyComponents } from "./Components";
+import { Level } from "../../editor/Level";
 
 export class World {
     private readonly systems = new Array<System>();

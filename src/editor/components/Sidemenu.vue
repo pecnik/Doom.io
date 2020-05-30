@@ -1,31 +1,21 @@
 <template>
     <div>
-         <v-card color="teal" class="mb-4">
-            <v-card-text>
-                <sidemenu-settings></sidemenu-settings>
-            </v-card-text>
-        </v-card>
-
-        <v-card color="teal" class="mb-4">
-            <v-card-text>
-                <sidemenu-tools></sidemenu-tools>
-            </v-card-text>
-        </v-card>
-
-        <v-card color="teal" class="mb-4">
-            <v-card-text>
-                <sidemenu-texture></sidemenu-texture>
-            </v-card-text>
-        </v-card>
+        <div class="mb-4">
+            <menu-file></menu-file>
+        </div>
+        <div class="mb-4">
+            <menu-tool></menu-tool>
+        </div>
+        <div class="mb-4">
+            <menu-view></menu-view>
+        </div>
     </div>
 </template>
 <script>
-import SidemenuTools from "./SidemenuTools.vue";
-import SidemenuTexture from "./SidemenuTexture.vue";
-import SidemenuSettings from "./SidemenuSettings.vue";
-import { editor } from "../Editor";
-
+import MenuFile from "./MenuFile.vue";
+import MenuView from "./MenuView.vue";
+import MenuTool from "./MenuTool.vue";
 export default {
-    components: { SidemenuTools, SidemenuTexture, SidemenuSettings }
+    components: { MenuFile, MenuView, MenuTool }
 };
 </script>

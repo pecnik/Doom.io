@@ -41,7 +41,7 @@ export class AvatarSpawnSystem extends System {
         const socket = this.server.getSocket(player.id);
         if (socket === undefined) return false;
 
-        const spawn = sample(this.world.level.spawnPoints);
+        const spawn = sample(this.world.level.getSpawnPoints());
         if (spawn === undefined) return false;
 
         // Spawn player avatar

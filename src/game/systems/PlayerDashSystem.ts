@@ -3,7 +3,7 @@ import { lerp } from "../core/Utils";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { Vector2 } from "three";
 import { RUN_SPEED, JUMP_SPEED, DASH_CHARGE } from "../data/Globals";
-import { Sound2D } from "../sound/Sound2D";
+import { Netcode } from "../Netcode";
 
 export class PlayerDashSystem extends System {
     private readonly family = this.createEntityFamily({
@@ -35,7 +35,10 @@ export class PlayerDashSystem extends System {
                 avatar.velocity.x = move.x;
                 avatar.velocity.z = move.y;
                 avatar.velocity.y = JUMP_SPEED * 0.1;
-                Sound2D.get("/assets/sounds/whoosh.wav").play();
+
+                const src = "/assets/sounds/whoosh.wav";
+                const emitSound = new Netcode.EmitSound(avatar.id, src);
+                avatar.eventsBuffer.push(emitSound);
             }
 
             // Halt

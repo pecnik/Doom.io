@@ -1,3 +1,4 @@
+import Stats from "stats.js";
 import { Hud } from "./data/Hud";
 import { Input } from "./core/Input";
 import { World } from "./ecs";
@@ -8,9 +9,7 @@ import { PhysicsSystem } from "./systems/PhysicsSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { WeaponSpriteSystem } from "./systems/rendering/WeaponSpriteSystem";
 import { Game } from "./core/Engine";
-import { loadTexture } from "./Helpers";
 import { GenericSystem } from "./systems/GenericSystem";
-import Stats from "stats.js";
 import { PickupSystem } from "./systems/PickupSystem";
 import { ClientNetcodeSystem } from "./systems/ClientNetcodeSystem";
 import { LocalAvatarArchetype } from "./ecs/Archetypes";
@@ -30,6 +29,9 @@ import { Scene } from "three";
 import { AmmoCountSystem } from "./systems/hud/AmmoCountSystem";
 import { DashChargeSystem } from "./systems/hud/DashChargeSystem";
 import { Settings } from "./Settings";
+import { PlayerBounceSystem } from "./systems/PlayerBounceSystem";
+import { HealthBarSystem } from "./systems/hud/HealthBarSystem";
+import { LevelJSON } from "../editor/Level";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();
@@ -60,29 +62,34 @@ export class GameClient implements Game {
 
         return Promise.all([
             this.world.decals.load(),
+            this.world.particles.load(),
 
             // Preload weapon audio
-            Sound3D.load(["/assets/sounds/footstep.wav"]),
-            Sound3D.load(weaponSounds),
+            Sound3D.load([
+                ...weaponSounds,
+                "/assets/sounds/footstep.wav",
+                "/assets/sounds/whoosh.wav",
+                "/assets/sounds/bounce.wav",
+            ]),
 
             // Load level
-            loadTexture("/assets/tileset.png").then((map) => {
-                this.world.level.setMaterial(map);
-
-                const loadLevelData = () => {
+            this.world.level.loadMaterial().then(() => {
+                const loadLevelJson = (): Promise<LevelJSON> => {
+                    const route = location.hash.replace("#", "");
                     const json = localStorage.getItem("level");
-                    if (json !== null) return Promise.resolve(JSON.parse(json));
+                    if (json !== null && route === "/game/singleplayer") {
+                        return Promise.resolve(JSON.parse(json));
+                    }
 
-                    const url = "/assets/levels/factory.json";
+                    const url = "/assets/levels/test_arena.json";
                     return fetch(url).then((rsp) => rsp.json());
                 };
 
-                return loadLevelData().then((data) => {
-                    this.world.level.data = data;
-                    this.world.level.updateSpawnPoints();
+                return loadLevelJson().then((json) => {
+                    this.world.level.readJson(json);
                     this.world.level.updateGeometry();
-                    this.world.level.updateLighing();
-                    // this.world.scene.add(this.world.level.debug);
+                    this.world.level.updateGeometryLightning();
+                    this.world.level.updateAmbientOcclusion();
                 });
             }),
 
@@ -95,8 +102,10 @@ export class GameClient implements Game {
 
     public create() {
         // Init camera position
-        const { max_x, max_y, max_z } = this.world.level.data;
-        this.world.camera.position.set(max_x, max_y, max_z).multiplyScalar(0.5);
+        const { width, height, depth } = this.world.level;
+        this.world.camera.position
+            .set(width, height, depth)
+            .multiplyScalar(0.5);
         this.world.camera.near = 0.01;
         this.world.camera.far = 512;
         this.world.camera.updateProjectionMatrix();
@@ -109,6 +118,7 @@ export class GameClient implements Game {
         this.world.addSystem(new PlayerInputSystem(this.world, this.input));
         this.world.addSystem(new PlayerMoveSystem(this.world));
         this.world.addSystem(new PlayerDashSystem(this.world));
+        this.world.addSystem(new PlayerBounceSystem(this.world));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new PickupSystem(this.world));
         this.world.addSystem(new GenericSystem(this.world));
@@ -129,6 +139,7 @@ export class GameClient implements Game {
             this.world.addSystem(new CrosshairSystem(this.world, layers[1]));
             this.world.addSystem(new AmmoCountSystem(this.world, layers[1]));
             this.world.addSystem(new DashChargeSystem(this.world, layers[1]));
+            this.world.addSystem(new HealthBarSystem(this.world, layers[1]));
         }
 
         // Audio
@@ -137,9 +148,10 @@ export class GameClient implements Game {
 
         // Temporary ftw idk
         const route = location.hash.replace("#", "");
-        if (route === "/game/multiplayer") {
-            this.world.addSystem(new ClientNetcodeSystem(this.world));
-        } else {
+        const connect = route === "/game/multiplayer";
+        this.world.addSystem(new ClientNetcodeSystem(this.world, connect));
+
+        if (!connect) {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };
             this.world.addEntity(avatar);
         }

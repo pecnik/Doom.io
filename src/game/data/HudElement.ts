@@ -11,7 +11,7 @@ export class HudElement<T> {
     public readonly canvas: HTMLCanvasElement;
     public readonly ctx: CanvasRenderingContext2D;
 
-    public constructor(config: { props: T; width: number; height: number; }) {
+    public constructor(config: { props: T; width: number; height: number }) {
         const { props, width, height } = config;
         this.props = props;
         this.width = width;
@@ -46,9 +46,9 @@ export class HudElement<T> {
         return this;
     }
 
-    public moveLeft() {
+    public moveLeft(offset = 0) {
         this.sprite.position.x = -HUD_WIDTH / 2;
-        this.sprite.position.x += this.width / 2;
+        this.sprite.position.x += this.width / 2 + offset;
         return this;
     }
 
@@ -63,6 +63,4 @@ export class HudElement<T> {
         this.sprite.position.y -= this.height / 2;
         return this;
     }
-
 }
-

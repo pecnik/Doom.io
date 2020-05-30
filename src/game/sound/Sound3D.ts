@@ -20,7 +20,7 @@ export class SoundAsset3D {
                 for (let i = 0; i < 4; i++) {
                     const audio = new PositionalAudio(listener);
                     audio.setBuffer(this.buffer);
-                    audio.setRefDistance(4);
+                    audio.setRefDistance(0.25);
                     this.group.add(audio);
                     resolve();
                 }
