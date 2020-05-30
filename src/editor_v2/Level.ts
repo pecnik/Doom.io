@@ -79,28 +79,34 @@ export class Level {
     public depth = 0;
     public blocks: LevelBlock[] = [];
 
-    public readonly mesh = new Mesh();
-    public readonly skybox = new Mesh();
+    public readonly meshMesh = new Mesh();
+    public readonly skyboxMesh = new Mesh();
+    public readonly floorMesh = this.createFloorMesh();
+    public readonly wireframeMesh = this.createWireframeMesh();
 
-    public readonly floor = new Mesh(
-        new PlaneGeometry(),
-        new MeshBasicMaterial({
-            transparent: true,
-            wireframe: true,
-            opacity: 0.25,
-            color: 0xffffff,
-        })
-    );
+    private createFloorMesh() {
+        return new Mesh(
+            new PlaneGeometry(),
+            new MeshBasicMaterial({
+                transparent: true,
+                wireframe: true,
+                opacity: 0.25,
+                color: 0xffffff,
+            })
+        );
+    }
 
-    public readonly wireframe = new Mesh(
-        new Geometry(),
-        new MeshBasicMaterial({
-            color: 0x00ff00,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.5,
-        })
-    );
+    private createWireframeMesh() {
+        return new Mesh(
+            new Geometry(),
+            new MeshBasicMaterial({
+                color: 0x00ff00,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.5,
+            })
+        );
+    }
 
     public getBlock(x: number, y: number, z: number) {
         const { width, height, depth } = this;
@@ -122,8 +128,8 @@ export class Level {
 
     public loadMaterial() {
         return loadTexture("/assets/tileset.png").then((map) => {
-            disposeMeshMaterial(this.mesh.material);
-            this.mesh.material = new MeshBasicMaterial({
+            disposeMeshMaterial(this.meshMesh.material);
+            this.meshMesh.material = new MeshBasicMaterial({
                 vertexColors: VertexColors,
                 map,
             });
@@ -151,7 +157,7 @@ export class Level {
             geometry.rotateY(degToRad(45));
 
             const skybox = new Mesh(geometry, materials);
-            this.skybox.add(skybox);
+            this.skyboxMesh.add(skybox);
         });
     }
 
@@ -175,8 +181,8 @@ export class Level {
     public updateGeometry() {
         this.updateMeshGeometry();
         this.updateFloorGeometry();
-        this.wireframe.geometry.dispose();
-        this.wireframe.geometry = this.mesh.geometry.clone();
+        this.wireframeMesh.geometry.dispose();
+        this.wireframeMesh.geometry = this.meshMesh.geometry.clone();
     }
 
     private updateMeshGeometry() {
@@ -312,8 +318,8 @@ export class Level {
         });
 
         // Update level geometry
-        this.mesh.geometry.dispose();
-        this.mesh.geometry = (() => {
+        this.meshMesh.geometry.dispose();
+        this.meshMesh.geometry = (() => {
             const geometry = new Geometry();
             planes.forEach((plane) => geometry.merge(plane));
             planes.forEach((plane) => plane.dispose());
@@ -324,15 +330,15 @@ export class Level {
 
     private updateFloorGeometry() {
         const { width, depth } = this;
-        this.floor.geometry.dispose();
+        this.floorMesh.geometry.dispose();
 
-        this.floor.geometry = new PlaneGeometry(width, depth, width, depth);
-        this.floor.geometry.rotateX(-Math.PI / 2);
-        this.floor.geometry.translate(-0.5, -0.5, -0.5);
-        this.floor.geometry.translate(width / 2, 0, depth / 2);
+        this.floorMesh.geometry = new PlaneGeometry(width, depth, width, depth);
+        this.floorMesh.geometry.rotateX(-Math.PI / 2);
+        this.floorMesh.geometry.translate(-0.5, -0.5, -0.5);
+        this.floorMesh.geometry.translate(width / 2, 0, depth / 2);
     }
 
-    public updateGeometryShading() {
+    public updateGeometryLightning() {
         interface Light {
             origin: Vector3;
             color: Color;
@@ -418,7 +424,7 @@ export class Level {
             return result;
         };
 
-        const geometry = this.mesh.geometry as Geometry;
+        const geometry = this.meshMesh.geometry as Geometry;
         geometry.elementsNeedUpdate = true;
         for (let i = 0; i < geometry.faces.length; i++) {
             const face = geometry.faces[i];
@@ -458,7 +464,7 @@ export class Level {
             }
         };
 
-        const geometry = this.mesh.geometry as Geometry;
+        const geometry = this.meshMesh.geometry as Geometry;
         geometry.elementsNeedUpdate = true;
         for (let i = 0; i < geometry.faces.length; i++) {
             const face = geometry.faces[i];

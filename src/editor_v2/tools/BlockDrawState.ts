@@ -12,10 +12,10 @@ export class BlockDrawState extends ToolState {
     };
 
     public initialize() {
-        this.editor.scene.add(this.brush.mesh);
-        this.brush.mesh.renderOrder = 2;
+        this.editor.scene.add(this.brush.meshMesh);
+        this.brush.meshMesh.renderOrder = 2;
         this.brush.loadMaterial().then(() => {
-            const material = this.brush.mesh.material as MeshBasicMaterial;
+            const material = this.brush.meshMesh.material as MeshBasicMaterial;
             material.color.setRGB(0, 1, 0);
         });
     }
@@ -46,11 +46,11 @@ export class BlockDrawState extends ToolState {
             this.editor.level.depth
         );
         this.brush.updateGeometry();
-        this.brush.mesh.visible = true;
+        this.brush.meshMesh.visible = true;
     }
 
     public end() {
-        this.brush.mesh.visible = false;
+        this.brush.meshMesh.visible = false;
     }
 
     public update() {

@@ -56,10 +56,10 @@ export class Editor {
         this.level.loadMaterial();
         this.level.updateGeometry();
         this.scene.add(
-            this.level.mesh,
-            this.level.skybox,
-            this.level.floor,
-            this.level.wireframe
+            this.level.meshMesh,
+            this.level.skyboxMesh,
+            this.level.floorMesh,
+            this.level.wireframeMesh
         );
 
         this.commitLevelMutation((level) => {
@@ -166,7 +166,8 @@ export class Editor {
     public commitLevelMutation(mutation: (level: Level) => void) {
         mutation(this.level);
         this.level.updateGeometry();
-        this.level.updateGeometryShading();
+        this.level.updateGeometryLightning();
+        this.level.updateAmbientOcclusion();
         this.history.push(this.level.toJSON());
         this.store.state.levelMutations++;
     }
@@ -225,8 +226,8 @@ export class Editor {
             return buffer;
         }
 
-        this.raycaster.intersectObject(this.level.mesh, true, buffer);
-        this.raycaster.intersectObject(this.level.floor, true, buffer);
+        this.raycaster.intersectObject(this.level.meshMesh, true, buffer);
+        this.raycaster.intersectObject(this.level.floorMesh, true, buffer);
         return buffer;
     }
 
