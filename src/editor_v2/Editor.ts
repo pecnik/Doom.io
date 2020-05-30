@@ -60,6 +60,7 @@ export class Editor {
             this.level.skyboxMesh,
             this.level.floorMesh,
             this.level.lightsMesh,
+            this.level.jumpPadsMesh,
             this.level.wireframeMesh
         );
 

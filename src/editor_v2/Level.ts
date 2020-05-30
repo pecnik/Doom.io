@@ -13,6 +13,7 @@ import {
     Ray,
     Group,
     IcosahedronGeometry,
+    CylinderGeometry,
 } from "three";
 import { disposeMeshMaterial, loadTexture } from "../game/Helpers";
 import { degToRad } from "../game/core/Utils";
@@ -84,6 +85,7 @@ export class Level {
     public readonly meshMesh = new Mesh();
     public readonly skyboxMesh = new Mesh();
     public readonly lightsMesh = new Group();
+    public readonly jumpPadsMesh = new Group();
     public readonly floorMesh = this.createFloorMesh();
     public readonly wireframeMesh = this.createWireframeMesh();
 
@@ -148,6 +150,25 @@ export class Level {
         return lights;
     }
 
+    public getJumpPads() {
+        interface JumpPad {
+            origin: Vector3;
+            force: number;
+        }
+
+        const jumpPads: JumpPad[] = [];
+        this.blocks.forEach((block) => {
+            if (block.jumpPadForce > 0) {
+                jumpPads.push({
+                    origin: block.origin.clone(),
+                    force: block.jumpPadForce,
+                });
+            }
+        });
+
+        return jumpPads;
+    }
+
     public loadMaterial() {
         return loadTexture("/assets/tileset.png").then((map) => {
             disposeMeshMaterial(this.meshMesh.material);
@@ -202,6 +223,7 @@ export class Level {
 
     public updateGeometry() {
         this.updateMeshGeometry();
+        this.updateJumpPadsMesh();
         this.updateLightsMesh();
         this.updateFloorMesh();
         this.wireframeMesh.geometry.dispose();
@@ -381,6 +403,38 @@ export class Level {
         // Hide rememain light meshes
         for (let i = lights.length; i < this.lightsMesh.children.length; i++) {
             this.lightsMesh.children[i].visible = false;
+        }
+    }
+
+    private jumpPadMeshGeo = new CylinderGeometry(0.4, 0.4, 0.8, 8, 1, true);
+    private jumpPadMeshMat = new MeshBasicMaterial({
+        color: 0xc00bcff,
+        wireframe: true,
+    });
+    private updateJumpPadsMesh() {
+        const jumpPads = this.getJumpPads();
+
+        let count = 0;
+        jumpPads.forEach((jumpPad) => {
+            for (let i = 0; i < jumpPad.force; i++) {
+                let mesh = this.jumpPadsMesh.children[count];
+                if (mesh === undefined) {
+                    mesh = new Mesh(this.jumpPadMeshGeo, this.jumpPadMeshMat);
+                    this.jumpPadsMesh.add(mesh);
+                    console.log("New jump pad");
+                }
+
+                mesh.visible = true;
+                mesh.position.copy(jumpPad.origin);
+                mesh.position.y += i;
+
+                count++;
+            }
+        });
+
+        // Hide rememain jump pad meshes
+        for (let i = count; i < this.jumpPadsMesh.children.length; i++) {
+            this.jumpPadsMesh.children[i].visible = false;
         }
     }
 
