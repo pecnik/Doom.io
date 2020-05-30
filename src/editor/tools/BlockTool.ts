@@ -1,9 +1,21 @@
-import { ToolState } from "./ToolState";
+import { KeyCode, MouseBtn } from "../../game/core/Input";
+import { Mesh, BoxGeometry, MeshBasicMaterial, Scene, Vector3 } from "three";
+import { MoveTool } from "./MoveTool";
+import { Tool } from "./Tool";
 import { Level, LevelBlock } from "../Level";
-import { MeshBasicMaterial, Vector3 } from "three";
+import { EraserTool } from "./EraserTool";
+import { SampleTool } from "./SampleTool";
 
-export class BlockDrawState extends ToolState {
-    public cursorType = "cursor-tool-block";
+export class BlockTool extends Tool {
+    public readonly name = "Block tool";
+    public readonly hotkey = KeyCode.B;
+    public readonly cursorType = "cursor-tool-block";
+
+    private readonly scene = new Scene();
+    private readonly cursor = new Mesh(
+        new BoxGeometry(1, 1, 1),
+        new MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
+    );
 
     private readonly brush = new Level();
     private readonly state = {
@@ -11,8 +23,30 @@ export class BlockDrawState extends ToolState {
         v2: new Vector3(),
     };
 
+    public getModifiedTool() {
+        if (this.editor.input.isKeyDown(KeyCode.SPACE)) {
+            return this.editor.tools.get(MoveTool);
+        }
+
+        if (this.editor.input.isKeyDown(KeyCode.ALT)) {
+            return this.editor.tools.get(SampleTool);
+        }
+
+        if (
+            this.editor.input.isMouseReleased(MouseBtn.Right) ||
+            this.editor.input.isMousePresed(MouseBtn.Right) ||
+            this.editor.input.isMouseDown(MouseBtn.Right)
+        ) {
+            return this.editor.tools.get(EraserTool);
+        }
+
+        return this;
+    }
+
     public initialize() {
-        this.editor.scene.add(this.brush.mesh);
+        this.editor.scene.add(this.scene);
+
+        this.scene.add(this.cursor, this.brush.mesh);
         this.brush.mesh.renderOrder = 2;
         this.brush.loadMaterial().then(() => {
             const material = this.brush.mesh.material as MeshBasicMaterial;
@@ -20,26 +54,15 @@ export class BlockDrawState extends ToolState {
         });
     }
 
-    public endAction() {
-        this.editor.commitLevelMutation((level) => {
-            const { tileId } = this.editor.store.state;
-            level.blocks.forEach((block) => {
-                if (this.insideBrush(block)) {
-                    block.solid = true;
-                    block.faces.fill(tileId);
-                }
-            });
-        });
-        this.editor.setToolStateDefault();
+    public start() {
+        this.scene.visible = true;
     }
 
-    public start() {
-        const rsp = this.editor.sampleBlock(1);
-        if (rsp !== undefined) {
-            this.state.v1.copy(rsp.point);
-            this.updateBrush();
-        }
+    public end() {
+        this.scene.visible = false;
+    }
 
+    public onPresed() {
         this.brush.resize(
             this.editor.level.width,
             this.editor.level.height,
@@ -49,16 +72,44 @@ export class BlockDrawState extends ToolState {
         this.brush.mesh.visible = true;
     }
 
-    public end() {
-        this.brush.mesh.visible = false;
+    public onReleased() {
+        this.editor.commitLevelMutation((level) => {
+            const { tileId } = this.editor.store.state;
+            level.blocks.forEach((block) => {
+                if (this.insideBrush(block)) {
+                    block.solid = true;
+                    block.faces.fill(tileId);
+                }
+            });
+        });
     }
 
-    public update() {
+    public onUp() {
+        this.cursor.visible = true;
+        this.brush.mesh.visible = false;
+
         const rsp = this.editor.sampleBlock(1);
-        if (rsp !== undefined) {
-            this.state.v2.copy(rsp.point);
-            this.updateBrush();
+        if (rsp === undefined) {
+            this.cursor.visible = false;
+            return;
         }
+
+        this.cursor.position.copy(rsp.block.origin);
+        this.state.v1.copy(rsp.point);
+    }
+
+    public onDown() {
+        this.cursor.visible = false;
+        this.brush.mesh.visible = true;
+
+        const rsp = this.editor.sampleBlock(1);
+        if (rsp === undefined) {
+            this.cursor.visible = false;
+            return;
+        }
+
+        this.state.v2.copy(rsp.point);
+        this.updateBrush();
     }
 
     private updateBrush() {
@@ -103,6 +154,7 @@ export class BlockDrawState extends ToolState {
         if (block.origin.x > maxx) return false;
         if (block.origin.y > maxy) return false;
         if (block.origin.z > maxz) return false;
+
         return true;
     }
 }

@@ -1,9 +1,19 @@
-import { ToolState } from "./ToolState";
+import { KeyCode } from "../../game/core/Input";
+import { Mesh, BoxGeometry, MeshBasicMaterial, Scene, Vector3 } from "three";
+import { MoveTool } from "./MoveTool";
+import { Tool } from "./Tool";
 import { Level, LevelBlock } from "../Level";
-import { MeshBasicMaterial, Vector3 } from "three";
 
-export class BlockEraseState extends ToolState {
-    public cursorType = "cursor-tool-eraser";
+export class EraserTool extends Tool {
+    public readonly name = "Eraser tool";
+    public readonly hotkey = KeyCode.E;
+    public readonly cursorType = "cursor-tool-eraser";
+
+    private readonly scene = new Scene();
+    private readonly cursor = new Mesh(
+        new BoxGeometry(1, 1, 1),
+        new MeshBasicMaterial({ color: 0xff0000, wireframe: true })
+    );
 
     private readonly brush = new Level();
     private readonly state = {
@@ -11,8 +21,17 @@ export class BlockEraseState extends ToolState {
         v2: new Vector3(),
     };
 
+    public getModifiedTool(): Tool {
+        if (this.editor.input.isKeyDown(KeyCode.SPACE)) {
+            return this.editor.tools.get(MoveTool);
+        }
+        return this;
+    }
+
     public initialize() {
-        this.editor.scene.add(this.brush.mesh);
+        this.editor.scene.add(this.scene);
+
+        this.scene.add(this.cursor, this.brush.mesh);
         this.brush.mesh.renderOrder = 2;
         this.brush.loadMaterial().then(() => {
             const material = this.brush.mesh.material as MeshBasicMaterial;
@@ -20,22 +39,19 @@ export class BlockEraseState extends ToolState {
         });
     }
 
-    public endAction() {
-        this.editor.commitLevelMutation((level) => {
-            level.blocks.forEach((block) => {
-                if (this.insideBrush(block)) {
-                    block.solid = false;
-                }
-            });
-        });
-        this.editor.setToolStateDefault();
+    public start() {
+        this.scene.visible = true;
     }
 
-    public start() {
+    public end() {
+        this.scene.visible = false;
+    }
+
+    public onPresed() {
         const rsp = this.editor.sampleBlock(-1);
         if (rsp !== undefined) {
+            this.cursor.position.copy(rsp.block.origin);
             this.state.v1.copy(rsp.point);
-            this.updateBrush();
         }
 
         this.brush.resize(
@@ -47,24 +63,48 @@ export class BlockEraseState extends ToolState {
         this.brush.mesh.visible = true;
     }
 
-    public end() {
-        this.brush.mesh.visible = false;
+    public onReleased() {
+        this.editor.commitLevelMutation((level) => {
+            level.blocks.forEach((block) => {
+                if (this.insideBrush(block)) {
+                    block.solid = false;
+                }
+            });
+        });
     }
 
-    public update() {
+    public onUp() {
+        this.cursor.visible = true;
+        this.brush.mesh.visible = false;
         const rsp = this.editor.sampleBlock(-1);
-        if (rsp !== undefined) {
+        if (rsp === undefined) {
+            this.cursor.visible = false;
+        } else {
+            this.cursor.position.copy(rsp.block.origin);
+            this.state.v1.copy(rsp.point);
+        }
+    }
+
+    public onDown() {
+        this.cursor.visible = false;
+        this.brush.mesh.visible = true;
+        const rsp = this.editor.sampleBlock(-1);
+        if (rsp === undefined) {
+            this.cursor.visible = false;
+        } else {
             this.state.v2.copy(rsp.point);
             this.updateBrush();
         }
     }
 
     private updateBrush() {
+        const { tileId } = this.editor.store.state;
         let updateGeometry = false;
         this.brush.blocks.forEach((block) => {
             const solid = this.insideBrush(block);
             if (block.solid !== solid) {
                 block.solid = solid;
+                block.faces.fill(tileId);
                 updateGeometry = true;
             }
         });
@@ -99,10 +139,6 @@ export class BlockEraseState extends ToolState {
         if (block.origin.x > maxx) return false;
         if (block.origin.y > maxy) return false;
         if (block.origin.z > maxz) return false;
-
-        const editorBlock = this.editor.level.getBlockAt(block.origin);
-        if (editorBlock === undefined) return false;
-        if (editorBlock.solid === false) return false;
 
         return true;
     }

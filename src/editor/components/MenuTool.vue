@@ -1,10 +1,13 @@
 <template>
     <div class="tools">
         <div class="mb-2">
-            <v-radio-group v-model="$store.state.defaultTool">
-                <v-radio label="Block (B)" value="block"></v-radio>
-                <v-radio label="Paint (F)" value="paint"></v-radio>
-                <v-radio label="Block properties (G)" value="select"></v-radio>
+            <v-radio-group v-model="$store.state.activeTool">
+                <v-radio
+                    v-for="tool in tools"
+                    :key="tool.name"
+                    :value="tool.name"
+                    :label="tool.label"
+                ></v-radio>
             </v-radio-group>
         </div>
 
@@ -47,6 +50,11 @@
 import TextureInput from "./TextureInput.vue";
 import { editor } from "../Editor";
 import { debounce } from "lodash";
+import { KeyCode } from "../../game/core/Input";
+import { PaintTool } from "../tools/PaintTool";
+import { BlockTool } from "../tools/BlockTool";
+import { SelecTool } from "../tools/SelectTool";
+import { SampleTool } from "../tools/SampleTool";
 
 const toHexStr = color => {
     return "#" + color.getHexString();
@@ -55,6 +63,11 @@ const toHexStr = color => {
 const toHexInt = str => {
     return parseInt(str.replace("#", ""), 16);
 };
+
+const BLOCK_TOOL = editor.tools.get(BlockTool).name;
+const PAINT_TOOL = editor.tools.get(PaintTool).name;
+const SELECT_TOOL = editor.tools.get(SelecTool).name;
+const SAMPLE_TOOL = editor.tools.get(SampleTool).name;
 
 export default {
     components: { TextureInput },
@@ -66,12 +79,13 @@ export default {
             return this.$store.state.levelMutations;
         },
         showTexture() {
-            const { defaultTool } = this.$store.state;
-            return defaultTool === "block" || defaultTool === "paint";
+            const { activeTool } = this.$store.state;
+            const tools = [SAMPLE_TOOL, BLOCK_TOOL, PAINT_TOOL];
+            return tools.indexOf(activeTool) > -1;
         },
         showBlockProps() {
-            const { defaultTool } = this.$store.state;
-            return this.block.index > -1 && defaultTool === "select";
+            const { activeTool } = this.$store.state;
+            return this.block.index > -1 && activeTool === SELECT_TOOL;
         }
     },
     watch: {
@@ -135,6 +149,14 @@ export default {
     },
     data() {
         return {
+            tools: editor.tools.all.map(tool => {
+                const hotkey = KeyCode[tool.hotkey];
+                return {
+                    label: `${tool.name} (${hotkey})`,
+                    name: tool.name,
+                    hotkey
+                };
+            }),
             block: {
                 index: -1,
 

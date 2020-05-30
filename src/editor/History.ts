@@ -10,7 +10,7 @@ export class History {
         this.stack.push(json);
         this.index = this.stack.length;
 
-        const MAX_HISTORY_STACK = 10;
+        const MAX_HISTORY_STACK = 64;
         if (this.stack.length > MAX_HISTORY_STACK) {
             this.stack.shift();
             this.index = MAX_HISTORY_STACK;

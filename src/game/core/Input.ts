@@ -15,7 +15,10 @@ export enum KeyCode {
     F = 70,
     G = 71,
     H = 72,
+    I = 73,
     L = 76,
+    M = 77,
+    N = 78,
     Q = 81,
     T = 84,
     Y = 89,
@@ -194,6 +197,27 @@ export class Input {
 
     public isMouseReleased(btn: MouseBtn): boolean {
         return this.mouse.btns[btn] === false && this.mouse.prev[btn] === true;
+    }
+
+    public isAnyMouseDown(): boolean {
+        for (let btn = 0; btn < this.mouse.btns.length; btn++) {
+            if (this.isMouseDown(btn)) return true;
+        }
+        return false;
+    }
+
+    public isAnyMousePresed(): boolean {
+        for (let btn = 0; btn < this.mouse.btns.length; btn++) {
+            if (this.isMousePresed(btn)) return true;
+        }
+        return false;
+    }
+
+    public isAnyMousReleased(): boolean {
+        for (let btn = 0; btn < this.mouse.btns.length; btn++) {
+            if (this.isMouseReleased(btn)) return true;
+        }
+        return false;
     }
 
     public clear() {
