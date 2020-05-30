@@ -8,29 +8,30 @@ import {
     Intersection,
     Object3D,
 } from "three";
-import { Level, LevelJSON } from "./Level";
-import { Input, MouseBtn, KeyCode } from "../game/core/Input";
-import { ToolType, Tool } from "./tools/Tool";
-import { BlockTool } from "./tools/BlockTool";
-import { forEach, cloneDeep } from "lodash";
-import { PaintTool } from "./tools/PaintTool";
-import { MoveTool } from "./tools/MoveTool";
-import { LightTool } from "./tools/LightTool";
-import { BounceTool } from "./tools/BounceTool";
+import { Level } from "./Level";
+import { Input, KeyCode, MouseBtn } from "../game/core/Input";
 import { History } from "./History";
+import { BlockState } from "./tools/BlockState";
+import { ToolState } from "./tools/ToolState";
+import { BlockDrawState } from "./tools/BlockDrawState";
+import { MoveState } from "./tools/MoveState";
+import { BlockEraseState } from "./tools/BlockEraseState";
+import { PaintState } from "./tools/PaintState";
+import { SampleState } from "./tools/SampleState";
+import { SelectState } from "./tools/SelectState";
 
 Vue.use(Vuex);
-
-const STORAGE_KEY = "editor-level";
 
 export class Editor {
     public readonly raycaster = new Raycaster();
     public readonly renderer = new WebGLRenderer({ antialias: true });
     public readonly camera = new PerspectiveCamera(60);
     public readonly scene = new Scene();
+    public readonly level = new Level();
     public readonly history = new History();
 
-    public readonly level = this.initLevel();
+    private toolMap: Map<string, ToolState> = new Map();
+    private tool: ToolState;
 
     public readonly input = new Input({
         requestPointerLock: false,
@@ -39,50 +40,21 @@ export class Editor {
 
     public readonly store = new Vuex.Store({
         state: {
+            levelMutations: 0,
             cursor: { x: 0, y: 0 },
-            defaultToolType: ToolType.Block,
-            activeToolType: ToolType.Block,
-            block: {
-                brushSize: 1,
-                tileId: 16,
-            },
-            paint: {
-                tileId: 16,
-            },
-            light: {
-                rgba: { r: 255, g: 255, b: 255, a: 1 },
-            },
-            bounce: {
-                blockIndex: -1,
-                bounceValue: 0,
-            },
-        },
-        actions: {
-            setActiveTool: (ctx, toolType: ToolType) => {
-                if (this.store.state.activeToolType !== toolType) {
-                    const prevType = this.store.state.activeToolType;
-                    const prevTool = this.tools[prevType];
-                    const nextNext = this.tools[toolType];
-                    prevTool.end(toolType);
-                    nextNext.start(prevType);
-                    ctx.state.activeToolType = toolType;
-                }
-            },
+            cursorType: "",
+            defaultTool: "block",
+            tileId: 16,
+            brushSize: 1,
+            blockIndex: -1,
         },
     });
 
-    public readonly tools: Record<ToolType, Tool> = {
-        [ToolType.Move]: new MoveTool(this),
-        [ToolType.Block]: new BlockTool(this),
-        [ToolType.Paint]: new PaintTool(this),
-        [ToolType.Light]: new LightTool(this),
-        [ToolType.Bounce]: new BounceTool(this),
-    };
-
     public constructor() {
-        this.commitChange();
+        this.level.resize(16, 16, 16);
         this.level.loadSkybox();
         this.level.loadMaterial();
+        this.level.updateGeometry();
         this.scene.add(
             this.level.mesh,
             this.level.skybox,
@@ -90,50 +62,159 @@ export class Editor {
             this.level.wireframe
         );
 
+        this.commitLevelMutation((level) => {
+            level.blocks.forEach((block) => {
+                block.solid = block.origin.y === 0;
+            });
+        });
+
         this.camera.position.set(0, 10, 0);
         this.camera.rotation.set(-Math.PI / 2, 0, 0, "YXZ");
 
         this.renderer.setClearColor(0x35c8dc);
 
-        // Init all tools
-        forEach(this.tools, (tool) => this.setActiveTool(tool.type));
-        this.setActiveTool(ToolType.Block);
+        // Initalize all tools
+        this.getTool(MoveState);
+        this.getTool(BlockState);
+        this.getTool(BlockDrawState);
+        this.getTool(BlockEraseState);
+        this.getTool(PaintState);
+        this.getTool(SampleState);
+
+        this.tool = this.getTool(BlockState);
+        this.tool.start(this.tool);
+
+        this.store.watch(
+            (state) => state.defaultTool,
+            () => this.setToolStateDefault()
+        );
     }
 
-    private initLevel(): Level {
-        const level = new Level();
+    public update() {
+        this.updateTools();
+        this.updateDistory();
+        this.input.clear();
+        this.renderer.render(this.scene, this.camera);
+    }
 
-        const json = localStorage.getItem(STORAGE_KEY);
-        if (json !== null) {
-            const jsonLevel = JSON.parse(json) as LevelJSON;
-            level.readJson(jsonLevel);
-        } else {
-            level.resize(16, 16, 16);
-            level.blocks.forEach((block) => {
-                block.solid = block.origin.y === 0;
-            });
+    private updateTools() {
+        if (this.input.isKeyPressed(KeyCode.B)) {
+            this.tool.hotkeyBlock();
         }
 
-        level.updateGeometry();
-        return level;
+        if (this.input.isKeyPressed(KeyCode.F)) {
+            this.tool.hotkeyPaint();
+        }
+
+        if (this.input.isKeyPressed(KeyCode.G)) {
+            this.tool.hotkeySelect();
+        }
+
+        if (this.input.isKeyDown(KeyCode.SPACE)) {
+            this.tool.startMove();
+        }
+
+        if (this.input.isKeyReleased(KeyCode.SPACE)) {
+            this.tool.endMove();
+        }
+
+        if (this.input.isKeyPressed(KeyCode.S)) {
+            this.tool.startSample();
+        }
+
+        if (this.input.isKeyReleased(KeyCode.S)) {
+            this.tool.endSample();
+        }
+
+        if (this.input.isMousePresed(MouseBtn.Left)) {
+            this.tool.startAction1();
+        }
+
+        if (this.input.isMousePresed(MouseBtn.Right)) {
+            this.tool.startAction2();
+        }
+
+        if (
+            this.input.isMouseReleased(MouseBtn.Left) ||
+            this.input.isMouseReleased(MouseBtn.Right)
+        ) {
+            this.tool.endAction();
+        }
+
+        this.tool.update();
     }
 
-    public setJson(json: LevelJSON) {
-        const { activeToolType } = this.store.state;
-        this.level.readJson(json);
-        forEach(this.tools, (tool) => {
-            this.setActiveTool(tool.type);
-        });
-        this.setActiveTool(activeToolType);
+    private updateDistory() {
+        if (this.input.isKeyDown(KeyCode.CTRL)) {
+            if (this.input.isKeyPressed(KeyCode.Z)) {
+                const json = this.history.undo();
+                if (json !== undefined) {
+                    this.level.readJson(json);
+                    this.level.updateGeometry();
+                }
+            }
+            if (this.input.isKeyPressed(KeyCode.Y)) {
+                const json = this.history.redo();
+                if (json !== undefined) {
+                    this.level.readJson(json);
+                    this.level.updateGeometry();
+                }
+            }
+        }
     }
 
-    public getActiveTool() {
-        return this.tools[this.store.state.activeToolType];
+    public commitLevelMutation(mutation: (level: Level) => void) {
+        mutation(this.level);
+        this.level.updateGeometry();
+        this.history.push(this.level.toJSON());
+        this.store.state.levelMutations++;
     }
 
-    public setActiveTool(toolType: ToolType) {
-        this.store.dispatch("setActiveTool", toolType);
+    //#region Tools
+
+    private getTool<T extends ToolState>(Tool: new (e: Editor) => T): T {
+        const tool = this.toolMap.get(Tool.name);
+        if (tool instanceof Tool) {
+            return tool;
+        }
+        const newTool = new Tool(this);
+        newTool.initialize();
+        this.toolMap.set(Tool.name, newTool);
+        return newTool;
     }
+
+    public setToolStateDefault() {
+        if (this.store.state.defaultTool === "block") {
+            return this.setToolState(BlockState);
+        }
+
+        if (this.store.state.defaultTool === "paint") {
+            return this.setToolState(PaintState);
+        }
+
+        if (this.store.state.defaultTool === "select") {
+            return this.setToolState(SelectState);
+        }
+
+        return this.setToolState(BlockState);
+    }
+
+    public setToolState<T extends ToolState>(Tool: new (e: Editor) => T): T {
+        const tool = this.getTool(Tool);
+        if (tool === this.tool) return tool;
+
+        const prevTool = this.tool;
+        const nextTool = tool;
+        prevTool.end(nextTool);
+        nextTool.start(prevTool);
+        this.tool = nextTool;
+        this.store.state.cursorType = nextTool.cursorType;
+        return nextTool;
+    }
+
+    //#endregion
+
+    //#region Utils
 
     public hitscan(scene?: Object3D) {
         const buffer: Intersection[] = [];
@@ -167,100 +248,7 @@ export class Editor {
         };
     }
 
-    public resizeLevel(w: number, h: number, d: number) {
-        const blocks = cloneDeep(this.level.blocks);
-        this.level.resize(w, h, d);
-
-        blocks.forEach((oldBlock) => {
-            const newBlock = this.level.getBlockAt(oldBlock.origin);
-            if (newBlock !== undefined) {
-                newBlock.copy(oldBlock);
-            }
-        });
-
-        this.level.updateGeometry();
-        this.commitChange();
-    }
-
-    public createLevelFloor(height: number, tileId: number) {
-        for (let x = 0; x < this.level.width; x++) {
-            for (let z = 0; z < this.level.depth; z++) {
-                for (let y = 0; y < height; y++) {
-                    const block = this.level.getBlock(x, y, z);
-                    if (block !== undefined) {
-                        block.solid = true;
-                        block.faces.fill(tileId);
-                    }
-                }
-            }
-        }
-
-        this.level.updateGeometry();
-        this.commitChange();
-    }
-
-    public commitChange() {
-        console.log(`> Editor::change`);
-        const json = this.level.toJSON();
-        this.history.push(json);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(json));
-    }
-
-    public update() {
-        this.getActiveTool().update();
-        this.selectActiveTool();
-
-        if (this.input.isKeyDown(KeyCode.CTRL)) {
-            if (this.input.isKeyPressed(KeyCode.Z)) {
-                const json = this.history.undo();
-                if (json !== undefined) {
-                    this.setJson(json);
-                }
-            }
-
-            if (this.input.isKeyPressed(KeyCode.Y)) {
-                const json = this.history.redo();
-                if (json !== undefined) {
-                    this.setJson(json);
-                }
-            }
-        }
-
-        this.input.clear();
-        this.renderer.render(this.scene, this.camera);
-    }
-
-    private selectActiveTool() {
-        if (this.input.isKeyDown(KeyCode.SPACE)) {
-            this.setActiveTool(ToolType.Move);
-            return;
-        }
-
-        if (this.input.isKeyReleased(KeyCode.SPACE)) {
-            this.setActiveTool(this.store.state.defaultToolType);
-            return;
-        }
-
-        if (
-            !this.input.isMouseDown(MouseBtn.Left) &&
-            !this.input.isMouseDown(MouseBtn.Right)
-        ) {
-            const rsp = this.sampleBlock(1) || this.sampleBlock(-1);
-            const { activeToolType, defaultToolType } = this.store.state;
-            if (rsp !== undefined && activeToolType !== defaultToolType) {
-                this.setActiveTool(defaultToolType);
-                return;
-            }
-        }
-
-        forEach(this.tools, (tool) => {
-            const hotkey = this.input.isKeyDown(tool.hotkey);
-            const active = tool === this.getActiveTool();
-            if (!active && hotkey) {
-                this.store.state.defaultToolType = tool.type;
-            }
-        });
-    }
+    //#endregion
 }
 
 export const editor = new Editor();

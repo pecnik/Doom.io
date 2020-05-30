@@ -3,16 +3,11 @@
 </template>
 <script>
 import { editor } from "../Editor";
-import { ToolType } from "../tools/Tool";
+
 export default {
     computed: {
         cursorCssClass() {
-            const { defaultToolType, activeToolType } = this.$store.state;
-            return {
-                [ToolType.Move]: "cursor-tool-move",
-                [ToolType.Paint]: "cursor-tool-paint",
-                [ToolType.Block]: "cursor-tool-block"
-            }[activeToolType];
+            return this.$store.state.cursorType;
         }
     },
     methods: {

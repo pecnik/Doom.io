@@ -1,16 +1,21 @@
-import { Tool, ToolType } from "./Tool";
-import { KeyCode } from "../../game/core/Input";
+import { ToolState } from "./ToolState";
 import { OrbitControls } from "../utils/OrbitControls";
 
-export class MoveTool extends Tool {
-    public readonly name = "Move tool";
-    public readonly type = ToolType.Move;
-    public readonly hotkey = KeyCode.G;
-
+export class MoveState extends ToolState {
     private readonly controls = new OrbitControls(
         this.editor.camera,
         this.editor.renderer.domElement
     );
+
+    public readonly cursorType = "cursor-tool-move";
+
+    public endMove() {
+        this.editor.setToolStateDefault();
+    }
+
+    public initialize() {
+        this.controls.enabled = false;
+    }
 
     public start() {
         this.controls.enabled = true;

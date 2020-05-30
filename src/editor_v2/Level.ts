@@ -37,7 +37,6 @@ export interface LevelJSON {
     }[];
     blocks: {
         solid: boolean;
-        bounce: number;
         faces: number[];
     }[];
 }
@@ -54,7 +53,6 @@ export class LevelBlock {
 
     public faces = [0, 0, 0, 0, 0, 0].map((x) => x + 16);
     public solid = false;
-    public bounce = 0;
     public light = new Color();
 
     public constructor(index: number, x: number, y: number, z: number) {
@@ -72,7 +70,6 @@ export class LevelBlock {
         this.light.copy(block.light);
         this.faces = block.faces.concat([]);
         this.solid = block.solid;
-        this.bounce = block.bounce;
     }
 
     public getFaceIndex(normal: Vector3) {
@@ -472,7 +469,6 @@ export class Level {
         this.resize(json.width, json.height, json.depth);
         this.blocks.forEach((block, index) => {
             const jsonBlock = json.blocks[index];
-            block.bounce = jsonBlock.bounce;
             block.solid = jsonBlock.solid;
             Object.assign(block.faces, jsonBlock.faces);
         });
@@ -494,8 +490,8 @@ export class Level {
             height: this.height,
             depth: this.depth,
             blocks: this.blocks.map((block) => {
-                const { solid, bounce, faces } = block;
-                return { solid, bounce, faces };
+                const { solid, faces } = block;
+                return { solid, faces };
             }),
             lights: this.lights.map((light) => {
                 const { x, y, z } = light.position;

@@ -1,9 +1,11 @@
-import { Tool, ToolType } from "./Tool";
-import { KeyCode, MouseBtn } from "../../game/core/Input";
-import { Level, LevelBlock } from "../Level";
-import { Editor } from "../Editor";
-import { Vector3 } from "three";
+import { ToolState } from "./ToolState";
 import { getNormalAxis } from "../../game/Helpers";
+import { LevelBlock } from "../Level";
+import { Vector3 } from "three";
+import { MoveState } from "./MoveState";
+import { SampleState } from "./SampleState";
+import { BlockState } from "./BlockState";
+import { SelectState } from "./SelectState";
 
 enum Cell {
     Wall,
@@ -11,78 +13,68 @@ enum Cell {
     Filled,
 }
 
-export class PaintTool extends Tool {
-    public readonly name = "Paint tool";
-    public readonly type = ToolType.Paint;
-    public readonly hotkey = KeyCode.F;
+export class PaintState extends ToolState {
+    public readonly cursorType = "cursor-tool-paint";
 
-    private readonly brush = new Level();
-    private readonly state = {
-        drawing: false,
-        v1: new Vector3(),
-        v2: new Vector3(),
-    };
-
-    public constructor(editor: Editor) {
-        super(editor);
-        editor.scene.add(this.brush.mesh);
-        this.brush.loadMaterial();
+    public startMove() {
+        this.editor.setToolState(MoveState);
     }
 
-    public start() {
-        this.brush.resize(
-            this.editor.level.width,
-            this.editor.level.height,
-            this.editor.level.depth
-        );
-        this.brush.updateGeometry();
-        this.brush.mesh.visible = true;
-        this.state.drawing = false;
+    public hotkeyBlock() {
+        this.editor.store.state.defaultTool = "block";
+        this.editor.setToolState(BlockState);
     }
 
-    public end() {
-        this.brush.mesh.visible = false;
+    public hotkeyPaint() {
+        this.editor.store.state.defaultTool = "paint";
+        this.editor.setToolState(PaintState);
     }
 
-    public update() {
-        const tileId = this.editor.store.state.paint.tileId;
+    public hotkeySelect() {
+        this.editor.store.state.defaultTool = "select";
+        this.editor.setToolState(SelectState);
+    }
 
-        if (this.input.isMousePresed(MouseBtn.Right)) {
-            const rsp = this.editor.sampleBlock(-1);
-            if (rsp === undefined) return;
+    public startSample() {
+        this.editor.setToolState(SampleState);
+    }
 
-            const block = rsp.block;
-            const face = rsp.block.getFaceIndex(rsp.normal);
-            block.faces[face] = tileId;
-            this.editor.level.updateGeometry();
-            this.editor.commitChange();
-            return;
-        }
+    public endPainter() {
+        this.editor.setToolStateDefault();
+    }
 
-        if (this.input.isMousePresed(MouseBtn.Left)) {
-            const rsp = this.editor.sampleBlock(-1);
-            if (rsp === undefined) return;
+    public startAction1() {
+        const rsp = this.editor.sampleBlock(-1);
+        if (rsp === undefined) return;
 
+        this.editor.commitLevelMutation(() => {
+            const { tileId } = this.editor.store.state;
             switch (getNormalAxis(rsp.normal)) {
                 case "x":
                     this.floodFillX(rsp.block, rsp.normal, tileId);
-                    this.editor.level.updateGeometry();
-                    this.editor.commitChange();
                     return;
 
                 case "y":
                     this.floodFillY(rsp.block, rsp.normal, tileId);
-                    this.editor.level.updateGeometry();
-                    this.editor.commitChange();
                     return;
 
                 case "z":
                     this.floodFillZ(rsp.block, rsp.normal, tileId);
-                    this.editor.level.updateGeometry();
-                    this.editor.commitChange();
                     return;
             }
-        }
+        });
+    }
+
+    public startAction2() {
+        const rsp = this.editor.sampleBlock(-1);
+        if (rsp === undefined) return;
+
+        this.editor.commitLevelMutation(() => {
+            const { tileId } = this.editor.store.state;
+            const block = rsp.block;
+            const face = rsp.block.getFaceIndex(rsp.normal);
+            block.faces[face] = tileId;
+        });
     }
 
     private floodFillX(block: LevelBlock, normal: Vector3, tileId: number) {

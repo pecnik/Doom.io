@@ -11,9 +11,8 @@
     </v-app>
 </template>
 <script>
-import Viewport from "./Viewport.vue";
 import Sidemenu from "./Menu.vue";
-
+import Viewport from "./Viewport.vue";
 export default {
     components: { Sidemenu, Viewport }
 };

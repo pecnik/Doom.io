@@ -6,9 +6,9 @@ export class History {
 
     public push(level: LevelJSON) {
         const json = JSON.stringify(level);
-        this.stack[this.index] = json;
-        this.stack.length = this.index + 1;
-        this.index++;
+        this.stack.splice(this.index);
+        this.stack.push(json);
+        this.index = this.stack.length;
 
         const MAX_HISTORY_STACK = 10;
         if (this.stack.length > MAX_HISTORY_STACK) {
@@ -18,20 +18,18 @@ export class History {
     }
 
     public undo(): LevelJSON | undefined {
-        if (this.index <= 1) return;
-
-        const json = this.stack[this.index - 2];
-        this.index--;
+        const index = Math.min(this.index - 1, this.stack.length - 2);
+        const json = this.stack[index];
+        if (json === undefined) return;
+        this.index = index;
         return JSON.parse(json) as LevelJSON;
     }
 
     public redo(): LevelJSON | undefined {
-        if (this.index >= this.stack.length) {
-            return;
-        }
-
-        const json = this.stack[this.index];
-        this.index++;
+        const index = this.index + 1;
+        const json = this.stack[index];
+        if (json === undefined) return;
+        this.index = index;
         return JSON.parse(json) as LevelJSON;
     }
 }
