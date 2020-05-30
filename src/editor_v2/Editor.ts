@@ -166,6 +166,7 @@ export class Editor {
     public commitLevelMutation(mutation: (level: Level) => void) {
         mutation(this.level);
         this.level.updateGeometry();
+        this.level.updateGeometryShading();
         this.history.push(this.level.toJSON());
         this.store.state.levelMutations++;
     }
