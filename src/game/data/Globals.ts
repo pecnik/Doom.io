@@ -12,7 +12,7 @@ export const WALK_SPEED = 1;
 export const SWAP_SPEED = 0.25;
 export const DASH_CHARGE = 2;
 
-export const JUMP_HEIGHT = 0.4;
+export const JUMP_HEIGHT = 0.5;
 export const JUMP_TIME = 0.75; // sec
 export const GRAVITY = (2 * JUMP_HEIGHT) / Math.pow(JUMP_TIME * 0.5, 2);
 export const JUMP_SPEED = GRAVITY * JUMP_TIME * 0.5;
