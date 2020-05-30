@@ -120,6 +120,17 @@ export class Input {
             }
         };
 
+        const reset = () => {
+            for (let i = 0; i < 255; i++) {
+                this.keys[i] = false;
+            }
+
+            for (let i = 0; i < 3; i++) {
+                this.mouse.btns[i] = false;
+                this.mouse.prev[i] = false;
+            }
+        };
+
         if (requestPointerLock) {
             this.el.addEventListener("click", requestlock, false);
             document.addEventListener("pointerlockchange", onLockChange, false);
@@ -135,6 +146,9 @@ export class Input {
             passive: false,
         });
 
+        window.addEventListener("focus", reset);
+        reset();
+
         document.oncontextmenu = (ev) => {
             if (ev.target === this.el) {
                 ev.preventDefault();
@@ -149,6 +163,7 @@ export class Input {
 
             document.oncontextmenu = () => {};
 
+            window.removeEventListener("focus", reset);
             window.removeEventListener("keyup", onkeyup);
             window.removeEventListener("keydown", onkeydown);
 
@@ -157,14 +172,6 @@ export class Input {
             this.el.removeEventListener("mouseup", onmouseup);
             this.el.removeEventListener("wheel", onmousescroll);
         };
-
-        for (let i = 0; i < 255; i++) {
-            this.keys[i] = false;
-        }
-
-        for (let i = 0; i < 3; i++) {
-            this.mouse.btns[i] = false;
-        }
     }
 
     public isLocked(): boolean {
