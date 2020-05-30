@@ -21,7 +21,7 @@ export class GenericSystem extends System {
 
     private respawnSystem(entity: Entity<Archetype>) {
         if (entity.position.y < -3) {
-            const spawn = sample(this.world.level.spawnPoints);
+            const spawn = sample(this.world.level.getSpawnPoints());
             if (spawn !== undefined) {
                 entity.position.copy(spawn);
                 entity.velocity.set(0, 0, 0);

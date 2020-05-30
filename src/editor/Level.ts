@@ -199,6 +199,33 @@ export class Level {
         return jumpPads;
     }
 
+    public getSpawnPoints() {
+        const floorBlocks = this.blocks.filter((block) => {
+            const rad = 1;
+            const minx = block.origin.x - rad;
+            const maxx = block.origin.x + rad;
+            const minz = block.origin.z - rad;
+            const maxz = block.origin.z + rad;
+
+            const y = block.origin.y;
+            for (let x = minx; x <= maxx; x++) {
+                for (let z = minz; z < maxz; z++) {
+                    const bot = this.isBlockSolid(x, y - 1, z);
+                    if (!bot) return false;
+
+                    const top = this.isBlockSolid(x, y + 1, z);
+                    const mid = this.isBlockSolid(x, y, z);
+                    if (top) return false;
+                    if (mid) return false;
+                }
+            }
+
+            return true;
+        });
+
+        return floorBlocks.map((block) => block.origin);
+    }
+
     public loadMaterial() {
         return loadTexture("/assets/tileset.png").then((map) => {
             disposeMeshMaterial(this.mesh.material);

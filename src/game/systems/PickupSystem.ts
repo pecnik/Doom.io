@@ -49,7 +49,7 @@ export class PickupSystem extends System {
     }
 
     private spawnPickup() {
-        const spawn = sample(this.world.level.spawnPoints);
+        const spawn = sample(this.world.level.getSpawnPoints());
         if (spawn === undefined) return;
 
         for (const [, pickup] of this.pickupFamily.entities) {
