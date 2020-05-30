@@ -73,10 +73,16 @@ export class GameClient implements Game {
 
             // Load level
             this.world.level.loadMaterial().then(() => {
-                this.world.level.resize(16, 16, 16);
-                this.world.level.blocks.forEach((block) => {
-                    block.solid = block.origin.y === 0;
-                });
+                const json = localStorage.getItem("level");
+                if (json) {
+                    this.world.level.readJson(JSON.parse(json));
+                } else {
+                    this.world.level.resize(16, 16, 16);
+                    this.world.level.blocks.forEach((block) => {
+                        block.solid = block.origin.y === 0;
+                    });
+                }
+
                 this.world.level.updateGeometry();
                 this.world.level.updateGeometryLightning();
                 this.world.level.updateAmbientOcclusion();

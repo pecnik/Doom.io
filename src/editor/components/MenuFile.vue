@@ -27,7 +27,7 @@
                     </v-list-item-title>
                 </v-list-item>
                 <v-divider></v-divider>
-                <v-list-item >
+                <v-list-item @click="play">
                     <v-list-item-title>Play</v-list-item-title>
                 </v-list-item>
             </v-list>
@@ -80,6 +80,13 @@ export default {
                 });
             };
             reader.readAsText(file);
+        },
+        play() {
+            const json = editor.level.toJson();
+            localStorage.setItem("level", JSON.stringify(json));
+
+            const url = [location.origin, location.pathname].join("");
+            window.open(url + "#/game/singleplayer");
         }
     }
 };
