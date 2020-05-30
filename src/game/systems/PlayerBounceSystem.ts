@@ -12,9 +12,9 @@ export class PlayerBounceSystem extends System {
         this.family.entities.forEach((entity) => {
             const { position, velocity, collision } = entity;
             if (collision.falg.y === -1 && velocity.y <= 0) {
-                const voxel = this.world.level.getVoxelAt(position);
-                if (voxel !== undefined && voxel.bounce > 0) {
-                    velocity.y = JUMP_SPEED * Math.sqrt(voxel.bounce);
+                const block = this.world.level.getBlockAt(position);
+                if (block !== undefined && block.jumpPadForce > 0) {
+                    velocity.y = JUMP_SPEED * Math.sqrt(block.jumpPadForce);
                     velocity.x *= 0.25;
                     velocity.z *= 0.25;
 
