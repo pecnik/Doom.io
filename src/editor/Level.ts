@@ -82,7 +82,7 @@ export class Level {
     public depth = 0;
     public blocks: LevelBlock[] = [];
 
-    public readonly meshMesh = new Mesh();
+    public readonly mesh = new Mesh();
     public readonly skyboxMesh = new Mesh();
     public readonly lightMeshGroup = new Group();
     public readonly jumpPadMeshGroup = new Group();
@@ -171,8 +171,8 @@ export class Level {
 
     public loadMaterial() {
         return loadTexture("/assets/tileset.png").then((map) => {
-            disposeMeshMaterial(this.meshMesh.material);
-            this.meshMesh.material = new MeshBasicMaterial({
+            disposeMeshMaterial(this.mesh.material);
+            this.mesh.material = new MeshBasicMaterial({
                 vertexColors: VertexColors,
                 map,
             });
@@ -227,7 +227,7 @@ export class Level {
         this.updateLightMeshGroup();
         this.updateFloorMesh();
         this.wireframeMesh.geometry.dispose();
-        this.wireframeMesh.geometry = this.meshMesh.geometry.clone();
+        this.wireframeMesh.geometry = this.mesh.geometry.clone();
     }
 
     private updateMeshGeometry() {
@@ -363,8 +363,8 @@ export class Level {
         });
 
         // Update level geometry
-        this.meshMesh.geometry.dispose();
-        this.meshMesh.geometry = (() => {
+        this.mesh.geometry.dispose();
+        this.mesh.geometry = (() => {
             const geometry = new Geometry();
             planes.forEach((plane) => geometry.merge(plane));
             planes.forEach((plane) => plane.dispose());
@@ -515,7 +515,7 @@ export class Level {
             return result;
         };
 
-        const geometry = this.meshMesh.geometry as Geometry;
+        const geometry = this.mesh.geometry as Geometry;
         geometry.elementsNeedUpdate = true;
         for (let i = 0; i < geometry.faces.length; i++) {
             const face = geometry.faces[i];
@@ -555,7 +555,7 @@ export class Level {
             }
         };
 
-        const geometry = this.meshMesh.geometry as Geometry;
+        const geometry = this.mesh.geometry as Geometry;
         geometry.elementsNeedUpdate = true;
         for (let i = 0; i < geometry.faces.length; i++) {
             const face = geometry.faces[i];

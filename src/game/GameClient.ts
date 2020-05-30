@@ -1,3 +1,4 @@
+import Stats from "stats.js";
 import { Hud } from "./data/Hud";
 import { Input } from "./core/Input";
 import { World } from "./ecs";
@@ -8,9 +9,7 @@ import { PhysicsSystem } from "./systems/PhysicsSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { WeaponSpriteSystem } from "./systems/rendering/WeaponSpriteSystem";
 import { Game } from "./core/Engine";
-import { loadTexture } from "./Helpers";
 import { GenericSystem } from "./systems/GenericSystem";
-import Stats from "stats.js";
 import { PickupSystem } from "./systems/PickupSystem";
 import { ClientNetcodeSystem } from "./systems/ClientNetcodeSystem";
 import { LocalAvatarArchetype } from "./ecs/Archetypes";
@@ -73,24 +72,13 @@ export class GameClient implements Game {
             ]),
 
             // Load level
-            loadTexture("/assets/tileset.png").then((map) => {
-                this.world.level.setMaterial(map);
-
-                const loadLevelData = () => {
-                    const json = localStorage.getItem("level");
-                    if (json !== null) return Promise.resolve(JSON.parse(json));
-
-                    const url = "/assets/levels/factory.json";
-                    return fetch(url).then((rsp) => rsp.json());
-                };
-
-                return loadLevelData().then((data) => {
-                    this.world.level.data = data;
-                    this.world.level.updateSpawnPoints();
-                    this.world.level.updateGeometry();
-                    this.world.level.updateLighing();
-                    // this.world.scene.add(this.world.level.debug);
+            this.world.level.loadMaterial().then(() => {
+                this.world.level.blocks.forEach((block) => {
+                    block.solid = block.origin.y === 0;
                 });
+                this.world.level.updateGeometry();
+                this.world.level.updateGeometryLightning();
+                this.world.level.updateAmbientOcclusion();
             }),
 
             // Create skyboc
@@ -102,8 +90,10 @@ export class GameClient implements Game {
 
     public create() {
         // Init camera position
-        const { max_x, max_y, max_z } = this.world.level.data;
-        this.world.camera.position.set(max_x, max_y, max_z).multiplyScalar(0.5);
+        const { width, height, depth } = this.world.level;
+        this.world.camera.position
+            .set(width, height, depth)
+            .multiplyScalar(0.5);
         this.world.camera.near = 0.01;
         this.world.camera.far = 512;
         this.world.camera.updateProjectionMatrix();

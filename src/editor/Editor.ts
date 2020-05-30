@@ -56,7 +56,7 @@ export class Editor {
         this.level.loadMaterial();
         this.level.updateGeometry();
         this.scene.add(
-            this.level.meshMesh,
+            this.level.mesh,
             this.level.skyboxMesh,
             this.level.floorMesh,
             this.level.lightMeshGroup,
@@ -228,7 +228,7 @@ export class Editor {
             return buffer;
         }
 
-        this.raycaster.intersectObject(this.level.meshMesh, true, buffer);
+        this.raycaster.intersectObject(this.level.mesh, true, buffer);
         this.raycaster.intersectObject(this.level.floorMesh, true, buffer);
         return buffer;
     }
