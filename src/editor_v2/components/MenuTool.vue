@@ -19,9 +19,16 @@
             <v-card-title>Block props</v-card-title>
             <v-card-text>
                 <v-checkbox v-model="block.solid" @change="writeBlock" label="Solid"></v-checkbox>
-                <v-checkbox v-model="block.emit" @change="writeBlock" label="Emit light"></v-checkbox>
+
+                <v-checkbox v-model="block.lightEnabled" @change="writeBlock" label="Emit light"></v-checkbox>
+                <v-color-picker
+                    v-if="block.lightEnabled"
+                    v-model="block.lightHexStr"
+                    @input="updateColor"
+                ></v-color-picker>
+
                 <v-checkbox v-model="block.jumpPad" @change="writeBlock" label="Jump pad"></v-checkbox>
-                 <v-slider
+                <v-slider
                     v-if="block.jumpPad"
                     v-model="block.jumpPadForce"
                     min="0"
@@ -39,6 +46,16 @@
 <script>
 import TextureInput from "./TextureInput.vue";
 import { editor } from "../Editor";
+import { debounce } from "lodash";
+
+const toHexStr = color => {
+    return "#" + color.getHexString();
+};
+
+const toHexInt = str => {
+    return parseInt(str.replace("#", ""), 16);
+};
+
 export default {
     components: { TextureInput },
     computed: {
@@ -71,8 +88,11 @@ export default {
             }
 
             this.block.index = index;
-            this.block.emit = block.emit;
             this.block.solid = block.solid;
+
+            this.block.lightEnabled = block.emit;
+            this.block.lightHexStr = toHexStr(block.light);
+
             this.block.jumpPad = block.jumpPadForce > 0;
             this.block.jumpPadForce = block.jumpPadForce;
 
@@ -85,27 +105,47 @@ export default {
 
             if (this.block.jumpPad) {
                 this.block.jumpPadForce = Math.max(this.block.jumpPadForce, 1);
+            } else {
+                this.block.jumpPadForce = 0;
             }
 
             if (block !== undefined) {
                 editor.commitLevelMutation(() => {
                     block.solid = this.block.solid;
-                    block.emit = this.block.emit;
-                    block.jumpPadForce = this.block.jumpPad
-                        ? this.block.jumpPadForce
-                        : 0;
+                    block.jumpPadForce = this.block.jumpPadForce;
+                    block.emit = this.block.lightEnabled;
+                    if (block.emit) {
+                        const hex = toHexInt(this.block.lightHexStr);
+                        block.light.setHex(hex);
+                    }
                 });
             }
-        }
+        },
+        updateColor: debounce(function(lightHexStr) {
+            const index = this.blockIndex;
+            const block = editor.level.blocks[index];
+            if (block === undefined) return;
+
+            const blockHex = block.light.getHex();
+            const valueHex = toHexInt(lightHexStr);
+            if (blockHex !== valueHex) {
+                this.writeBlock();
+            }
+        }, 250)
     },
     data() {
         return {
             block: {
                 index: -1,
-                emit: false,
+
                 solid: false,
+
+                lightEnabled: false,
+                lightHexStr: "#000000",
+
                 jumpPad: false,
                 jumpPadForce: 0,
+
                 x: 0,
                 y: 0,
                 z: 0
