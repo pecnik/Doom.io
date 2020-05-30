@@ -40,9 +40,9 @@ export default {
             handler(view) {
                 editor.level.wireframeMesh.visible = view.wireframe;
                 editor.level.skyboxMesh.visible = view.skybox;
-                editor.level.lightsMesh.visible = view.lightOrbs;
-                editor.level.jumpPadsMesh.visible = view.jumpPads;
                 editor.level.floorMesh.visible = view.floor;
+                editor.level.lightMeshGroup.visible = view.lightOrbs;
+                editor.level.jumpPadMeshGroup.visible = view.jumpPads;
 
                 view = JSON.stringify(view);
                 localStorage.setItem("menu-viewport", view);

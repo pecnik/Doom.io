@@ -59,8 +59,8 @@ export class Editor {
             this.level.meshMesh,
             this.level.skyboxMesh,
             this.level.floorMesh,
-            this.level.lightsMesh,
-            this.level.jumpPadsMesh,
+            this.level.lightMeshGroup,
+            this.level.jumpPadMeshGroup,
             this.level.wireframeMesh
         );
 

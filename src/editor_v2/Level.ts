@@ -84,8 +84,8 @@ export class Level {
 
     public readonly meshMesh = new Mesh();
     public readonly skyboxMesh = new Mesh();
-    public readonly lightsMesh = new Group();
-    public readonly jumpPadsMesh = new Group();
+    public readonly lightMeshGroup = new Group();
+    public readonly jumpPadMeshGroup = new Group();
     public readonly floorMesh = this.createFloorMesh();
     public readonly wireframeMesh = this.createWireframeMesh();
 
@@ -223,8 +223,8 @@ export class Level {
 
     public updateGeometry() {
         this.updateMeshGeometry();
-        this.updateJumpPadsMesh();
-        this.updateLightsMesh();
+        this.updateJumpPadMeshGroup();
+        this.updateLightMeshGroup();
         this.updateFloorMesh();
         this.wireframeMesh.geometry.dispose();
         this.wireframeMesh.geometry = this.meshMesh.geometry.clone();
@@ -384,15 +384,15 @@ export class Level {
     }
 
     private lightMeshGeo = new IcosahedronGeometry(0.5);
-    private updateLightsMesh() {
+    private updateLightMeshGroup() {
         const lights = this.getLights();
 
         for (let i = 0; i < lights.length; i++) {
             const light = lights[i];
-            let mesh = this.lightsMesh.children[i] as Mesh;
+            let mesh = this.lightMeshGroup.children[i] as Mesh;
             if (mesh === undefined) {
                 mesh = new Mesh(this.lightMeshGeo);
-                this.lightsMesh.add(mesh);
+                this.lightMeshGroup.add(mesh);
             }
 
             mesh.visible = true;
@@ -401,8 +401,12 @@ export class Level {
         }
 
         // Hide rememain light meshes
-        for (let i = lights.length; i < this.lightsMesh.children.length; i++) {
-            this.lightsMesh.children[i].visible = false;
+        for (
+            let i = lights.length;
+            i < this.lightMeshGroup.children.length;
+            i++
+        ) {
+            this.lightMeshGroup.children[i].visible = false;
         }
     }
 
@@ -411,16 +415,16 @@ export class Level {
         color: 0xc00bcff,
         wireframe: true,
     });
-    private updateJumpPadsMesh() {
+    private updateJumpPadMeshGroup() {
         const jumpPads = this.getJumpPads();
 
         let count = 0;
         jumpPads.forEach((jumpPad) => {
             for (let i = 0; i < jumpPad.force; i++) {
-                let mesh = this.jumpPadsMesh.children[count];
+                let mesh = this.jumpPadMeshGroup.children[count];
                 if (mesh === undefined) {
                     mesh = new Mesh(this.jumpPadMeshGeo, this.jumpPadMeshMat);
-                    this.jumpPadsMesh.add(mesh);
+                    this.jumpPadMeshGroup.add(mesh);
                     console.log("New jump pad");
                 }
 
@@ -433,8 +437,8 @@ export class Level {
         });
 
         // Hide rememain jump pad meshes
-        for (let i = count; i < this.jumpPadsMesh.children.length; i++) {
-            this.jumpPadsMesh.children[i].visible = false;
+        for (let i = count; i < this.jumpPadMeshGroup.children.length; i++) {
+            this.jumpPadMeshGroup.children[i].visible = false;
         }
     }
 
