@@ -28,6 +28,7 @@
     "@types/socket.io": "^2.1.2",
     "@types/socket.io-client": "^1.4.32",
     "@types/stats.js": "^0.17.0",
+    "@types/ws": "^7.2.4",
     "@vue/component-compiler-utils": "^3.1.1",
     "chai": "^4.2.0",
     "mocha": "^6.2.2",
