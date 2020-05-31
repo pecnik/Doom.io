@@ -494,7 +494,6 @@ export class Level {
                 if (mesh === undefined) {
                     mesh = new Mesh(this.jumpPadMeshGeo, this.jumpPadMeshMat);
                     this.jumpPadMeshGroup.add(mesh);
-                    console.log("New jump pad");
                 }
 
                 mesh.visible = true;

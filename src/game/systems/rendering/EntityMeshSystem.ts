@@ -26,7 +26,6 @@ export class EntityMeshSystem extends System {
 
                 new GLTFLoader().load(entity.entityMesh.src, (glb) => {
                     newobj.add(glb.scene);
-                    console.log(`> New Object::${newobj.name}`);
                 });
 
                 obj = newobj;

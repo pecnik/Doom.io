@@ -100,8 +100,6 @@ export class Editor {
                     nextTool.start();
                     tools.active = nextTool;
                     this.store.state.activeTool = nextTool.name;
-
-                    console.log(prevTool.name, ">", nextTool.name);
                 }
             },
 

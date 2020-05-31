@@ -18,8 +18,6 @@ export class Family<T extends AnyComponents> {
         const family = new Family<T>(comps);
         Family.list.push(family);
 
-        console.log(`> new Family(#${Family.list.length})`, { comps });
-
         return family as Family<T>;
     }
 
