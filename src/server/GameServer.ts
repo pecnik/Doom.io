@@ -1,14 +1,7 @@
 import WebSocket from "ws";
 import { Clock } from "three";
 import { uniqueId } from "lodash";
-import {
-    World,
-    AnyComponents,
-    Entity,
-    Components,
-    System,
-    Family,
-} from "../game/ecs";
+import { World, AnyComponents, Entity, Components, Family } from "../game/ecs";
 
 interface PlayerArchetype extends AnyComponents {
     readonly socket: WebSocket;
