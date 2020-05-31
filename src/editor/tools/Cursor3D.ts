@@ -1,11 +1,14 @@
 import {
-    Mesh,
     BoxGeometry,
     MeshBasicMaterial,
     Color,
     Object3D,
     PlaneGeometry,
     Vector3,
+    EdgesGeometry,
+    LineSegments,
+    LineBasicMaterial,
+    Geometry,
 } from "three";
 import { Editor } from "../Editor";
 import { getNormalAxis } from "../../game/Helpers";
@@ -18,7 +21,7 @@ export interface Cursor3DParams {
 
 export class Cursor3D extends Object3D {
     private readonly editor: Editor;
-    private readonly mesh: Mesh;
+    private readonly mesh: LineSegments;
     private readonly isFace: boolean;
 
     public readonly color: Color;
@@ -30,30 +33,26 @@ export class Cursor3D extends Object3D {
         this.color = params.color;
         this.sampleDir = params.sampleDir;
         this.isFace = params.type === "face";
-        this.mesh = this.createMesh(params);
+
+        const geometry = this.createGeometry(params);
+        const edges = new EdgesGeometry(geometry);
+        const material = new LineBasicMaterial({ color: 0xffffff });
+        this.mesh = new LineSegments(edges, material);
+
         this.add(this.mesh);
     }
 
-    private createMesh(params: Cursor3DParams) {
+    private createGeometry(params: Cursor3DParams): Geometry {
         const pad = 1 / 16;
 
         if (params.type === "face") {
             const geo = new PlaneGeometry(1, 1);
-            const mat = new MeshBasicMaterial({
-                color: params.color,
-                wireframe: true,
-            });
-
             geo.translate(0, 0, (1 - params.sampleDir * pad) / 2);
-
-            return new Mesh(geo, mat);
+            return geo;
         }
 
         const size = 1 + pad * -params.sampleDir;
-        return new Mesh(
-            new BoxGeometry(size, size, size),
-            new MeshBasicMaterial({ color: params.color, wireframe: true })
-        );
+        return new BoxGeometry(size, size, size);
     }
 
     public update() {
