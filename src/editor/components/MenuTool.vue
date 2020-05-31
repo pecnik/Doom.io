@@ -24,11 +24,31 @@
                 <v-checkbox v-model="block.solid" @change="writeBlock" label="Solid"></v-checkbox>
 
                 <v-checkbox v-model="block.lightEnabled" @change="writeBlock" label="Emit light"></v-checkbox>
-                <v-color-picker
-                    v-if="block.lightEnabled"
-                    v-model="block.lightHexStr"
-                    @input="updateColor"
-                ></v-color-picker>
+                <div v-if="block.lightEnabled">
+                    <v-slider
+                        v-model="block.lightStr"
+                        min="1"
+                        max="10"
+                        :step="0.1"
+                        label="Strength"
+                        :thumb-size="24"
+                        thumb-label="always"
+                        @change="writeBlock"
+                    ></v-slider>
+                    <v-slider
+                        v-model="block.lightRad"
+                        min="1"
+                        max="24"
+                        label="Radius"
+                        :thumb-size="24"
+                        thumb-label="always"
+                        @change="writeBlock"
+                    ></v-slider>
+                    <v-color-picker
+                        v-model="block.lightHexStr"
+                        @input="updateColor"
+                    ></v-color-picker>
+                </div>
 
                 <v-checkbox v-model="block.jumpPad" @change="writeBlock" label="Jump pad"></v-checkbox>
                 <v-slider
@@ -104,8 +124,10 @@ export default {
             this.block.index = index;
             this.block.solid = block.solid;
 
-            this.block.lightEnabled = block.emit;
+            this.block.lightEnabled = block.lightStr > 0;
             this.block.lightHexStr = toHexStr(block.light);
+            this.block.lightStr = block.lightStr;
+            this.block.lightRad = block.lightRad;
 
             this.block.jumpPad = block.jumpPadForce > 0;
             this.block.jumpPadForce = block.jumpPadForce;
@@ -123,14 +145,23 @@ export default {
                 this.block.jumpPadForce = 0;
             }
 
+            if (this.block.lightEnabled) {
+                this.block.lightStr = Math.max(this.block.lightStr, 1);
+                this.block.lightRad = Math.max(this.block.lightRad, 4);
+            } else {
+                this.block.lightStr = 0;
+                this.block.lightRad = 0;
+            }
+
             if (block !== undefined) {
                 editor.commitLevelMutation(() => {
                     block.solid = this.block.solid;
                     block.jumpPadForce = this.block.jumpPadForce;
-                    block.emit = this.block.lightEnabled;
-                    if (block.emit) {
+                    block.lightStr = this.block.lightStr;
+                    block.lightRad = this.block.lightRad;
+                    if (block.lightStr > 0) {
                         const hex = toHexInt(this.block.lightHexStr);
-                        block.light.setHex(hex);
+                        block.lightColor.setHex(hex);
                     }
                 });
             }
@@ -140,7 +171,7 @@ export default {
             const block = editor.level.blocks[index];
             if (block === undefined) return;
 
-            const blockHex = block.light.getHex();
+            const blockHex = block.lightColor.getHex();
             const valueHex = toHexInt(lightHexStr);
             if (blockHex !== valueHex) {
                 this.writeBlock();
@@ -163,6 +194,8 @@ export default {
                 solid: false,
 
                 lightEnabled: false,
+                lightStr: 0,
+                lightRad: 0,
                 lightHexStr: "#000000",
 
                 jumpPad: false,
