@@ -7,7 +7,7 @@ import { Level, LevelBlock } from "../Level";
 export class EraserTool extends Tool {
     public readonly name = "Eraser tool";
     public readonly hotkey = KeyCode.E;
-    public readonly cursorType = "cursor-tool-eraser";
+    public readonly cursorType = "tool-cursor-eraser";
 
     private readonly scene = new Scene();
     private readonly cursor = new Mesh(

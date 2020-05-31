@@ -5,7 +5,7 @@ import { MoveTool } from "./MoveTool";
 export class SampleTool extends Tool {
     public readonly name = "Eyedropper tool";
     public readonly hotkey = KeyCode.I;
-    public readonly cursorType = "cursor-tool-eyedropper";
+    public readonly cursorType = "tool-cursor-eyedropper";
 
     public getModifiedTool(): Tool {
         if (this.editor.input.isKeyDown(KeyCode.SPACE)) {

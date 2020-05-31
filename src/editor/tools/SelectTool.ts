@@ -6,7 +6,7 @@ import { Mesh, BoxGeometry, MeshBasicMaterial } from "three";
 export class SelecTool extends Tool {
     public readonly name = "Select block tool";
     public readonly hotkey = KeyCode.S;
-    public readonly cursorType = "cursor-tool-select";
+    public readonly cursorType = "tool-cursor-select";
 
     public getModifiedTool(): Tool {
         if (this.editor.input.isKeyDown(KeyCode.SPACE)) {

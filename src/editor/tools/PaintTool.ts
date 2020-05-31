@@ -15,7 +15,7 @@ enum Cell {
 export class PaintTool extends Tool {
     public readonly name = "Paint tool";
     public readonly hotkey = KeyCode.G;
-    public readonly cursorType = "cursor-tool-paint";
+    public readonly cursorType = "tool-cursor-paint";
 
     public getModifiedTool(): Tool {
         if (this.editor.input.isKeyDown(KeyCode.SPACE)) {

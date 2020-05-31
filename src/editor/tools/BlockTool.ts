@@ -9,7 +9,7 @@ import { SampleTool } from "./SampleTool";
 export class BlockTool extends Tool {
     public readonly name = "Block tool";
     public readonly hotkey = KeyCode.B;
-    public readonly cursorType = "cursor-tool-block";
+    public readonly cursorType = "tool-cursor-block";
 
     private readonly scene = new Scene();
     private readonly cursor = new Mesh(

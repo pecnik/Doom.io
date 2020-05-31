@@ -5,7 +5,7 @@ import { Tool } from "./Tool";
 export class MoveTool extends Tool {
     public readonly name = "Move tool";
     public readonly hotkey = KeyCode.M;
-    public readonly cursorType = "cursor-tool-move";
+    public readonly cursorType = "tool-cursor-move";
     private readonly controls = new OrbitControls(
         this.editor.camera,
         this.editor.renderer.domElement
