@@ -1,7 +1,9 @@
+import fs from "fs";
 import WebSocket from "ws";
-import { Clock } from "three";
-import { uniqueId } from "lodash";
+import { Clock, Vector3 } from "three";
+import { uniqueId, sample } from "lodash";
 import { World, AnyComponents, Entity, Family } from "../game/ecs";
+import { SpawnLocalAvatar, serialize } from "../game/events/Netcode";
 
 interface PlayerArchetype extends AnyComponents {
     readonly socket: WebSocket;
@@ -11,32 +13,22 @@ export class GameServer {
     public readonly wss: WebSocket.Server;
     public readonly world = new World();
     public readonly clock = new Clock();
-    public readonly player = Family.findOrCreate<PlayerArchetype>({
+    public readonly players = Family.findOrCreate<PlayerArchetype>({
         socket: {} as WebSocket,
     });
 
     public constructor(wss: WebSocket.Server) {
         this.wss = wss;
         this.wss.on("connection", (socket) => {
-            const id = uniqueId("player");
+            const id = uniqueId("p");
             const player: Entity<PlayerArchetype> = { id, socket };
-
-            socket.onclose = () => {
-                this.world.removeEntity(player.id);
-                console.log(`> Server::disconnect ${player.id}`);
-            };
-
-            this.world.addEntity(player);
-            this.player.entities.forEach((entity) => {
-                if (entity === player) {
-                    entity.socket.send("spawn-local-avatar");
-                } else {
-                    entity.socket.send("spawn-enemy-avatar");
-                }
-            });
-
-            console.log(`> Server::connection ${player.id}`);
+            this.joinPlayer(player);
         });
+
+        // Init level
+        const levelPath = __dirname + "/../../assets/levels/test_arena.json";
+        const levelJson = fs.readFileSync(levelPath);
+        this.world.level.readJson(JSON.parse(String(levelJson)));
     }
 
     public start() {
@@ -47,5 +39,17 @@ export class GameServer {
     public update() {
         const dt = this.clock.getDelta();
         this.world.update(dt);
+    }
+
+    private joinPlayer(player: Entity<PlayerArchetype>) {
+        const spawn = sample(this.world.level.getSpawnPoints());
+        const spawnLocalAvatar = new SpawnLocalAvatar();
+        spawnLocalAvatar.playerId = player.id;
+        spawnLocalAvatar.position.copy(spawn || new Vector3());
+
+        const msg = serialize(spawnLocalAvatar);
+        player.socket.send(msg);
+
+        this.world.addEntity(player);
     }
 }

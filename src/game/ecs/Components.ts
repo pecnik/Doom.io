@@ -7,11 +7,9 @@ import { WeaponType, WEAPON_SPEC_RECORD } from "../data/Weapon";
 export type AnyComponents = Partial<AllComponents>;
 
 export type AllComponents = {
-    socketId: string;
     avatarTag: boolean;
     enemyAvatarTag: boolean;
     localAvatarTag: boolean;
-    playerId: string;
     playerData: Components.PlayerData;
     position: Components.Position;
     velocity: Components.Velocity;
@@ -23,7 +21,6 @@ export type AllComponents = {
     jump: Components.Jump;
     pickup: Components.Pickup;
     avatar: Components.Avatar;
-    avatarSpawner: Components.AvatarSpawner;
     footstep: Components.Footstep;
     entityMesh: Components.EntityMesh;
 };
@@ -114,10 +111,6 @@ export module Components {
         public name = "noname";
         public kills = 0;
         public deaths = 0;
-    }
-
-    export class AvatarSpawner {
-        public spawnTime = 0;
     }
 
     export class Footstep {

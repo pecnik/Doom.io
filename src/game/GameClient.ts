@@ -33,8 +33,8 @@ import { HealthBarSystem } from "./systems/hud/HealthBarSystem";
 import { LevelJSON } from "../editor/Level";
 import {
     ClientDispatcher,
-    ClientDispatcherMultiplayer,
 } from "./events/ClientDispatcher";
+import { ClientDispatcherMultiplayer } from "./events/ClientDispatcherMultiplayer";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();

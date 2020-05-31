@@ -1,12 +1,6 @@
 import { Components, AnyComponents } from "./Components";
 
-export class PlayerArchetype implements AnyComponents {
-    public playerData = new Components.PlayerData();
-    public avatarSpawner = new Components.AvatarSpawner();
-}
-
 export class AvatarArchetype implements AnyComponents {
-    public playerId = "";
     public avatarTag = true;
     public position = new Components.Position();
     public velocity = new Components.Velocity();
