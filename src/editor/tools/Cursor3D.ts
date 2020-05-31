@@ -67,7 +67,7 @@ export class Cursor3D extends Object3D {
             return geo;
         }
 
-        const size = 1 + pad * -params.sampleDir;
+        const size = 1;
         return new BoxGeometry(size, size, size);
     }
 

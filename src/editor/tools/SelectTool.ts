@@ -1,7 +1,7 @@
 import { KeyCode, MouseBtn } from "../../game/core/Input";
 import { Tool } from "./Tool";
 import { MoveTool } from "./MoveTool";
-import { Mesh, BoxGeometry, MeshBasicMaterial, Color } from "three";
+import { Color } from "three";
 import { Cursor3D } from "./Cursor3D";
 
 export class SelecTool extends Tool {
@@ -22,10 +22,11 @@ export class SelecTool extends Tool {
         type: "face",
     });
 
-    private highlight = new Mesh(
-        new BoxGeometry(1.05, 1.05, 1.05),
-        new MeshBasicMaterial({ color: 0xffff00, wireframe: true })
-    );
+    private highlight = new Cursor3D(this.editor, {
+        sampleDir: 1,
+        color: new Color(1, 1, 0),
+        type: "block",
+    });
 
     public initialize() {
         this.editor.scene.add(this.cursor, this.highlight);
