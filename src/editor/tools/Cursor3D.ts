@@ -35,20 +35,21 @@ export class Cursor3D extends Object3D {
     }
 
     private createMesh(params: Cursor3DParams) {
-        const size = 1.01;
+        const pad = 1 / 16;
 
         if (params.type === "face") {
-            const geo = new PlaneGeometry(size, size);
+            const geo = new PlaneGeometry(1, 1);
             const mat = new MeshBasicMaterial({
                 color: params.color,
                 wireframe: true,
             });
 
-            geo.translate(0, 0, 0.5);
+            geo.translate(0, 0, (1 - params.sampleDir * pad) / 2);
 
             return new Mesh(geo, mat);
         }
 
+        const size = 1 + pad * -params.sampleDir;
         return new Mesh(
             new BoxGeometry(size, size, size),
             new MeshBasicMaterial({ color: params.color, wireframe: true })
@@ -78,25 +79,26 @@ export class Cursor3D extends Object3D {
 
     private alightFace(normal: Vector3) {
         const axis = getNormalAxis(normal);
+        const angle = (Math.PI / 2) * this.sampleDir;
 
         if (axis === "x") {
             this.mesh.rotation.x = 0;
             this.mesh.rotation.z = 0;
-            this.mesh.rotation.y = (Math.PI / 2) * -normal.x;
+            this.mesh.rotation.y = angle * -normal.x;
             return;
         }
 
         if (axis === "y") {
             this.mesh.rotation.y = 0;
             this.mesh.rotation.z = 0;
-            this.mesh.rotation.x = (Math.PI / 2) * normal.y;
+            this.mesh.rotation.x = angle * normal.y;
             return;
         }
 
         if (axis === "z") {
             this.mesh.rotation.x = 0;
             this.mesh.rotation.z = 0;
-            this.mesh.rotation.y = (Math.PI / 2) * normal.x;
+            this.mesh.rotation.y = angle * normal.z + Math.PI / 2;
             return;
         }
     }

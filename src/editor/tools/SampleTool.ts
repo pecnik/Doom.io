@@ -12,6 +12,7 @@ export class SampleTool extends Tool {
     private readonly cursor = new Cursor3D(this.editor, {
         sampleDir: -1,
         color: new Color(1, 1, 1),
+        type: "face",
     });
 
     public getModifiedTool(): Tool {
