@@ -16,13 +16,13 @@ export class SelecTool extends Tool {
         return this;
     }
 
-    private cursor = new Cursor3D(this.editor, {
+    private readonly cursor = new Cursor3D(this.editor, {
         sampleDir: 1,
         color: new Color(1, 1, 1),
         type: "face",
     });
 
-    private highlight = new Cursor3D(this.editor, {
+    private readonly highlight = new Cursor3D(this.editor, {
         sampleDir: 1,
         color: new Color(1, 1, 0),
         type: "block",

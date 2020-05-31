@@ -10,6 +10,8 @@ import {
     LineBasicMaterial,
     Geometry,
     Mesh,
+    DoubleSide,
+    FrontSide,
 } from "three";
 import { Editor } from "../Editor";
 import { getNormalAxis } from "../../game/Helpers";
@@ -41,6 +43,7 @@ export class Cursor3D extends Object3D {
         const lightMaterial = new MeshBasicMaterial({
             transparent: true,
             opacity: 0.25,
+            side: params.type === "face" ? DoubleSide : FrontSide,
         });
 
         this.mesh = new Object3D();
