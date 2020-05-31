@@ -18,7 +18,7 @@
             </v-card-text>
         </v-card>
 
-        <v-card class="mb-2" v-if="showBlockProps">
+        <v-card class="mb-2" v-if="showBlockProps" :key="block.index">
             <v-card-title>Block props</v-card-title>
             <v-card-text>
                 <v-checkbox v-model="block.solid" @change="writeBlock" label="Solid"></v-checkbox>
@@ -125,7 +125,7 @@ export default {
             this.block.solid = block.solid;
 
             this.block.lightEnabled = block.lightStr > 0;
-            this.block.lightHexStr = toHexStr(block.light);
+            this.block.lightHexStr = toHexStr(block.lightColor);
             this.block.lightStr = block.lightStr;
             this.block.lightRad = block.lightRad;
 
