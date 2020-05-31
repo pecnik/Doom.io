@@ -19,6 +19,7 @@ export class SelecTool extends Tool {
     private cursor = new Cursor3D(this.editor, {
         sampleDir: 1,
         color: new Color(1, 1, 1),
+        type: "face",
     });
 
     private highlight = new Mesh(
