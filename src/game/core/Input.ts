@@ -15,7 +15,10 @@ export enum KeyCode {
     F = 70,
     G = 71,
     H = 72,
+    I = 73,
     L = 76,
+    M = 77,
+    N = 78,
     Q = 81,
     T = 84,
     Y = 89,
@@ -117,6 +120,17 @@ export class Input {
             }
         };
 
+        const reset = () => {
+            for (let i = 0; i < 255; i++) {
+                this.keys[i] = false;
+            }
+
+            for (let i = 0; i < 3; i++) {
+                this.mouse.btns[i] = false;
+                this.mouse.prev[i] = false;
+            }
+        };
+
         if (requestPointerLock) {
             this.el.addEventListener("click", requestlock, false);
             document.addEventListener("pointerlockchange", onLockChange, false);
@@ -132,6 +146,9 @@ export class Input {
             passive: false,
         });
 
+        window.addEventListener("focus", reset);
+        reset();
+
         document.oncontextmenu = (ev) => {
             if (ev.target === this.el) {
                 ev.preventDefault();
@@ -146,6 +163,7 @@ export class Input {
 
             document.oncontextmenu = () => {};
 
+            window.removeEventListener("focus", reset);
             window.removeEventListener("keyup", onkeyup);
             window.removeEventListener("keydown", onkeydown);
 
@@ -154,14 +172,6 @@ export class Input {
             this.el.removeEventListener("mouseup", onmouseup);
             this.el.removeEventListener("wheel", onmousescroll);
         };
-
-        for (let i = 0; i < 255; i++) {
-            this.keys[i] = false;
-        }
-
-        for (let i = 0; i < 3; i++) {
-            this.mouse.btns[i] = false;
-        }
     }
 
     public isLocked(): boolean {
@@ -194,6 +204,27 @@ export class Input {
 
     public isMouseReleased(btn: MouseBtn): boolean {
         return this.mouse.btns[btn] === false && this.mouse.prev[btn] === true;
+    }
+
+    public isAnyMouseDown(): boolean {
+        for (let btn = 0; btn < this.mouse.btns.length; btn++) {
+            if (this.isMouseDown(btn)) return true;
+        }
+        return false;
+    }
+
+    public isAnyMousePresed(): boolean {
+        for (let btn = 0; btn < this.mouse.btns.length; btn++) {
+            if (this.isMousePresed(btn)) return true;
+        }
+        return false;
+    }
+
+    public isAnyMousReleased(): boolean {
+        for (let btn = 0; btn < this.mouse.btns.length; btn++) {
+            if (this.isMouseReleased(btn)) return true;
+        }
+        return false;
     }
 
     public clear() {

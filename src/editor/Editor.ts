@@ -9,16 +9,15 @@ import {
     Object3D,
 } from "three";
 import { Level } from "./Level";
-import { Input, KeyCode, MouseBtn } from "../game/core/Input";
+import { Input, KeyCode } from "../game/core/Input";
 import { History } from "./History";
-import { BlockState } from "./tools/BlockState";
-import { ToolState } from "./tools/ToolState";
-import { BlockDrawState } from "./tools/BlockDrawState";
-import { MoveState } from "./tools/MoveState";
-import { BlockEraseState } from "./tools/BlockEraseState";
-import { PaintState } from "./tools/PaintState";
-import { SampleState } from "./tools/SampleState";
-import { SelectState } from "./tools/SelectState";
+import { Tool } from "./tools/Tool";
+import { BlockTool } from "./tools/BlockTool";
+import { MoveTool } from "./tools/MoveTool";
+import { EraserTool } from "./tools/EraserTool";
+import { PaintTool } from "./tools/PaintTool";
+import { SelecTool } from "./tools/SelectTool";
+import { SampleTool } from "./tools/SampleTool";
 
 Vue.use(Vuex);
 
@@ -30,9 +29,6 @@ export class Editor {
     public readonly level = new Level();
     public readonly history = new History();
 
-    private toolMap: Map<string, ToolState> = new Map();
-    private tool: ToolState;
-
     public readonly input = new Input({
         requestPointerLock: false,
         element: this.renderer.domElement,
@@ -43,12 +39,15 @@ export class Editor {
             levelMutations: 0,
             cursor: { x: 0, y: 0 },
             cursorType: "",
-            defaultTool: "block",
+            activeTool: "",
             tileId: 16,
             brushSize: 1,
             blockIndex: -1,
+            fancyLighting: true,
         },
     });
+
+    public readonly tools = this.createTools();
 
     public constructor() {
         this.level.loadSkybox();
@@ -80,78 +79,114 @@ export class Editor {
 
         this.renderer.setClearColor(0x35c8dc);
 
-        // Initalize all tools
-        this.getTool(MoveState);
-        this.getTool(BlockState);
-        this.getTool(BlockDrawState);
-        this.getTool(BlockEraseState);
-        this.getTool(PaintState);
-        this.getTool(SampleState);
+        this.store.watch(
+            (state) => state.fancyLighting,
+            () => this.updateLevelMesh()
+        );
+    }
 
-        this.tool = this.getTool(BlockState);
-        this.tool.start(this.tool);
+    private createTools() {
+        type ToolClass<T extends Tool> = new (e: Editor) => T;
+
+        const tools = {
+            all: new Array<Tool>(),
+            active: new Tool(this),
+
+            setActive: <T extends Tool>(TCls: ToolClass<T> | Tool) => {
+                const nextTool = TCls instanceof Tool ? TCls : tools.get(TCls);
+                const prevTool = tools.active;
+                if (nextTool !== prevTool) {
+                    prevTool.end();
+                    nextTool.start();
+                    tools.active = nextTool;
+                    this.store.state.activeTool = nextTool.name;
+
+                    console.log(prevTool.name, ">", nextTool.name);
+                }
+            },
+
+            get: <T extends Tool>(TCls: ToolClass<T>): T => {
+                for (let i = 0; i < tools.all.length; i++) {
+                    const tool = tools.all[i];
+                    if (tool instanceof TCls) {
+                        return tool;
+                    }
+                }
+
+                const tool = new TCls(this);
+                tool.initialize();
+                tools.all.push(tool);
+                return tool;
+            },
+        };
 
         this.store.watch(
-            (state) => state.defaultTool,
-            () => this.setToolStateDefault()
+            (state) => state.activeTool,
+            (activeTool) => {
+                const tool = tools.all.find((t) => t.name === activeTool);
+                if (tool !== undefined) {
+                    tools.setActive(tool);
+                }
+            }
         );
+
+        // Initialize all tools
+        tools.get(MoveTool);
+        tools.get(BlockTool);
+        tools.get(EraserTool);
+        tools.get(PaintTool);
+        tools.get(SelecTool);
+        tools.get(SampleTool);
+        tools.all.forEach((tool) => tool.end());
+
+        // Select move as default tool
+        this.store.state.activeTool = tools.get(MoveTool).name;
+
+        return tools;
     }
 
     public update() {
         this.updateTools();
-        this.updateDistory();
+        this.updateHistory();
         this.input.clear();
         this.renderer.render(this.scene, this.camera);
     }
 
+    private prevTool = this.tools.active;
+    private currTool = this.tools.active;
     private updateTools() {
-        if (this.input.isKeyPressed(KeyCode.B)) {
-            this.tool.hotkeyBlock();
+        this.tools.all.forEach((tool) => {
+            if (tool.hotkey && this.input.isKeyPressed(tool.hotkey)) {
+                this.tools.setActive(tool);
+            }
+        });
+
+        this.currTool = this.tools.active.getModifiedTool();
+        if (this.prevTool !== this.currTool) {
+            this.prevTool.end();
+            this.currTool.start();
+            this.prevTool = this.currTool;
+            this.store.state.cursorType = this.currTool.cursorType;
         }
 
-        if (this.input.isKeyPressed(KeyCode.F)) {
-            this.tool.hotkeyPaint();
+        if (this.input.isAnyMousePresed()) {
+            this.currTool.onPresed();
         }
 
-        if (this.input.isKeyPressed(KeyCode.G)) {
-            this.tool.hotkeySelect();
+        if (this.input.isAnyMousReleased()) {
+            this.currTool.onReleased();
         }
 
-        if (this.input.isKeyDown(KeyCode.SPACE)) {
-            this.tool.startMove();
+        if (this.input.isAnyMouseDown()) {
+            this.currTool.onDown();
+        } else {
+            this.currTool.onUp();
         }
 
-        if (this.input.isKeyReleased(KeyCode.SPACE)) {
-            this.tool.endMove();
-        }
-
-        if (this.input.isKeyPressed(KeyCode.S)) {
-            this.tool.startSample();
-        }
-
-        if (this.input.isKeyReleased(KeyCode.S)) {
-            this.tool.endSample();
-        }
-
-        if (this.input.isMousePresed(MouseBtn.Left)) {
-            this.tool.startAction1();
-        }
-
-        if (this.input.isMousePresed(MouseBtn.Right)) {
-            this.tool.startAction2();
-        }
-
-        if (
-            this.input.isMouseReleased(MouseBtn.Left) ||
-            this.input.isMouseReleased(MouseBtn.Right)
-        ) {
-            this.tool.endAction();
-        }
-
-        this.tool.update();
+        this.currTool.update();
     }
 
-    private updateDistory() {
+    private updateHistory() {
         if (this.input.isKeyDown(KeyCode.CTRL)) {
             if (this.input.isKeyPressed(KeyCode.Z)) {
                 const json = this.history.undo();
@@ -172,56 +207,18 @@ export class Editor {
 
     public commitLevelMutation(mutation: (level: Level) => void) {
         mutation(this.level);
-        this.level.updateGeometry();
-        this.level.updateGeometryLightning();
-        this.level.updateAmbientOcclusion();
+        this.updateLevelMesh();
         this.history.push(this.level.toJson());
         this.store.state.levelMutations++;
     }
 
-    //#region Tools
-
-    private getTool<T extends ToolState>(Tool: new (e: Editor) => T): T {
-        const tool = this.toolMap.get(Tool.name);
-        if (tool instanceof Tool) {
-            return tool;
+    private updateLevelMesh() {
+        this.level.updateGeometry();
+        if (this.store.state.fancyLighting) {
+            this.level.updateGeometryLightning();
+            this.level.updateAmbientOcclusion();
         }
-        const newTool = new Tool(this);
-        newTool.initialize();
-        this.toolMap.set(Tool.name, newTool);
-        return newTool;
     }
-
-    public setToolStateDefault() {
-        if (this.store.state.defaultTool === "block") {
-            return this.setToolState(BlockState);
-        }
-
-        if (this.store.state.defaultTool === "paint") {
-            return this.setToolState(PaintState);
-        }
-
-        if (this.store.state.defaultTool === "select") {
-            return this.setToolState(SelectState);
-        }
-
-        return this.setToolState(BlockState);
-    }
-
-    public setToolState<T extends ToolState>(Tool: new (e: Editor) => T): T {
-        const tool = this.getTool(Tool);
-        if (tool === this.tool) return tool;
-
-        const prevTool = this.tool;
-        const nextTool = tool;
-        prevTool.end(nextTool);
-        nextTool.start(prevTool);
-        this.tool = nextTool;
-        this.store.state.cursorType = nextTool.cursorType;
-        return nextTool;
-    }
-
-    //#endregion
 
     //#region Utils
 

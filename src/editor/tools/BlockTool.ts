@@ -1,9 +1,22 @@
-import { ToolState } from "./ToolState";
+import { KeyCode, MouseBtn } from "../../game/core/Input";
+import { MeshBasicMaterial, Scene, Vector3, Color } from "three";
+import { MoveTool } from "./MoveTool";
+import { Tool } from "./Tool";
 import { Level, LevelBlock } from "../Level";
-import { MeshBasicMaterial, Vector3 } from "three";
+import { EraserTool } from "./EraserTool";
+import { SampleTool } from "./SampleTool";
+import { Cursor3D } from "./Cursor3D";
 
-export class BlockDrawState extends ToolState {
-    public cursorType = "cursor-tool-block";
+export class BlockTool extends Tool {
+    public readonly name = "Block tool";
+    public readonly hotkey = KeyCode.B;
+    public readonly cursorType = "tool-cursor-block";
+
+    private readonly scene = new Scene();
+    private readonly cursor = new Cursor3D(this.editor, {
+        sampleDir: 1,
+        color: new Color(0, 1, 0),
+    });
 
     private readonly brush = new Level();
     private readonly state = {
@@ -11,8 +24,30 @@ export class BlockDrawState extends ToolState {
         v2: new Vector3(),
     };
 
+    public getModifiedTool() {
+        if (this.editor.input.isKeyDown(KeyCode.SPACE)) {
+            return this.editor.tools.get(MoveTool);
+        }
+
+        if (this.editor.input.isKeyDown(KeyCode.ALT)) {
+            return this.editor.tools.get(SampleTool);
+        }
+
+        if (
+            this.editor.input.isMouseReleased(MouseBtn.Right) ||
+            this.editor.input.isMousePresed(MouseBtn.Right) ||
+            this.editor.input.isMouseDown(MouseBtn.Right)
+        ) {
+            return this.editor.tools.get(EraserTool);
+        }
+
+        return this;
+    }
+
     public initialize() {
-        this.editor.scene.add(this.brush.mesh);
+        this.editor.scene.add(this.scene);
+
+        this.scene.add(this.cursor, this.brush.mesh);
         this.brush.mesh.renderOrder = 2;
         this.brush.loadMaterial().then(() => {
             const material = this.brush.mesh.material as MeshBasicMaterial;
@@ -20,7 +55,29 @@ export class BlockDrawState extends ToolState {
         });
     }
 
-    public endAction() {
+    public start() {
+        this.scene.visible = true;
+    }
+
+    public end() {
+        this.scene.visible = false;
+    }
+
+    public onPresed() {
+        this.cursor.visible = false;
+        this.brush.mesh.visible = true;
+        this.brush.resize(
+            this.editor.level.width,
+            this.editor.level.height,
+            this.editor.level.depth
+        );
+        this.brush.updateGeometry();
+    }
+
+    public onReleased() {
+        this.cursor.visible = true;
+        this.brush.mesh.visible = false;
+
         this.editor.commitLevelMutation((level) => {
             const { tileId } = this.editor.store.state;
             level.blocks.forEach((block) => {
@@ -30,31 +87,17 @@ export class BlockDrawState extends ToolState {
                 }
             });
         });
-        this.editor.setToolStateDefault();
     }
 
-    public start() {
-        const rsp = this.editor.sampleBlock(1);
+    public onUp() {
+        const rsp = this.cursor.update();
         if (rsp !== undefined) {
             this.state.v1.copy(rsp.point);
-            this.updateBrush();
         }
-
-        this.brush.resize(
-            this.editor.level.width,
-            this.editor.level.height,
-            this.editor.level.depth
-        );
-        this.brush.updateGeometry();
-        this.brush.mesh.visible = true;
     }
 
-    public end() {
-        this.brush.mesh.visible = false;
-    }
-
-    public update() {
-        const rsp = this.editor.sampleBlock(1);
+    public onDown() {
+        const rsp = this.cursor.update();
         if (rsp !== undefined) {
             this.state.v2.copy(rsp.point);
             this.updateBrush();
@@ -103,6 +146,7 @@ export class BlockDrawState extends ToolState {
         if (block.origin.x > maxx) return false;
         if (block.origin.y > maxy) return false;
         if (block.origin.z > maxz) return false;
+
         return true;
     }
 }

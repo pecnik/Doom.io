@@ -34,7 +34,12 @@ export interface LevelJSON {
     blocks: number[];
     solidBlocks: number[];
     jumpPadBlocks: { index: number; force: number }[];
-    emmitionBlocks: { index: number; color: number }[];
+    emmitionBlocks: {
+        index: number;
+        color: number;
+        str: number;
+        rad: number;
+    }[];
 }
 
 export class LevelBlock {
@@ -44,9 +49,12 @@ export class LevelBlock {
 
     public faces = [0, 0, 0, 0, 0, 0].map((x) => x + 16);
     public solid = false;
-    public emit = false;
+
+    public lightStr = 0;
+    public lightRad = 0;
+    public lightColor = new Color();
+
     public jumpPadForce = 0;
-    public light = new Color();
 
     public constructor(index: number, x: number, y: number, z: number) {
         this.index = index;
@@ -60,7 +68,7 @@ export class LevelBlock {
     }
 
     public copy(block: LevelBlock) {
-        this.light.copy(block.light);
+        this.lightColor.copy(block.lightColor);
         this.faces = block.faces.concat([]);
         this.solid = block.solid;
     }
@@ -150,7 +158,7 @@ export class Level {
             clamp(y, 0, this.width - 1),
             clamp(z, 0, this.depth - 1)
         ) as LevelBlock;
-        return block.light;
+        return block.lightColor;
     }
 
     public getBlockLightAt(vec: Vector3) {
@@ -165,14 +173,18 @@ export class Level {
         interface Light {
             origin: Vector3;
             color: Color;
+            str: number;
+            rad: number;
         }
 
         const lights: Light[] = [];
         this.blocks.forEach((block) => {
-            if (block.emit) {
+            if (block.lightStr > 0) {
                 lights.push({
                     origin: block.origin.clone(),
-                    color: block.light.clone(),
+                    color: block.lightColor.clone(),
+                    str: block.lightStr,
+                    rad: block.lightRad,
                 });
             }
         });
@@ -543,29 +555,28 @@ export class Level {
             const result = new Color(0.25, 0.25, 0.25);
 
             for (let l = 0; l < lights.length; l++) {
-                const light = lights[l].origin;
-                const color = lights[l].color;
+                const lightOrigin = lights[l].origin;
+                const lightColor = lights[l].color;
+                const lightRad = lights[l].rad;
+                const lightStr = lights[l].str;
 
                 // Test if facing light
-                if (normal.x === +1 && light.x < point.x) continue;
-                if (normal.x === -1 && light.x > point.x) continue;
-                if (normal.y === +1 && light.y < point.y) continue;
-                if (normal.y === -1 && light.y > point.y) continue;
-                if (normal.z === +1 && light.z < point.z) continue;
-                if (normal.z === -1 && light.z > point.z) continue;
+                if (normal.x === +1 && lightOrigin.x < point.x) continue;
+                if (normal.x === -1 && lightOrigin.x > point.x) continue;
+                if (normal.y === +1 && lightOrigin.y < point.y) continue;
+                if (normal.y === -1 && lightOrigin.y > point.y) continue;
+                if (normal.z === +1 && lightOrigin.z < point.z) continue;
+                if (normal.z === -1 && lightOrigin.z > point.z) continue;
 
                 // Test if point reaches
-                if (reachedLight(point, light)) {
-                    const lightRad = 16; // TODO - export as light prop
-                    const lightStr = 1.5; // TODO - export as light prop
-
-                    let value = point.distanceTo(light);
-                    value = (lightRad - value) / lightRad;
+                if (reachedLight(point, lightOrigin)) {
+                    const dist = point.distanceTo(lightOrigin);
+                    let value = (lightRad - dist) / lightRad;
                     value = clamp(value, 0, 1) * lightStr;
 
-                    result.r += color.r * value;
-                    result.g += color.g * value;
-                    result.b += color.b * value;
+                    result.r += lightColor.r * value;
+                    result.g += lightColor.g * value;
+                    result.b += lightColor.b * value;
                 }
             }
 
@@ -641,8 +652,9 @@ export class Level {
 
         json.emmitionBlocks.forEach((data) => {
             const block = this.blocks[data.index];
-            block.emit = true;
-            block.light.setHex(data.color);
+            block.lightStr = data.str;
+            block.lightRad = data.rad;
+            block.lightColor.setHex(data.color);
         });
 
         json.jumpPadBlocks.forEach((data) => {
@@ -680,10 +692,12 @@ export class Level {
                 json.solidBlocks.push(block.index);
             }
 
-            if (block.emit) {
+            if (block.lightStr > 0) {
                 json.emmitionBlocks.push({
                     index: block.index,
-                    color: block.light.getHex(),
+                    color: block.lightColor.getHex(),
+                    str: block.lightStr,
+                    rad: block.lightRad,
                 });
             }
 

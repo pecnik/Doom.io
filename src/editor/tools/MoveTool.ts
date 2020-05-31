@@ -1,21 +1,15 @@
-import { ToolState } from "./ToolState";
+import { KeyCode } from "../../game/core/Input";
 import { OrbitControls } from "../utils/OrbitControls";
+import { Tool } from "./Tool";
 
-export class MoveState extends ToolState {
+export class MoveTool extends Tool {
+    public readonly name = "Move tool";
+    public readonly hotkey = KeyCode.M;
+    public readonly cursorType = "tool-cursor-move";
     private readonly controls = new OrbitControls(
         this.editor.camera,
         this.editor.renderer.domElement
     );
-
-    public readonly cursorType = "cursor-tool-move";
-
-    public endMove() {
-        this.editor.setToolStateDefault();
-    }
-
-    public initialize() {
-        this.controls.enabled = false;
-    }
 
     public start() {
         this.controls.enabled = true;
@@ -30,9 +24,5 @@ export class MoveState extends ToolState {
 
     public end() {
         this.controls.enabled = false;
-    }
-
-    public update() {
-        this.controls.update();
     }
 }

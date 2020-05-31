@@ -1,6 +1,6 @@
 <template>
     <div>
-         <v-menu offset-y open-on-hover min-width="200px">
+         <v-menu offset-y min-width="200px">
             <template v-slot:activator="{ on }">
                 <v-btn color="teal" small v-on="on">
                     File

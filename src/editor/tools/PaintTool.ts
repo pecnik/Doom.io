@@ -1,11 +1,11 @@
-import { ToolState } from "./ToolState";
+import { KeyCode, MouseBtn } from "../../game/core/Input";
+import { Tool } from "./Tool";
 import { getNormalAxis } from "../../game/Helpers";
 import { LevelBlock } from "../Level";
-import { Vector3 } from "three";
-import { MoveState } from "./MoveState";
-import { SampleState } from "./SampleState";
-import { BlockState } from "./BlockState";
-import { SelectState } from "./SelectState";
+import { Vector3, Color } from "three";
+import { MoveTool } from "./MoveTool";
+import { SampleTool } from "./SampleTool";
+import { Cursor3D } from "./Cursor3D";
 
 enum Cell {
     Wall,
@@ -13,39 +13,58 @@ enum Cell {
     Filled,
 }
 
-export class PaintState extends ToolState {
-    public readonly cursorType = "cursor-tool-paint";
+export class PaintTool extends Tool {
+    public readonly name = "Paint tool";
+    public readonly hotkey = KeyCode.F;
+    public readonly cursorType = "tool-cursor-paint";
 
-    public startMove() {
-        this.editor.setToolState(MoveState);
+    private readonly cursor = new Cursor3D(this.editor, {
+        sampleDir: -1,
+        color: new Color(1, 1, 1),
+        type: "face",
+    });
+
+    public initialize() {
+        this.editor.scene.add(this.cursor);
     }
 
-    public hotkeyBlock() {
-        this.editor.store.state.defaultTool = "block";
-        this.editor.setToolState(BlockState);
+    public start() {
+        this.cursor.visible = true;
     }
 
-    public hotkeyPaint() {
-        this.editor.store.state.defaultTool = "paint";
-        this.editor.setToolState(PaintState);
+    public end() {
+        this.cursor.visible = false;
     }
 
-    public hotkeySelect() {
-        this.editor.store.state.defaultTool = "select";
-        this.editor.setToolState(SelectState);
+    public getModifiedTool(): Tool {
+        if (this.editor.input.isKeyDown(KeyCode.SPACE)) {
+            return this.editor.tools.get(MoveTool);
+        }
+
+        if (this.editor.input.isKeyDown(KeyCode.ALT)) {
+            return this.editor.tools.get(SampleTool);
+        }
+
+        return this;
     }
 
-    public startSample() {
-        this.editor.setToolState(SampleState);
+    public update() {
+        this.cursor.update();
     }
 
-    public endPainter() {
-        this.editor.setToolStateDefault();
-    }
-
-    public startAction1() {
+    public onPresed() {
         const rsp = this.editor.sampleBlock(-1);
         if (rsp === undefined) return;
+
+        if (this.editor.input.isMousePresed(MouseBtn.Left)) {
+            this.editor.commitLevelMutation(() => {
+                const { tileId } = this.editor.store.state;
+                const block = rsp.block;
+                const face = rsp.block.getFaceIndex(rsp.normal);
+                block.faces[face] = tileId;
+            });
+            return;
+        }
 
         this.editor.commitLevelMutation(() => {
             const { tileId } = this.editor.store.state;
@@ -62,18 +81,6 @@ export class PaintState extends ToolState {
                     this.floodFillZ(rsp.block, rsp.normal, tileId);
                     return;
             }
-        });
-    }
-
-    public startAction2() {
-        const rsp = this.editor.sampleBlock(-1);
-        if (rsp === undefined) return;
-
-        this.editor.commitLevelMutation(() => {
-            const { tileId } = this.editor.store.state;
-            const block = rsp.block;
-            const face = rsp.block.getFaceIndex(rsp.normal);
-            block.faces[face] = tileId;
         });
     }
 

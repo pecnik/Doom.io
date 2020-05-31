@@ -56,20 +56,28 @@ export default {
     box-sizing: border-box;
     cursor: crosshair;
 
-    &.cursor-tool-move {
+    &.tool-cursor-move {
         cursor: move;
     }
 
-    &.cursor-tool-paint {
+    &.tool-cursor-paint {
         cursor: url("../assets/icon-fill.png"), auto;
     }
 
-    &.cursor-tool-block {
+    &.tool-cursor-block {
         cursor: url("../assets/icon-block.png"), auto;
     }
 
-    &.cursor-tool-eraser {
+    &.tool-cursor-eraser {
         cursor: url("../assets/icon-eraser.png"), auto;
+    }
+
+    &.tool-cursor-select {
+        cursor: url("../assets/icon-select.png"), auto;
+    }
+
+    &.tool-cursor-eyedropper {
+        cursor: url("../assets/icon-eyedropper.png"), auto;
     }
 }
 </style>
