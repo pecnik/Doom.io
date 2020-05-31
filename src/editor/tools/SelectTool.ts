@@ -1,7 +1,8 @@
 import { KeyCode, MouseBtn } from "../../game/core/Input";
 import { Tool } from "./Tool";
 import { MoveTool } from "./MoveTool";
-import { Mesh, BoxGeometry, MeshBasicMaterial } from "three";
+import { Mesh, BoxGeometry, MeshBasicMaterial, Color } from "three";
+import { Cursor3D } from "./Cursor3D";
 
 export class SelecTool extends Tool {
     public readonly name = "Select block tool";
@@ -15,10 +16,10 @@ export class SelecTool extends Tool {
         return this;
     }
 
-    private cursor = new Mesh(
-        new BoxGeometry(1, 1, 1),
-        new MeshBasicMaterial({ color: 0xffffff, wireframe: true })
-    );
+    private cursor = new Cursor3D(this.editor, {
+        sampleDir: 1,
+        color: new Color(1, 1, 1),
+    });
 
     private highlight = new Mesh(
         new BoxGeometry(1.05, 1.05, 1.05),
@@ -51,14 +52,7 @@ export class SelecTool extends Tool {
     }
 
     public update() {
-        const rsp = this.editor.sampleBlock(1);
-        if (rsp === undefined) {
-            this.cursor.visible = false;
-            return;
-        }
-
-        this.cursor.visible = true;
-        this.cursor.position.copy(rsp.block.origin);
+        this.cursor.update();
     }
 
     public onPresed() {
