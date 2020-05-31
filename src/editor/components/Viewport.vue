@@ -75,5 +75,9 @@ export default {
     &.tool-cursor-select {
         cursor: url("../assets/icon-select.png"), auto;
     }
+
+    &.tool-cursor-eyedropper {
+        cursor: url("../assets/icon-eyedropper.png"), auto;
+    }
 }
 </style>
