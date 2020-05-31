@@ -46,8 +46,8 @@ export class GameClient implements Game {
     public readonly hud = new Hud();
     public readonly world = new World();
     public readonly dispatcher = this.isMultiplayer
-        ? new ClientDispatcher(this.world)
-        : new ClientDispatcherMultiplayer(this.world);
+        ? new ClientDispatcherMultiplayer(this.world)
+        : new ClientDispatcher(this.world);
 
     private static createStats() {
         if (Settings.props.fpsMeter) {

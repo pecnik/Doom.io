@@ -19,16 +19,16 @@ export class GameServer {
         this.wss = wss;
         this.wss.on("connection", (socket) => {
             const id = uniqueId("player");
-            const player: Entity<PlayerArchetype> = {
-                id,
-                socket,
-            };
+            const player: Entity<PlayerArchetype> = { id, socket };
 
             socket.onclose = () => {
                 this.world.removeEntity(player.id);
+                console.log(`> Server::disconnect ${player.id}`);
             };
 
             this.world.addEntity(player);
+            player.socket.send("new player");
+            console.log(`> Server::connection ${player.id}`);
         });
     }
 
