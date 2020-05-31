@@ -1,10 +1,50 @@
 import { KeyCode, MouseBtn } from "../../game/core/Input";
-import { Mesh, BoxGeometry, MeshBasicMaterial, Scene, Vector3 } from "three";
+import {
+    Mesh,
+    BoxGeometry,
+    MeshBasicMaterial,
+    Scene,
+    Vector3,
+    Color,
+    Object3D,
+} from "three";
 import { MoveTool } from "./MoveTool";
 import { Tool } from "./Tool";
 import { Level, LevelBlock } from "../Level";
 import { EraserTool } from "./EraserTool";
 import { SampleTool } from "./SampleTool";
+import { Editor } from "../Editor";
+
+export class Cursor3D extends Object3D {
+    private readonly editor: Editor;
+    private readonly mesh: Mesh;
+
+    public readonly color: Color;
+    public sampleDir: -1 | 1 = 1;
+
+    public constructor(editor: Editor, color = new Color(1, 1, 1)) {
+        super();
+        this.editor = editor;
+        this.color = color;
+        this.mesh = new Mesh(
+            new BoxGeometry(1, 1, 1),
+            new MeshBasicMaterial({ color, wireframe: true })
+        );
+        this.add(this.mesh);
+    }
+
+    public update() {
+        const rsp = this.editor.sampleBlock(this.sampleDir);
+        if (rsp === undefined) {
+            this.mesh.visible = false;
+        } else {
+            this.mesh.visible = true;
+            this.mesh.position.copy(rsp.block.origin);
+        }
+
+        return rsp;
+    }
+}
 
 export class BlockTool extends Tool {
     public readonly name = "Block tool";
@@ -12,10 +52,7 @@ export class BlockTool extends Tool {
     public readonly cursorType = "tool-cursor-block";
 
     private readonly scene = new Scene();
-    private readonly cursor = new Mesh(
-        new BoxGeometry(1, 1, 1),
-        new MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
-    );
+    private readonly cursor = new Cursor3D(this.editor, new Color(0, 1, 0));
 
     private readonly brush = new Level();
     private readonly state = {
@@ -63,16 +100,20 @@ export class BlockTool extends Tool {
     }
 
     public onPresed() {
+        this.cursor.visible = false;
+        this.brush.mesh.visible = true;
         this.brush.resize(
             this.editor.level.width,
             this.editor.level.height,
             this.editor.level.depth
         );
         this.brush.updateGeometry();
-        this.brush.mesh.visible = true;
     }
 
     public onReleased() {
+        this.cursor.visible = true;
+        this.brush.mesh.visible = false;
+
         this.editor.commitLevelMutation((level) => {
             const { tileId } = this.editor.store.state;
             level.blocks.forEach((block) => {
@@ -85,31 +126,18 @@ export class BlockTool extends Tool {
     }
 
     public onUp() {
-        this.cursor.visible = true;
-        this.brush.mesh.visible = false;
-
-        const rsp = this.editor.sampleBlock(1);
-        if (rsp === undefined) {
-            this.cursor.visible = false;
-            return;
+        const rsp = this.cursor.update();
+        if (rsp !== undefined) {
+            this.state.v1.copy(rsp.point);
         }
-
-        this.cursor.position.copy(rsp.block.origin);
-        this.state.v1.copy(rsp.point);
     }
 
     public onDown() {
-        this.cursor.visible = false;
-        this.brush.mesh.visible = true;
-
-        const rsp = this.editor.sampleBlock(1);
-        if (rsp === undefined) {
-            this.cursor.visible = false;
-            return;
+        const rsp = this.cursor.update();
+        if (rsp !== undefined) {
+            this.state.v2.copy(rsp.point);
+            this.updateBrush();
         }
-
-        this.state.v2.copy(rsp.point);
-        this.updateBrush();
     }
 
     private updateBrush() {
