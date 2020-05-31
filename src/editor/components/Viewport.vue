@@ -71,5 +71,9 @@ export default {
     &.cursor-tool-eraser {
         cursor: url("../assets/icon-eraser.png"), auto;
     }
+
+    &.cursor-tool-select {
+        cursor: url("../assets/icon-select.png"), auto;
+    }
 }
 </style>
