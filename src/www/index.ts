@@ -17,9 +17,21 @@ const removeGamearea = () => {
 };
 
 switch (route) {
-    case "/game/singleplayer":
-    case "/game/multiplayer": {
+    case "/game/singleplayer": {
         import("../game");
+        break;
+    }
+
+    case "/game/multiplayer": {
+        const url = location.origin
+            .replace(location.port, "8080")
+            .replace("http://", "ws://")
+            .replace("https://", "ws://");
+        const ws = new WebSocket(url);
+        ws.onmessage = (msg) => {
+            console.log({ msg });
+        };
+
         break;
     }
 
