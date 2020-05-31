@@ -2,10 +2,15 @@ import fs from "fs";
 import WebSocket from "ws";
 import { Clock, Vector3 } from "three";
 import { uniqueId, sample } from "lodash";
-import { World, AnyComponents, Entity, Family } from "../game/ecs";
-import { SpawnLocalAvatar, serialize } from "../game/events/Netcode";
+import { World, Entity, Family } from "../game/ecs";
+import {
+    SpawnLocalAvatar,
+    serialize,
+    SpawnEnemyAvatar,
+} from "../game/events/Netcode";
+import { AvatarArchetype } from "../game/ecs/Archetypes";
 
-interface PlayerArchetype extends AnyComponents {
+interface PlayerArchetype extends AvatarArchetype {
     readonly socket: WebSocket;
 }
 
@@ -15,13 +20,18 @@ export class GameServer {
     public readonly clock = new Clock();
     public readonly players = Family.findOrCreate<PlayerArchetype>({
         socket: {} as WebSocket,
+        ...new AvatarArchetype(),
     });
 
     public constructor(wss: WebSocket.Server) {
         this.wss = wss;
         this.wss.on("connection", (socket) => {
             const id = uniqueId("p");
-            const player: Entity<PlayerArchetype> = { id, socket };
+            const player: Entity<PlayerArchetype> = {
+                id,
+                socket,
+                ...new AvatarArchetype(),
+            };
             this.joinPlayer(player);
         });
 
@@ -42,14 +52,21 @@ export class GameServer {
     }
 
     private joinPlayer(player: Entity<PlayerArchetype>) {
+        // Init player
         const spawn = sample(this.world.level.getSpawnPoints());
-        const spawnLocalAvatar = new SpawnLocalAvatar();
-        spawnLocalAvatar.playerId = player.id;
-        spawnLocalAvatar.position.copy(spawn || new Vector3());
-
-        const msg = serialize(spawnLocalAvatar);
-        player.socket.send(msg);
-
+        player.health.value = 100;
+        player.position.copy(spawn || new Vector3());
         this.world.addEntity(player);
+
+        // Spawn the local avatar
+        const spawnLocalAvatar = new SpawnLocalAvatar(player);
+        player.socket.send(serialize(spawnLocalAvatar));
+
+        // Sync players
+        const peerPlayers = this.players.toArray().filter((p) => p !== player);
+        peerPlayers.forEach((peerPlayer) => {
+            player.socket.send(serialize(new SpawnEnemyAvatar(peerPlayer)));
+            peerPlayer.socket.send(serialize(new SpawnEnemyAvatar(player)));
+        });
     }
 }

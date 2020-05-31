@@ -67,4 +67,8 @@ export class Family<T extends AnyComponents> {
     public first(): Entity<T> | undefined {
         return this.entities.values().next().value;
     }
+
+    public toArray() {
+        return Array.from(this.entities).map((pair) => pair[1]);
+    }
 }

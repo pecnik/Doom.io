@@ -1,4 +1,6 @@
 import { Vector3 } from "three";
+import { Entity } from "../ecs";
+import { AvatarArchetype } from "../ecs/Archetypes";
 
 export type NetworkEvent =
     | AvatarFrameSync
@@ -13,14 +15,22 @@ export enum NetworkEventType {
 
 export class SpawnLocalAvatar {
     public readonly type = NetworkEventType.SpawnLocalAvatar;
-    public playerId = "";
-    public position = new Vector3();
+    public readonly playerId: string;
+    public readonly position: Vector3;
+    public constructor(avatar: Entity<AvatarArchetype>) {
+        this.playerId = avatar.id;
+        this.position = avatar.position.clone();
+    }
 }
 
-export interface SpawnEnemyAvatar {
-    type: NetworkEventType.SpawnEnemyAvatar;
-    playerId: string;
-    position: Vector3;
+export class SpawnEnemyAvatar {
+    public readonly type = NetworkEventType.SpawnEnemyAvatar;
+    public readonly playerId: string;
+    public readonly position: Vector3;
+    public constructor(avatar: Entity<AvatarArchetype>) {
+        this.playerId = avatar.id;
+        this.position = avatar.position.clone();
+    }
 }
 
 export interface AvatarFrameSync {

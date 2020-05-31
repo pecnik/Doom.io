@@ -27,6 +27,13 @@ export class ClientDispatcherMultiplayer extends ClientDispatcher {
                 break;
             }
 
+            case NetworkEventType.SpawnEnemyAvatar: {
+                const avatar = EntityFactory.EnemyAvatar(ev.playerId);
+                avatar.position.copy(ev.position);
+                this.world.addEntity(avatar);
+                break;
+            }
+
             default:
                 break;
         }
