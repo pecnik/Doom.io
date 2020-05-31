@@ -9,7 +9,7 @@ import { PhysicsSystem } from "./systems/PhysicsSystem";
 import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { WeaponSpriteSystem } from "./systems/rendering/WeaponSpriteSystem";
 import { Game } from "./core/Engine";
-import { GenericSystem } from "./systems/GenericSystem";
+import { InfineteRespawnSystem } from "./systems/InfineteRespawnSystem";
 import { PickupSystem } from "./systems/PickupSystem";
 import { LocalAvatarArchetype } from "./ecs/Archetypes";
 import { AvatarStateSystem } from "./systems/AvatarStateSystem";
@@ -131,7 +131,6 @@ export class GameClient implements Game {
         this.world.addSystem(new PlayerBounceSystem(this));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new PickupSystem(this.world));
-        this.world.addSystem(new GenericSystem(this.world));
         this.world.addSystem(new AvatarStateSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new PlayerShootSystem(this.world));
@@ -156,8 +155,10 @@ export class GameClient implements Game {
         this.world.addSystem(new ShooterAudioSystem(this));
         this.world.addSystem(new FootstepAudioSystem(this.world));
 
+        // Secial systems for singleplayer
         if (!this.isMultiplayer) {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };
+            this.world.addSystem(new InfineteRespawnSystem(this.world));
             this.world.addEntity(avatar);
         }
     }
