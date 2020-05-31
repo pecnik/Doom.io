@@ -61,7 +61,6 @@
                     thumb-label="always"
                     @change="writeBlock"
                 ></v-slider>
-                <pre>{{ block }}</pre>
             </v-card-text>
         </v-card>
     </div>

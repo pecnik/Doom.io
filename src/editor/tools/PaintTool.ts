@@ -2,9 +2,10 @@ import { KeyCode, MouseBtn } from "../../game/core/Input";
 import { Tool } from "./Tool";
 import { getNormalAxis } from "../../game/Helpers";
 import { LevelBlock } from "../Level";
-import { Vector3 } from "three";
+import { Vector3, Color } from "three";
 import { MoveTool } from "./MoveTool";
 import { SampleTool } from "./SampleTool";
+import { Cursor3D } from "./Cursor3D";
 
 enum Cell {
     Wall,
@@ -14,8 +15,26 @@ enum Cell {
 
 export class PaintTool extends Tool {
     public readonly name = "Paint tool";
-    public readonly hotkey = KeyCode.G;
+    public readonly hotkey = KeyCode.F;
     public readonly cursorType = "tool-cursor-paint";
+
+    private readonly cursor = new Cursor3D(this.editor, {
+        sampleDir: -1,
+        color: new Color(1, 1, 1),
+        type: "face",
+    });
+
+    public initialize() {
+        this.editor.scene.add(this.cursor);
+    }
+
+    public start() {
+        this.cursor.visible = true;
+    }
+
+    public end() {
+        this.cursor.visible = false;
+    }
 
     public getModifiedTool(): Tool {
         if (this.editor.input.isKeyDown(KeyCode.SPACE)) {
@@ -27,6 +46,10 @@ export class PaintTool extends Tool {
         }
 
         return this;
+    }
+
+    public update() {
+        this.cursor.update();
     }
 
     public onPresed() {
