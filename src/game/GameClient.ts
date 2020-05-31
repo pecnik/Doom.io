@@ -45,9 +45,7 @@ export class GameClient implements Game {
 
     public readonly hud = new Hud();
     public readonly world = new World();
-    public readonly dispatcher = this.isMultiplayer
-        ? new ClientDispatcherMultiplayer(this.world)
-        : new ClientDispatcher(this.world);
+    public dispatcher = new ClientDispatcher(this.world);
 
     private static createStats() {
         if (Settings.props.fpsMeter) {
@@ -155,8 +153,9 @@ export class GameClient implements Game {
         this.world.addSystem(new ShooterAudioSystem(this));
         this.world.addSystem(new FootstepAudioSystem(this.world));
 
-        // Secial systems for singleplayer
-        if (!this.isMultiplayer) {
+        if (this.isMultiplayer) {
+            this.dispatcher = new ClientDispatcherMultiplayer(this.world);
+        } else {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };
             this.world.addSystem(new InfineteRespawnSystem(this.world));
             this.world.addEntity(avatar);

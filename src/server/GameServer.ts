@@ -27,7 +27,14 @@ export class GameServer {
             };
 
             this.world.addEntity(player);
-            player.socket.send("new player");
+            this.player.entities.forEach((entity) => {
+                if (entity === player) {
+                    entity.socket.send("spawn-local-avatar");
+                } else {
+                    entity.socket.send("spawn-enemy-avatar");
+                }
+            });
+
             console.log(`> Server::connection ${player.id}`);
         });
     }
