@@ -1,7 +1,7 @@
 import { World } from "../ecs";
 import { Sound2D } from "../sound/Sound2D";
 import { Sound3D } from "../sound/Sound3D";
-import { LocalAvatarArchetype } from "../ecs/Archetypes";
+import { AvatarFrameSync } from "./Netcode";
 
 export class ClientDispatcher {
     protected readonly world: World;
@@ -22,7 +22,9 @@ export class ClientDispatcher {
         }
     }
 
-    public frameUpdate(_avatar: LocalAvatarArchetype) {}
+    public avatarFrameSync(_sync: AvatarFrameSync) {
+        // Ignore
+    }
 
     public hitEnemyPlayer() {}
 

@@ -31,10 +31,9 @@ import { Settings } from "./Settings";
 import { PlayerBounceSystem } from "./systems/PlayerBounceSystem";
 import { HealthBarSystem } from "./systems/hud/HealthBarSystem";
 import { LevelJSON } from "../editor/Level";
-import {
-    ClientDispatcher,
-} from "./events/ClientDispatcher";
+import { ClientDispatcher } from "./events/ClientDispatcher";
 import { ClientDispatcherMultiplayer } from "./events/ClientDispatcherMultiplayer";
+import { PlayerSyncSystem } from "./systems/PlayerSyncSystem";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();
@@ -155,6 +154,7 @@ export class GameClient implements Game {
 
         if (this.isMultiplayer) {
             this.dispatcher = new ClientDispatcherMultiplayer(this.world);
+            this.world.addSystem(new PlayerSyncSystem(this));
         } else {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };
             this.world.addSystem(new InfineteRespawnSystem(this.world));

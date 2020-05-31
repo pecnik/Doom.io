@@ -1,4 +1,4 @@
-import { Vector3 } from "three";
+import { Vector3, Vector2 } from "three";
 import { Entity } from "../ecs";
 import { AvatarArchetype } from "../ecs/Archetypes";
 
@@ -33,12 +33,12 @@ export class SpawnEnemyAvatar {
     }
 }
 
-export interface AvatarFrameSync {
-    type: NetworkEventType.AvatarFrameSync;
-    playerId: string;
-    position: Vector3;
-    veclotiy: Vector3;
-    rotation: Vector3;
+export class AvatarFrameSync {
+    public readonly type = NetworkEventType.AvatarFrameSync;
+    public playerId = "";
+    public position = new Vector3();
+    public velocity = new Vector3();
+    public rotation = new Vector2();
 }
 
 export function serialize(ev: NetworkEvent): string {

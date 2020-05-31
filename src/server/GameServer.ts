@@ -52,11 +52,27 @@ export class GameServer {
     }
 
     private joinPlayer(player: Entity<PlayerArchetype>) {
+        // Init events
+        player.socket.onclose = () => {
+            this.world.removeEntity(player.id);
+            console.log(`> Server::remove ${player.id}`);
+        };
+
+        player.socket.onmessage = (ev) => {
+            const msg = ev.data as string;
+            this.players.entities.forEach((peer) => {
+                if (peer !== player) {
+                    peer.socket.send(msg);
+                }
+            });
+        };
+
         // Init player
         const spawn = sample(this.world.level.getSpawnPoints());
         player.health.value = 100;
         player.position.copy(spawn || new Vector3());
         this.world.addEntity(player);
+        console.log(`> Server::spawn ${player.id}`);
 
         // Spawn the local avatar
         const spawnLocalAvatar = new SpawnLocalAvatar(player);
