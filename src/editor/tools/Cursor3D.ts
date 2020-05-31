@@ -15,11 +15,12 @@ export class Cursor3D extends Object3D {
 
     public constructor(editor: Editor, params: Cursor3DParams) {
         super();
+        const size = 1.01;
         this.editor = editor;
         this.color = params.color;
         this.sampleDir = params.sampleDir;
         this.mesh = new Mesh(
-            new BoxGeometry(1, 1, 1),
+            new BoxGeometry(size, size, size),
             new MeshBasicMaterial({ color: params.color, wireframe: true })
         );
         this.add(this.mesh);
@@ -33,6 +34,13 @@ export class Cursor3D extends Object3D {
             this.mesh.visible = true;
             this.mesh.position.copy(rsp.block.origin);
         }
+
+        const material = this.mesh.material as MeshBasicMaterial;
+        if (!material.color.equals(this.color)) {
+            material.color.copy(this.color);
+            material.needsUpdate = true;
+        }
+
         return rsp;
     }
 }

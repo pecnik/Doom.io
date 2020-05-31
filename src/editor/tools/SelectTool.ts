@@ -40,11 +40,14 @@ export class SelecTool extends Tool {
     }
 
     public start() {
+        const { blockIndex } = this.editor.store.state;
         this.cursor.visible = true;
+        this.highlight.visible = blockIndex > -1;
     }
 
     public end() {
         this.cursor.visible = false;
+        this.highlight.visible = false;
     }
 
     public update() {
