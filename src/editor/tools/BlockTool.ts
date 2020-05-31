@@ -1,10 +1,5 @@
 import { KeyCode, MouseBtn } from "../../game/core/Input";
-import {
-    MeshBasicMaterial,
-    Scene,
-    Vector3,
-    Color,
-} from "three";
+import { MeshBasicMaterial, Scene, Vector3, Color } from "three";
 import { MoveTool } from "./MoveTool";
 import { Tool } from "./Tool";
 import { Level, LevelBlock } from "../Level";
@@ -18,7 +13,10 @@ export class BlockTool extends Tool {
     public readonly cursorType = "tool-cursor-block";
 
     private readonly scene = new Scene();
-    private readonly cursor = new Cursor3D(this.editor, new Color(0, 1, 0));
+    private readonly cursor = new Cursor3D(this.editor, {
+        sampleDir: 1,
+        color: new Color(0, 1, 0),
+    });
 
     private readonly brush = new Level();
     private readonly state = {

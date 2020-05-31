@@ -11,7 +11,10 @@ export class EraserTool extends Tool {
     public readonly cursorType = "tool-cursor-eraser";
 
     private readonly scene = new Scene();
-    private readonly cursor = new Cursor3D(this.editor, new Color(1, 0, 0));
+    private readonly cursor = new Cursor3D(this.editor, {
+        sampleDir: -1,
+        color: new Color(1, 0, 0),
+    });
 
     private readonly brush = new Level();
     private readonly state = {
@@ -29,7 +32,6 @@ export class EraserTool extends Tool {
     public initialize() {
         this.editor.scene.add(this.scene);
         this.scene.add(this.cursor, this.brush.mesh);
-        this.cursor.sampleDir = -1;
         this.brush.mesh.renderOrder = 2;
         this.brush.loadMaterial().then(() => {
             const material = this.brush.mesh.material as MeshBasicMaterial;
