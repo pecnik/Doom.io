@@ -1,8 +1,9 @@
 import { KeyCode } from "../../game/core/Input";
-import { Mesh, BoxGeometry, MeshBasicMaterial, Scene, Vector3 } from "three";
+import { MeshBasicMaterial, Scene, Vector3, Color } from "three";
 import { MoveTool } from "./MoveTool";
 import { Tool } from "./Tool";
 import { Level, LevelBlock } from "../Level";
+import { Cursor3D } from "./Cursor3D";
 
 export class EraserTool extends Tool {
     public readonly name = "Eraser tool";
@@ -10,10 +11,7 @@ export class EraserTool extends Tool {
     public readonly cursorType = "tool-cursor-eraser";
 
     private readonly scene = new Scene();
-    private readonly cursor = new Mesh(
-        new BoxGeometry(1, 1, 1),
-        new MeshBasicMaterial({ color: 0xff0000, wireframe: true })
-    );
+    private readonly cursor = new Cursor3D(this.editor, new Color(1, 0, 0));
 
     private readonly brush = new Level();
     private readonly state = {
@@ -30,8 +28,8 @@ export class EraserTool extends Tool {
 
     public initialize() {
         this.editor.scene.add(this.scene);
-
         this.scene.add(this.cursor, this.brush.mesh);
+        this.cursor.sampleDir = -1;
         this.brush.mesh.renderOrder = 2;
         this.brush.loadMaterial().then(() => {
             const material = this.brush.mesh.material as MeshBasicMaterial;
@@ -48,9 +46,11 @@ export class EraserTool extends Tool {
     }
 
     public onPresed() {
-        const rsp = this.editor.sampleBlock(-1);
+        this.cursor.visible = false;
+        this.brush.mesh.visible = true;
+
+        const rsp = this.cursor.update();
         if (rsp !== undefined) {
-            this.cursor.position.copy(rsp.block.origin);
             this.state.v1.copy(rsp.point);
         }
 
@@ -60,10 +60,11 @@ export class EraserTool extends Tool {
             this.editor.level.depth
         );
         this.brush.updateGeometry();
-        this.brush.mesh.visible = true;
     }
 
     public onReleased() {
+        this.cursor.visible = true;
+        this.brush.mesh.visible = false;
         this.editor.commitLevelMutation((level) => {
             level.blocks.forEach((block) => {
                 if (this.insideBrush(block)) {
@@ -74,24 +75,15 @@ export class EraserTool extends Tool {
     }
 
     public onUp() {
-        this.cursor.visible = true;
-        this.brush.mesh.visible = false;
-        const rsp = this.editor.sampleBlock(-1);
-        if (rsp === undefined) {
-            this.cursor.visible = false;
-        } else {
-            this.cursor.position.copy(rsp.block.origin);
+        const rsp = this.cursor.update();
+        if (rsp !== undefined) {
             this.state.v1.copy(rsp.point);
         }
     }
 
     public onDown() {
-        this.cursor.visible = false;
-        this.brush.mesh.visible = true;
-        const rsp = this.editor.sampleBlock(-1);
-        if (rsp === undefined) {
-            this.cursor.visible = false;
-        } else {
+        const rsp = this.cursor.update();
+        if (rsp !== undefined) {
             this.state.v2.copy(rsp.point);
             this.updateBrush();
         }

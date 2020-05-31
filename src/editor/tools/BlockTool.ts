@@ -1,50 +1,16 @@
 import { KeyCode, MouseBtn } from "../../game/core/Input";
 import {
-    Mesh,
-    BoxGeometry,
     MeshBasicMaterial,
     Scene,
     Vector3,
     Color,
-    Object3D,
 } from "three";
 import { MoveTool } from "./MoveTool";
 import { Tool } from "./Tool";
 import { Level, LevelBlock } from "../Level";
 import { EraserTool } from "./EraserTool";
 import { SampleTool } from "./SampleTool";
-import { Editor } from "../Editor";
-
-export class Cursor3D extends Object3D {
-    private readonly editor: Editor;
-    private readonly mesh: Mesh;
-
-    public readonly color: Color;
-    public sampleDir: -1 | 1 = 1;
-
-    public constructor(editor: Editor, color = new Color(1, 1, 1)) {
-        super();
-        this.editor = editor;
-        this.color = color;
-        this.mesh = new Mesh(
-            new BoxGeometry(1, 1, 1),
-            new MeshBasicMaterial({ color, wireframe: true })
-        );
-        this.add(this.mesh);
-    }
-
-    public update() {
-        const rsp = this.editor.sampleBlock(this.sampleDir);
-        if (rsp === undefined) {
-            this.mesh.visible = false;
-        } else {
-            this.mesh.visible = true;
-            this.mesh.position.copy(rsp.block.origin);
-        }
-
-        return rsp;
-    }
-}
+import { Cursor3D } from "./Cursor3D";
 
 export class BlockTool extends Tool {
     public readonly name = "Block tool";
