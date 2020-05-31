@@ -8,9 +8,7 @@ app.use("/public", express.static(__dirname + "/../../public"));
 app.use("/assets", express.static(__dirname + "/../../assets"));
 
 import WebSocket from "ws";
+import { GameServer } from "./GameServer";
 
 const wss = new WebSocket.Server({ server: app.listen(PORT) });
-wss.on("connection", (socket) => {
-    socket.send("banananas");
-    console.log("Connection");
-});
+new GameServer(wss);
