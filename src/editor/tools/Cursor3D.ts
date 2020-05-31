@@ -9,6 +9,7 @@ import {
     LineSegments,
     LineBasicMaterial,
     Geometry,
+    Mesh,
 } from "three";
 import { Editor } from "../Editor";
 import { getNormalAxis } from "../../game/Helpers";
@@ -21,7 +22,7 @@ export interface Cursor3DParams {
 
 export class Cursor3D extends Object3D {
     private readonly editor: Editor;
-    private readonly mesh: LineSegments;
+    private readonly mesh: Object3D;
     private readonly isFace: boolean;
 
     public readonly color: Color;
@@ -30,14 +31,29 @@ export class Cursor3D extends Object3D {
     public constructor(editor: Editor, params: Cursor3DParams) {
         super();
         this.editor = editor;
-        this.color = params.color;
+        this.color = params.color.clone();
         this.sampleDir = params.sampleDir;
         this.isFace = params.type === "face";
 
         const geometry = this.createGeometry(params);
         const edges = new EdgesGeometry(geometry);
-        const material = new LineBasicMaterial({ color: 0xffffff });
-        this.mesh = new LineSegments(edges, material);
+        const edgesMaterial = new LineBasicMaterial();
+        const lightMaterial = new MeshBasicMaterial({
+            transparent: true,
+            opacity: 0.25,
+        });
+
+        this.mesh = new Object3D();
+        this.mesh.add(
+            new LineSegments(edges, edgesMaterial),
+            new Mesh(geometry, lightMaterial)
+        );
+
+        this.mesh.children.forEach((child) => {
+            const mesh = child as Mesh;
+            const material = mesh.material as MeshBasicMaterial;
+            material.color = this.color;
+        });
 
         this.add(this.mesh);
     }
@@ -65,12 +81,6 @@ export class Cursor3D extends Object3D {
             if (this.isFace) {
                 this.alightFace(rsp.normal);
             }
-        }
-
-        const material = this.mesh.material as MeshBasicMaterial;
-        if (!material.color.equals(this.color)) {
-            material.color.copy(this.color);
-            material.needsUpdate = true;
         }
 
         return rsp;
