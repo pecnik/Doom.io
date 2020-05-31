@@ -11,7 +11,6 @@ import { random } from "lodash";
 import { SWAP_SPEED } from "../data/Globals";
 import { WeaponState, WeaponAmmo } from "../data/Types";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
-import { Netcode } from "../Netcode";
 import { WEAPON_SPEC_RECORD, WeaponSpec } from "../data/Weapon";
 
 class TargetArchetype implements AnyComponents {
@@ -203,13 +202,14 @@ export class PlayerShootSystem extends System {
             // Apply damage
             const target = rsp.entity;
             if (target !== undefined && target.health !== undefined) {
-                // TODO - if multiple bullets, bundle up into one
-                const hitEvent = new Netcode.HitEntity();
-                hitEvent.attackerId = player.id;
-                hitEvent.targetId = target.id;
-                hitEvent.weaponType = player.shooter.weaponType;
-                hitEvent.damage = weaponSpec.bulletDamage;
-                player.eventsBuffer.push(hitEvent);
+                console.log("TODO: Hit event");
+                // // TODO - if multiple bullets, bundle up into one
+                // const hitEvent = new Netcode.HitEntity();
+                // hitEvent.attackerId = player.id;
+                // hitEvent.targetId = target.id;
+                // hitEvent.weaponType = player.shooter.weaponType;
+                // hitEvent.damage = weaponSpec.bulletDamage;
+                // player.eventsBuffer.push(hitEvent);
 
                 // Emit particle
                 const matrix = new Matrix3();

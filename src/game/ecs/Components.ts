@@ -1,7 +1,6 @@
 import { Vector2, Vector3 } from "three";
 import { PLAYER_RADIUS, PLAYER_HEIGHT } from "../data/Globals";
 import { WeaponState, WeaponAmmo } from "../data/Types";
-import { Netcode } from "../Netcode";
 import { AvatarState } from "../data/Types";
 import { WeaponType, WEAPON_SPEC_RECORD } from "../data/Weapon";
 
@@ -14,7 +13,6 @@ export type AllComponents = {
     localAvatarTag: boolean;
     playerId: string;
     playerData: Components.PlayerData;
-    eventsBuffer: Netcode.Event[];
     position: Components.Position;
     velocity: Components.Velocity;
     rotation: Components.Rotation;
@@ -28,8 +26,6 @@ export type AllComponents = {
     avatarSpawner: Components.AvatarSpawner;
     footstep: Components.Footstep;
     entityMesh: Components.EntityMesh;
-    messageBuffer: Components.MessageBuffer;
-    playerFrameState: Components.PlayerFrameState;
 };
 
 export module Components {
@@ -135,36 +131,5 @@ export module Components {
         public constructor(src = "/assets/mesh/missing.glb") {
             this.src = src;
         }
-    }
-
-    /**
-     * Data ring-buffer for network event messages
-     */
-    export class MessageBuffer {
-        private readonly buffer: string[] = [];
-        private index = 0;
-
-        public push(data: string) {
-            this.buffer[this.index] = data;
-            this.index++;
-            if (this.index > 16) {
-                this.index = 0;
-            }
-        }
-
-        public dump() {
-            const data = [...this.buffer];
-            this.buffer.length = 0;
-            this.index = 0;
-            return data;
-        }
-    }
-
-    export class PlayerFrameState {
-        public alive = false;
-        public health = 0;
-        public position = new Components.Position();
-        public velcotiy = new Components.Velocity();
-        public rotation = new Components.Rotation();
     }
 }

@@ -1,12 +1,10 @@
 import WebSocket from "ws";
 import { Clock } from "three";
 import { uniqueId } from "lodash";
-import { World, AnyComponents, Entity, Components, Family } from "../game/ecs";
+import { World, AnyComponents, Entity, Family } from "../game/ecs";
 
 interface PlayerArchetype extends AnyComponents {
     readonly socket: WebSocket;
-    readonly messageBuffer: Components.MessageBuffer;
-    readonly playerFrameState: Components.PlayerFrameState;
 }
 
 export class GameServer {
@@ -15,8 +13,6 @@ export class GameServer {
     public readonly clock = new Clock();
     public readonly player = Family.findOrCreate<PlayerArchetype>({
         socket: {} as WebSocket,
-        messageBuffer: new Components.MessageBuffer(),
-        playerFrameState: new Components.PlayerFrameState(),
     });
 
     public constructor(wss: WebSocket.Server) {
@@ -26,12 +22,6 @@ export class GameServer {
             const player: Entity<PlayerArchetype> = {
                 id,
                 socket,
-                messageBuffer: new Components.MessageBuffer(),
-                playerFrameState: new Components.PlayerFrameState(),
-            };
-
-            socket.onmessage = (ev) => {
-                player.messageBuffer.push(ev.data.toString());
             };
 
             socket.onclose = () => {

@@ -11,7 +11,6 @@ import { WeaponSpriteSystem } from "./systems/rendering/WeaponSpriteSystem";
 import { Game } from "./core/Engine";
 import { GenericSystem } from "./systems/GenericSystem";
 import { PickupSystem } from "./systems/PickupSystem";
-import { ClientNetcodeSystem } from "./systems/ClientNetcodeSystem";
 import { LocalAvatarArchetype } from "./ecs/Archetypes";
 import { AvatarStateSystem } from "./systems/AvatarStateSystem";
 import { ShooterAudioSystem } from "./systems/audio/ShooterAudioSystem";
@@ -32,12 +31,23 @@ import { Settings } from "./Settings";
 import { PlayerBounceSystem } from "./systems/PlayerBounceSystem";
 import { HealthBarSystem } from "./systems/hud/HealthBarSystem";
 import { LevelJSON } from "../editor/Level";
+import {
+    ClientDispatcher,
+    ClientDispatcherMultiplayer,
+} from "./events/ClientDispatcher";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();
     private readonly input = new Input({ requestPointerLock: true });
-    public readonly world = new World();
+
+    private readonly route = location.hash.replace("#", "");
+    private readonly isMultiplayer = this.route === "/game/multiplayer";
+
     public readonly hud = new Hud();
+    public readonly world = new World();
+    public readonly dispatcher = this.isMultiplayer
+        ? new ClientDispatcher(this.world)
+        : new ClientDispatcherMultiplayer(this.world);
 
     private static createStats() {
         if (Settings.props.fpsMeter) {
@@ -117,8 +127,8 @@ export class GameClient implements Game {
         // Systems
         this.world.addSystem(new PlayerInputSystem(this.world, this.input));
         this.world.addSystem(new PlayerMoveSystem(this.world));
-        this.world.addSystem(new PlayerDashSystem(this.world));
-        this.world.addSystem(new PlayerBounceSystem(this.world));
+        this.world.addSystem(new PlayerDashSystem(this));
+        this.world.addSystem(new PlayerBounceSystem(this));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new PickupSystem(this.world));
         this.world.addSystem(new GenericSystem(this.world));
@@ -143,15 +153,10 @@ export class GameClient implements Game {
         }
 
         // Audio
-        this.world.addSystem(new ShooterAudioSystem(this.world));
+        this.world.addSystem(new ShooterAudioSystem(this));
         this.world.addSystem(new FootstepAudioSystem(this.world));
 
-        // Temporary ftw idk
-        const route = location.hash.replace("#", "");
-        const connect = route === "/game/multiplayer";
-        this.world.addSystem(new ClientNetcodeSystem(this.world, connect));
-
-        if (!connect) {
+        if (!this.isMultiplayer) {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };
             this.world.addEntity(avatar);
         }

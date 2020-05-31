@@ -3,12 +3,18 @@ import { lerp } from "../core/Utils";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { Vector2 } from "three";
 import { RUN_SPEED, JUMP_SPEED, DASH_CHARGE } from "../data/Globals";
-import { Netcode } from "../Netcode";
+import { GameClient } from "../GameClient";
 
 export class PlayerDashSystem extends System {
+    private readonly client: GameClient;
     private readonly family = this.createEntityFamily({
         archetype: new LocalAvatarArchetype(),
     });
+
+    public constructor(client: GameClient) {
+        super(client.world);
+        this.client = client;
+    }
 
     public update(dt: number) {
         this.family.entities.forEach((avatar) => {
@@ -36,9 +42,10 @@ export class PlayerDashSystem extends System {
                 avatar.velocity.z = move.y;
                 avatar.velocity.y = JUMP_SPEED * 0.1;
 
-                const src = "/assets/sounds/whoosh.wav";
-                const emitSound = new Netcode.EmitSound(avatar.id, src);
-                avatar.eventsBuffer.push(emitSound);
+                this.client.dispatcher.playSound(
+                    avatar.id,
+                    "/assets/sounds/whoosh.wav"
+                );
             }
 
             // Halt
