@@ -1,4 +1,4 @@
-import { KeyCode } from "../../game/core/Input";
+import { KeyCode, MouseBtn } from "../../game/core/Input";
 import { Tool } from "./Tool";
 import { MoveTool } from "./MoveTool";
 import { Mesh, BoxGeometry, MeshBasicMaterial } from "three";
@@ -62,7 +62,8 @@ export class SelecTool extends Tool {
     }
 
     public onPresed() {
-        const rsp = this.editor.sampleBlock(1);
+        const dir = this.editor.input.isMousePresed(MouseBtn.Left) ? 1 : -1;
+        const rsp = this.editor.sampleBlock(dir);
         if (rsp !== undefined) {
             this.editor.store.state.blockIndex = rsp.block.index;
         }
