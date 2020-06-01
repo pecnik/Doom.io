@@ -137,7 +137,8 @@ export class GameServer {
                 return;
             }
 
-            case NetworkEventType.PlaySound: {
+            case NetworkEventType.PlaySound:
+            case NetworkEventType.SpawnDecal: {
                 this.broadcast(playerId, msg);
                 return;
             }

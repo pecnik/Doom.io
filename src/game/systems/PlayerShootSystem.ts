@@ -12,12 +12,15 @@ import { SWAP_SPEED } from "../data/Globals";
 import { WeaponState, WeaponAmmo } from "../data/Types";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { WEAPON_SPEC_RECORD, WeaponSpec } from "../data/Weapon";
+import { GameClient } from "../GameClient";
 
 class TargetArchetype implements AnyComponents {
     public entityMesh = new Components.EntityMesh();
 }
 
 export class PlayerShootSystem extends System {
+    private readonly client: GameClient;
+
     private readonly targets = this.createEntityFamily({
         archetype: new TargetArchetype(),
     });
@@ -25,6 +28,11 @@ export class PlayerShootSystem extends System {
     private readonly players = this.createEntityFamily({
         archetype: new LocalAvatarArchetype(),
     });
+
+    public constructor(client: GameClient) {
+        super(client.world);
+        this.client = client;
+    }
 
     private transition(
         state: WeaponState,
@@ -196,7 +204,7 @@ export class PlayerShootSystem extends System {
 
             // Bullet decal
             if (rsp.entity === undefined) {
-                this.world.decals.spawn(point, face.normal);
+                this.client.dispatcher.spawnDecal(point, face.normal);
             }
 
             // Apply damage

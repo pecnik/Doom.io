@@ -5,10 +5,12 @@ import {
     AvatarSpawn,
     AvatarFrameUpdate,
     AvatarDeath,
+    SpawnDecal,
 } from "./NetworkEvents";
 import { GameClient } from "../GameClient";
 import { Sound2D } from "../sound/Sound2D";
 import { Sound3D } from "../sound/Sound3D";
+import { Vector3 } from "three";
 
 export class ClientNetwork {
     private readonly client: GameClient;
@@ -50,6 +52,12 @@ export class ClientNetwork {
         this.sendMessage(playSound);
     }
 
+    public spawnDecal(point: Vector3, normal: Vector3) {
+        const spawnDecal = new SpawnDecal(point, normal);
+        this.handleEvent(spawnDecal);
+        this.sendMessage(spawnDecal);
+    }
+
     private handleEvent(event: NetworkEvent) {
         switch (event.type) {
             case NetworkEventType.AvatarSpawn: {
@@ -78,6 +86,11 @@ export class ClientNetwork {
                 } else {
                     Sound3D.get(sound).emitFrom(entity);
                 }
+                return;
+            }
+
+            case NetworkEventType.SpawnDecal: {
+                this.client.world.decals.spawn(event.point, event.normal);
                 return;
             }
         }

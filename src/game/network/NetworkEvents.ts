@@ -4,6 +4,7 @@ import { EntityFactory } from "../data/EntityFactory";
 
 export type NetworkEvent =
     | PlaySound
+    | SpawnDecal
     | AvatarSpawn
     | AvatarFrameUpdate
     | AvatarDeath;
@@ -20,6 +21,7 @@ export module NetworkEvent {
 
 export enum NetworkEventType {
     PlaySound,
+    SpawnDecal,
     AvatarSpawn,
     AvatarFrameUpdate,
     AvatarDeath,
@@ -32,6 +34,16 @@ export class PlaySound {
     public constructor(entityId: string, sound: string) {
         this.entityId = entityId;
         this.sound = sound;
+    }
+}
+
+export class SpawnDecal {
+    public readonly type = NetworkEventType.SpawnDecal;
+    public point: Vector3;
+    public normal: Vector3;
+    public constructor(point: Vector3, normal: Vector3) {
+        this.point = point;
+        this.normal = normal;
     }
 }
 

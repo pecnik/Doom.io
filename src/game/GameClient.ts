@@ -129,7 +129,7 @@ export class GameClient implements Game {
         this.world.addSystem(new PickupSystem(this.world));
         this.world.addSystem(new AvatarStateSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
-        this.world.addSystem(new PlayerShootSystem(this.world));
+        this.world.addSystem(new PlayerShootSystem(this));
 
         // World rendering
         this.world.addSystem(new EntityMeshSystem(this.world));
