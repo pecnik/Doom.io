@@ -1,6 +1,7 @@
 import { Action, AvatarUpdateAction, ActionType } from "./Action";
 import { ArrayBufferF32 } from "./data/ArrayBufferF32";
 import { Vector3, Vector2 } from "three";
+import { WeaponType } from "./data/Weapon";
 
 export interface ActionParser {
     serialize(action: Action): string;
@@ -8,13 +9,14 @@ export interface ActionParser {
 }
 
 export class AvatarUpdateParcer {
-    private readonly binary = new ArrayBufferF32(3 + 3 + 2);
+    private readonly binary = new ArrayBufferF32(3 + 3 + 2 + 1);
     private readonly action: AvatarUpdateAction = {
         type: ActionType.AvatarUpdate,
         avatarId: "",
         position: new Vector3(),
         velocity: new Vector3(),
         rotation: new Vector2(),
+        weaponType: WeaponType.Pistol,
     };
 
     public serialize(action: AvatarUpdateAction): string {
@@ -26,6 +28,7 @@ export class AvatarUpdateParcer {
         this.binary.buffer[5] = action.velocity.z;
         this.binary.buffer[6] = action.rotation.x;
         this.binary.buffer[7] = action.rotation.y;
+        this.binary.buffer[8] = action.weaponType;
         return `${action.avatarId}¤${this.binary.toStringBuffer()}`;
     }
 
@@ -44,6 +47,7 @@ export class AvatarUpdateParcer {
         this.action.velocity.z = this.binary.buffer[5];
         this.action.rotation.x = this.binary.buffer[6];
         this.action.rotation.y = this.binary.buffer[7];
+        this.action.weaponType = this.binary.buffer[8];
 
         return this.action;
     }

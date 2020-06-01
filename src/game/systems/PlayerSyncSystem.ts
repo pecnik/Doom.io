@@ -3,6 +3,7 @@ import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { GameClient } from "../GameClient";
 import { AvatarUpdateAction, ActionType } from "../Action";
 import { Vector3, Vector2 } from "three";
+import { WeaponType } from "../data/Weapon";
 
 export class PlayerSyncSystem extends System {
     private readonly prevSync = this.createAvatarUpdateAction();
@@ -21,31 +22,30 @@ export class PlayerSyncSystem extends System {
     public update() {
         const avatar = this.family.first();
         if (avatar !== undefined) {
-            this.fillSyncData(this.nextSync, avatar);
-            if (this.syncDiff(this.nextSync, this.prevSync)) {
-                this.fillSyncData(this.prevSync, avatar);
+            this.fillActionData(this.nextSync, avatar);
+            if (this.actionDiff(this.nextSync, this.prevSync)) {
+                this.fillActionData(this.prevSync, avatar);
                 this.client.send(this.nextSync);
             }
         }
     }
 
-    private fillSyncData(
-        sync: AvatarUpdateAction,
+    private fillActionData(
+        action: AvatarUpdateAction,
         avatar: Entity<LocalAvatarArchetype>
     ) {
-        sync.avatarId = avatar.id;
-        sync.position.copy(avatar.position);
-        sync.velocity.copy(avatar.velocity);
-        sync.rotation.copy(avatar.rotation);
+        action.avatarId = avatar.id;
+        action.weaponType = avatar.shooter.weaponType;
+        action.position.copy(avatar.position);
+        action.velocity.copy(avatar.velocity);
+        action.rotation.copy(avatar.rotation);
     }
 
-    private syncDiff(
-        syncA: AvatarUpdateAction,
-        syncB: AvatarUpdateAction
-    ) {
+    private actionDiff(syncA: AvatarUpdateAction, syncB: AvatarUpdateAction) {
         if (!syncA.position.equals(syncB.position)) return true;
         if (!syncA.velocity.equals(syncB.velocity)) return true;
         if (!syncA.rotation.equals(syncB.rotation)) return true;
+        if (syncA.weaponType !== syncB.weaponType) return true;
         return false;
     }
 
@@ -56,6 +56,7 @@ export class PlayerSyncSystem extends System {
             position: new Vector3(),
             velocity: new Vector3(),
             rotation: new Vector2(),
+            weaponType: WeaponType.Pistol,
         };
     }
 }

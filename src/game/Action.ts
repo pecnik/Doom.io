@@ -47,6 +47,7 @@ export interface AvatarUpdateAction {
     position: Vector3;
     velocity: Vector3;
     rotation: Vector2;
+    weaponType: WeaponType;
 }
 
 export interface AvatarDeathAction {
@@ -83,12 +84,22 @@ export function runAction(world: World, action: Action) {
         case ActionType.AvatarUpdate: {
             const avatar = world.entities.get(action.avatarId);
             if (avatar === undefined) return;
-            if (avatar.position !== undefined)
+
+            if (avatar.position !== undefined) {
                 avatar.position.copy(action.position);
-            if (avatar.velocity !== undefined)
+            }
+
+            if (avatar.velocity !== undefined) {
                 avatar.velocity.copy(action.velocity);
-            if (avatar.rotation !== undefined)
+            }
+
+            if (avatar.rotation !== undefined) {
                 avatar.rotation.copy(action.rotation);
+            }
+
+            if (avatar.shooter !== undefined) {
+                avatar.shooter.weaponType = action.weaponType;
+            }
             return;
         }
 
