@@ -188,7 +188,9 @@ export class GameClient implements Game {
         socket.onmessage = (ev) => {
             const msg = ev.data as string;
             const action = Action.deserialize(msg);
-            this.run(action);
+            if (action !== undefined) {
+                this.run(action);
+            }
         };
 
         this.send = (action: Action) => {

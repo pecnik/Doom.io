@@ -104,11 +104,13 @@ export class GameServer {
     }
 
     private playerMessage(playerId: string, msg: string) {
-        const event = Action.deserialize(msg);
-        switch (event.type) {
+        const action = Action.deserialize(msg);
+        if (action === undefined) return;
+
+        switch (action.type) {
             // Run & broadcast
             case ActionType.AvatarFrameUpdate: {
-                runAction(this.world, event);
+                runAction(this.world, action);
                 this.broadcast(playerId, msg);
                 return;
             }
@@ -121,19 +123,19 @@ export class GameServer {
             }
 
             case ActionType.AvatarHit: {
-                const shooter = this.avatars.entities.get(event.shooterId);
+                const shooter = this.avatars.entities.get(action.shooterId);
                 if (shooter === undefined) return;
                 if (shooter.playerId !== playerId) return;
 
-                const target = this.avatars.entities.get(event.targetId);
+                const target = this.avatars.entities.get(action.targetId);
                 if (target === undefined) return;
                 if (target.health.value <= 0) return;
 
-                runAction(this.world, event);
+                runAction(this.world, action);
                 this.broadcast(playerId, msg);
 
                 if (target.health.value <= 0) {
-                    const avatarId = event.targetId;
+                    const avatarId = action.targetId;
                     const avatarDeath = this.avatarDeath(avatarId);
                     runAction(this.world, avatarDeath);
                     this.broadcastToAll(Action.serialize(avatarDeath));

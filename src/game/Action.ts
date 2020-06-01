@@ -2,6 +2,7 @@ import { Vector3, Vector2 } from "three";
 import { World } from "./ecs";
 import { WeaponType, WEAPON_SPEC_RECORD } from "./data/Weapon";
 import { EntityFactory } from "./data/EntityFactory";
+import { padStart } from "lodash";
 
 export enum ActionType {
     PlaySound,
@@ -60,16 +61,6 @@ export type Action =
     | AvatarFrameUpdateAction
     | AvatarDeathAction;
 
-export module Action {
-    export function serialize(ev: Action): string {
-        return JSON.stringify(ev);
-    }
-
-    export function deserialize(msg: string): Action {
-        return JSON.parse(msg) as Action;
-    }
-}
-
 export function runAction(world: World, action: Action) {
     switch (action.type) {
         case ActionType.AvatarSpawn: {
@@ -119,5 +110,74 @@ export function runAction(world: World, action: Action) {
             }
             return;
         }
+    }
+}
+
+export module Action {
+    interface Parser {
+        serialize(ev: Action): string;
+        deserialize(msg: string): Action;
+    }
+
+    const parsers = new Map<ActionType, Parser>();
+
+    parsers.set(ActionType.AvatarFrameUpdate, {
+        serialize(action: AvatarFrameUpdateAction): string {
+            return JSON.stringify([
+                action.avatarId,
+
+                action.position.x,
+                action.position.y,
+                action.position.z,
+
+                action.velocity.x,
+                action.velocity.y,
+                action.velocity.z,
+
+                action.rotation.x,
+                action.rotation.y,
+            ]);
+        },
+        deserialize(msg: string): AvatarFrameUpdateAction {
+            const [
+                avatarId,
+
+                positionX,
+                positionY,
+                positionZ,
+
+                velocityX,
+                velocityY,
+                velocityZ,
+
+                rotationX,
+                rotationY,
+            ] = JSON.parse(msg) as any[];
+
+            return {
+                type: ActionType.AvatarFrameUpdate,
+                avatarId: avatarId,
+                position: new Vector3(positionX, positionY, positionZ),
+                velocity: new Vector3(velocityX, velocityY, velocityZ),
+                rotation: new Vector2(rotationX, rotationY),
+            };
+        },
+    });
+
+    export function serialize(action: Action): string {
+        const parser = parsers.get(action.type);
+        const head = padStart(action.type.toString(), 2, "0");
+        const body = parser ? parser.serialize(action) : JSON.stringify(action);
+        return head + body;
+    }
+
+    export function deserialize(msg: string): Action | undefined {
+        const head = parseInt(msg.slice(0, 2));
+        if (ActionType[head] === undefined) return;
+
+        const parser = parsers.get(head);
+        const body = msg.slice(2);
+        const action = parser ? parser.deserialize(body) : JSON.parse(body);
+        return action;
     }
 }
