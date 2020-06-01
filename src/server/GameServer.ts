@@ -110,16 +110,25 @@ export class GameServer {
         }
     }
 
+    private broadcast(playerId: string, msg: string) {
+        this.players.entities.forEach((player) => {
+            if (player.id !== playerId) {
+                player.socket.send(msg);
+            }
+        });
+    }
+
     private playerMessage(playerId: string, msg: string) {
         const event = NetworkEvent.deserialize(msg);
         switch (event.type) {
             case NetworkEventType.AvatarFrameUpdate: {
                 AvatarFrameUpdate.execute(this.world, event);
-                this.players.entities.forEach((player) => {
-                    if (player.id !== playerId) {
-                        player.socket.send(msg);
-                    }
-                });
+                this.broadcast(playerId, msg);
+                return;
+            }
+
+            case NetworkEventType.PlaySound: {
+                this.broadcast(playerId, msg);
                 return;
             }
         }

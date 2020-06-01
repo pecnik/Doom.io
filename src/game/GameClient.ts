@@ -31,9 +31,8 @@ import { Settings } from "./Settings";
 import { PlayerBounceSystem } from "./systems/PlayerBounceSystem";
 import { HealthBarSystem } from "./systems/hud/HealthBarSystem";
 import { LevelJSON } from "../editor/Level";
-import { ClientDispatcher } from "./events/ClientDispatcher";
-import { ClientDispatcherMultiplayer } from "./events/ClientDispatcherMultiplayer";
 import { PlayerSyncSystem } from "./systems/PlayerSyncSystem";
+import { ClientNetwork } from "./network/ClientNetwork";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();
@@ -44,7 +43,7 @@ export class GameClient implements Game {
 
     public readonly hud = new Hud();
     public readonly world = new World();
-    public dispatcher = new ClientDispatcher(this.world);
+    public dispatcher = new ClientNetwork(this);
 
     private static createStats() {
         if (Settings.props.fpsMeter) {
@@ -153,7 +152,7 @@ export class GameClient implements Game {
         this.world.addSystem(new FootstepAudioSystem(this.world));
 
         if (this.isMultiplayer) {
-            this.dispatcher = new ClientDispatcherMultiplayer(this.world);
+            this.dispatcher.connect();
             this.world.addSystem(new PlayerSyncSystem(this));
         } else {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };

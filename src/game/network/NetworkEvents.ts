@@ -1,4 +1,4 @@
-import { Vector3 } from "three";
+import { Vector3, Vector2 } from "three";
 import { World } from "../ecs";
 import { EntityFactory } from "../data/EntityFactory";
 
@@ -27,6 +27,12 @@ export enum NetworkEventType {
 
 export class PlaySound {
     public readonly type = NetworkEventType.PlaySound;
+    public entityId: string;
+    public sound: string;
+    public constructor(entityId: string, sound: string) {
+        this.entityId = entityId;
+        this.sound = sound;
+    }
 }
 
 export class AvatarSpawn {
@@ -60,11 +66,17 @@ export class AvatarSpawn {
 
 export class AvatarFrameUpdate {
     public readonly type = NetworkEventType.AvatarFrameUpdate;
+    public avatarId = "";
+    public position = new Vector3();
+    public velocity = new Vector3();
+    public rotation = new Vector2();
 
     public static execute(world: World, event: AvatarFrameUpdate) {
-        world;
-        event;
-        // TODO
+        const avatar = world.entities.get(event.avatarId);
+        if (avatar === undefined) return;
+        if (avatar.position !== undefined) avatar.position.copy(event.position);
+        if (avatar.velocity !== undefined) avatar.velocity.copy(event.velocity);
+        if (avatar.rotation !== undefined) avatar.rotation.copy(event.rotation);
     }
 }
 

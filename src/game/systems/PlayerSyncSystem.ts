@@ -1,11 +1,11 @@
 import { System, Entity } from "../ecs";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { GameClient } from "../GameClient";
-import { AvatarFrameSync } from "../events/Netcode";
+import { AvatarFrameUpdate } from "../network/NetworkEvents";
 
 export class PlayerSyncSystem extends System {
-    private readonly prevSync = new AvatarFrameSync();
-    private readonly nextSync = new AvatarFrameSync();
+    private readonly prevSync = new AvatarFrameUpdate();
+    private readonly nextSync = new AvatarFrameUpdate();
 
     private readonly client: GameClient;
     private readonly family = this.createEntityFamily({
@@ -23,22 +23,22 @@ export class PlayerSyncSystem extends System {
             this.fillSyncData(this.nextSync, avatar);
             if (this.syncDiff(this.nextSync, this.prevSync)) {
                 this.fillSyncData(this.prevSync, avatar);
-                this.client.dispatcher.avatarFrameSync(this.nextSync);
+                this.client.dispatcher.sendMessage(this.nextSync);
             }
         }
     }
 
     private fillSyncData(
-        sync: AvatarFrameSync,
+        sync: AvatarFrameUpdate,
         avatar: Entity<LocalAvatarArchetype>
     ) {
-        sync.playerId = avatar.id;
+        sync.avatarId = avatar.id;
         sync.position.copy(avatar.position);
         sync.velocity.copy(avatar.velocity);
         sync.rotation.copy(avatar.rotation);
     }
 
-    private syncDiff(syncA: AvatarFrameSync, syncB: AvatarFrameSync) {
+    private syncDiff(syncA: AvatarFrameUpdate, syncB: AvatarFrameUpdate) {
         if (!syncA.position.equals(syncB.position)) return true;
         if (!syncA.velocity.equals(syncB.velocity)) return true;
         if (!syncA.rotation.equals(syncB.rotation)) return true;
