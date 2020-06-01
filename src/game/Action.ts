@@ -183,7 +183,9 @@ export module Action {
             }
 
             public deserialize(msg: string): AvatarFrameUpdateAction {
-                const [avatarId, buffer] = msg.split("¤");
+                const index = msg.indexOf("¤");
+                const avatarId = msg.slice(0, index);
+                const buffer = msg.slice(index + 1);
 
                 const action: AvatarFrameUpdateAction = {
                     type: ActionType.AvatarFrameUpdate,
