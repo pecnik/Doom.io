@@ -3,7 +3,7 @@ import { World } from "./ecs";
 import { WeaponType, WEAPON_SPEC_RECORD } from "./data/Weapon";
 import { EntityFactory } from "./data/EntityFactory";
 import { padStart } from "lodash";
-import { ArrayBufferF32 } from "./data/ArrayBufferF32";
+import { AvatarFrameUpdateParcer, ActionParser } from "./ActionParsers";
 
 export enum ActionType {
     PlaySound,
@@ -115,100 +115,8 @@ export function runAction(world: World, action: Action) {
 }
 
 export module Action {
-    interface Parser {
-        serialize(ev: Action): string;
-        deserialize(msg: string): Action;
-    }
-
-    const parsers = new Map<ActionType, Parser>();
-
-    parsers.set(ActionType.AvatarFrameUpdate, {
-        serialize(action: AvatarFrameUpdateAction): string {
-            return JSON.stringify([
-                action.avatarId,
-
-                action.position.x,
-                action.position.y,
-                action.position.z,
-
-                action.velocity.x,
-                action.velocity.y,
-                action.velocity.z,
-
-                action.rotation.x,
-                action.rotation.y,
-            ]);
-        },
-        deserialize(msg: string): AvatarFrameUpdateAction {
-            const [
-                avatarId,
-
-                positionX,
-                positionY,
-                positionZ,
-
-                velocityX,
-                velocityY,
-                velocityZ,
-
-                rotationX,
-                rotationY,
-            ] = JSON.parse(msg) as any[];
-
-            return {
-                type: ActionType.AvatarFrameUpdate,
-                avatarId: avatarId,
-                position: new Vector3(positionX, positionY, positionZ),
-                velocity: new Vector3(velocityX, velocityY, velocityZ),
-                rotation: new Vector2(rotationX, rotationY),
-            };
-        },
-    });
-
-    parsers.set(
-        ActionType.AvatarFrameUpdate,
-        new (class {
-            public readonly float32 = new ArrayBufferF32(3 + 3 + 2);
-
-            public serialize(action: AvatarFrameUpdateAction): string {
-                this.float32.buffer[0] = action.position.x;
-                this.float32.buffer[1] = action.position.y;
-                this.float32.buffer[2] = action.position.z;
-                this.float32.buffer[3] = action.velocity.x;
-                this.float32.buffer[4] = action.velocity.y;
-                this.float32.buffer[5] = action.velocity.z;
-                this.float32.buffer[6] = action.rotation.x;
-                this.float32.buffer[7] = action.rotation.y;
-                return `${action.avatarId}¤${this.float32.toStringBuffer()}`;
-            }
-
-            public deserialize(msg: string): AvatarFrameUpdateAction {
-                const index = msg.indexOf("¤");
-                const avatarId = msg.slice(0, index);
-                const buffer = msg.slice(index + 1);
-
-                const action: AvatarFrameUpdateAction = {
-                    type: ActionType.AvatarFrameUpdate,
-                    avatarId: avatarId,
-                    position: new Vector3(),
-                    velocity: new Vector3(),
-                    rotation: new Vector2(),
-                };
-
-                this.float32.readStringBuffer(buffer);
-                action.position.x = this.float32.buffer[0];
-                action.position.y = this.float32.buffer[1];
-                action.position.z = this.float32.buffer[2];
-                action.velocity.x = this.float32.buffer[3];
-                action.velocity.y = this.float32.buffer[4];
-                action.velocity.z = this.float32.buffer[5];
-                action.rotation.x = this.float32.buffer[6];
-                action.rotation.y = this.float32.buffer[7];
-
-                return action;
-            }
-        })()
-    );
+    const parsers = new Map<ActionType, ActionParser>();
+    parsers.set(ActionType.AvatarFrameUpdate, new AvatarFrameUpdateParcer());
 
     export function serialize(action: Action): string {
         const parser = parsers.get(action.type);
