@@ -109,7 +109,7 @@ export class GameServer {
 
         switch (action.type) {
             // Run & broadcast
-            case ActionType.AvatarFrameUpdate: {
+            case ActionType.AvatarUpdate: {
                 runAction(this.world, action);
                 this.broadcast(playerId, msg);
                 return;

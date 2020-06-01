@@ -1,12 +1,12 @@
 import { System, Entity } from "../ecs";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { GameClient } from "../GameClient";
-import { AvatarFrameUpdateAction, ActionType } from "../Action";
+import { AvatarUpdateAction, ActionType } from "../Action";
 import { Vector3, Vector2 } from "three";
 
 export class PlayerSyncSystem extends System {
-    private readonly prevSync = this.createAvatarFrameUpdateAction();
-    private readonly nextSync = this.createAvatarFrameUpdateAction();
+    private readonly prevSync = this.createAvatarUpdateAction();
+    private readonly nextSync = this.createAvatarUpdateAction();
 
     private readonly client: GameClient;
     private readonly family = this.createEntityFamily({
@@ -30,7 +30,7 @@ export class PlayerSyncSystem extends System {
     }
 
     private fillSyncData(
-        sync: AvatarFrameUpdateAction,
+        sync: AvatarUpdateAction,
         avatar: Entity<LocalAvatarArchetype>
     ) {
         sync.avatarId = avatar.id;
@@ -40,8 +40,8 @@ export class PlayerSyncSystem extends System {
     }
 
     private syncDiff(
-        syncA: AvatarFrameUpdateAction,
-        syncB: AvatarFrameUpdateAction
+        syncA: AvatarUpdateAction,
+        syncB: AvatarUpdateAction
     ) {
         if (!syncA.position.equals(syncB.position)) return true;
         if (!syncA.velocity.equals(syncB.velocity)) return true;
@@ -49,9 +49,9 @@ export class PlayerSyncSystem extends System {
         return false;
     }
 
-    private createAvatarFrameUpdateAction(): AvatarFrameUpdateAction {
+    private createAvatarUpdateAction(): AvatarUpdateAction {
         return {
-            type: ActionType.AvatarFrameUpdate,
+            type: ActionType.AvatarUpdate,
             avatarId: "",
             position: new Vector3(),
             velocity: new Vector3(),

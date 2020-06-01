@@ -1,4 +1,4 @@
-import { Action, AvatarFrameUpdateAction, ActionType } from "./Action";
+import { Action, AvatarUpdateAction, ActionType } from "./Action";
 import { ArrayBufferF32 } from "./data/ArrayBufferF32";
 import { Vector3, Vector2 } from "three";
 
@@ -7,17 +7,17 @@ export interface ActionParser {
     deserialize(msg: string): Action;
 }
 
-export class AvatarFrameUpdateParcer {
+export class AvatarUpdateParcer {
     private readonly binary = new ArrayBufferF32(3 + 3 + 2);
-    private readonly action: AvatarFrameUpdateAction = {
-        type: ActionType.AvatarFrameUpdate,
+    private readonly action: AvatarUpdateAction = {
+        type: ActionType.AvatarUpdate,
         avatarId: "",
         position: new Vector3(),
         velocity: new Vector3(),
         rotation: new Vector2(),
     };
 
-    public serialize(action: AvatarFrameUpdateAction): string {
+    public serialize(action: AvatarUpdateAction): string {
         this.binary.buffer[0] = action.position.x;
         this.binary.buffer[1] = action.position.y;
         this.binary.buffer[2] = action.position.z;
@@ -29,7 +29,7 @@ export class AvatarFrameUpdateParcer {
         return `${action.avatarId}¤${this.binary.toStringBuffer()}`;
     }
 
-    public deserialize(msg: string): AvatarFrameUpdateAction {
+    public deserialize(msg: string): AvatarUpdateAction {
         const index = msg.indexOf("¤");
         const avatarId = msg.slice(0, index);
         const buffer = msg.slice(index + 1);

@@ -3,14 +3,14 @@ import { World } from "./ecs";
 import { WeaponType, WEAPON_SPEC_RECORD } from "./data/Weapon";
 import { EntityFactory } from "./data/EntityFactory";
 import { padStart } from "lodash";
-import { AvatarFrameUpdateParcer, ActionParser } from "./ActionParsers";
+import { AvatarUpdateParcer, ActionParser } from "./ActionParsers";
 
 export enum ActionType {
     PlaySound,
     SpawnDecal,
     AvatarSpawn,
     AvatarHit,
-    AvatarFrameUpdate,
+    AvatarUpdate,
     AvatarDeath,
 }
 
@@ -41,8 +41,8 @@ export interface AvatarHitAction {
     targetId: string;
 }
 
-export interface AvatarFrameUpdateAction {
-    type: ActionType.AvatarFrameUpdate;
+export interface AvatarUpdateAction {
+    type: ActionType.AvatarUpdate;
     avatarId: string;
     position: Vector3;
     velocity: Vector3;
@@ -59,7 +59,7 @@ export type Action =
     | SpawnDecalAction
     | AvatarSpawnAction
     | AvatarHitAction
-    | AvatarFrameUpdateAction
+    | AvatarUpdateAction
     | AvatarDeathAction;
 
 export function runAction(world: World, action: Action) {
@@ -80,7 +80,7 @@ export function runAction(world: World, action: Action) {
             return;
         }
 
-        case ActionType.AvatarFrameUpdate: {
+        case ActionType.AvatarUpdate: {
             const avatar = world.entities.get(action.avatarId);
             if (avatar === undefined) return;
             if (avatar.position !== undefined)
@@ -116,7 +116,7 @@ export function runAction(world: World, action: Action) {
 
 export module Action {
     const parsers = new Map<ActionType, ActionParser>();
-    parsers.set(ActionType.AvatarFrameUpdate, new AvatarFrameUpdateParcer());
+    parsers.set(ActionType.AvatarUpdate, new AvatarUpdateParcer());
 
     export function serialize(action: Action): string {
         const parser = parsers.get(action.type);
