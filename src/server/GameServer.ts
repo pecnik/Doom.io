@@ -150,6 +150,17 @@ export class GameServer {
                 AvatarHit.execute(this.world, event);
                 this.broadcast(playerId, msg);
 
+                if (target.health.value <= 0) {
+                    const avatarId = event.targetId;
+                    const avatarDeath = new AvatarDeath({ avatarId });
+                    AvatarDeath.execute(this.world, avatarDeath);
+
+                    const avatarDeathMsg = NetworkEvent.serialize(avatarDeath);
+                    this.players.entities.forEach((player) => {
+                        player.socket.send(avatarDeathMsg);
+                    });
+                }
+
                 return;
             }
 
