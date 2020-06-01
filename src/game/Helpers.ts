@@ -16,6 +16,7 @@ import { World } from "./ecs";
 import { WeaponState } from "./data/Types";
 import { PLAYER_HEIGHT } from "./data/Globals";
 import { WEAPON_SPEC_RECORD } from "./data/Weapon";
+import { AvatarArchetype } from "./ecs/Archetypes";
 
 export function getEntityMesh(
     world: World,
@@ -23,6 +24,18 @@ export function getEntityMesh(
 ): Object3D | undefined {
     if (entity.entityMesh === undefined) return;
     return world.scene.getObjectById(entity.entityMesh.objectId);
+}
+
+export function getPlayerAvatar(
+    playerId: string,
+    avatars: Family<AvatarArchetype>
+) {
+    for (const [, avatar] of avatars.entities) {
+        if (avatar.playerId === playerId) {
+            return avatar;
+        }
+    }
+    return;
 }
 
 export function getHeadPosition(

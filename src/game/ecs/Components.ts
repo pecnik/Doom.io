@@ -7,6 +7,7 @@ import { WeaponType, WEAPON_SPEC_RECORD } from "../data/Weapon";
 export type AnyComponents = Partial<AllComponents>;
 
 export type AllComponents = {
+    playerId: string;
     avatarTag: boolean;
     enemyAvatarTag: boolean;
     localAvatarTag: boolean;

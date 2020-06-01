@@ -168,4 +168,6 @@ export class GameClient implements Game {
         this.input.clear();
         this.stats.end();
     }
+
+    // Actions
 }
