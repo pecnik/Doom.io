@@ -4,6 +4,7 @@ import {
     NetworkEventType,
     AvatarSpawn,
     AvatarFrameUpdate,
+    AvatarDeath,
 } from "./NetworkEvents";
 import { GameClient } from "../GameClient";
 import { Sound2D } from "../sound/Sound2D";
@@ -57,6 +58,7 @@ export class ClientNetwork {
             }
 
             case NetworkEventType.AvatarDeath: {
+                AvatarDeath.execute(this.client.world, event);
                 return;
             }
 

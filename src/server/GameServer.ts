@@ -8,6 +8,7 @@ import {
     NetworkEvent,
     AvatarFrameUpdate,
     NetworkEventType,
+    AvatarDeath,
 } from "../game/network/NetworkEvents";
 import { AvatarArchetype } from "../game/ecs/Archetypes";
 import { getPlayerAvatar } from "../game/Helpers";
@@ -107,6 +108,15 @@ export class GameServer {
         if (player !== undefined) {
             this.world.removeEntity(player.id);
             console.log(`> Server::playerDisconnect(${playerId})`);
+
+            const avatar = getPlayerAvatar(player.id, this.avatars);
+            if (avatar !== undefined) {
+                const avatarDeath = new AvatarDeath({ avatarId: avatar.id });
+                AvatarDeath.execute(this.world, avatarDeath);
+
+                const avatarDeathMsg = NetworkEvent.serialize(avatarDeath);
+                this.broadcast(player.id, avatarDeathMsg);
+            }
         }
     }
 

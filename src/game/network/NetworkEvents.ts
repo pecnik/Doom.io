@@ -82,4 +82,12 @@ export class AvatarFrameUpdate {
 
 export class AvatarDeath {
     public readonly type = NetworkEventType.AvatarDeath;
+    public readonly avatarId: string;
+    public constructor(data: { avatarId: string }) {
+        this.avatarId = data.avatarId;
+    }
+
+    public static execute(world: World, event: AvatarDeath) {
+        world.removeEntity(event.avatarId);
+    }
 }
