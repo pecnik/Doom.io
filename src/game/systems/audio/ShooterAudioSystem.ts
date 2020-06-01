@@ -21,7 +21,7 @@ export class ShooterAudioSystem extends System {
         this.family.entities.forEach((entity) => {
             if (entity.shooter.sound === WeaponState.Shoot) {
                 entity.shooter.sound = WeaponState.Idle;
-                this.client.dispatcher.playSound(
+                this.client.playSound(
                     entity.id,
                     getWeaponSpec(entity).fireSound
                 );
@@ -29,7 +29,7 @@ export class ShooterAudioSystem extends System {
 
             if (entity.shooter.sound === WeaponState.Reload) {
                 entity.shooter.sound = WeaponState.Idle;
-                this.client.dispatcher.playSound(
+                this.client.playSound(
                     entity.id,
                     getWeaponSpec(entity).reloadSound
                 );

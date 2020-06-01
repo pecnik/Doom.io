@@ -25,7 +25,7 @@ export class PlayerBounceSystem extends System {
                     velocity.z *= 0.25;
 
                     const src = "/assets/sounds/bounce.wav";
-                    this.client.dispatcher.playSound(entity.id, src);
+                    this.client.playSound(entity.id, src);
                 }
             }
         });

@@ -42,10 +42,7 @@ export class PlayerDashSystem extends System {
                 avatar.velocity.z = move.y;
                 avatar.velocity.y = JUMP_SPEED * 0.1;
 
-                this.client.dispatcher.playSound(
-                    avatar.id,
-                    "/assets/sounds/whoosh.wav"
-                );
+                this.client.playSound(avatar.id, "/assets/sounds/whoosh.wav");
             }
 
             // Halt

@@ -204,13 +204,13 @@ export class PlayerShootSystem extends System {
 
             // Bullet decal
             if (rsp.entity === undefined) {
-                this.client.dispatcher.spawnDecal(point, face.normal);
+                this.client.spawnDecal(point, face.normal);
             }
 
             // Apply damage
             const target = rsp.entity;
             if (target !== undefined && target.health !== undefined) {
-                this.client.dispatcher.hitAvatar(
+                this.client.hitAvatar(
                     player.id,
                     target.id,
                     player.shooter.weaponType

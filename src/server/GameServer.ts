@@ -3,16 +3,15 @@ import WebSocket from "ws";
 import { Clock, Vector3 } from "three";
 import { uniqueId, sample } from "lodash";
 import { World, Family, AnyComponents, Entity } from "../game/ecs";
-import {
-    AvatarSpawn,
-    NetworkEvent,
-    AvatarFrameUpdate,
-    NetworkEventType,
-    AvatarDeath,
-    AvatarHit,
-} from "../game/network/NetworkEvents";
 import { AvatarArchetype } from "../game/ecs/Archetypes";
 import { getPlayerAvatar } from "../game/Helpers";
+import {
+    ActionType,
+    AvatarSpawnAction,
+    runAction,
+    Action,
+    AvatarDeathAction,
+} from "../game/Action";
 
 interface PlayerConnectionArchetype extends AnyComponents {
     readonly socket: WebSocket;
@@ -60,45 +59,30 @@ export class GameServer {
         this.world.addEntity(player);
         console.log(`> Server::playerConnection(${id})`);
 
-        // Spawn avatar
+        // Spawn avatar in the servers world
         const spawn = sample(this.world.level.getSpawnPoints());
-        const spawnAvatar = new AvatarSpawn({
-            playerId: player.id,
-            avatarId: "a" + player.id,
-            avatarType: "enemy",
-            position: spawn || new Vector3(),
-        });
+        const spawnServerAvatar = this.spawnAvatar(player.id, "enemy", spawn);
+        runAction(this.world, spawnServerAvatar);
 
-        // First spawn on server
-        AvatarSpawn.execute(this.world, spawnAvatar);
+        // Spawn local-avatar in the players workd
+        const spawnLocalAvatar = this.spawnAvatar(player.id, "local", spawn);
+        player.socket.send(Action.serialize(spawnLocalAvatar));
 
-        // Then on local player side
-        const spawnLocal = { ...spawnAvatar };
-        spawnLocal.avatarType = "local";
-        const spawnLocalMsg = NetworkEvent.serialize(spawnLocal);
-        player.socket.send(spawnLocalMsg);
-
-        // Update peer players
-        const spawnAvatarMsg = NetworkEvent.serialize(spawnAvatar);
+        // Sync player-peer avatars
+        const spawnAvatar = Action.serialize(spawnServerAvatar);
         this.players.entities.forEach((peer) => {
             if (peer === player) return;
 
-            // Spawn new player
-            peer.socket.send(spawnAvatarMsg);
+            // Spawn player in peers world
+            peer.socket.send(spawnAvatar);
 
-            // Spawn avatar of peer
+            // Spawn peer in players world
             const avatar = getPlayerAvatar(peer.id, this.avatars);
-            if (avatar === undefined) return;
-
-            const spawnAvatar = new AvatarSpawn({
-                playerId: avatar.playerId,
-                avatarId: avatar.id,
-                avatarType: "enemy",
-                position: avatar.position,
-            });
-
-            const spawnEnemyMsg = NetworkEvent.serialize(spawnAvatar);
-            player.socket.send(spawnEnemyMsg);
+            if (avatar !== undefined) {
+                const { playerId, position } = avatar;
+                const spawnPeer = this.spawnAvatar(playerId, "enemy", position);
+                player.socket.send(Action.serialize(spawnPeer));
+            }
         });
 
         return id;
@@ -112,11 +96,50 @@ export class GameServer {
 
             const avatar = getPlayerAvatar(player.id, this.avatars);
             if (avatar !== undefined) {
-                const avatarDeath = new AvatarDeath({ avatarId: avatar.id });
-                AvatarDeath.execute(this.world, avatarDeath);
+                const avatarDeath = this.avatarDeath(avatar.id);
+                runAction(this.world, avatarDeath);
+                this.broadcast(player.id, Action.serialize(avatarDeath));
+            }
+        }
+    }
 
-                const avatarDeathMsg = NetworkEvent.serialize(avatarDeath);
-                this.broadcast(player.id, avatarDeathMsg);
+    private playerMessage(playerId: string, msg: string) {
+        const event = Action.deserialize(msg);
+        switch (event.type) {
+            // Run & broadcast
+            case ActionType.AvatarFrameUpdate: {
+                runAction(this.world, event);
+                this.broadcast(playerId, msg);
+                return;
+            }
+
+            // Only broadcast
+            case ActionType.PlaySound:
+            case ActionType.SpawnDecal: {
+                this.broadcast(playerId, msg);
+                return;
+            }
+
+            case ActionType.AvatarHit: {
+                const shooter = this.avatars.entities.get(event.shooterId);
+                if (shooter === undefined) return;
+                if (shooter.playerId !== playerId) return;
+
+                const target = this.avatars.entities.get(event.targetId);
+                if (target === undefined) return;
+                if (target.health.value <= 0) return;
+
+                runAction(this.world, event);
+                this.broadcast(playerId, msg);
+
+                if (target.health.value <= 0) {
+                    const avatarId = event.targetId;
+                    const avatarDeath = this.avatarDeath(avatarId);
+                    runAction(this.world, avatarDeath);
+                    this.broadcastToAll(Action.serialize(avatarDeath));
+                }
+
+                return;
             }
         }
     }
@@ -129,46 +152,29 @@ export class GameServer {
         });
     }
 
-    private playerMessage(playerId: string, msg: string) {
-        const event = NetworkEvent.deserialize(msg);
-        switch (event.type) {
-            case NetworkEventType.AvatarFrameUpdate: {
-                AvatarFrameUpdate.execute(this.world, event);
-                this.broadcast(playerId, msg);
-                return;
-            }
+    private broadcastToAll(msg: string) {
+        this.players.entities.forEach((player) => {
+            player.socket.send(msg);
+        });
+    }
 
-            case NetworkEventType.AvatarHit: {
-                const shooter = this.avatars.entities.get(event.shooterId);
-                if (shooter === undefined) return;
-                if (shooter.playerId !== playerId) return;
+    private spawnAvatar(
+        playerId: string,
+        avatarType: "local" | "enemy",
+        position = new Vector3()
+    ): AvatarSpawnAction {
+        const avatarId = "a" + playerId;
+        position = position || new Vector3();
+        return {
+            type: ActionType.AvatarSpawn,
+            playerId,
+            avatarId,
+            avatarType,
+            position,
+        };
+    }
 
-                const target = this.avatars.entities.get(event.targetId);
-                if (target === undefined) return;
-                if (target.health.value <= 0) return;
-
-                AvatarHit.execute(this.world, event);
-                this.broadcast(playerId, msg);
-
-                if (target.health.value <= 0) {
-                    const avatarId = event.targetId;
-                    const avatarDeath = new AvatarDeath({ avatarId });
-                    AvatarDeath.execute(this.world, avatarDeath);
-
-                    const avatarDeathMsg = NetworkEvent.serialize(avatarDeath);
-                    this.players.entities.forEach((player) => {
-                        player.socket.send(avatarDeathMsg);
-                    });
-                }
-
-                return;
-            }
-
-            case NetworkEventType.PlaySound:
-            case NetworkEventType.SpawnDecal: {
-                this.broadcast(playerId, msg);
-                return;
-            }
-        }
+    private avatarDeath(avatarId: string): AvatarDeathAction {
+        return { type: ActionType.AvatarDeath, avatarId };
     }
 }

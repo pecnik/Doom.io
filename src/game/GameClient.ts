@@ -17,14 +17,14 @@ import { ShooterAudioSystem } from "./systems/audio/ShooterAudioSystem";
 import { Sound3D } from "./sound/Sound3D";
 import { FootstepAudioSystem } from "./systems/audio/FootstepAudioSystem";
 import { createSkybox } from "./data/Skybox";
-import { WEAPON_SPEC_RECORD } from "./data/Weapon";
+import { WEAPON_SPEC_RECORD, WeaponType } from "./data/Weapon";
 import { uniq } from "lodash";
 import { CrosshairSystem } from "./systems/hud/CrosshairSystem";
 import { PlayerDashSystem } from "./systems/PlayerDashSystem";
 import { AvatarMeshSystem } from "./systems/rendering/AvatarMeshSystem";
 import { EntityMeshSystem } from "./systems/rendering/EntityMeshSystem";
 import { PickupMeshSystem } from "./systems/rendering/PickupMeshSystem";
-import { Scene } from "three";
+import { Scene, Vector3 } from "three";
 import { AmmoCountSystem } from "./systems/hud/AmmoCountSystem";
 import { DashChargeSystem } from "./systems/hud/DashChargeSystem";
 import { Settings } from "./Settings";
@@ -32,7 +32,15 @@ import { PlayerBounceSystem } from "./systems/PlayerBounceSystem";
 import { HealthBarSystem } from "./systems/hud/HealthBarSystem";
 import { LevelJSON } from "../editor/Level";
 import { PlayerSyncSystem } from "./systems/PlayerSyncSystem";
-import { ClientNetwork } from "./network/ClientNetwork";
+import {
+    Action,
+    ActionType,
+    runAction,
+    PlaySoundAction,
+    SpawnDecalAction,
+    AvatarHitAction,
+} from "./Action";
+import { Sound2D } from "./sound/Sound2D";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();
@@ -43,7 +51,6 @@ export class GameClient implements Game {
 
     public readonly hud = new Hud();
     public readonly world = new World();
-    public dispatcher = new ClientNetwork(this);
 
     private static createStats() {
         if (Settings.props.fpsMeter) {
@@ -152,7 +159,7 @@ export class GameClient implements Game {
         this.world.addSystem(new FootstepAudioSystem(this.world));
 
         if (this.isMultiplayer) {
-            this.dispatcher.connect();
+            this.connect();
             this.world.addSystem(new PlayerSyncSystem(this));
         } else {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };
@@ -169,4 +176,98 @@ export class GameClient implements Game {
     }
 
     // Actions
+
+    private connect() {
+        const url = location.origin
+            .replace(location.port, "8080")
+            .replace("http://", "ws://")
+            .replace("https://", "ws://");
+
+        const socket = new WebSocket(url);
+
+        socket.onmessage = (ev) => {
+            const msg = ev.data as string;
+            const action = Action.deserialize(msg);
+            this.run(action);
+        };
+
+        this.send = (action: Action) => {
+            socket.send(Action.serialize(action));
+        };
+
+        socket.onclose = () => {
+            this.send = () => {};
+        };
+    }
+
+    public sendAndRun(action: Action) {
+        this.run(action);
+        this.send(action);
+    }
+
+    public send(_action: Action) {
+        // overwrite in connect method
+    }
+
+    public run(action: Action) {
+        switch (action.type) {
+            case ActionType.SpawnDecal: {
+                this.world.decals.spawn(action.point, action.normal);
+                return;
+            }
+
+            case ActionType.PlaySound: {
+                const { entityId, sound } = action;
+                const entity = this.world.entities.get(entityId);
+                if (entity === undefined) return;
+                if (entity.position === undefined) return;
+
+                if (entity.localAvatarTag === true) {
+                    Sound2D.get(sound).play();
+                } else {
+                    Sound3D.get(sound).emitFrom(entity);
+                }
+                return;
+            }
+
+            default: {
+                runAction(this.world, action);
+                return;
+            }
+        }
+    }
+
+    // Utils
+
+    public playSound(entityId: string, sound: string) {
+        const playSound: PlaySoundAction = {
+            type: ActionType.PlaySound,
+            entityId,
+            sound,
+        };
+        this.sendAndRun(playSound);
+    }
+
+    public spawnDecal(point: Vector3, normal: Vector3) {
+        const spawnDecal: SpawnDecalAction = {
+            type: ActionType.SpawnDecal,
+            point,
+            normal,
+        };
+        this.sendAndRun(spawnDecal);
+    }
+
+    public hitAvatar(
+        shooterId: string,
+        targetId: string,
+        weaponType: WeaponType
+    ) {
+        const hitAvatar: AvatarHitAction = {
+            type: ActionType.AvatarHit,
+            shooterId,
+            targetId,
+            weaponType,
+        };
+        this.sendAndRun(hitAvatar);
+    }
 }
