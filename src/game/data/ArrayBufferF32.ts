@@ -3,7 +3,11 @@ export class ArrayBufferF32 {
 
     public readonly buffer: Float32Array;
 
-    public constructor(data: number[]) {
+    public constructor(size: number) {
+        const data: number[] = [];
+        for (let i = 0; i < size; i++) {
+            data[i] = 0;
+        }
         this.buffer = new Float32Array(data);
         this.unit8 = new Uint8Array(this.buffer.buffer);
     }

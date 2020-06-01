@@ -3,6 +3,7 @@ import { World } from "./ecs";
 import { WeaponType, WEAPON_SPEC_RECORD } from "./data/Weapon";
 import { EntityFactory } from "./data/EntityFactory";
 import { padStart } from "lodash";
+import { ArrayBufferF32 } from "./data/ArrayBufferF32";
 
 export enum ActionType {
     PlaySound,
@@ -163,6 +164,49 @@ export module Action {
             };
         },
     });
+
+    parsers.set(
+        ActionType.AvatarFrameUpdate,
+        new (class {
+            public readonly float32 = new ArrayBufferF32(3 + 3 + 2);
+
+            public serialize(action: AvatarFrameUpdateAction): string {
+                this.float32.buffer[0] = action.position.x;
+                this.float32.buffer[1] = action.position.y;
+                this.float32.buffer[2] = action.position.z;
+                this.float32.buffer[3] = action.velocity.x;
+                this.float32.buffer[4] = action.velocity.y;
+                this.float32.buffer[5] = action.velocity.z;
+                this.float32.buffer[6] = action.rotation.x;
+                this.float32.buffer[7] = action.rotation.y;
+                return `${action.avatarId}¤${this.float32.toStringBuffer()}`;
+            }
+
+            public deserialize(msg: string): AvatarFrameUpdateAction {
+                const [avatarId, buffer] = msg.split("¤");
+
+                const action: AvatarFrameUpdateAction = {
+                    type: ActionType.AvatarFrameUpdate,
+                    avatarId: avatarId,
+                    position: new Vector3(),
+                    velocity: new Vector3(),
+                    rotation: new Vector2(),
+                };
+
+                this.float32.readStringBuffer(buffer);
+                action.position.x = this.float32.buffer[0];
+                action.position.y = this.float32.buffer[1];
+                action.position.z = this.float32.buffer[2];
+                action.velocity.x = this.float32.buffer[3];
+                action.velocity.y = this.float32.buffer[4];
+                action.velocity.z = this.float32.buffer[5];
+                action.rotation.x = this.float32.buffer[6];
+                action.rotation.y = this.float32.buffer[7];
+
+                return action;
+            }
+        })()
+    );
 
     export function serialize(action: Action): string {
         const parser = parsers.get(action.type);
