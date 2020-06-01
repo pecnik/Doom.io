@@ -1,14 +1,14 @@
 export class ArrayBufferF32 {
     private readonly unit8: Uint8Array;
 
-    public readonly buffer: Float64Array;
+    public readonly buffer: Float32Array;
 
     public constructor(size: number) {
         const data: number[] = [];
         for (let i = 0; i < size; i++) {
             data[i] = 0;
         }
-        this.buffer = new Float64Array(data);
+        this.buffer = new Float32Array(data);
         this.unit8 = new Uint8Array(this.buffer.buffer);
     }
 
@@ -28,7 +28,7 @@ export class ArrayBufferF32 {
     }
 
     private static readonly float32ToString = (() => {
-        const float64 = new Float64Array(1);
+        const float64 = new Float32Array(1);
         const unit8 = new Uint8Array(float64.buffer);
         return (number: number): string => {
             float64[0] = number;
@@ -36,11 +36,11 @@ export class ArrayBufferF32 {
                 unit8[0],
                 unit8[1],
                 unit8[2],
-                unit8[3],
-                unit8[4],
-                unit8[5],
-                unit8[6],
-                unit8[7]
+                unit8[3]
+                // unit8[4],
+                // unit8[5],
+                // unit8[6],
+                // unit8[7]
             );
         };
     })();
