@@ -9,6 +9,7 @@ import {
     AvatarFrameUpdate,
     NetworkEventType,
     AvatarDeath,
+    AvatarHit,
 } from "../game/network/NetworkEvents";
 import { AvatarArchetype } from "../game/ecs/Archetypes";
 import { getPlayerAvatar } from "../game/Helpers";
@@ -134,6 +135,21 @@ export class GameServer {
             case NetworkEventType.AvatarFrameUpdate: {
                 AvatarFrameUpdate.execute(this.world, event);
                 this.broadcast(playerId, msg);
+                return;
+            }
+
+            case NetworkEventType.AvatarHit: {
+                const shooter = this.avatars.entities.get(event.shooterId);
+                if (shooter === undefined) return;
+                if (shooter.playerId !== playerId) return;
+
+                const target = this.avatars.entities.get(event.targetId);
+                if (target === undefined) return;
+                if (target.health.value <= 0) return;
+
+                AvatarHit.execute(this.world, event);
+                this.broadcast(playerId, msg);
+
                 return;
             }
 

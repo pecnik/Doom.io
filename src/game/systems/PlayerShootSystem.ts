@@ -210,14 +210,11 @@ export class PlayerShootSystem extends System {
             // Apply damage
             const target = rsp.entity;
             if (target !== undefined && target.health !== undefined) {
-                console.log("TODO: Hit event");
-                // // TODO - if multiple bullets, bundle up into one
-                // const hitEvent = new Netcode.HitEntity();
-                // hitEvent.attackerId = player.id;
-                // hitEvent.targetId = target.id;
-                // hitEvent.weaponType = player.shooter.weaponType;
-                // hitEvent.damage = weaponSpec.bulletDamage;
-                // player.eventsBuffer.push(hitEvent);
+                this.client.dispatcher.hitAvatar(
+                    player.id,
+                    target.id,
+                    player.shooter.weaponType
+                );
 
                 // Emit particle
                 const matrix = new Matrix3();

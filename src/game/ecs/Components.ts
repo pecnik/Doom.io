@@ -24,6 +24,7 @@ export type AllComponents = {
     avatar: Components.Avatar;
     footstep: Components.Footstep;
     entityMesh: Components.EntityMesh;
+    hitIndicator: Components.HitIndicator;
 };
 
 export module Components {
@@ -116,6 +117,10 @@ export module Components {
 
     export class Footstep {
         public stepTime = 0;
+    }
+
+    export class HitIndicator {
+        public origin = new Vector3();
     }
 
     export class EntityMesh {

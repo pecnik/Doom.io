@@ -1,28 +1,21 @@
 import { Vector3, Vector2 } from "three";
 import { World } from "../ecs";
 import { EntityFactory } from "../data/EntityFactory";
+import { WeaponType, WEAPON_SPEC_RECORD } from "../data/Weapon";
 
 export type NetworkEvent =
     | PlaySound
     | SpawnDecal
     | AvatarSpawn
+    | AvatarHit
     | AvatarFrameUpdate
     | AvatarDeath;
-
-export module NetworkEvent {
-    export function serialize(ev: NetworkEvent): string {
-        return JSON.stringify(ev);
-    }
-
-    export function deserialize(msg: string): NetworkEvent {
-        return JSON.parse(msg) as NetworkEvent;
-    }
-}
 
 export enum NetworkEventType {
     PlaySound,
     SpawnDecal,
     AvatarSpawn,
+    AvatarHit,
     AvatarFrameUpdate,
     AvatarDeath,
 }
@@ -92,6 +85,41 @@ export class AvatarFrameUpdate {
     }
 }
 
+export class AvatarHit {
+    public readonly type = NetworkEventType.AvatarHit;
+    public readonly weaponType: WeaponType;
+    public readonly shooterId: string;
+    public readonly targetId: string;
+    public constructor(data: {
+        weaponType: WeaponType;
+        shooterId: string;
+        targetId: string;
+    }) {
+        this.weaponType = data.weaponType;
+        this.shooterId = data.shooterId;
+        this.targetId = data.targetId;
+    }
+
+    public static execute(world: World, event: AvatarHit) {
+        const shooter = world.entities.get(event.shooterId);
+        if (shooter === undefined) return;
+        if (shooter.shooter === undefined) return;
+        if (shooter.position === undefined) return;
+
+        const target = world.entities.get(event.targetId);
+        if (target === undefined) return;
+        if (target.health === undefined) return;
+        if (target.health.value <= 0) return;
+
+        const weaponSpec = WEAPON_SPEC_RECORD[event.weaponType];
+        target.health.value -= weaponSpec.bulletDamage;
+        target.health.value = Math.max(target.health.value, 0);
+        if (target.hitIndicator !== undefined) {
+            target.hitIndicator.origin.copy(shooter.position);
+        }
+    }
+}
+
 export class AvatarDeath {
     public readonly type = NetworkEventType.AvatarDeath;
     public readonly avatarId: string;
@@ -101,5 +129,15 @@ export class AvatarDeath {
 
     public static execute(world: World, event: AvatarDeath) {
         world.removeEntity(event.avatarId);
+    }
+}
+
+export module NetworkEvent {
+    export function serialize(ev: NetworkEvent): string {
+        return JSON.stringify(ev);
+    }
+
+    export function deserialize(msg: string): NetworkEvent {
+        return JSON.parse(msg) as NetworkEvent;
     }
 }

@@ -6,11 +6,13 @@ import {
     AvatarFrameUpdate,
     AvatarDeath,
     SpawnDecal,
+    AvatarHit,
 } from "./NetworkEvents";
 import { GameClient } from "../GameClient";
 import { Sound2D } from "../sound/Sound2D";
 import { Sound3D } from "../sound/Sound3D";
 import { Vector3 } from "three";
+import { WeaponType } from "../data/Weapon";
 
 export class ClientNetwork {
     private readonly client: GameClient;
@@ -58,6 +60,16 @@ export class ClientNetwork {
         this.sendMessage(spawnDecal);
     }
 
+    public hitAvatar(
+        shooterId: string,
+        targetId: string,
+        weaponType: WeaponType
+    ) {
+        const hitAvatar = new AvatarHit({ shooterId, targetId, weaponType });
+        this.handleEvent(hitAvatar);
+        this.sendMessage(hitAvatar);
+    }
+
     private handleEvent(event: NetworkEvent) {
         switch (event.type) {
             case NetworkEventType.AvatarSpawn: {
@@ -67,6 +79,11 @@ export class ClientNetwork {
 
             case NetworkEventType.AvatarDeath: {
                 AvatarDeath.execute(this.client.world, event);
+                return;
+            }
+
+            case NetworkEventType.AvatarHit: {
+                AvatarHit.execute(this.client.world, event);
                 return;
             }
 
