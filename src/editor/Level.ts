@@ -158,7 +158,7 @@ export class Level {
     public getBlockLight(x: number, y: number, z: number) {
         const block = this.getBlock(
             clamp(x, 0, this.width - 1),
-            clamp(y, 0, this.width - 1),
+            clamp(y, 0, this.height - 1),
             clamp(z, 0, this.depth - 1)
         ) as LevelBlock;
         return block.lightColor;
