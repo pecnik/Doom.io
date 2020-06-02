@@ -218,7 +218,7 @@ export class Editor {
         }
     }
 
-    //#region Utils
+    // Utils
 
     public hitscan(scene?: Object3D) {
         const buffer: Intersection[] = [];
@@ -252,7 +252,18 @@ export class Editor {
         };
     }
 
-    //#endregion
+    public resizeLevel(w: number, h: number, d: number) {
+        this.commitLevelMutation((level) => {
+            const blocks = [...level.blocks];
+            level.resize(w, h, d);
+            blocks.forEach((prevBlock) => {
+                const currBlock = level.getBlockAt(prevBlock.origin);
+                if (currBlock !== undefined) {
+                    currBlock.copy(prevBlock);
+                }
+            });
+        });
+    }
 }
 
 export const editor = new Editor();

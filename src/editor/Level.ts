@@ -68,9 +68,12 @@ export class LevelBlock {
     }
 
     public copy(block: LevelBlock) {
-        this.lightColor.copy(block.lightColor);
-        this.faces = block.faces.concat([]);
         this.solid = block.solid;
+        this.lightStr = block.lightStr;
+        this.lightRad = block.lightRad;
+        this.jumpPadForce = block.jumpPadForce;
+        this.lightColor.copy(block.lightColor);
+        Object.assign(this.faces, block.faces);
     }
 
     public getFaceIndex(normal: Vector3) {
