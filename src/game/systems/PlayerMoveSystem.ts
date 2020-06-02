@@ -2,7 +2,7 @@ import { System } from "../ecs";
 import { Vector2 } from "three";
 import { WALK_SPEED, RUN_SPEED, JUMP_SPEED } from "../data/Globals";
 import { lerp } from "../core/Utils";
-import { isScopeActive, isCrouched } from "../Helpers";
+import { isScopeActive, isCrouched, getMoveDirection } from "../Helpers";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { Sound2D } from "../sound/Sound2D";
 
@@ -15,7 +15,6 @@ export class PlayerMoveSystem extends System {
         this.family.entities.forEach((entity) => {
             const jump = entity.jump;
             const input = entity.input;
-            const rotation = entity.rotation;
             const velocity = entity.velocity;
             const collision = entity.collision;
 
@@ -63,15 +62,12 @@ export class PlayerMoveSystem extends System {
                 );
 
                 // horizontal movement
-                const move = new Vector2(input.movex, input.movey);
+                const move = getMoveDirection(entity);
+                move.multiplyScalar(entity.jump.speed);
                 if (targetSpeed === 0) {
                     move.x = entity.velocity.x;
                     move.y = entity.velocity.z;
                     move.normalize();
-                    move.multiplyScalar(entity.jump.speed);
-                } else {
-                    move.normalize();
-                    move.rotateAround(new Vector2(), -rotation.y);
                     move.multiplyScalar(entity.jump.speed);
                 }
 
