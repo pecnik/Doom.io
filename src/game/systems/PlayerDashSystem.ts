@@ -4,6 +4,7 @@ import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { Vector2 } from "three";
 import { RUN_SPEED, JUMP_SPEED, DASH_CHARGE } from "../data/Globals";
 import { GameClient } from "../GameClient";
+import { getMoveDirection } from "../Helpers";
 
 export class PlayerDashSystem extends System {
     private readonly client: GameClient;
@@ -33,9 +34,12 @@ export class PlayerDashSystem extends System {
 
                 // Accelerate
                 const dashSpeed = RUN_SPEED * 5;
-                const move = new Vector2(0, -dashSpeed);
-                if (move.x !== 0 || move.y !== 0) {
+                const move = getMoveDirection(avatar);
+                move.multiplyScalar(dashSpeed);
+                if (move.x === 0 && move.y === 0) {
+                    move.set(0, -1);
                     move.rotateAround(new Vector2(), -avatar.rotation.y);
+                    move.multiplyScalar(dashSpeed);
                 }
 
                 avatar.velocity.x = move.x;
