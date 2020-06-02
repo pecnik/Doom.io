@@ -97,6 +97,13 @@ export function getNormalAxis(normal: Vector3): "x" | "y" | "z" {
     return "z";
 }
 
+export function getAngleV2(
+    p1: { x: number; y: number },
+    p2: { x: number; y: number }
+) {
+    return Math.atan2(p2.y - p1.y, p2.x - p1.x);
+}
+
 export module Hitscan {
     export const caster: { entity?: Entity } = {};
     export const raycaster = new Raycaster();

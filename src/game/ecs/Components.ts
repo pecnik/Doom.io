@@ -120,6 +120,8 @@ export module Components {
     }
 
     export class HitIndicator {
+        public show = false;
+        public time = 0;
         public origin = new Vector3();
     }
 

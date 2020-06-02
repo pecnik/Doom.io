@@ -41,16 +41,17 @@ import {
     AvatarHitAction,
 } from "./Action";
 import { Sound2D } from "./sound/Sound2D";
+import { HitIndicatorSystem } from "./systems/hud/HitIndicatorSystem";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();
-    private readonly input = new Input({ requestPointerLock: true });
 
     private readonly route = location.hash.replace("#", "");
     private readonly isMultiplayer = this.route === "/game/multiplayer";
 
     public readonly hud = new Hud();
     public readonly world = new World();
+    public readonly input = new Input({ requestPointerLock: true });
 
     private static createStats() {
         if (Settings.props.fpsMeter) {
@@ -152,6 +153,7 @@ export class GameClient implements Game {
             this.world.addSystem(new AmmoCountSystem(this.world, layers[1]));
             this.world.addSystem(new DashChargeSystem(this.world, layers[1]));
             this.world.addSystem(new HealthBarSystem(this.world, layers[1]));
+            this.world.addSystem(new HitIndicatorSystem(this, layers[1]));
         }
 
         // Audio
