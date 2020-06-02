@@ -515,6 +515,7 @@ export class Level {
 
     public updateGeometryLightning() {
         const lights = this.getLights();
+        if (lights.length === 0) return;
 
         const ray = new Ray();
         const areaBox = new Box3();
