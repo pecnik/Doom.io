@@ -515,40 +515,29 @@ export class Level {
 
     public updateGeometryLightning() {
         const lights = this.getLights();
-        if (lights.length === 0) return;
+        if (lights.length === 0) return Promise.resolve();
 
         const ray = new Ray();
-        const areaBox = new Box3();
         const blockBox = new Box3();
-
         const reachedLight = (point: Vector3, light: Vector3) => {
             ray.origin.copy(point);
             ray.direction.subVectors(light, point).normalize();
 
-            const pad = 0.001;
-            areaBox.min.set(
-                Math.min(point.x, light.x) - pad,
-                Math.min(point.y, light.y) - pad,
-                Math.min(point.z, light.z) - pad
-            );
-
-            areaBox.max.set(
-                Math.max(point.x, light.x) + pad,
-                Math.max(point.y, light.y) + pad,
-                Math.max(point.z, light.z) + pad
-            );
-
-            for (let i = 0; i < this.blocks.length; i++) {
-                const block = this.blocks[i];
-                if (!block.solid) continue;
-                if (!areaBox.intersectsBox(block.aabb)) continue;
-
-                blockBox.copy(block.aabb);
-                blockBox.min.addScalar(pad);
-                blockBox.max.subScalar(pad);
-                if (ray.intersectsBox(blockBox)) {
-                    return false;
+            const step = ray.direction.clone().multiplyScalar(0.2);
+            const bray = point.clone().add(step);
+            while (bray.distanceToSquared(light) > 1) {
+                const block = this.getBlockAt(bray);
+                if (block && block.solid) {
+                    const pad = 0.001;
+                    blockBox.copy(block.aabb);
+                    blockBox.min.addScalar(pad);
+                    blockBox.max.subScalar(pad);
+                    if (ray.intersectsBox(blockBox)) {
+                        return false;
+                    }
                 }
+
+                bray.add(step);
             }
 
             return true;
@@ -586,15 +575,30 @@ export class Level {
             return result;
         };
 
-        const geometry = this.mesh.geometry as Geometry;
-        geometry.elementsNeedUpdate = true;
-        for (let i = 0; i < geometry.faces.length; i++) {
-            const face = geometry.faces[i];
-            const verts = geometry.vertices;
-            face.vertexColors[0] = aggregateLight(verts[face.a], face.normal);
-            face.vertexColors[1] = aggregateLight(verts[face.b], face.normal);
-            face.vertexColors[2] = aggregateLight(verts[face.c], face.normal);
-        }
+        return new Promise((resolve, reject) => {
+            const geometry = this.mesh.geometry as Geometry;
+
+            let index = 0;
+            const updateFace = () => {
+                if (geometry !== this.mesh.geometry) return reject();
+                if (geometry.faces.length <= index) return resolve();
+
+                for (let i = 0; i < 100 && index < geometry.faces.length; i++) {
+                    const f = geometry.faces[index];
+                    const v = geometry.vertices;
+                    f.vertexColors[0] = aggregateLight(v[f.a], f.normal);
+                    f.vertexColors[1] = aggregateLight(v[f.b], f.normal);
+                    f.vertexColors[2] = aggregateLight(v[f.c], f.normal);
+                    index++;
+                }
+
+                geometry.elementsNeedUpdate = true;
+
+                setTimeout(updateFace);
+            };
+
+            updateFace();
+        });
     }
 
     public updateAmbientOcclusion() {

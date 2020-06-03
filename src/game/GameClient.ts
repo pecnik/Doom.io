@@ -99,12 +99,11 @@ export class GameClient implements Game {
                     return fetch(url).then((rsp) => rsp.json());
                 };
 
-                return loadLevelJson().then((json) => {
-                    this.world.level.readJson(json);
-                    this.world.level.updateGeometry();
-                    this.world.level.updateGeometryLightning();
-                    this.world.level.updateAmbientOcclusion();
-                });
+                return loadLevelJson()
+                    .then((json) => this.world.level.readJson(json))
+                    .then(() => this.world.level.updateGeometry())
+                    .then(() => this.world.level.updateGeometryLightning())
+                    .then(() => this.world.level.updateAmbientOcclusion());
             }),
 
             // Create skyboc

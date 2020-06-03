@@ -213,8 +213,9 @@ export class Editor {
     private updateLevelMesh() {
         this.level.updateGeometry();
         if (this.store.state.fancyLighting) {
-            this.level.updateGeometryLightning();
-            this.level.updateAmbientOcclusion();
+            this.level.updateGeometryLightning().then(() => {
+                this.level.updateAmbientOcclusion();
+            });
         }
     }
 
