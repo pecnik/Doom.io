@@ -303,20 +303,20 @@ export class Level {
     }
 
     private updateMeshGeometry() {
+        // preload UV
+        const padU = (1 / TEXTURE_W) * 1; // 1px
+        const padV = (1 / TEXTURE_H) * 1; // 1px
+        const tileW = TILE_W / TEXTURE_W;
+        const tileH = TILE_H / TEXTURE_H;
+
+        // padding to prevent seams
+        const minU = padU;
+        const maxU = tileW - padU * 2;
+        const maxV = 1 - padV;
+        const minV = 1 - tileH + padV * 2;
+
         const setTextureUV = (plane: PlaneGeometry, tileId: number) => {
             const cords: Vector2[][] = plane.faceVertexUvs[0];
-
-            // preload UV
-            const padU = 1 / TEXTURE_W;
-            const padV = 1 / TEXTURE_H;
-            const tileW = TILE_W / TEXTURE_W;
-            const tileH = TILE_H / TEXTURE_H;
-
-            // padding to prevent seams
-            const minU = padU;
-            const maxU = tileW - padU;
-            const maxV = 1 - padV;
-            const minV = 1 - tileH + padV;
 
             cords[0][0].set(minU, maxV);
             cords[0][1].set(minU, minV);
