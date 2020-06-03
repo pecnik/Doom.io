@@ -5,7 +5,6 @@ import {
     LocalAvatarArchetype,
     EnemyAvatarArchetype,
     PickupArchetype,
-    PlayerArchetype,
 } from "./ecs/Archetypes";
 import { snakeCase } from "lodash";
 
@@ -21,7 +20,6 @@ export function createDebugCli(game: GameClient) {
     };
 
     const archetypeDumps: [string, AnyComponents][] = [
-        ["Player", new PlayerArchetype()],
         ["Avatar", new AvatarArchetype()],
         ["LocalAvatar", new LocalAvatarArchetype()],
         ["EnemyAvatar", new EnemyAvatarArchetype()],

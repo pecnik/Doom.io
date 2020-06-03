@@ -1,10 +1,5 @@
 import { Components, AnyComponents } from "./Components";
 
-export class PlayerArchetype implements AnyComponents {
-    public playerData = new Components.PlayerData();
-    public avatarSpawner = new Components.AvatarSpawner();
-}
-
 export class AvatarArchetype implements AnyComponents {
     public playerId = "";
     public avatarTag = true;
@@ -22,7 +17,7 @@ export class LocalAvatarArchetype extends AvatarArchetype {
     public localAvatarTag = true;
     public jump = new Components.Jump();
     public input = new Components.Input();
-    public eventsBuffer = [];
+    public hitIndicator = new Components.HitIndicator();
 }
 
 export class EnemyAvatarArchetype extends AvatarArchetype {

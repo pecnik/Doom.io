@@ -25,7 +25,6 @@ export class AmmoCountSystem extends System {
         const img = new Image();
         img.src = src;
         img.onload = () => {
-            console.log(`> loaded: ${src}`);
             this.render();
         };
         return img;
@@ -76,8 +75,6 @@ export class AmmoCountSystem extends System {
     private render() {
         this.el.texture.needsUpdate = true;
         this.el.ctx.clearRect(0, 0, this.el.width, this.el.height);
-
-
 
         const fillText = (text: string, x: number, y: number) => {
             this.el.ctx.fillStyle = "black";

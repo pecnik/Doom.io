@@ -3,12 +3,19 @@ import { lerp } from "../core/Utils";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { Vector2 } from "three";
 import { RUN_SPEED, JUMP_SPEED, DASH_CHARGE } from "../data/Globals";
-import { Netcode } from "../Netcode";
+import { GameClient } from "../GameClient";
+import { getMoveDirection } from "../Helpers";
 
 export class PlayerDashSystem extends System {
+    private readonly client: GameClient;
     private readonly family = this.createEntityFamily({
         archetype: new LocalAvatarArchetype(),
     });
+
+    public constructor(client: GameClient) {
+        super(client.world);
+        this.client = client;
+    }
 
     public update(dt: number) {
         this.family.entities.forEach((avatar) => {
@@ -27,18 +34,19 @@ export class PlayerDashSystem extends System {
 
                 // Accelerate
                 const dashSpeed = RUN_SPEED * 5;
-                const move = new Vector2(0, -dashSpeed);
-                if (move.x !== 0 || move.y !== 0) {
+                const move = getMoveDirection(avatar);
+                move.multiplyScalar(dashSpeed);
+                if (move.x === 0 && move.y === 0) {
+                    move.set(0, -1);
                     move.rotateAround(new Vector2(), -avatar.rotation.y);
+                    move.multiplyScalar(dashSpeed);
                 }
 
                 avatar.velocity.x = move.x;
                 avatar.velocity.z = move.y;
                 avatar.velocity.y = JUMP_SPEED * 0.1;
 
-                const src = "/assets/sounds/whoosh.wav";
-                const emitSound = new Netcode.EmitSound(avatar.id, src);
-                avatar.eventsBuffer.push(emitSound);
+                this.client.playSound(avatar.id, "/assets/sounds/whoosh.wav");
             }
 
             // Halt

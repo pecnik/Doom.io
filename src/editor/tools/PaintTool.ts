@@ -7,12 +7,6 @@ import { MoveTool } from "./MoveTool";
 import { SampleTool } from "./SampleTool";
 import { Cursor3D } from "./Cursor3D";
 
-enum Cell {
-    Wall,
-    Empty,
-    Filled,
-}
-
 export class PaintTool extends Tool {
     public readonly name = "Paint tool";
     public readonly hotkey = KeyCode.F;
@@ -87,13 +81,15 @@ export class PaintTool extends Tool {
     private floodFillX(block: LevelBlock, normal: Vector3, tileId: number) {
         const { level } = this.editor;
 
+        const face = block.getFaceIndex(normal);
+
         // Build 2D buffer
-        const buffer: Cell[][] = [];
+        const buffer: number[][] = [];
         const x = block.origin.x;
         for (let y = 0; y < level.height; y++) {
             buffer[y] = [];
             for (let z = 0; z < level.depth; z++) {
-                buffer[y][z] = Cell.Wall;
+                buffer[y][z] = -1;
 
                 const block = level.getBlock(x, y, z);
                 if (block === undefined) continue;
@@ -102,20 +98,23 @@ export class PaintTool extends Tool {
                 const edge = level.getBlock(x + normal.x, y, z);
                 if (edge && edge.solid) continue;
 
-                buffer[y][z] = Cell.Empty;
+                buffer[y][z] = block.faces[face];
             }
         }
 
         // Flood fill
-        this.floodFill(buffer, block.origin.y, block.origin.z);
+        this.floodFill(buffer, {
+            x: block.origin.y,
+            y: block.origin.z,
+            fill: tileId,
+        });
 
         // Update level faces
-        const face = block.getFaceIndex(normal);
         for (let y = 0; y < level.height; y++) {
             for (let z = 0; z < level.depth; z++) {
                 const block = level.getBlock(x, y, z);
-                if (block && buffer[y][z] === Cell.Filled) {
-                    block.faces[face] = tileId;
+                if (block && buffer[y][z] !== -1) {
+                    block.faces[face] = buffer[y][z];
                 }
             }
         }
@@ -125,12 +124,13 @@ export class PaintTool extends Tool {
         const { level } = this.editor;
 
         // Build 2D buffer
+        const face = block.getFaceIndex(normal);
         const y = block.origin.y;
-        const buffer: Cell[][] = [];
+        const buffer: number[][] = [];
         for (let x = 0; x < level.width; x++) {
             buffer[x] = [];
             for (let z = 0; z < level.depth; z++) {
-                buffer[x][z] = Cell.Wall;
+                buffer[x][z] = -1;
 
                 const block = level.getBlock(x, y, z);
                 if (block === undefined) continue;
@@ -139,20 +139,23 @@ export class PaintTool extends Tool {
                 const edge = level.getBlock(x, y + normal.y, z);
                 if (edge && edge.solid) continue;
 
-                buffer[x][z] = Cell.Empty;
+                buffer[x][z] = block.faces[face];
             }
         }
 
         // Flood fill
-        this.floodFill(buffer, block.origin.x, block.origin.z);
+        this.floodFill(buffer, {
+            x: block.origin.x,
+            y: block.origin.z,
+            fill: tileId,
+        });
 
         // Update level faces
-        const face = block.getFaceIndex(normal);
         for (let x = 0; x < level.width; x++) {
             for (let z = 0; z < level.depth; z++) {
                 const block = level.getBlock(x, y, z);
-                if (block && buffer[x][z] === Cell.Filled) {
-                    block.faces[face] = tileId;
+                if (block && buffer[x][z] !== -1) {
+                    block.faces[face] = buffer[x][z];
                 }
             }
         }
@@ -162,12 +165,13 @@ export class PaintTool extends Tool {
         const { level } = this.editor;
 
         // Build 2D buffer
+        const face = block.getFaceIndex(normal);
         const z = block.origin.z;
-        const buffer: Cell[][] = [];
+        const buffer: number[][] = [];
         for (let x = 0; x < level.width; x++) {
             buffer[x] = [];
             for (let y = 0; y < level.height; y++) {
-                buffer[x][y] = Cell.Wall;
+                buffer[x][y] = -1;
 
                 const block = level.getBlock(x, y, z);
                 if (block === undefined) continue;
@@ -176,37 +180,50 @@ export class PaintTool extends Tool {
                 const edge = level.getBlock(x, y, z + normal.z);
                 if (edge && edge.solid) continue;
 
-                buffer[x][y] = Cell.Empty;
+                buffer[x][y] = block.faces[face];
             }
         }
 
         // Flood fill
-        this.floodFill(buffer, block.origin.x, block.origin.y);
+        this.floodFill(buffer, {
+            x: block.origin.x,
+            y: block.origin.y,
+            fill: tileId,
+        });
 
         // Update level faces
-        const face = block.getFaceIndex(normal);
         for (let x = 0; x < level.width; x++) {
             for (let y = 0; y < level.height; y++) {
                 const block = level.getBlock(x, y, z);
-                if (block && buffer[x][y] === Cell.Filled) {
-                    block.faces[face] = tileId;
+                if (block && buffer[x][y] !== -1) {
+                    block.faces[face] = buffer[x][y];
                 }
             }
         }
     }
 
-    private floodFill(buffer: Cell[][], x: number, y: number) {
+    private floodFill(
+        buffer: number[][],
+        data: {
+            x: number;
+            y: number;
+            fill: number;
+        }
+    ) {
+        const { x, y, fill } = data;
+
         type Point = { x: number; y: number };
 
+        const target = buffer[x][y];
         const stack: Point[] = [];
         const pushValid = (x: number, y: number) => {
             if (buffer[x] === undefined) return;
-            if (buffer[x][y] !== Cell.Empty) return;
+            if (buffer[x][y] !== target) return;
             stack.push({ x, y });
         };
 
         const floodFill = (x: number, y: number) => {
-            buffer[x][y] = Cell.Filled;
+            buffer[x][y] = fill;
             pushValid(x - 1, y);
             pushValid(x + 1, y);
             pushValid(x, y - 1);

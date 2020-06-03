@@ -17,8 +17,8 @@ const removeGamearea = () => {
 };
 
 switch (route) {
-    case "/game/singleplayer":
-    case "/game/multiplayer": {
+    case "/game/multiplayer":
+    case "/game/singleplayer": {
         import("../game");
         break;
     }

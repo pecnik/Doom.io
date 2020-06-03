@@ -9,6 +9,6 @@ export class Hud {
         HUD_HEIGHT / 2,
         -HUD_HEIGHT / 2,
         0,
-        30
+        512
     );
 }

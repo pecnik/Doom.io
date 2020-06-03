@@ -15,7 +15,7 @@
                     ></texture-tile>
                 </v-card-text>
             </v-card>
-         </v-dialog>
+        </v-dialog>
     </div>
 </template>
 <script>

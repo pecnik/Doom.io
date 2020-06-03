@@ -65,6 +65,7 @@ export class Engine {
         this.game.update(dt);
         this.renderer.render(world.scene, world.camera);
         for (let i = 0; i < hud.layers.length; i++) {
+            this.renderer.clearDepth();
             this.renderer.render(hud.layers[i], hud.camera);
         }
     }

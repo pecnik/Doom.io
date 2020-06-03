@@ -1,20 +1,17 @@
 import { Vector2, Vector3 } from "three";
 import { PLAYER_RADIUS, PLAYER_HEIGHT } from "../data/Globals";
 import { WeaponState, WeaponAmmo } from "../data/Types";
-import { Netcode } from "../Netcode";
 import { AvatarState } from "../data/Types";
 import { WeaponType, WEAPON_SPEC_RECORD } from "../data/Weapon";
 
 export type AnyComponents = Partial<AllComponents>;
 
 export type AllComponents = {
-    socketId: string;
+    playerId: string;
     avatarTag: boolean;
     enemyAvatarTag: boolean;
     localAvatarTag: boolean;
-    playerId: string;
     playerData: Components.PlayerData;
-    eventsBuffer: Netcode.Event[];
     position: Components.Position;
     velocity: Components.Velocity;
     rotation: Components.Rotation;
@@ -25,9 +22,9 @@ export type AllComponents = {
     jump: Components.Jump;
     pickup: Components.Pickup;
     avatar: Components.Avatar;
-    avatarSpawner: Components.AvatarSpawner;
     footstep: Components.Footstep;
     entityMesh: Components.EntityMesh;
+    hitIndicator: Components.HitIndicator;
 };
 
 export module Components {
@@ -118,12 +115,14 @@ export module Components {
         public deaths = 0;
     }
 
-    export class AvatarSpawner {
-        public spawnTime = 0;
-    }
-
     export class Footstep {
         public stepTime = 0;
+    }
+
+    export class HitIndicator {
+        public show = false;
+        public time = 0;
+        public origin = new Vector3();
     }
 
     export class EntityMesh {

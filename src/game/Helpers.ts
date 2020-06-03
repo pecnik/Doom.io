@@ -15,8 +15,8 @@ import {
 import { World } from "./ecs";
 import { WeaponState } from "./data/Types";
 import { PLAYER_HEIGHT } from "./data/Globals";
-import { AvatarArchetype } from "./ecs/Archetypes";
 import { WEAPON_SPEC_RECORD } from "./data/Weapon";
+import { AvatarArchetype, LocalAvatarArchetype } from "./ecs/Archetypes";
 
 export function getEntityMesh(
     world: World,
@@ -24,6 +24,13 @@ export function getEntityMesh(
 ): Object3D | undefined {
     if (entity.entityMesh === undefined) return;
     return world.scene.getObjectById(entity.entityMesh.objectId);
+}
+
+export function getMoveDirection(avatar: LocalAvatarArchetype) {
+    const move = new Vector2(avatar.input.movex, avatar.input.movey);
+    move.normalize();
+    move.rotateAround(new Vector2(), -avatar.rotation.y);
+    return move;
 }
 
 export function getPlayerAvatar(
@@ -88,6 +95,13 @@ export function getNormalAxis(normal: Vector3): "x" | "y" | "z" {
     if (Math.abs(Math.round(normal.x)) === 1) return "x";
     if (Math.abs(Math.round(normal.y)) === 1) return "y";
     return "z";
+}
+
+export function getAngleV2(
+    p1: { x: number; y: number },
+    p2: { x: number; y: number }
+) {
+    return Math.atan2(p2.y - p1.y, p2.x - p1.x);
 }
 
 export module Hitscan {

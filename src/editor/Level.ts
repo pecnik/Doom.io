@@ -68,9 +68,12 @@ export class LevelBlock {
     }
 
     public copy(block: LevelBlock) {
-        this.lightColor.copy(block.lightColor);
-        this.faces = block.faces.concat([]);
         this.solid = block.solid;
+        this.lightStr = block.lightStr;
+        this.lightRad = block.lightRad;
+        this.jumpPadForce = block.jumpPadForce;
+        this.lightColor.copy(block.lightColor);
+        Object.assign(this.faces, block.faces);
     }
 
     public getFaceIndex(normal: Vector3) {
@@ -155,7 +158,7 @@ export class Level {
     public getBlockLight(x: number, y: number, z: number) {
         const block = this.getBlock(
             clamp(x, 0, this.width - 1),
-            clamp(y, 0, this.width - 1),
+            clamp(y, 0, this.height - 1),
             clamp(z, 0, this.depth - 1)
         ) as LevelBlock;
         return block.lightColor;
@@ -494,7 +497,6 @@ export class Level {
                 if (mesh === undefined) {
                     mesh = new Mesh(this.jumpPadMeshGeo, this.jumpPadMeshMat);
                     this.jumpPadMeshGroup.add(mesh);
-                    console.log("New jump pad");
                 }
 
                 mesh.visible = true;
@@ -513,6 +515,7 @@ export class Level {
 
     public updateGeometryLightning() {
         const lights = this.getLights();
+        if (lights.length === 0) return;
 
         const ray = new Ray();
         const areaBox = new Box3();
