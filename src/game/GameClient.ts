@@ -95,7 +95,7 @@ export class GameClient implements Game {
                         return Promise.resolve(JSON.parse(json));
                     }
 
-                    const url = "/assets/levels/test_arena.json";
+                    const url = "/assets/levels/arena.json";
                     return fetch(url).then((rsp) => rsp.json());
                 };
 

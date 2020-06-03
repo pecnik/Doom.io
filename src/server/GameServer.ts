@@ -29,7 +29,7 @@ export class GameServer {
 
     public constructor(wss: WebSocket.Server) {
         // Init level
-        const levelPath = __dirname + "/../../assets/levels/test_arena.json";
+        const levelPath = __dirname + "/../../assets/levels/arena.json";
         const levelJson = fs.readFileSync(levelPath);
         this.world.level.readJson(JSON.parse(String(levelJson)));
 
