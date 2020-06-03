@@ -1,8 +1,8 @@
 import fs from "fs";
 import WebSocket from "ws";
 import { Clock, Vector3 } from "three";
-import { uniqueId, sample } from "lodash";
-import { World, Family, AnyComponents, Entity, System } from "../game/ecs";
+import { uniqueId } from "lodash";
+import { World, Family, AnyComponents, Entity, Components } from "../game/ecs";
 import { AvatarArchetype } from "../game/ecs/Archetypes";
 import { getPlayerAvatar } from "../game/Helpers";
 import {
@@ -12,65 +12,11 @@ import {
     Action,
     AvatarDeathAction,
 } from "../game/Action";
+import { AvatarSpawnSystem } from "./AvatarSpawnSystem";
 
-interface PlayerConnectionArchetype extends AnyComponents {
+export interface PlayerConnectionArchetype extends AnyComponents {
     readonly socket: WebSocket;
-}
-
-class AvatarSpawnSystem extends System {
-    private readonly avatars = Family.findOrCreate(new AvatarArchetype());
-    private readonly players = Family.findOrCreate<PlayerConnectionArchetype>({
-        socket: {} as WebSocket,
-    });
-
-    public update() {
-        this.players.entities.forEach((player) => {
-            const avatar = getPlayerAvatar(player.id, this.avatars);
-            if (avatar !== undefined) return;
-
-            const spawn = sample(this.world.level.getSpawnPoints());
-
-            const spawnEnemyAvatar = this.spawnAvatar(
-                player.id,
-                "enemy",
-                spawn
-            );
-
-            const spawnLocalAvatar = this.spawnAvatar(
-                player.id,
-                "local",
-                spawn
-            );
-
-            runAction(this.world, spawnEnemyAvatar);
-
-            const spawnLocalAvatarMsg = Action.serialize(spawnLocalAvatar);
-            const spawnEnemyAvatarMsg = Action.serialize(spawnEnemyAvatar);
-            this.players.entities.forEach((peer) => {
-                if (peer === player) {
-                    peer.socket.send(spawnLocalAvatarMsg);
-                } else {
-                    peer.socket.send(spawnEnemyAvatarMsg);
-                }
-            });
-        });
-    }
-
-    private spawnAvatar(
-        playerId: string,
-        avatarType: "local" | "enemy",
-        position = new Vector3()
-    ): AvatarSpawnAction {
-        const avatarId = "a" + playerId;
-        position = position || new Vector3();
-        return {
-            type: ActionType.AvatarSpawn,
-            playerId,
-            avatarId,
-            avatarType,
-            position,
-        };
-    }
+    readonly respawn: Components.Respawn;
 }
 
 export class GameServer {
@@ -80,6 +26,7 @@ export class GameServer {
     public readonly avatars = Family.findOrCreate(new AvatarArchetype());
     public readonly players = Family.findOrCreate<PlayerConnectionArchetype>({
         socket: {} as WebSocket,
+        respawn: new Components.Respawn(),
     });
 
     public constructor(wss: WebSocket.Server) {
@@ -113,7 +60,11 @@ export class GameServer {
     private playerConnection(socket: WebSocket) {
         // Create player connection enetiy
         const id = uniqueId("p");
-        const player: Entity<PlayerConnectionArchetype> = { id, socket };
+        const player: Entity<PlayerConnectionArchetype> = {
+            id,
+            socket,
+            respawn: new Components.Respawn(),
+        };
         this.world.addEntity(player);
         console.log(`> Server::playerConnection(${id})`);
 
