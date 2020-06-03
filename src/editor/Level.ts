@@ -365,7 +365,7 @@ export class Level {
                 return neighbor !== undefined && neighbor.solid;
             };
 
-            if (!hasSolidNeighbor(-1, 0, 0)) {
+            if (!hasSolidNeighbor(-1, 0, 0) && origin.x > 0) {
                 const xmin = new PlaneGeometry(1, 1, 1, 1);
                 setTextureUV(xmin, block.faces[0]);
                 setVertexColor(xmin, bright1);
@@ -375,7 +375,7 @@ export class Level {
                 planes.push(xmin);
             }
 
-            if (!hasSolidNeighbor(1, 0, 0)) {
+            if (!hasSolidNeighbor(1, 0, 0) && origin.x < this.width - 1) {
                 const xmax = new PlaneGeometry(1, 1, 1, 1);
                 setTextureUV(xmax, block.faces[1]);
                 setVertexColor(xmax, bright1);
@@ -385,7 +385,7 @@ export class Level {
                 planes.push(xmax);
             }
 
-            if (!hasSolidNeighbor(0, -1, 0)) {
+            if (!hasSolidNeighbor(0, -1, 0) && origin.y > 0) {
                 const ymin = new PlaneGeometry(1, 1, 1, 1);
                 setTextureUV(ymin, block.faces[2]);
                 setVertexColor(ymin, dark2);
@@ -405,7 +405,7 @@ export class Level {
                 planes.push(ymax);
             }
 
-            if (!hasSolidNeighbor(0, 0, -1)) {
+            if (!hasSolidNeighbor(0, 0, -1) && origin.z > 0) {
                 const zmin = new PlaneGeometry(1, 1, 1, 1);
                 setTextureUV(zmin, block.faces[4]);
                 setVertexColor(zmin, dark1);
@@ -415,7 +415,7 @@ export class Level {
                 planes.push(zmin);
             }
 
-            if (!hasSolidNeighbor(0, 0, 1)) {
+            if (!hasSolidNeighbor(0, 0, 1) && origin.z < this.depth - 1) {
                 const zmax = new PlaneGeometry(1, 1, 1, 1);
                 setTextureUV(zmax, block.faces[5]);
                 setVertexColor(zmax, dark1);
