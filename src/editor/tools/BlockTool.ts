@@ -50,8 +50,10 @@ export class BlockTool extends Tool {
         this.scene.add(this.cursor, this.brush.mesh);
         this.brush.mesh.renderOrder = 2;
         this.brush.loadMaterial().then(() => {
-            const material = this.brush.mesh.material as MeshBasicMaterial;
-            material.color.setRGB(0, 1, 0);
+            const materials = this.brush.mesh.material as MeshBasicMaterial[];
+            materials.forEach((material) => {
+                material.color.setRGB(0, 1, 0);
+            });
         });
     }
 

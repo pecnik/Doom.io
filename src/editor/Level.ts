@@ -14,10 +14,12 @@ import {
     Group,
     IcosahedronGeometry,
     CylinderGeometry,
+    Texture,
+    NearestFilter,
 } from "three";
 import { disposeMeshMaterial, loadTexture } from "../game/Helpers";
 import { degToRad } from "../game/core/Utils";
-import { clamp, isEqual } from "lodash";
+import { clamp, isEqual, range } from "lodash";
 
 export const TILE_W = 64;
 export const TILE_H = 64;
@@ -244,10 +246,37 @@ export class Level {
     public loadMaterial() {
         return loadTexture("/assets/tileset.png").then((map) => {
             disposeMeshMaterial(this.mesh.material);
-            this.mesh.material = new MeshBasicMaterial({
-                vertexColors: VertexColors,
-                map,
+
+            const materials = range(0, 64).map((tileId) => {
+                const canvas = document.createElement("canvas");
+                canvas.width = 64;
+                canvas.height = 64;
+
+                const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+                ctx.drawImage(
+                    map.image,
+                    Math.floor(tileId % 8) * 64,
+                    Math.floor(tileId / 8) * 64,
+                    64,
+                    64,
+                    0,
+                    0,
+                    64,
+                    64
+                );
+
+                const texture = new Texture(canvas);
+                texture.needsUpdate = true;
+                texture.magFilter = NearestFilter;
+
+
+                return new MeshBasicMaterial({
+                    vertexColors: VertexColors,
+                    map: texture,
+                });
             });
+
+            this.mesh.material = materials;
         });
     }
 
@@ -303,39 +332,9 @@ export class Level {
     }
 
     private updateMeshGeometry() {
-        // preload UV
-        const padU = (1 / TEXTURE_W) * 1; // 1px
-        const padV = (1 / TEXTURE_H) * 1; // 1px
-        const tileW = TILE_W / TEXTURE_W;
-        const tileH = TILE_H / TEXTURE_H;
-
-        // padding to prevent seams
-        const minU = padU;
-        const maxU = tileW - padU * 2;
-        const maxV = 1 - padV;
-        const minV = 1 - tileH + padV * 2;
-
         const setTextureUV = (plane: PlaneGeometry, tileId: number) => {
-            const cords: Vector2[][] = plane.faceVertexUvs[0];
-
-            cords[0][0].set(minU, maxV);
-            cords[0][1].set(minU, minV);
-            cords[0][2].set(maxU, maxV);
-
-            cords[1][0].set(minU, minV);
-            cords[1][1].set(maxU, minV);
-            cords[1][2].set(maxU, maxV);
-
-            // Offset by tileID
-            let x = tileId % TILE_COLS;
-            let y = Math.floor(tileId / TILE_COLS);
-            for (let i = 0; i < 2; i++) {
-                for (let j = 0; j < 3; j++) {
-                    cords[i][j].x += tileW * x;
-                    cords[i][j].y -= tileH * y;
-                }
-            }
-
+            plane.faces[0].materialIndex = tileId;
+            plane.faces[1].materialIndex = tileId;
             plane.elementsNeedUpdate = true;
         };
 
