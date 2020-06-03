@@ -5,7 +5,6 @@ import {
     Box3,
     PlaneGeometry,
     MeshBasicMaterial,
-    Vector2,
     Geometry,
     VertexColors,
     BackSide,
@@ -268,7 +267,6 @@ export class Level {
                 const texture = new Texture(canvas);
                 texture.needsUpdate = true;
                 texture.magFilter = NearestFilter;
-
 
                 return new MeshBasicMaterial({
                     vertexColors: VertexColors,
