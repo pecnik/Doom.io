@@ -15,7 +15,6 @@ export class PickupSystem extends System {
         archetype: new LocalAvatarArchetype(),
     });
 
-    public readonly updateInterval = 1;
     public update() {
         // Spawn pickup items ...
         if (this.pickupFamily.entities.size < 4) {
