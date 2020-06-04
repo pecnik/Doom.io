@@ -25,7 +25,10 @@ export class BlockTool extends Tool {
     };
 
     public getModifiedTool() {
-        if (this.editor.input.isKeyDown(KeyCode.SPACE)) {
+        if (
+            !this.brush.mesh.visible &&
+            this.editor.input.isKeyDown(KeyCode.SPACE)
+        ) {
             return this.editor.tools.get(MoveTool);
         }
 
@@ -59,6 +62,8 @@ export class BlockTool extends Tool {
 
     public start() {
         this.scene.visible = true;
+        this.cursor.visible = true;
+        this.brush.mesh.visible = false;
     }
 
     public end() {

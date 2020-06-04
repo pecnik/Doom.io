@@ -23,7 +23,10 @@ export class EraserTool extends Tool {
     };
 
     public getModifiedTool(): Tool {
-        if (this.editor.input.isKeyDown(KeyCode.SPACE)) {
+        if (
+            !this.brush.mesh.visible &&
+            this.editor.input.isKeyDown(KeyCode.SPACE)
+        ) {
             return this.editor.tools.get(MoveTool);
         }
         return this;
@@ -43,6 +46,8 @@ export class EraserTool extends Tool {
 
     public start() {
         this.scene.visible = true;
+        this.cursor.visible = true;
+        this.brush.mesh.visible = false;
     }
 
     public end() {
