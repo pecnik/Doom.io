@@ -37,17 +37,16 @@
 </template>
 <script>
 import { editor } from "../Editor";
+import { Level } from "../Level";
 export default {
     methods: {
         newFile() {
             setTimeout(() => {
                 if (confirm("New level?")) {
                     editor.commitLevelMutation(level => {
-                        level.resize(
-                            editor.level.width,
-                            editor.level.height,
-                            editor.level.depth
-                        );
+                        const { width, height, depth } = level;
+                        level.readJson(new Level().toJson());
+                        level.resize(width, height, depth);
                     });
                 }
             }, 100);
