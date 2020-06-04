@@ -549,6 +549,11 @@ export class Level {
                 const lightRad = lights[l].rad;
                 const lightStr = lights[l].str;
 
+                // Quick dist check
+                const distSqrt = point.distanceToSquared(lightOrigin);
+                const lightRadSqrt = lightRad ** 2;
+                if (distSqrt > lightRadSqrt) continue;
+
                 // Test if facing light
                 if (normal.x === +1 && lightOrigin.x < point.x) continue;
                 if (normal.x === -1 && lightOrigin.x > point.x) continue;
