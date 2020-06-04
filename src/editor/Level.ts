@@ -604,7 +604,7 @@ export class Level {
     }
 
     public updateAmbientOcclusion() {
-        const occlusion = (color: Color, vec: Vector3) => {
+        const occlusion = (color: Color, vec: Vector3, normal: Vector3) => {
             const xmin = Math.min(vec.x - 0.5);
             const ymin = Math.min(vec.y - 0.5);
             const zmin = Math.min(vec.z - 0.5);
@@ -613,23 +613,36 @@ export class Level {
             const ymax = Math.max(vec.y + 0.5);
             const zmax = Math.max(vec.z + 0.5);
 
+            const point = vec.clone();
+            point.x += normal.x * 0.5;
+            point.y += normal.y * 0.5;
+            point.z += normal.z * 0.5;
+
             let count = 0;
             for (let x = xmin; x <= xmax; x++) {
                 for (let y = ymin; y <= ymax; y++) {
                     for (let z = zmin; z <= zmax; z++) {
                         const block = this.getBlock(x, y, z);
-                        if (block && block.solid) {
+                        if (block === undefined) continue;
+                        if (block.solid === false) continue;
+
+                        if (
+                            block.origin.x === point.x ||
+                            block.origin.y === point.y ||
+                            block.origin.z === point.z
+                        ) {
                             count++;
                         }
                     }
                 }
             }
 
-            if (count > 4) {
-                color.r *= 0.75;
-                color.g *= 0.75;
-                color.b *= 0.75;
-            }
+            const str = 0.6;
+            let fac = 1 / (count + 1);
+            fac = 1 - str + 1 * str * fac;
+            color.r *= fac;
+            color.g *= fac;
+            color.b *= fac;
         };
 
         const geometry = this.mesh.geometry as Geometry;
@@ -637,9 +650,9 @@ export class Level {
         for (let i = 0; i < geometry.faces.length; i++) {
             const face = geometry.faces[i];
             const verts = geometry.vertices;
-            occlusion(face.vertexColors[0], verts[face.a]);
-            occlusion(face.vertexColors[1], verts[face.b]);
-            occlusion(face.vertexColors[2], verts[face.c]);
+            occlusion(face.vertexColors[0], verts[face.a], face.normal);
+            occlusion(face.vertexColors[1], verts[face.b], face.normal);
+            occlusion(face.vertexColors[2], verts[face.c], face.normal);
         }
     }
 
