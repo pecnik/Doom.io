@@ -1,33 +1,52 @@
 <template>
     <div class="texture-input">
-        <texture-tile @click.native="dialog.open = true" :tile="value"></texture-tile>
+        <img
+            class="texture-tile"
+            :src="texture.src"
+            @click="dialog.open = true"
+            :tile="value"
+        />
         <v-dialog v-model="dialog.open" max-width="580px">
             <v-card>
                 <v-card-title>Select texture</v-card-title>
                 <v-card-text>
-                    <texture-tile
-                        v-for="n in 64"
-                        :key="n"
-                        :tile="n - 1"
-                        :selected="n - 1 === value"
-                        @click.native="seelctTile(n - 1)"
-                        class="texture-tile-option"
-                    ></texture-tile>
+                    <img
+                        v-for="(texture, index) in levelTextures"
+                        :key="index + 1"
+                        :src="texture.src"
+                        :class="{ selected: index === value }"
+                        class="texture-tile texture-tile-option"
+                        @click="selectTexture(index)"
+                    />
                 </v-card-text>
             </v-card>
         </v-dialog>
     </div>
 </template>
 <script>
-import TextureTile from "./TextureTile.vue";
 export default {
-    components: { TextureTile },
     props: {
         value: { type: Number, required: true }
     },
+    computed: {
+        levelTextures() {
+            return this.$store.state.levelTextures || [];
+        },
+        texture() {
+            const texture = this.levelTextures.find((_, index) => {
+                return index === this.value;
+            });
+
+            if (texture === undefined) {
+                return { src: "" };
+            }
+
+            return texture;
+        }
+    },
     methods: {
-        seelctTile(tile) {
-            this.$emit("input", tile);
+        selectTexture(textureIndex) {
+            this.$emit("input", textureIndex);
             this.dialog.open = false;
         }
     },
@@ -45,13 +64,20 @@ export default {
     cursor: pointer;
 }
 
-.texture-tile-option {
+.texture-tile {
     margin-right: 8px;
     margin-bottom: 8px;
-    cursor: pointer;
 
-    &:hover {
-        border-color: #ccc;
+    width: 64px;
+    height: 64px;
+    display: inline-block;
+
+    &.texture-tile-option {
+        cursor: pointer;
+
+        &:hover {
+            border-color: #ccc;
+        }
     }
 }
 </style>

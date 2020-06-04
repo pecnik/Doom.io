@@ -12,7 +12,7 @@
         </div>
 
         <div v-if="showTexture" class="mb-4">
-            <texture-input v-model="$store.state.tileId"></texture-input>
+            <texture-input v-model="$store.state.textureId"></texture-input>
         </div>
 
         <div v-if="showBlockProps" :key="block.index" class="mb-4">

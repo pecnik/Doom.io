@@ -13,12 +13,11 @@ import {
     Group,
     IcosahedronGeometry,
     CylinderGeometry,
-    Texture,
     NearestFilter,
 } from "three";
 import { disposeMeshMaterial, loadTexture } from "../game/Helpers";
 import { degToRad } from "../game/core/Utils";
-import { clamp, isEqual, range } from "lodash";
+import { clamp, isEqual } from "lodash";
 
 export const TILE_W = 64;
 export const TILE_H = 64;
@@ -33,6 +32,7 @@ export interface LevelJSON {
     depth: number;
     skins: number[][];
     blocks: number[];
+    textures: LevelTexture[];
     solidBlocks: number[];
     jumpPadBlocks: { index: number; force: number }[];
     emmitionBlocks: {
@@ -43,12 +43,16 @@ export interface LevelJSON {
     }[];
 }
 
+export interface LevelTexture {
+    src: string;
+}
+
 export class LevelBlock {
     public readonly index: number;
     public readonly origin: Vector3;
     public readonly aabb: Box3;
 
-    public faces = [0, 0, 0, 0, 0, 0].map((x) => x + 16);
+    public faces = [0, 0, 0, 0, 0, 0];
     public solid = false;
 
     public lightStr = 0;
@@ -93,6 +97,21 @@ export class Level {
     public height = 0;
     public depth = 0;
     public blocks: LevelBlock[] = [];
+
+    public textures: LevelTexture[] = [
+        {
+            src: "/assets/levels/textures/brick.png",
+        },
+        {
+            src: "/assets/levels/textures/metal_1.png",
+        },
+        {
+            src: "/assets/levels/textures/metal_2.png",
+        },
+        {
+            src: "/assets/levels/textures/floor_tile.png",
+        },
+    ];
 
     public readonly mesh = new Mesh();
     public readonly skyboxMesh = new Mesh();
@@ -243,37 +262,20 @@ export class Level {
     }
 
     public loadMaterial() {
-        return loadTexture("/assets/tileset.png").then((map) => {
-            disposeMeshMaterial(this.mesh.material);
-
-            const materials = range(0, 64).map((tileId) => {
-                const canvas = document.createElement("canvas");
-                canvas.width = 64;
-                canvas.height = 64;
-
-                const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-                ctx.drawImage(
-                    map.image,
-                    Math.floor(tileId % 8) * 64,
-                    Math.floor(tileId / 8) * 64,
-                    64,
-                    64,
-                    0,
-                    0,
-                    64,
-                    64
-                );
-
-                const texture = new Texture(canvas);
-                texture.needsUpdate = true;
-                texture.magFilter = NearestFilter;
-
+        const loadTextureMaterial = (texture: LevelTexture) => {
+            return loadTexture(texture.src).then((map) => {
+                map.needsUpdate = true;
+                map.magFilter = NearestFilter;
                 return new MeshBasicMaterial({
                     vertexColors: VertexColors,
-                    map: texture,
+                    map,
                 });
             });
+        };
 
+        const loadMaterials = this.textures.map(loadTextureMaterial);
+        return Promise.all(loadMaterials).then((materials) => {
+            disposeMeshMaterial(this.mesh.material);
             this.mesh.material = materials;
         });
     }
@@ -330,9 +332,9 @@ export class Level {
     }
 
     private updateMeshGeometry() {
-        const setTextureUV = (plane: PlaneGeometry, tileId: number) => {
-            plane.faces[0].materialIndex = tileId;
-            plane.faces[1].materialIndex = tileId;
+        const setTextureUV = (plane: PlaneGeometry, textureId: number) => {
+            plane.faces[0].materialIndex = textureId;
+            plane.faces[1].materialIndex = textureId;
             plane.elementsNeedUpdate = true;
         };
 
@@ -683,6 +685,10 @@ export class Level {
             const block = this.blocks[data.index];
             block.jumpPadForce = data.force;
         });
+
+        if (json.textures) {
+            this.textures = json.textures;
+        }
     }
 
     public toJson(): LevelJSON {
@@ -692,6 +698,7 @@ export class Level {
             depth: this.depth,
             skins: [],
             blocks: [],
+            textures: [...this.textures],
             solidBlocks: [],
             jumpPadBlocks: [],
             emmitionBlocks: [],
