@@ -129,12 +129,12 @@ export class Editor {
         );
 
         // Initialize all tools
-        tools.get(MoveTool);
         tools.get(BlockTool);
         tools.get(EraserTool);
         tools.get(PaintTool);
-        tools.get(SelecTool);
         tools.get(SampleTool);
+        tools.get(SelecTool);
+        tools.get(MoveTool);
         tools.all.forEach((tool) => tool.end());
 
         // Select move as default tool
