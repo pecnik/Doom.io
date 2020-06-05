@@ -33,6 +33,8 @@ export module EntityFactory {
 
     export function Projectile(id = nextID()) {
         const projectile = { id, ...new ProjectileArchetype() };
+        projectile.collision.height = 0.25;
+        projectile.collision.radius = 0.125;
         return projectile;
     }
 }

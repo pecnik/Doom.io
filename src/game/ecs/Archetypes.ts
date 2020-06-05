@@ -3,6 +3,7 @@ import { Components, AnyComponents } from "./Components";
 export class AvatarArchetype implements AnyComponents {
     public playerId = "";
     public avatarTag = true;
+    public gravity = true;
     public position = new Components.Position();
     public velocity = new Components.Velocity();
     public rotation = new Components.Rotation();
@@ -37,6 +38,7 @@ export class ProjectileArchetype implements AnyComponents {
     public playerId = "";
     public position = new Components.Position();
     public velocity = new Components.Velocity();
+    public collision = new Components.Collision();
     public entityMesh = new Components.EntityMesh(
         "/assets/mesh/ammo_pickup_handgun.glb"
     );

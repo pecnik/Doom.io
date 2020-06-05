@@ -43,7 +43,7 @@ import {
 } from "./Action";
 import { Sound2D } from "./sound/Sound2D";
 import { HitIndicatorSystem } from "./systems/hud/HitIndicatorSystem";
-import { getHeadPosition } from "./Helpers";
+import { getHeadPosition, getHeadingVector3 } from "./Helpers";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();
@@ -280,12 +280,13 @@ export class GameClient implements Game {
     }
 
     public emitProjectile(avatar: Entity<LocalAvatarArchetype>) {
+        const rotation = new Vector3(avatar.rotation.x, avatar.rotation.y, 0);
         const action: EmitProjectileAction = {
             type: ActionType.EmitProjectile,
             projectileId: uniqueId(`${avatar.playerId}-pe`),
             avatarId: avatar.id,
             position: getHeadPosition(avatar),
-            velcotiy: new Vector3(),
+            velcotiy: getHeadingVector3(rotation),
         };
         this.sendAndRun(action);
     }

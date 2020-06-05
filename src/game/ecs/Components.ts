@@ -11,6 +11,7 @@ export type AllComponents = {
     avatarTag: boolean;
     enemyAvatarTag: boolean;
     localAvatarTag: boolean;
+    gravity: boolean;
     playerData: Components.PlayerData;
     position: Components.Position;
     velocity: Components.Velocity;

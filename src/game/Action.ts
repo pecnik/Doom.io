@@ -150,6 +150,8 @@ export function runAction(world: World, action: Action) {
             const projectile = EntityFactory.Projectile(projectileId);
             projectile.position.copy(position);
             projectile.velocity.copy(velcotiy);
+            projectile.velocity.normalize();
+            projectile.velocity.multiplyScalar(10);
             world.addEntity(projectile);
             return;
         }
