@@ -11,7 +11,7 @@ export enum ActionType {
     AvatarSpawn,
     AvatarHit,
     AvatarUpdate,
-    AvatarDeath,
+    RemoveEntity,
     EmitProjectile,
 }
 
@@ -52,9 +52,9 @@ export interface AvatarUpdateAction {
     weaponType: WeaponType;
 }
 
-export interface AvatarDeathAction {
-    type: ActionType.AvatarDeath;
-    avatarId: string;
+export interface RemoveEntityAction {
+    type: ActionType.RemoveEntity;
+    entityId: string;
 }
 
 export interface EmitProjectileAction {
@@ -71,7 +71,7 @@ export type Action =
     | AvatarSpawnAction
     | AvatarHitAction
     | AvatarUpdateAction
-    | AvatarDeathAction
+    | RemoveEntityAction
     | EmitProjectileAction;
 
 export function runAction(world: World, action: Action) {
@@ -87,8 +87,8 @@ export function runAction(world: World, action: Action) {
             return;
         }
 
-        case ActionType.AvatarDeath: {
-            world.removeEntity(action.avatarId);
+        case ActionType.RemoveEntity: {
+            world.removeEntity(action.entityId);
             return;
         }
 
