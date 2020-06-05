@@ -36,6 +36,7 @@ export class PickupArchetype implements AnyComponents {
 
 export class ProjectileArchetype implements AnyComponents {
     public playerId = "";
+    public projectile = new Components.Projectile();
     public position = new Components.Position();
     public velocity = new Components.Velocity();
     public collision = new Components.Collision();

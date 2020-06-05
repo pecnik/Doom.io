@@ -13,6 +13,7 @@ import {
     AvatarDeathAction,
 } from "../game/Action";
 import { AvatarSpawnSystem } from "./AvatarSpawnSystem";
+import { ProjectileDisposalSystem } from "../game/systems/ProjectileDisposalSystem";
 
 export interface PlayerConnectionArchetype extends AnyComponents {
     readonly socket: WebSocket;
@@ -36,6 +37,7 @@ export class GameServer {
         this.world.level.readJson(JSON.parse(String(levelJson)));
 
         // Init systems
+        this.world.addSystem(new ProjectileDisposalSystem(this.world));
         this.world.addSystem(new AvatarSpawnSystem(this.world));
 
         // Start game loop

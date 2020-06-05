@@ -27,6 +27,7 @@ export type AllComponents = {
     entityMesh: Components.EntityMesh;
     hitIndicator: Components.HitIndicator;
     cameraShake: Components.CameraShake;
+    projectile: Components.Projectile;
 };
 
 export module Components {
@@ -142,5 +143,9 @@ export module Components {
     export class Respawn {
         public inProgress = false;
         public time = 0;
+    }
+
+    export class Projectile {
+        public spawnTime = 0;
     }
 }

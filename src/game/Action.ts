@@ -60,7 +60,7 @@ export interface AvatarDeathAction {
 export interface EmitProjectileAction {
     readonly type: ActionType.EmitProjectile;
     projectileId: string;
-    avatarId: string;
+    playerId: string;
     position: Vector3;
     velcotiy: Vector3;
 }
@@ -146,8 +146,10 @@ export function runAction(world: World, action: Action) {
         }
 
         case ActionType.EmitProjectile: {
-            const { projectileId, position, velcotiy } = action;
+            const { projectileId, playerId, position, velcotiy } = action;
             const projectile = EntityFactory.Projectile(projectileId);
+            projectile.projectile.spawnTime = world.elapsedTime;
+            projectile.playerId = playerId;
             projectile.position.copy(position);
             projectile.velocity.copy(velcotiy);
             projectile.velocity.normalize();

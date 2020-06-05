@@ -44,6 +44,7 @@ import {
 import { Sound2D } from "./sound/Sound2D";
 import { HitIndicatorSystem } from "./systems/hud/HitIndicatorSystem";
 import { getHeadPosition, getHeadingVector3 } from "./Helpers";
+import { ProjectileDisposalSystem } from "./systems/ProjectileDisposalSystem";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();
@@ -140,6 +141,7 @@ export class GameClient implements Game {
         this.world.addSystem(new AvatarStateSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new PlayerShootSystem(this));
+        this.world.addSystem(new ProjectileDisposalSystem(this.world));
 
         // World rendering
         this.world.addSystem(new EntityMeshSystem(this.world));
@@ -281,11 +283,14 @@ export class GameClient implements Game {
 
     public emitProjectile(avatar: Entity<LocalAvatarArchetype>) {
         const rotation = new Vector3(avatar.rotation.x, avatar.rotation.y, 0);
+        const position = getHeadPosition(avatar);
+        position.y -= 0.25; // Dunno
+
         const action: EmitProjectileAction = {
             type: ActionType.EmitProjectile,
             projectileId: uniqueId(`${avatar.playerId}-pe`),
-            avatarId: avatar.id,
-            position: getHeadPosition(avatar),
+            playerId: avatar.playerId,
+            position: position,
             velcotiy: getHeadingVector3(rotation),
         };
         this.sendAndRun(action);
