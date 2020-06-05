@@ -264,6 +264,7 @@ export class GameClient implements Game {
     public hitAvatar(
         shooterId: string,
         targetId: string,
+        headshot: boolean,
         weaponType: WeaponType
     ) {
         const hitAvatar: AvatarHitAction = {
@@ -271,6 +272,7 @@ export class GameClient implements Game {
             shooterId,
             targetId,
             weaponType,
+            headshot,
         };
         this.sendAndRun(hitAvatar);
     }

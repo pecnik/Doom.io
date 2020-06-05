@@ -39,6 +39,7 @@ export interface AvatarHitAction {
     weaponType: WeaponType;
     shooterId: string;
     targetId: string;
+    headshot: boolean;
 }
 
 export interface AvatarUpdateAction {
@@ -115,7 +116,10 @@ export function runAction(world: World, action: Action) {
             if (target.health.value <= 0) return;
 
             const weaponSpec = WEAPON_SPEC_RECORD[action.weaponType];
-            target.health.value -= weaponSpec.bulletDamage;
+            const damage = weaponSpec.bulletDamage;
+            const headshot = action.headshot ? 3 : 1;
+
+            target.health.value -= damage * headshot;
             target.health.value = Math.max(target.health.value, 0);
             if (target.hitIndicator !== undefined) {
                 target.hitIndicator.show = true;

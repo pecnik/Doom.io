@@ -131,7 +131,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
         .name("Shotgun")
         .icon("/assets/sprites/hud/icon_sg.png")
         .ammo(3, 128)
-        .damage(25, 4)
+        .damage(15, 4)
         .accuracy(0.1)
         .roundsPerSec(2)
         .reloadSpeed(1.25)
