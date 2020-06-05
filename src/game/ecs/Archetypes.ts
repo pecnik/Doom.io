@@ -32,3 +32,12 @@ export class PickupArchetype implements AnyComponents {
     public pickup = new Components.Pickup();
     public entityMesh = new Components.EntityMesh();
 }
+
+export class ProjectileArchetype implements AnyComponents {
+    public playerId = "";
+    public position = new Components.Position();
+    public velocity = new Components.Velocity();
+    public entityMesh = new Components.EntityMesh(
+        "/assets/mesh/ammo_pickup_handgun.glb"
+    );
+}

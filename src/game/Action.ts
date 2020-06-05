@@ -12,6 +12,7 @@ export enum ActionType {
     AvatarHit,
     AvatarUpdate,
     AvatarDeath,
+    EmitProjectile,
 }
 
 export interface PlaySoundAction {
@@ -56,13 +57,22 @@ export interface AvatarDeathAction {
     avatarId: string;
 }
 
+export interface EmitProjectileAction {
+    readonly type: ActionType.EmitProjectile;
+    projectileId: string;
+    avatarId: string;
+    position: Vector3;
+    velcotiy: Vector3;
+}
+
 export type Action =
     | PlaySoundAction
     | SpawnDecalAction
     | AvatarSpawnAction
     | AvatarHitAction
     | AvatarUpdateAction
-    | AvatarDeathAction;
+    | AvatarDeathAction
+    | EmitProjectileAction;
 
 export function runAction(world: World, action: Action) {
     switch (action.type) {
@@ -132,6 +142,15 @@ export function runAction(world: World, action: Action) {
                 target.hitIndicator.origin.copy(shooter.position);
             }
 
+            return;
+        }
+
+        case ActionType.EmitProjectile: {
+            const { projectileId, position, velcotiy } = action;
+            const projectile = EntityFactory.Projectile(projectileId);
+            projectile.position.copy(position);
+            projectile.velocity.copy(velcotiy);
+            world.addEntity(projectile);
             return;
         }
     }

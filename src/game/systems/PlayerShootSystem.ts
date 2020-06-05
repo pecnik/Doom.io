@@ -185,7 +185,7 @@ export class PlayerShootSystem extends System {
         const weaponSpec = getWeaponSpec(player);
 
         if (weaponSpec.type === WeaponType.Plasma) {
-            console.log("Emit projectile");
+            this.client.emitProjectile(player);
             return;
         }
 

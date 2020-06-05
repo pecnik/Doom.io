@@ -1,7 +1,7 @@
 import Stats from "stats.js";
 import { Hud } from "./data/Hud";
 import { Input } from "./core/Input";
-import { World } from "./ecs";
+import { World, Entity } from "./ecs";
 import { PlayerInputSystem } from "./systems/PlayerInputSystem";
 import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
@@ -18,7 +18,7 @@ import { Sound3D } from "./sound/Sound3D";
 import { FootstepAudioSystem } from "./systems/audio/FootstepAudioSystem";
 import { createSkybox } from "./data/Skybox";
 import { WEAPON_SPEC_RECORD, WeaponType } from "./data/Weapon";
-import { uniq } from "lodash";
+import { uniq, uniqueId } from "lodash";
 import { CrosshairSystem } from "./systems/hud/CrosshairSystem";
 import { PlayerDashSystem } from "./systems/PlayerDashSystem";
 import { AvatarMeshSystem } from "./systems/rendering/AvatarMeshSystem";
@@ -39,9 +39,11 @@ import {
     PlaySoundAction,
     SpawnDecalAction,
     AvatarHitAction,
+    EmitProjectileAction,
 } from "./Action";
 import { Sound2D } from "./sound/Sound2D";
 import { HitIndicatorSystem } from "./systems/hud/HitIndicatorSystem";
+import { getHeadPosition } from "./Helpers";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();
@@ -275,5 +277,16 @@ export class GameClient implements Game {
             headshot,
         };
         this.sendAndRun(hitAvatar);
+    }
+
+    public emitProjectile(avatar: Entity<LocalAvatarArchetype>) {
+        const action: EmitProjectileAction = {
+            type: ActionType.EmitProjectile,
+            projectileId: uniqueId(`${avatar.playerId}-pe`),
+            avatarId: avatar.id,
+            position: getHeadPosition(avatar),
+            velcotiy: new Vector3(),
+        };
+        this.sendAndRun(action);
     }
 }
