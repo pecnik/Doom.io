@@ -25,6 +25,7 @@ export type AllComponents = {
     footstep: Components.Footstep;
     entityMesh: Components.EntityMesh;
     hitIndicator: Components.HitIndicator;
+    cameraShake: Components.CameraShake;
 };
 
 export module Components {
@@ -33,6 +34,8 @@ export module Components {
     export class Velocity extends Vector3 {}
 
     export class Rotation extends Vector2 {}
+
+    export class CameraShake extends Vector3 {}
 
     export class Input {
         public movey = 0;

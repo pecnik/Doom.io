@@ -121,11 +121,17 @@ export function runAction(world: World, action: Action) {
 
             target.health.value -= damage * headshot;
             target.health.value = Math.max(target.health.value, 0);
+
+            if (target.cameraShake !== undefined) {
+                target.cameraShake.setScalar(1);
+            }
+
             if (target.hitIndicator !== undefined) {
                 target.hitIndicator.show = true;
                 target.hitIndicator.time = world.elapsedTime;
                 target.hitIndicator.origin.copy(shooter.position);
             }
+
             return;
         }
     }

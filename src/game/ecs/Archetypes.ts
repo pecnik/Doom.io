@@ -18,6 +18,7 @@ export class LocalAvatarArchetype extends AvatarArchetype {
     public jump = new Components.Jump();
     public input = new Components.Input();
     public hitIndicator = new Components.HitIndicator();
+    public cameraShake = new Components.CameraShake();
 }
 
 export class EnemyAvatarArchetype extends AvatarArchetype {
