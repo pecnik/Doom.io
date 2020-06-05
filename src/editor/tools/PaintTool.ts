@@ -52,33 +52,33 @@ export class PaintTool extends Tool {
 
         if (this.editor.input.isMousePresed(MouseBtn.Left)) {
             this.editor.commitLevelMutation(() => {
-                const { tileId } = this.editor.store.state;
+                const { textureId } = this.editor.store.state;
                 const block = rsp.block;
                 const face = rsp.block.getFaceIndex(rsp.normal);
-                block.faces[face] = tileId;
+                block.faces[face] = textureId;
             });
             return;
         }
 
         this.editor.commitLevelMutation(() => {
-            const { tileId } = this.editor.store.state;
+            const { textureId } = this.editor.store.state;
             switch (getNormalAxis(rsp.normal)) {
                 case "x":
-                    this.floodFillX(rsp.block, rsp.normal, tileId);
+                    this.floodFillX(rsp.block, rsp.normal, textureId);
                     return;
 
                 case "y":
-                    this.floodFillY(rsp.block, rsp.normal, tileId);
+                    this.floodFillY(rsp.block, rsp.normal, textureId);
                     return;
 
                 case "z":
-                    this.floodFillZ(rsp.block, rsp.normal, tileId);
+                    this.floodFillZ(rsp.block, rsp.normal, textureId);
                     return;
             }
         });
     }
 
-    private floodFillX(block: LevelBlock, normal: Vector3, tileId: number) {
+    private floodFillX(block: LevelBlock, normal: Vector3, textureId: number) {
         const { level } = this.editor;
 
         const face = block.getFaceIndex(normal);
@@ -106,7 +106,7 @@ export class PaintTool extends Tool {
         this.floodFill(buffer, {
             x: block.origin.y,
             y: block.origin.z,
-            fill: tileId,
+            fill: textureId,
         });
 
         // Update level faces
@@ -120,7 +120,7 @@ export class PaintTool extends Tool {
         }
     }
 
-    private floodFillY(block: LevelBlock, normal: Vector3, tileId: number) {
+    private floodFillY(block: LevelBlock, normal: Vector3, textureId: number) {
         const { level } = this.editor;
 
         // Build 2D buffer
@@ -147,7 +147,7 @@ export class PaintTool extends Tool {
         this.floodFill(buffer, {
             x: block.origin.x,
             y: block.origin.z,
-            fill: tileId,
+            fill: textureId,
         });
 
         // Update level faces
@@ -161,7 +161,7 @@ export class PaintTool extends Tool {
         }
     }
 
-    private floodFillZ(block: LevelBlock, normal: Vector3, tileId: number) {
+    private floodFillZ(block: LevelBlock, normal: Vector3, textureId: number) {
         const { level } = this.editor;
 
         // Build 2D buffer
@@ -188,7 +188,7 @@ export class PaintTool extends Tool {
         this.floodFill(buffer, {
             x: block.origin.x,
             y: block.origin.y,
-            fill: tileId,
+            fill: textureId,
         });
 
         // Update level faces

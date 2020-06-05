@@ -6,6 +6,7 @@ import { Level, LevelBlock } from "../Level";
 import { EraserTool } from "./EraserTool";
 import { SampleTool } from "./SampleTool";
 import { Cursor3D } from "./Cursor3D";
+import { disposeMeshMaterial } from "../../game/Helpers";
 
 export class BlockTool extends Tool {
     public readonly name = "Block tool";
@@ -50,8 +51,10 @@ export class BlockTool extends Tool {
         this.scene.add(this.cursor, this.brush.mesh);
         this.brush.mesh.renderOrder = 2;
         this.brush.loadMaterial().then(() => {
-            const material = this.brush.mesh.material as MeshBasicMaterial;
-            material.color.setRGB(0, 1, 0);
+            disposeMeshMaterial(this.brush.mesh.material);
+            this.brush.mesh.material = new MeshBasicMaterial({
+                color: 0x229922,
+            });
         });
     }
 
@@ -79,11 +82,11 @@ export class BlockTool extends Tool {
         this.brush.mesh.visible = false;
 
         this.editor.commitLevelMutation((level) => {
-            const { tileId } = this.editor.store.state;
+            const { textureId } = this.editor.store.state;
             level.blocks.forEach((block) => {
                 if (this.insideBrush(block)) {
                     block.solid = true;
-                    block.faces.fill(tileId);
+                    block.faces.fill(textureId);
                 }
             });
         });
@@ -105,13 +108,13 @@ export class BlockTool extends Tool {
     }
 
     private updateBrush() {
-        const { tileId } = this.editor.store.state;
+        const { textureId } = this.editor.store.state;
         let updateGeometry = false;
         this.brush.blocks.forEach((block) => {
             const solid = this.insideBrush(block);
             if (block.solid !== solid) {
                 block.solid = solid;
-                block.faces.fill(tileId);
+                block.faces.fill(textureId);
                 updateGeometry = true;
             }
         });

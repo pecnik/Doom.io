@@ -4,6 +4,7 @@ import { MoveTool } from "./MoveTool";
 import { Tool } from "./Tool";
 import { Level, LevelBlock } from "../Level";
 import { Cursor3D } from "./Cursor3D";
+import { disposeMeshMaterial } from "../../game/Helpers";
 
 export class EraserTool extends Tool {
     public readonly name = "Eraser tool";
@@ -34,8 +35,10 @@ export class EraserTool extends Tool {
         this.scene.add(this.cursor, this.brush.mesh);
         this.brush.mesh.renderOrder = 2;
         this.brush.loadMaterial().then(() => {
-            const material = this.brush.mesh.material as MeshBasicMaterial;
-            material.color.setRGB(1, 0, 0);
+            disposeMeshMaterial(this.brush.mesh.material);
+            this.brush.mesh.material = new MeshBasicMaterial({
+                color: 0x992222,
+            });
         });
     }
 
@@ -92,13 +95,13 @@ export class EraserTool extends Tool {
     }
 
     private updateBrush() {
-        const { tileId } = this.editor.store.state;
+        const { textureId } = this.editor.store.state;
         let updateGeometry = false;
         this.brush.blocks.forEach((block) => {
             const solid = this.insideBrush(block);
             if (block.solid !== solid) {
                 block.solid = solid;
-                block.faces.fill(tileId);
+                block.faces.fill(textureId);
                 updateGeometry = true;
             }
         });

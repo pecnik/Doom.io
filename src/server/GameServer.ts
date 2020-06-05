@@ -1,8 +1,8 @@
 import fs from "fs";
 import WebSocket from "ws";
 import { Clock, Vector3 } from "three";
-import { uniqueId, sample } from "lodash";
-import { World, Family, AnyComponents, Entity } from "../game/ecs";
+import { uniqueId } from "lodash";
+import { World, Family, AnyComponents, Entity, Components } from "../game/ecs";
 import { AvatarArchetype } from "../game/ecs/Archetypes";
 import { getPlayerAvatar } from "../game/Helpers";
 import {
@@ -12,19 +12,21 @@ import {
     Action,
     AvatarDeathAction,
 } from "../game/Action";
+import { AvatarSpawnSystem } from "./AvatarSpawnSystem";
 
-interface PlayerConnectionArchetype extends AnyComponents {
+export interface PlayerConnectionArchetype extends AnyComponents {
     readonly socket: WebSocket;
+    readonly respawn: Components.Respawn;
 }
 
 export class GameServer {
-    private readonly wss: WebSocket.Server;
-    private readonly world = new World();
-    private readonly clock = new Clock();
-
-    private readonly avatars = Family.findOrCreate(new AvatarArchetype());
-    private readonly players = Family.findOrCreate<PlayerConnectionArchetype>({
+    public readonly world = new World();
+    public readonly wss: WebSocket.Server;
+    public readonly clock = new Clock();
+    public readonly avatars = Family.findOrCreate(new AvatarArchetype());
+    public readonly players = Family.findOrCreate<PlayerConnectionArchetype>({
         socket: {} as WebSocket,
+        respawn: new Components.Respawn(),
     });
 
     public constructor(wss: WebSocket.Server) {
@@ -32,6 +34,9 @@ export class GameServer {
         const levelPath = __dirname + "/../../assets/levels/arena.json";
         const levelJson = fs.readFileSync(levelPath);
         this.world.level.readJson(JSON.parse(String(levelJson)));
+
+        // Init systems
+        this.world.addSystem(new AvatarSpawnSystem(this.world));
 
         // Start game loop
         setInterval(this.update.bind(this), 1 / 60);
@@ -55,28 +60,16 @@ export class GameServer {
     private playerConnection(socket: WebSocket) {
         // Create player connection enetiy
         const id = uniqueId("p");
-        const player: Entity<PlayerConnectionArchetype> = { id, socket };
+        const player: Entity<PlayerConnectionArchetype> = {
+            id,
+            socket,
+            respawn: new Components.Respawn(),
+        };
         this.world.addEntity(player);
         console.log(`> Server::playerConnection(${id})`);
 
-        // Spawn avatar in the servers world
-        const spawn = sample(this.world.level.getSpawnPoints());
-        const spawnServerAvatar = this.spawnAvatar(player.id, "enemy", spawn);
-        runAction(this.world, spawnServerAvatar);
-
-        // Spawn local-avatar in the players workd
-        const spawnLocalAvatar = this.spawnAvatar(player.id, "local", spawn);
-        player.socket.send(Action.serialize(spawnLocalAvatar));
-
-        // Sync player-peer avatars
-        const spawnAvatar = Action.serialize(spawnServerAvatar);
+        // Sync existing entities
         this.players.entities.forEach((peer) => {
-            if (peer === player) return;
-
-            // Spawn player in peers world
-            peer.socket.send(spawnAvatar);
-
-            // Spawn peer in players world
             const avatar = getPlayerAvatar(peer.id, this.avatars);
             if (avatar !== undefined) {
                 const { playerId, position } = avatar;

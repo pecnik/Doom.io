@@ -65,7 +65,11 @@ export class World {
         this.decals.update(dt);
         this.particles.update(this, dt);
         this.systems.forEach((system: System) => {
-            system.update(dt);
+            const delta = this.elapsedTime - system.lastUpdate;
+            if (delta >= system.updateInterval) {
+                system.lastUpdate = this.elapsedTime;
+                system.update(dt);
+            }
         });
     }
 }

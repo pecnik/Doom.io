@@ -11,58 +11,64 @@
             </v-radio-group>
         </div>
 
-        <v-card class="mb-2" v-if="showTexture">
-            <v-card-title>Texture</v-card-title>
-            <v-card-text>
-                <texture-input v-model="$store.state.tileId"></texture-input>
-            </v-card-text>
-        </v-card>
+        <div v-if="showTexture" class="mb-4">
+            <texture-input v-model="$store.state.textureId"></texture-input>
+        </div>
 
-        <v-card class="mb-2" v-if="showBlockProps" :key="block.index">
-            <v-card-title>Block props</v-card-title>
-            <v-card-text>
-                <v-checkbox v-model="block.solid" @change="writeBlock" label="Solid"></v-checkbox>
+        <div v-if="showBlockProps" :key="block.index" class="mb-4">
+            <v-checkbox
+                v-model="block.solid"
+                @change="writeBlock"
+                label="Solid"
+            ></v-checkbox>
 
-                <v-checkbox v-model="block.lightEnabled" @change="writeBlock" label="Emit light"></v-checkbox>
-                <div v-if="block.lightEnabled">
-                    <v-slider
-                        v-model="block.lightStr"
-                        min="1"
-                        max="10"
-                        :step="0.1"
-                        label="Strength"
-                        :thumb-size="24"
-                        thumb-label="always"
-                        @change="writeBlock"
-                    ></v-slider>
-                    <v-slider
-                        v-model="block.lightRad"
-                        min="1"
-                        max="24"
-                        label="Radius"
-                        :thumb-size="24"
-                        thumb-label="always"
-                        @change="writeBlock"
-                    ></v-slider>
-                    <v-color-picker
-                        v-model="block.lightHexStr"
-                        @input="updateColor"
-                    ></v-color-picker>
-                </div>
-
-                <v-checkbox v-model="block.jumpPad" @change="writeBlock" label="Jump pad"></v-checkbox>
+            <v-checkbox
+                v-model="block.lightEnabled"
+                @change="writeBlock"
+                label="Emit light"
+            ></v-checkbox>
+            <div v-if="block.lightEnabled">
                 <v-slider
-                    v-if="block.jumpPad"
-                    v-model="block.jumpPadForce"
-                    min="0"
-                    max="8"
-                    label="Jump pad force"
+                    v-model="block.lightStr"
+                    min="1"
+                    max="10"
+                    :step="0.1"
+                    label="Strength"
                     :thumb-size="24"
                     thumb-label="always"
                     @change="writeBlock"
                 ></v-slider>
-            </v-card-text>
-        </v-card>
+                <v-slider
+                    v-model="block.lightRad"
+                    min="1"
+                    max="24"
+                    label="Radius"
+                    :thumb-size="24"
+                    thumb-label="always"
+                    @change="writeBlock"
+                ></v-slider>
+                <v-color-picker
+                    v-model="block.lightHexStr"
+                    @input="updateColor"
+                ></v-color-picker>
+            </div>
+
+            <v-checkbox
+                v-model="block.jumpPad"
+                @change="writeBlock"
+                label="Jump pad"
+            ></v-checkbox>
+            <v-slider
+                v-if="block.jumpPad"
+                v-model="block.jumpPadForce"
+                min="0"
+                max="8"
+                label="Jump pad force"
+                :thumb-size="24"
+                thumb-label="always"
+                @change="writeBlock"
+            ></v-slider>
+        </div>
     </div>
 </template>
 <script>

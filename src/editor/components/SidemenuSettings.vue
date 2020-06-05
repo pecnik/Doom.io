@@ -37,27 +37,32 @@
 </template>
 <script>
 import { editor } from "../Editor";
+
+const applyViewSettings = view => {
+    editor.level.wireframeMesh.visible = view.wireframe;
+    editor.level.skyboxMesh.visible = view.skybox;
+    editor.level.floorMesh.visible = view.floor;
+    editor.level.lightMeshGroup.visible = view.lightOrbs;
+    editor.level.jumpPadMeshGroup.visible = view.jumpPads;
+    editor.store.state.fancyLighting = view.fancyLighting;
+
+    view = JSON.stringify(view);
+    localStorage.setItem("menu-viewport", view);
+};
+
+const json = localStorage.getItem("menu-viewport") || "{}";
+const view = JSON.parse(json);
+applyViewSettings(view);
+
 export default {
     watch: {
         view: {
             deep: true,
             immediate: true,
-            handler(view) {
-                editor.level.wireframeMesh.visible = view.wireframe;
-                editor.level.skyboxMesh.visible = view.skybox;
-                editor.level.floorMesh.visible = view.floor;
-                editor.level.lightMeshGroup.visible = view.lightOrbs;
-                editor.level.jumpPadMeshGroup.visible = view.jumpPads;
-                editor.store.state.fancyLighting = view.fancyLighting;
-
-                view = JSON.stringify(view);
-                localStorage.setItem("menu-viewport", view);
-            }
+            handler: applyViewSettings
         }
     },
     data() {
-        const json = localStorage.getItem("menu-viewport") || "{}";
-        const view = JSON.parse(json);
         return {
             view: {
                 wireframe: true,

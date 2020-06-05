@@ -133,4 +133,9 @@ export module Components {
             this.src = src;
         }
     }
+
+    export class Respawn {
+        public inProgress = false;
+        public time = 0;
+    }
 }

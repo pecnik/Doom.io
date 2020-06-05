@@ -19,6 +19,7 @@ export class PlayerSyncSystem extends System {
         this.client = client;
     }
 
+    public readonly updateInterval = 1 / 60;
     public update() {
         const avatar = this.family.first();
         if (avatar !== undefined) {

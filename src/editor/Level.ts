@@ -5,7 +5,6 @@ import {
     Box3,
     PlaneGeometry,
     MeshBasicMaterial,
-    Vector2,
     Geometry,
     VertexColors,
     BackSide,
@@ -14,9 +13,11 @@ import {
     Group,
     IcosahedronGeometry,
     CylinderGeometry,
+    NearestFilter,
+    Vector2,
 } from "three";
 import { disposeMeshMaterial, loadTexture } from "../game/Helpers";
-import { degToRad } from "../game/core/Utils";
+import { degToRad, modulo } from "../game/core/Utils";
 import { clamp, isEqual } from "lodash";
 
 export const TILE_W = 64;
@@ -32,6 +33,7 @@ export interface LevelJSON {
     depth: number;
     skins: number[][];
     blocks: number[];
+    textures: LevelTexture[];
     solidBlocks: number[];
     jumpPadBlocks: { index: number; force: number }[];
     emmitionBlocks: {
@@ -42,12 +44,17 @@ export interface LevelJSON {
     }[];
 }
 
+export interface LevelTexture {
+    src: string;
+    scale: number;
+}
+
 export class LevelBlock {
     public readonly index: number;
     public readonly origin: Vector3;
     public readonly aabb: Box3;
 
-    public faces = [0, 0, 0, 0, 0, 0].map((x) => x + 16);
+    public faces = [0, 0, 0, 0, 0, 0];
     public solid = false;
 
     public lightStr = 0;
@@ -92,6 +99,24 @@ export class Level {
     public height = 0;
     public depth = 0;
     public blocks: LevelBlock[] = [];
+    public textures: LevelTexture[] = [
+        {
+            src: "/assets/levels/textures/brick.png",
+            scale: 0,
+        },
+        {
+            src: "/assets/levels/textures/metal_1.png",
+            scale: 0,
+        },
+        {
+            src: "/assets/levels/textures/metal_2.png",
+            scale: 0,
+        },
+        {
+            src: "/assets/levels/textures/floor_tile.png",
+            scale: 1,
+        },
+    ];
 
     public readonly mesh = new Mesh();
     public readonly skyboxMesh = new Mesh();
@@ -242,12 +267,21 @@ export class Level {
     }
 
     public loadMaterial() {
-        return loadTexture("/assets/tileset.png").then((map) => {
-            disposeMeshMaterial(this.mesh.material);
-            this.mesh.material = new MeshBasicMaterial({
-                vertexColors: VertexColors,
-                map,
+        const loadTextureMaterial = (texture: LevelTexture) => {
+            return loadTexture(texture.src).then((map) => {
+                map.needsUpdate = true;
+                map.magFilter = NearestFilter;
+                return new MeshBasicMaterial({
+                    vertexColors: VertexColors,
+                    map,
+                });
             });
+        };
+
+        const loadMaterials = this.textures.map(loadTextureMaterial);
+        return Promise.all(loadMaterials).then((materials) => {
+            disposeMeshMaterial(this.mesh.material);
+            this.mesh.material = materials;
         });
     }
 
@@ -303,21 +337,31 @@ export class Level {
     }
 
     private updateMeshGeometry() {
-        const setTextureUV = (plane: PlaneGeometry, tileId: number) => {
+        const setTextureUV = (
+            plane: PlaneGeometry,
+            textureId: number,
+            x: number = 0,
+            y: number = 0
+        ) => {
+            plane.faces[0].materialIndex = textureId;
+            plane.faces[1].materialIndex = textureId;
+            plane.elementsNeedUpdate = true;
+
+            // Set texture tiling
+            const pow = this.textures[textureId]
+                ? this.textures[textureId].scale
+                : 0;
+            const scale = 2 ** pow;
+
+            const tileW = 1 / scale;
+            const tileH = 1 / scale;
+
+            const minU = 0;
+            const maxU = tileW;
+            const maxV = 1;
+            const minV = 1 - tileH;
+
             const cords: Vector2[][] = plane.faceVertexUvs[0];
-
-            // preload UV
-            const padU = 1 / TEXTURE_W;
-            const padV = 1 / TEXTURE_H;
-            const tileW = TILE_W / TEXTURE_W;
-            const tileH = TILE_H / TEXTURE_H;
-
-            // padding to prevent seams
-            const minU = padU;
-            const maxU = tileW - padU;
-            const maxV = 1 - padV;
-            const minV = 1 - tileH + padV;
-
             cords[0][0].set(minU, maxV);
             cords[0][1].set(minU, minV);
             cords[0][2].set(maxU, maxV);
@@ -326,17 +370,14 @@ export class Level {
             cords[1][1].set(maxU, minV);
             cords[1][2].set(maxU, maxV);
 
-            // Offset by tileID
-            let x = tileId % TILE_COLS;
-            let y = Math.floor(tileId / TILE_COLS);
+            x = modulo(x, scale);
+            y = modulo(y, scale);
             for (let i = 0; i < 2; i++) {
                 for (let j = 0; j < 3; j++) {
                     cords[i][j].x += tileW * x;
                     cords[i][j].y -= tileH * y;
                 }
             }
-
-            plane.elementsNeedUpdate = true;
         };
 
         // Basic shading
@@ -365,9 +406,9 @@ export class Level {
                 return neighbor !== undefined && neighbor.solid;
             };
 
-            if (!hasSolidNeighbor(-1, 0, 0)) {
+            if (!hasSolidNeighbor(-1, 0, 0) && origin.x > 0) {
                 const xmin = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(xmin, block.faces[0]);
+                setTextureUV(xmin, block.faces[0], origin.z, -origin.y);
                 setVertexColor(xmin, bright1);
                 xmin.rotateY(Math.PI * -0.5);
                 xmin.translate(origin.x, origin.y, origin.z);
@@ -375,9 +416,9 @@ export class Level {
                 planes.push(xmin);
             }
 
-            if (!hasSolidNeighbor(1, 0, 0)) {
+            if (!hasSolidNeighbor(1, 0, 0) && origin.x < this.width - 1) {
                 const xmax = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(xmax, block.faces[1]);
+                setTextureUV(xmax, block.faces[1], -origin.z, -origin.y);
                 setVertexColor(xmax, bright1);
                 xmax.rotateY(Math.PI * 0.5);
                 xmax.translate(origin.x, origin.y, origin.z);
@@ -385,9 +426,9 @@ export class Level {
                 planes.push(xmax);
             }
 
-            if (!hasSolidNeighbor(0, -1, 0)) {
+            if (!hasSolidNeighbor(0, -1, 0) && origin.y > 0) {
                 const ymin = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(ymin, block.faces[2]);
+                setTextureUV(ymin, block.faces[2], origin.x, -origin.z);
                 setVertexColor(ymin, dark2);
                 ymin.rotateX(Math.PI * 0.5);
                 ymin.translate(origin.x, origin.y, origin.z);
@@ -397,7 +438,7 @@ export class Level {
 
             if (!hasSolidNeighbor(0, 1, 0)) {
                 const ymax = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(ymax, block.faces[3]);
+                setTextureUV(ymax, block.faces[3], origin.x, origin.z);
                 setVertexColor(ymax, bright2);
                 ymax.rotateX(Math.PI * -0.5);
                 ymax.translate(origin.x, origin.y, origin.z);
@@ -405,9 +446,9 @@ export class Level {
                 planes.push(ymax);
             }
 
-            if (!hasSolidNeighbor(0, 0, -1)) {
+            if (!hasSolidNeighbor(0, 0, -1) && origin.z > 0) {
                 const zmin = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(zmin, block.faces[4]);
+                setTextureUV(zmin, block.faces[4], origin.x, -origin.y);
                 setVertexColor(zmin, dark1);
                 zmin.rotateY(Math.PI);
                 zmin.translate(origin.x, origin.y, origin.z);
@@ -415,9 +456,9 @@ export class Level {
                 planes.push(zmin);
             }
 
-            if (!hasSolidNeighbor(0, 0, 1)) {
+            if (!hasSolidNeighbor(0, 0, 1) && origin.z < this.depth - 1) {
                 const zmax = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(zmax, block.faces[5]);
+                setTextureUV(zmax, block.faces[5], -origin.x, -origin.y);
                 setVertexColor(zmax, dark1);
                 zmax.translate(origin.x, origin.y, origin.z);
                 zmax.translate(0, 0, 0.5);
@@ -515,40 +556,29 @@ export class Level {
 
     public updateGeometryLightning() {
         const lights = this.getLights();
-        if (lights.length === 0) return;
+        if (lights.length === 0) return Promise.resolve();
 
         const ray = new Ray();
-        const areaBox = new Box3();
         const blockBox = new Box3();
-
         const reachedLight = (point: Vector3, light: Vector3) => {
             ray.origin.copy(point);
             ray.direction.subVectors(light, point).normalize();
 
-            const pad = 0.001;
-            areaBox.min.set(
-                Math.min(point.x, light.x) - pad,
-                Math.min(point.y, light.y) - pad,
-                Math.min(point.z, light.z) - pad
-            );
-
-            areaBox.max.set(
-                Math.max(point.x, light.x) + pad,
-                Math.max(point.y, light.y) + pad,
-                Math.max(point.z, light.z) + pad
-            );
-
-            for (let i = 0; i < this.blocks.length; i++) {
-                const block = this.blocks[i];
-                if (!block.solid) continue;
-                if (!areaBox.intersectsBox(block.aabb)) continue;
-
-                blockBox.copy(block.aabb);
-                blockBox.min.addScalar(pad);
-                blockBox.max.subScalar(pad);
-                if (ray.intersectsBox(blockBox)) {
-                    return false;
+            const step = ray.direction.clone().multiplyScalar(0.2);
+            const bray = point.clone().add(step);
+            while (bray.distanceToSquared(light) > 1) {
+                const block = this.getBlockAt(bray);
+                if (block && block.solid) {
+                    const pad = 0.001;
+                    blockBox.copy(block.aabb);
+                    blockBox.min.addScalar(pad);
+                    blockBox.max.subScalar(pad);
+                    if (ray.intersectsBox(blockBox)) {
+                        return false;
+                    }
                 }
+
+                bray.add(step);
             }
 
             return true;
@@ -562,6 +592,11 @@ export class Level {
                 const lightColor = lights[l].color;
                 const lightRad = lights[l].rad;
                 const lightStr = lights[l].str;
+
+                // Quick dist check
+                const distSqrt = point.distanceToSquared(lightOrigin);
+                const lightRadSqrt = lightRad ** 2;
+                if (distSqrt > lightRadSqrt) continue;
 
                 // Test if facing light
                 if (normal.x === +1 && lightOrigin.x < point.x) continue;
@@ -586,19 +621,34 @@ export class Level {
             return result;
         };
 
-        const geometry = this.mesh.geometry as Geometry;
-        geometry.elementsNeedUpdate = true;
-        for (let i = 0; i < geometry.faces.length; i++) {
-            const face = geometry.faces[i];
-            const verts = geometry.vertices;
-            face.vertexColors[0] = aggregateLight(verts[face.a], face.normal);
-            face.vertexColors[1] = aggregateLight(verts[face.b], face.normal);
-            face.vertexColors[2] = aggregateLight(verts[face.c], face.normal);
-        }
+        return new Promise((resolve, reject) => {
+            const geometry = this.mesh.geometry as Geometry;
+
+            let index = 0;
+            const updateFace = () => {
+                if (geometry !== this.mesh.geometry) return reject();
+                if (geometry.faces.length <= index) return resolve();
+
+                for (let i = 0; i < 100 && index < geometry.faces.length; i++) {
+                    const f = geometry.faces[index];
+                    const v = geometry.vertices;
+                    f.vertexColors[0] = aggregateLight(v[f.a], f.normal);
+                    f.vertexColors[1] = aggregateLight(v[f.b], f.normal);
+                    f.vertexColors[2] = aggregateLight(v[f.c], f.normal);
+                    index++;
+                }
+
+                geometry.elementsNeedUpdate = true;
+
+                setTimeout(updateFace);
+            };
+
+            updateFace();
+        });
     }
 
     public updateAmbientOcclusion() {
-        const occlusion = (color: Color, vec: Vector3) => {
+        const occlusion = (color: Color, vec: Vector3, normal: Vector3) => {
             const xmin = Math.min(vec.x - 0.5);
             const ymin = Math.min(vec.y - 0.5);
             const zmin = Math.min(vec.z - 0.5);
@@ -607,23 +657,36 @@ export class Level {
             const ymax = Math.max(vec.y + 0.5);
             const zmax = Math.max(vec.z + 0.5);
 
+            const point = vec.clone();
+            point.x += normal.x * 0.5;
+            point.y += normal.y * 0.5;
+            point.z += normal.z * 0.5;
+
             let count = 0;
             for (let x = xmin; x <= xmax; x++) {
                 for (let y = ymin; y <= ymax; y++) {
                     for (let z = zmin; z <= zmax; z++) {
                         const block = this.getBlock(x, y, z);
-                        if (block && block.solid) {
+                        if (block === undefined) continue;
+                        if (block.solid === false) continue;
+
+                        if (
+                            block.origin.x === point.x ||
+                            block.origin.y === point.y ||
+                            block.origin.z === point.z
+                        ) {
                             count++;
                         }
                     }
                 }
             }
 
-            if (count > 4) {
-                color.r *= 0.75;
-                color.g *= 0.75;
-                color.b *= 0.75;
-            }
+            const str = 0.6;
+            let fac = 1 / (count + 1);
+            fac = 1 - str + 1 * str * fac;
+            color.r *= fac;
+            color.g *= fac;
+            color.b *= fac;
         };
 
         const geometry = this.mesh.geometry as Geometry;
@@ -631,9 +694,9 @@ export class Level {
         for (let i = 0; i < geometry.faces.length; i++) {
             const face = geometry.faces[i];
             const verts = geometry.vertices;
-            occlusion(face.vertexColors[0], verts[face.a]);
-            occlusion(face.vertexColors[1], verts[face.b]);
-            occlusion(face.vertexColors[2], verts[face.c]);
+            occlusion(face.vertexColors[0], verts[face.a], face.normal);
+            occlusion(face.vertexColors[1], verts[face.b], face.normal);
+            occlusion(face.vertexColors[2], verts[face.c], face.normal);
         }
     }
 
@@ -664,6 +727,15 @@ export class Level {
             const block = this.blocks[data.index];
             block.jumpPadForce = data.force;
         });
+
+        if (json.textures) {
+            this.textures = json.textures.map((texture) => {
+                return {
+                    src: texture.src || "/assets/levels/textures/brick.png",
+                    scale: texture.scale || 0,
+                };
+            });
+        }
     }
 
     public toJson(): LevelJSON {
@@ -673,6 +745,7 @@ export class Level {
             depth: this.depth,
             skins: [],
             blocks: [],
+            textures: [...this.textures],
             solidBlocks: [],
             jumpPadBlocks: [],
             emmitionBlocks: [],

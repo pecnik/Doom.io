@@ -37,10 +37,11 @@ export class Editor {
     public readonly store = new Vuex.Store({
         state: {
             levelMutations: 0,
+            levelTextures: new Array<{ src: string }>(),
+            textureId: 0,
             cursor: { x: 0, y: 0 },
             cursorType: "",
             activeTool: "",
-            tileId: 16,
             brushSize: 1,
             blockIndex: -1,
             fancyLighting: true,
@@ -50,9 +51,6 @@ export class Editor {
     public readonly tools = this.createTools();
 
     public constructor() {
-        this.level.loadSkybox();
-        this.level.loadMaterial();
-        this.level.updateGeometry();
         this.scene.add(
             this.level.mesh,
             this.level.skyboxMesh,
@@ -74,6 +72,10 @@ export class Editor {
             }
         });
 
+        this.level.loadSkybox();
+        this.level.loadMaterial();
+        this.level.updateGeometry();
+
         this.camera.position.set(0, 10, 0);
         this.camera.rotation.set(-Math.PI / 2, 0, 0, "YXZ");
 
@@ -82,6 +84,11 @@ export class Editor {
         this.store.watch(
             (state) => state.fancyLighting,
             () => this.updateLevelMesh()
+        );
+
+        this.store.watch(
+            (state) => state.levelTextures,
+            () => this.level.loadMaterial()
         );
     }
 
@@ -129,12 +136,12 @@ export class Editor {
         );
 
         // Initialize all tools
-        tools.get(MoveTool);
         tools.get(BlockTool);
         tools.get(EraserTool);
         tools.get(PaintTool);
-        tools.get(SelecTool);
         tools.get(SampleTool);
+        tools.get(SelecTool);
+        tools.get(MoveTool);
         tools.all.forEach((tool) => tool.end());
 
         // Select move as default tool
@@ -208,13 +215,18 @@ export class Editor {
         this.updateLevelMesh();
         this.history.push(this.level.toJson());
         this.store.state.levelMutations++;
+        this.store.state.levelTextures = this.level.textures;
+
+        const json = this.level.toJson();
+        localStorage.setItem("level", JSON.stringify(json));
     }
 
     private updateLevelMesh() {
         this.level.updateGeometry();
         if (this.store.state.fancyLighting) {
-            this.level.updateGeometryLightning();
-            this.level.updateAmbientOcclusion();
+            this.level.updateGeometryLightning().then(() => {
+                this.level.updateAmbientOcclusion();
+            });
         }
     }
 

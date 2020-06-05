@@ -44,8 +44,8 @@ export class SampleTool extends Tool {
         this.cursor.color.setRGB(1, 1, 0);
         if (rsp !== undefined) {
             const index = rsp.block.getFaceIndex(rsp.normal);
-            const tileId = rsp.block.faces[index];
-            this.editor.store.state.tileId = tileId;
+            const textureId = rsp.block.faces[index];
+            this.editor.store.state.textureId = textureId;
         }
     }
 }

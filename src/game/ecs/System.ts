@@ -6,11 +6,12 @@ import { AnyComponents } from "./Components";
 
 export abstract class System {
     protected readonly world: World;
-
     public constructor(world: World) {
         this.world = world;
     }
 
+    public lastUpdate: number = 0;
+    public readonly updateInterval: number = 0;
     public abstract update(_: number): void;
 
     protected createEntityFamily<T extends AnyComponents>(props: {
