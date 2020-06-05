@@ -10,6 +10,7 @@ import {
     Material,
     Vector3,
     Object3D,
+    Matrix4,
 } from "three";
 import { World } from "./ecs";
 import { WeaponState } from "./data/Types";
@@ -128,3 +129,20 @@ export function disposeMeshMaterial(material: Material | Material[]) {
         material.forEach((material) => material.dispose());
     }
 }
+
+export const getHeadingVector3 = (() => {
+    const object = new Object3D();
+    const matrix = new Matrix4();
+    const vector = new Vector3(0, 0, -1);
+    return (rotation: Vector3) => {
+        object.rotation.set(rotation.x, rotation.y, rotation.z, "YXZ");
+        object.updateWorldMatrix(false, false);
+
+        matrix.extractRotation(object.matrixWorld);
+
+        vector.set(0, 0, -1);
+        vector.applyMatrix4(matrix).normalize();
+
+        return vector.clone();
+    };
+})();
