@@ -14,9 +14,10 @@ import {
     IcosahedronGeometry,
     CylinderGeometry,
     NearestFilter,
+    Vector2,
 } from "three";
 import { disposeMeshMaterial, loadTexture } from "../game/Helpers";
-import { degToRad } from "../game/core/Utils";
+import { degToRad, modulo } from "../game/core/Utils";
 import { clamp, isEqual } from "lodash";
 
 export const TILE_W = 64;
@@ -45,6 +46,7 @@ export interface LevelJSON {
 
 export interface LevelTexture {
     src: string;
+    scale: number;
 }
 
 export class LevelBlock {
@@ -97,19 +99,22 @@ export class Level {
     public height = 0;
     public depth = 0;
     public blocks: LevelBlock[] = [];
-
     public textures: LevelTexture[] = [
         {
             src: "/assets/levels/textures/brick.png",
+            scale: 0,
         },
         {
             src: "/assets/levels/textures/metal_1.png",
+            scale: 0,
         },
         {
             src: "/assets/levels/textures/metal_2.png",
+            scale: 0,
         },
         {
             src: "/assets/levels/textures/floor_tile.png",
+            scale: 1,
         },
     ];
 
@@ -332,10 +337,47 @@ export class Level {
     }
 
     private updateMeshGeometry() {
-        const setTextureUV = (plane: PlaneGeometry, textureId: number) => {
+        const setTextureUV = (
+            plane: PlaneGeometry,
+            textureId: number,
+            x: number = 0,
+            y: number = 0
+        ) => {
             plane.faces[0].materialIndex = textureId;
             plane.faces[1].materialIndex = textureId;
             plane.elementsNeedUpdate = true;
+
+            // Set texture tiling
+            const pow = this.textures[textureId]
+                ? this.textures[textureId].scale
+                : 0;
+            const scale = 2 ** pow;
+
+            const tileW = 1 / scale;
+            const tileH = 1 / scale;
+
+            const minU = 0;
+            const maxU = tileW;
+            const maxV = 1;
+            const minV = 1 - tileH;
+
+            const cords: Vector2[][] = plane.faceVertexUvs[0];
+            cords[0][0].set(minU, maxV);
+            cords[0][1].set(minU, minV);
+            cords[0][2].set(maxU, maxV);
+
+            cords[1][0].set(minU, minV);
+            cords[1][1].set(maxU, minV);
+            cords[1][2].set(maxU, maxV);
+
+            x = modulo(x, scale);
+            y = modulo(y, scale);
+            for (let i = 0; i < 2; i++) {
+                for (let j = 0; j < 3; j++) {
+                    cords[i][j].x += tileW * x;
+                    cords[i][j].y -= tileH * y;
+                }
+            }
         };
 
         // Basic shading
@@ -366,7 +408,7 @@ export class Level {
 
             if (!hasSolidNeighbor(-1, 0, 0) && origin.x > 0) {
                 const xmin = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(xmin, block.faces[0]);
+                setTextureUV(xmin, block.faces[0], origin.z, -origin.y);
                 setVertexColor(xmin, bright1);
                 xmin.rotateY(Math.PI * -0.5);
                 xmin.translate(origin.x, origin.y, origin.z);
@@ -376,7 +418,7 @@ export class Level {
 
             if (!hasSolidNeighbor(1, 0, 0) && origin.x < this.width - 1) {
                 const xmax = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(xmax, block.faces[1]);
+                setTextureUV(xmax, block.faces[1], -origin.z, -origin.y);
                 setVertexColor(xmax, bright1);
                 xmax.rotateY(Math.PI * 0.5);
                 xmax.translate(origin.x, origin.y, origin.z);
@@ -386,7 +428,7 @@ export class Level {
 
             if (!hasSolidNeighbor(0, -1, 0) && origin.y > 0) {
                 const ymin = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(ymin, block.faces[2]);
+                setTextureUV(ymin, block.faces[2], origin.x, -origin.z);
                 setVertexColor(ymin, dark2);
                 ymin.rotateX(Math.PI * 0.5);
                 ymin.translate(origin.x, origin.y, origin.z);
@@ -396,7 +438,7 @@ export class Level {
 
             if (!hasSolidNeighbor(0, 1, 0)) {
                 const ymax = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(ymax, block.faces[3]);
+                setTextureUV(ymax, block.faces[3], origin.x, origin.z);
                 setVertexColor(ymax, bright2);
                 ymax.rotateX(Math.PI * -0.5);
                 ymax.translate(origin.x, origin.y, origin.z);
@@ -406,7 +448,7 @@ export class Level {
 
             if (!hasSolidNeighbor(0, 0, -1) && origin.z > 0) {
                 const zmin = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(zmin, block.faces[4]);
+                setTextureUV(zmin, block.faces[4], origin.x, -origin.y);
                 setVertexColor(zmin, dark1);
                 zmin.rotateY(Math.PI);
                 zmin.translate(origin.x, origin.y, origin.z);
@@ -416,7 +458,7 @@ export class Level {
 
             if (!hasSolidNeighbor(0, 0, 1) && origin.z < this.depth - 1) {
                 const zmax = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(zmax, block.faces[5]);
+                setTextureUV(zmax, block.faces[5], -origin.x, -origin.y);
                 setVertexColor(zmax, dark1);
                 zmax.translate(origin.x, origin.y, origin.z);
                 zmax.translate(0, 0, 0.5);
@@ -687,7 +729,12 @@ export class Level {
         });
 
         if (json.textures) {
-            this.textures = json.textures;
+            this.textures = json.textures.map((texture) => {
+                return {
+                    src: texture.src || "/assets/levels/textures/brick.png",
+                    scale: texture.scale || 0,
+                };
+            });
         }
     }
 

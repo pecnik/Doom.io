@@ -45,6 +45,24 @@ export default {
                     click: () => {
                         this.retextureDialog = true;
                     }
+                },
+                {
+                    label: "Symmetrize X",
+                    click: () => {
+                        editor.commitLevelMutation(level => {
+                            const mid = Math.floor(level.width / 2);
+                            level.blocks.forEach(block => {
+                                const mirror = level.getBlock(
+                                    block.origin.x < mid
+                                        ? block.origin.x
+                                        : level.width - block.origin.x - 1,
+                                    block.origin.y,
+                                    block.origin.z
+                                );
+                                block.copy(mirror);
+                            });
+                        });
+                    }
                 }
             ]
         };

@@ -10,10 +10,11 @@
                     <v-icon>mdi-pencil</v-icon>
                 </v-tab>
                 <v-tab>
-                    <v-icon>mdi-settings</v-icon>
-                </v-tab>
-                <v-tab>
                     <v-icon>mdi-image</v-icon>
+                </v-tab>
+                <v-divider></v-divider>
+                <v-tab>
+                    <v-icon>mdi-settings</v-icon>
                 </v-tab>
             </v-tabs>
             <v-tabs-items v-model="tab">
@@ -23,10 +24,10 @@
                     </v-card-text>
                 </v-tab-item>
                 <v-tab-item>
-                    <sidemenu-settings></sidemenu-settings>
+                    <sidemenu-textures></sidemenu-textures>
                 </v-tab-item>
                 <v-tab-item>
-                    <sidemenu-textures></sidemenu-textures>
+                    <sidemenu-settings></sidemenu-settings>
                 </v-tab-item>
             </v-tabs-items>
         </v-card>
