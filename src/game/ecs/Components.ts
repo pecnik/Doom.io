@@ -70,6 +70,7 @@ export module Components {
             [WeaponType.Pistol]: Shooter.initAmmo(WeaponType.Pistol),
             [WeaponType.Shotgun]: Shooter.initAmmo(WeaponType.Shotgun),
             [WeaponType.Machinegun]: Shooter.initAmmo(WeaponType.Machinegun),
+            [WeaponType.Plasma]: Shooter.initAmmo(WeaponType.Plasma),
         };
 
         private static initAmmo(type: WeaponType) {

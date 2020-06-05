@@ -2,6 +2,7 @@ export enum WeaponType {
     Pistol,
     Shotgun,
     Machinegun,
+    Plasma,
 }
 
 export class WeaponSpec {
@@ -156,7 +157,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
         .ammo(32, 512)
         .damage(15)
         .accuracy(0.75)
-        .roundsPerSec(8)
+        .roundsPerSec(5)
         .reloadSpeed(1.5)
         .povSprite("/assets/sprites/Machinegun/MG0001.png", [
             "/assets/sprites/Machinegun/MG0002.png",
@@ -166,6 +167,27 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
         .ammoPickupMesh("/assets/mesh/ammo_pickup_machinegun.glb")
         .sound({
             fire: "/assets/sounds/fire-machine-gun.wav",
+            reload: "/assets/sounds/reload.wav",
+        })
+        .build(),
+
+    [WeaponType.Plasma]: new WeaponSpecBuilder()
+        .type(WeaponType.Plasma)
+        .name("Machinegun")
+        .icon("/assets/sprites/hud/icon_mg.png")
+        .ammo(20, 100)
+        .damage(100)
+        .accuracy(0.75)
+        .roundsPerSec(10)
+        .reloadSpeed(2)
+        .povSprite("/assets/sprites/Plasma/PLR001.png", [
+            "/assets/sprites/Plasma/PLR008.png",
+            "/assets/sprites/Plasma/PLR009.png",
+            "/assets/sprites/Plasma/PLR007.png",
+        ])
+        .ammoPickupMesh("/assets/mesh/ammo_pickup_machinegun.glb")
+        .sound({
+            fire: "/assets/sounds/fire-plasma.wav",
             reload: "/assets/sounds/reload.wav",
         })
         .build(),

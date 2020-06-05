@@ -12,7 +12,7 @@ import { random } from "lodash";
 import { SWAP_SPEED } from "../data/Globals";
 import { WeaponState, WeaponAmmo } from "../data/Types";
 import { LocalAvatarArchetype, EnemyAvatarArchetype } from "../ecs/Archetypes";
-import { WEAPON_SPEC_RECORD, WeaponSpec } from "../data/Weapon";
+import { WEAPON_SPEC_RECORD, WeaponSpec, WeaponType } from "../data/Weapon";
 import { GameClient } from "../GameClient";
 
 class HitscanResponse {
@@ -184,6 +184,11 @@ export class PlayerShootSystem extends System {
         const rotation = player.rotation;
         const weaponSpec = getWeaponSpec(player);
 
+        if (weaponSpec.type === WeaponType.Plasma) {
+            console.log("Emit projectile");
+            return;
+        }
+
         // Init hitscan camera
         Hitscan.caster.entity = player;
         Hitscan.camera.position.copy(position);
@@ -200,17 +205,7 @@ export class PlayerShootSystem extends System {
                 continue;
             }
 
-            // Emit blood particles
-            const matrix = new Matrix3();
-            matrix.getNormalMatrix(rsp.intersection.object.matrixWorld);
-
-            const worldNormal = rsp.normal
-                .clone()
-                .applyMatrix3(matrix)
-                .normalize();
-            this.world.particles.blood(rsp.point, worldNormal);
-
-            // Finaly disaptch the action
+            this.emitBloodParticles(rsp);
             this.client.hitAvatar(
                 player.id,
                 rsp.enemyEntity.id,
@@ -218,6 +213,16 @@ export class PlayerShootSystem extends System {
                 player.shooter.weaponType
             );
         }
+    }
+
+    private emitBloodParticles(rsp: HitscanResponse) {
+        const matrix = new Matrix3();
+        matrix.getNormalMatrix(rsp.intersection.object.matrixWorld);
+        const worldNormal = rsp.normal
+            .clone()
+            .applyMatrix3(matrix)
+            .normalize();
+        this.world.particles.blood(rsp.point, worldNormal);
     }
 
     private hitscan(player: Entity<LocalAvatarArchetype>) {
