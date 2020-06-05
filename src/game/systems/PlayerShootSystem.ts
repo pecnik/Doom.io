@@ -45,11 +45,87 @@ export class PlayerShootSystem extends System {
         this.client = client;
     }
 
+    public update() {
+        const avatar = this.players.first();
+        if (avatar === undefined) return;
+
+        const input = avatar.input;
+        const shooter = avatar.shooter;
+        const weapon = WEAPON_SPEC_RECORD[shooter.weaponType];
+        const ammo = shooter.ammo[shooter.weaponType];
+
+        const swap = input.weaponType !== shooter.weaponType;
+        const reload = this.getReload(ammo, weapon, input);
+
+        if (shooter.state === WeaponState.Idle) {
+            if (swap) {
+                return this.transition(WeaponState.Swap, avatar);
+            }
+
+            if (reload) {
+                return this.transition(WeaponState.Reload, avatar);
+            }
+
+            if (input.shoot && ammo.loaded > 0) {
+                return this.transition(WeaponState.Shoot, avatar);
+            }
+        }
+
+        if (shooter.state === WeaponState.Swap) {
+            const swapDelta = this.world.elapsedTime - shooter.swapTime;
+            if (swapDelta > SWAP_SPEED) {
+                return this.transition(WeaponState.Idle, avatar);
+            }
+
+            if (reload) {
+                return this.transition(WeaponState.Reload, avatar);
+            }
+
+            if (swap) {
+                return this.transition(WeaponState.Swap, avatar);
+            }
+        }
+
+        if (shooter.state === WeaponState.Shoot) {
+            return this.transition(WeaponState.Cooldown, avatar);
+        }
+
+        if (shooter.state === WeaponState.Cooldown) {
+            const fireRate = weapon.firerate;
+            const shootDelta = this.world.elapsedTime - shooter.shootTime;
+            if (shootDelta > fireRate) {
+                return this.transition(WeaponState.Idle, avatar);
+            }
+        }
+
+        if (shooter.state === WeaponState.Reload) {
+            if (swap) {
+                return this.transition(WeaponState.Swap, avatar);
+            }
+
+            const weapon = WEAPON_SPEC_RECORD[shooter.weaponType];
+            const reloadDelta = this.world.elapsedTime - shooter.reloadTime;
+            if (reloadDelta > weapon.reloadSpeed) {
+                const reload = Math.min(
+                    weapon.maxLoadedAmmo - ammo.loaded,
+                    ammo.reserved
+                );
+
+                ammo.loaded += reload;
+                ammo.reserved -= reload;
+
+                input.reloadQueue = false;
+
+                return this.transition(WeaponState.Idle, avatar);
+            }
+        }
+    }
+
     private transition(
         state: WeaponState,
-        entity: Entity<LocalAvatarArchetype>
+        avatar: Entity<LocalAvatarArchetype>
     ) {
-        const { input, shooter } = entity;
+        const { input, shooter } = avatar;
 
         if (state === WeaponState.Idle) {
             shooter.state = WeaponState.Idle;
@@ -64,7 +140,7 @@ export class PlayerShootSystem extends System {
             const ammo = shooter.ammo[shooter.weaponType];
             ammo.loaded--;
             shooter.shootTime = this.world.elapsedTime;
-            this.shootBullet(entity);
+            this.shootBullet(avatar);
 
             return;
         }
@@ -91,81 +167,6 @@ export class PlayerShootSystem extends System {
         }
 
         console.warn(`> No state transition for ${state}`);
-    }
-
-    public update() {
-        this.players.entities.forEach((entity) => {
-            const input = entity.input;
-            const shooter = entity.shooter;
-            const weapon = WEAPON_SPEC_RECORD[shooter.weaponType];
-            const ammo = shooter.ammo[shooter.weaponType];
-
-            const swap = input.weaponType !== shooter.weaponType;
-            const reload = this.getReload(ammo, weapon, input);
-
-            if (shooter.state === WeaponState.Idle) {
-                if (swap) {
-                    return this.transition(WeaponState.Swap, entity);
-                }
-
-                if (reload) {
-                    return this.transition(WeaponState.Reload, entity);
-                }
-
-                if (input.shoot && ammo.loaded > 0) {
-                    return this.transition(WeaponState.Shoot, entity);
-                }
-            }
-
-            if (shooter.state === WeaponState.Swap) {
-                const swapDelta = this.world.elapsedTime - shooter.swapTime;
-                if (swapDelta > SWAP_SPEED) {
-                    return this.transition(WeaponState.Idle, entity);
-                }
-
-                if (reload) {
-                    return this.transition(WeaponState.Reload, entity);
-                }
-
-                if (swap) {
-                    return this.transition(WeaponState.Swap, entity);
-                }
-            }
-
-            if (shooter.state === WeaponState.Shoot) {
-                return this.transition(WeaponState.Cooldown, entity);
-            }
-
-            if (shooter.state === WeaponState.Cooldown) {
-                const fireRate = weapon.firerate;
-                const shootDelta = this.world.elapsedTime - shooter.shootTime;
-                if (shootDelta > fireRate) {
-                    return this.transition(WeaponState.Idle, entity);
-                }
-            }
-
-            if (shooter.state === WeaponState.Reload) {
-                if (swap) {
-                    return this.transition(WeaponState.Swap, entity);
-                }
-
-                const weapon = WEAPON_SPEC_RECORD[shooter.weaponType];
-                const reloadDelta = this.world.elapsedTime - shooter.reloadTime;
-                if (reloadDelta > weapon.reloadSpeed) {
-                    const reload = Math.min(
-                        weapon.maxLoadedAmmo - ammo.loaded,
-                        ammo.reserved
-                    );
-
-                    ammo.loaded += reload;
-                    ammo.reserved -= reload;
-
-                    input.reloadQueue = false;
-
-                    return this.transition(WeaponState.Idle, entity);
-                }
-            }
-        });
     }
 
     private getReload(
