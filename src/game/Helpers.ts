@@ -4,7 +4,6 @@ import {
     Raycaster,
     PerspectiveCamera,
     Vector2,
-    Intersection,
     Texture,
     TextureLoader,
     NearestFilter,
