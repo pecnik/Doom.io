@@ -36,6 +36,7 @@ export enum KeyCode {
     NUM_1 = 49,
     NUM_2 = 50,
     NUM_3 = 51,
+    NUM_4 = 52,
 }
 
 export class Input {

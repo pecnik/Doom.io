@@ -10,9 +10,12 @@ import {
     AvatarSpawnAction,
     runAction,
     Action,
-    AvatarDeathAction,
+    RemoveEntityAction,
 } from "../game/Action";
 import { AvatarSpawnSystem } from "./AvatarSpawnSystem";
+import { ProjectileDisposalSystem } from "../game/systems/ProjectileDisposalSystem";
+import { PhysicsSystem } from "../game/systems/PhysicsSystem";
+import { ProjectileDamageSystem } from "../game/systems/ProjectileDamageSystem";
 
 export interface PlayerConnectionArchetype extends AnyComponents {
     readonly socket: WebSocket;
@@ -37,6 +40,9 @@ export class GameServer {
 
         // Init systems
         this.world.addSystem(new AvatarSpawnSystem(this.world));
+        this.world.addSystem(new PhysicsSystem(this.world));
+        this.world.addSystem(new ProjectileDamageSystem(this));
+        this.world.addSystem(new ProjectileDisposalSystem(this.world));
 
         // Start game loop
         setInterval(this.update.bind(this), 1 / 60);
@@ -89,20 +95,21 @@ export class GameServer {
 
             const avatar = getPlayerAvatar(player.id, this.avatars);
             if (avatar !== undefined) {
-                const avatarDeath = this.avatarDeath(avatar.id);
+                const avatarDeath = this.removeEntity(avatar.id);
                 runAction(this.world, avatarDeath);
                 this.broadcast(player.id, Action.serialize(avatarDeath));
             }
         }
     }
 
-    private playerMessage(playerId: string, msg: string) {
+    public playerMessage(playerId: string, msg: string) {
         const action = Action.deserialize(msg);
         if (action === undefined) return;
 
         switch (action.type) {
             // Run & broadcast
-            case ActionType.AvatarUpdate: {
+            case ActionType.AvatarUpdate:
+            case ActionType.EmitProjectile: {
                 runAction(this.world, action);
                 this.broadcast(playerId, msg);
                 return;
@@ -125,11 +132,11 @@ export class GameServer {
                 if (target.health.value <= 0) return;
 
                 runAction(this.world, action);
-                this.broadcast(playerId, msg);
+                this.broadcastToAll(msg);
 
                 if (target.health.value <= 0) {
                     const avatarId = action.targetId;
-                    const avatarDeath = this.avatarDeath(avatarId);
+                    const avatarDeath = this.removeEntity(avatarId);
                     runAction(this.world, avatarDeath);
                     this.broadcastToAll(Action.serialize(avatarDeath));
                 }
@@ -139,7 +146,7 @@ export class GameServer {
         }
     }
 
-    private broadcast(playerId: string, msg: string) {
+    public broadcast(playerId: string, msg: string) {
         this.players.entities.forEach((player) => {
             if (player.id !== playerId) {
                 player.socket.send(msg);
@@ -147,7 +154,7 @@ export class GameServer {
         });
     }
 
-    private broadcastToAll(msg: string) {
+    public broadcastToAll(msg: string) {
         this.players.entities.forEach((player) => {
             player.socket.send(msg);
         });
@@ -169,7 +176,7 @@ export class GameServer {
         };
     }
 
-    private avatarDeath(avatarId: string): AvatarDeathAction {
-        return { type: ActionType.AvatarDeath, avatarId };
+    public removeEntity(avatarId: string): RemoveEntityAction {
+        return { type: ActionType.RemoveEntity, entityId: avatarId };
     }
 }

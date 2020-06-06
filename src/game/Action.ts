@@ -11,7 +11,8 @@ export enum ActionType {
     AvatarSpawn,
     AvatarHit,
     AvatarUpdate,
-    AvatarDeath,
+    RemoveEntity,
+    EmitProjectile,
 }
 
 export interface PlaySoundAction {
@@ -39,6 +40,7 @@ export interface AvatarHitAction {
     weaponType: WeaponType;
     shooterId: string;
     targetId: string;
+    headshot: boolean;
 }
 
 export interface AvatarUpdateAction {
@@ -50,9 +52,17 @@ export interface AvatarUpdateAction {
     weaponType: WeaponType;
 }
 
-export interface AvatarDeathAction {
-    type: ActionType.AvatarDeath;
-    avatarId: string;
+export interface RemoveEntityAction {
+    type: ActionType.RemoveEntity;
+    entityId: string;
+}
+
+export interface EmitProjectileAction {
+    readonly type: ActionType.EmitProjectile;
+    projectileId: string;
+    playerId: string;
+    position: Vector3;
+    velcotiy: Vector3;
 }
 
 export type Action =
@@ -61,7 +71,8 @@ export type Action =
     | AvatarSpawnAction
     | AvatarHitAction
     | AvatarUpdateAction
-    | AvatarDeathAction;
+    | RemoveEntityAction
+    | EmitProjectileAction;
 
 export function runAction(world: World, action: Action) {
     switch (action.type) {
@@ -76,8 +87,8 @@ export function runAction(world: World, action: Action) {
             return;
         }
 
-        case ActionType.AvatarDeath: {
-            world.removeEntity(action.avatarId);
+        case ActionType.RemoveEntity: {
+            world.removeEntity(action.entityId);
             return;
         }
 
@@ -115,13 +126,35 @@ export function runAction(world: World, action: Action) {
             if (target.health.value <= 0) return;
 
             const weaponSpec = WEAPON_SPEC_RECORD[action.weaponType];
-            target.health.value -= weaponSpec.bulletDamage;
+            const damage = weaponSpec.bulletDamage;
+            const headshot = action.headshot ? 3 : 1;
+
+            target.health.value -= damage * headshot;
             target.health.value = Math.max(target.health.value, 0);
+
+            if (target.cameraShake !== undefined) {
+                target.cameraShake.setScalar(1);
+            }
+
             if (target.hitIndicator !== undefined) {
                 target.hitIndicator.show = true;
                 target.hitIndicator.time = world.elapsedTime;
                 target.hitIndicator.origin.copy(shooter.position);
             }
+
+            return;
+        }
+
+        case ActionType.EmitProjectile: {
+            const { projectileId, playerId, position, velcotiy } = action;
+            const projectile = EntityFactory.Projectile(projectileId);
+            projectile.projectile.spawnTime = world.elapsedTime;
+            projectile.playerId = playerId;
+            projectile.position.copy(position);
+            projectile.velocity.copy(velcotiy);
+            projectile.velocity.normalize();
+            projectile.velocity.multiplyScalar(10);
+            world.addEntity(projectile);
             return;
         }
     }

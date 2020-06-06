@@ -70,6 +70,7 @@ export class PlayerInputSystem extends System {
         if (this.input.isKeyDown(KeyCode.NUM_1)) return WeaponType.Pistol;
         if (this.input.isKeyDown(KeyCode.NUM_2)) return WeaponType.Shotgun;
         if (this.input.isKeyDown(KeyCode.NUM_3)) return WeaponType.Machinegun;
+        if (this.input.isKeyDown(KeyCode.NUM_4)) return WeaponType.Plasma;
 
         const scroll = this.input.mouse.scroll;
         if (scroll === 0) {

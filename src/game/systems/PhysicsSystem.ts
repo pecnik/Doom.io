@@ -6,6 +6,7 @@ import { LevelBlock } from "../../editor/Level";
 import { GRAVITY } from "../data/Globals";
 
 class Archetype implements AnyComponents {
+    public gravity?: boolean;
     public position = new Components.Position();
     public velocity = new Components.Velocity();
     public collision = new Components.Collision();
@@ -18,12 +19,14 @@ export class PhysicsSystem extends System {
 
     public update(dt: number) {
         this.family.entities.forEach((entity) => {
-            const { position, velocity, collision } = entity;
+            const { position, velocity, collision, gravity = false } = entity;
 
             const { prev, next, height } = collision;
 
             // Apply gravity
-            velocity.y -= GRAVITY * dt;
+            if (gravity === true) {
+                velocity.y -= GRAVITY * dt;
+            }
 
             // Apply velocity
             prev.copy(position);

@@ -3,6 +3,7 @@ import { Components, AnyComponents } from "./Components";
 export class AvatarArchetype implements AnyComponents {
     public playerId = "";
     public avatarTag = true;
+    public gravity = true;
     public position = new Components.Position();
     public velocity = new Components.Velocity();
     public rotation = new Components.Rotation();
@@ -18,6 +19,7 @@ export class LocalAvatarArchetype extends AvatarArchetype {
     public jump = new Components.Jump();
     public input = new Components.Input();
     public hitIndicator = new Components.HitIndicator();
+    public cameraShake = new Components.CameraShake();
 }
 
 export class EnemyAvatarArchetype extends AvatarArchetype {
@@ -30,4 +32,15 @@ export class PickupArchetype implements AnyComponents {
     public rotation = new Components.Rotation();
     public pickup = new Components.Pickup();
     public entityMesh = new Components.EntityMesh();
+}
+
+export class ProjectileArchetype implements AnyComponents {
+    public playerId = "";
+    public projectile = new Components.Projectile();
+    public position = new Components.Position();
+    public velocity = new Components.Velocity();
+    public collision = new Components.Collision();
+    public entityMesh = new Components.EntityMesh(
+        "/assets/mesh/projectile.glb"
+    );
 }

@@ -3,6 +3,7 @@ import {
     LocalAvatarArchetype,
     PickupArchetype,
     EnemyAvatarArchetype,
+    ProjectileArchetype,
 } from "../ecs/Archetypes";
 import { WeaponType, WEAPON_SPEC_RECORD } from "./Weapon";
 import { Components } from "../ecs";
@@ -28,5 +29,12 @@ export module EntityFactory {
         pickup.entityMesh = new Components.EntityMesh(mesh);
 
         return pickup;
+    }
+
+    export function Projectile(id = nextID()) {
+        const projectile = { id, ...new ProjectileArchetype() };
+        projectile.collision.height = 0.25;
+        projectile.collision.radius = 0.125;
+        return projectile;
     }
 }

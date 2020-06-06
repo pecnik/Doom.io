@@ -11,6 +11,7 @@ export type AllComponents = {
     avatarTag: boolean;
     enemyAvatarTag: boolean;
     localAvatarTag: boolean;
+    gravity: boolean;
     playerData: Components.PlayerData;
     position: Components.Position;
     velocity: Components.Velocity;
@@ -25,6 +26,8 @@ export type AllComponents = {
     footstep: Components.Footstep;
     entityMesh: Components.EntityMesh;
     hitIndicator: Components.HitIndicator;
+    cameraShake: Components.CameraShake;
+    projectile: Components.Projectile;
 };
 
 export module Components {
@@ -33,6 +36,8 @@ export module Components {
     export class Velocity extends Vector3 {}
 
     export class Rotation extends Vector2 {}
+
+    export class CameraShake extends Vector3 {}
 
     export class Input {
         public movey = 0;
@@ -67,6 +72,7 @@ export module Components {
             [WeaponType.Pistol]: Shooter.initAmmo(WeaponType.Pistol),
             [WeaponType.Shotgun]: Shooter.initAmmo(WeaponType.Shotgun),
             [WeaponType.Machinegun]: Shooter.initAmmo(WeaponType.Machinegun),
+            [WeaponType.Plasma]: Shooter.initAmmo(WeaponType.Plasma),
         };
 
         private static initAmmo(type: WeaponType) {
@@ -137,5 +143,9 @@ export module Components {
     export class Respawn {
         public inProgress = false;
         public time = 0;
+    }
+
+    export class Projectile {
+        public spawnTime = 0;
     }
 }

@@ -85,7 +85,7 @@ export class AmmoCountSystem extends System {
 
         this.weaponSpecs.forEach((weaponSpec, index) => {
             const x = 64;
-            const y = 24 * index;
+            const y = 16 + 24 * index;
 
             const active = this.el.props.active === weaponSpec.type;
             const ammo = this.el.props.shooter.ammo[weaponSpec.type];
@@ -98,7 +98,7 @@ export class AmmoCountSystem extends System {
                     : this.el.ctx.drawImage(icon, x - 32, y, 16, 16);
             }
 
-            this.el.ctx.font = `Bold 14px 'Share Tech Mono'`;
+            this.el.ctx.font = `Bold 20px 'Share Tech Mono'`;
             this.el.ctx.textBaseline = "top";
 
             this.el.ctx.textAlign = "right";
@@ -107,24 +107,24 @@ export class AmmoCountSystem extends System {
             this.el.ctx.textAlign = "left";
             fillText(ammo.reserved.toString(), x + 32, y);
 
-            if (active) {
-                const PADD = 8;
-                const TILE = 64;
-                const SIZE = TILE - PADD * 2;
+            // if (active) {
+            //     const PADD = 8;
+            //     const TILE = 40;
+            //     const SIZE = TILE - PADD * 2;
 
-                const x = 0;
-                const y = this.el.height - TILE;
+            //     const x = 0;
+            //     const y = this.el.height - TILE;
 
-                const icon = this.getImage(weaponSpec.icon);
-                if (icon.width > 0) {
-                    this.el.ctx.drawImage(icon, x + PADD, y + PADD, SIZE, SIZE);
-                }
+            //     const icon = this.getImage(weaponSpec.icon);
+            //     if (icon.width > 0) {
+            //         this.el.ctx.drawImage(icon, x + PADD, y + PADD, SIZE, SIZE);
+            //     }
 
-                this.el.ctx.font = `Bold ${SIZE}px 'Share Tech Mono'`;
-                this.el.ctx.textAlign = "left";
-                this.el.ctx.textBaseline = "top";
-                fillText(ammo.loaded.toString(), x + TILE + PADD, y + PADD);
-            }
+            //     this.el.ctx.font = `Bold ${SIZE}px 'Share Tech Mono'`;
+            //     this.el.ctx.textAlign = "left";
+            //     this.el.ctx.textBaseline = "top";
+            //     fillText(ammo.loaded.toString(), x + TILE + PADD, y + PADD);
+            // }
         });
     }
 }

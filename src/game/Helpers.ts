@@ -4,13 +4,13 @@ import {
     Raycaster,
     PerspectiveCamera,
     Vector2,
-    Intersection,
     Texture,
     TextureLoader,
     NearestFilter,
     Material,
     Vector3,
     Object3D,
+    Matrix4,
 } from "three";
 import { World } from "./ecs";
 import { WeaponState } from "./data/Types";
@@ -109,42 +109,6 @@ export module Hitscan {
     export const raycaster = new Raycaster();
     export const camera = new PerspectiveCamera(45);
     export const origin = new Vector2();
-
-    const buffer = new Array<Intersection>();
-    const response: {
-        intersection?: Intersection;
-        entity?: Entity;
-    } = {};
-
-    export function cast(
-        world: World,
-        family?: Family<{ entityMesh: Components.EntityMesh }>
-    ) {
-        response.intersection = undefined;
-        response.entity = undefined;
-        buffer.length = 0;
-
-        const level = world.level.mesh;
-        raycaster.intersectObject(level, true, buffer);
-        response.intersection = buffer[0];
-
-        if (family !== undefined) {
-            family.entities.forEach((entity) => {
-                const obj = getEntityMesh(world, entity);
-                if (obj === undefined) return;
-
-                raycaster.intersectObject(obj, true, buffer);
-
-                const [next] = buffer;
-                if (next !== undefined && next !== response.intersection) {
-                    response.intersection = next;
-                    response.entity = entity;
-                }
-            });
-        }
-
-        return response;
-    }
 }
 
 export function loadTexture(src: string): Promise<Texture> {
@@ -165,3 +129,20 @@ export function disposeMeshMaterial(material: Material | Material[]) {
         material.forEach((material) => material.dispose());
     }
 }
+
+export const getHeadingVector3 = (() => {
+    const object = new Object3D();
+    const matrix = new Matrix4();
+    const vector = new Vector3(0, 0, -1);
+    return (rotation: Vector3) => {
+        object.rotation.set(rotation.x, rotation.y, rotation.z, "YXZ");
+        object.updateWorldMatrix(false, false);
+
+        matrix.extractRotation(object.matrixWorld);
+
+        vector.set(0, 0, -1);
+        vector.applyMatrix4(matrix).normalize();
+
+        return vector.clone();
+    };
+})();
