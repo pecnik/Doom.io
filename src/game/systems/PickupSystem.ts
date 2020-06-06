@@ -66,6 +66,7 @@ export class PickupSystem extends System {
             WeaponType.Pistol,
             WeaponType.Shotgun,
             WeaponType.Machinegun,
+            WeaponType.Plasma,
         ]);
 
         if (weaponType !== undefined) {
