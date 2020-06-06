@@ -119,7 +119,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
             "/assets/sprites/Pistol/PIS004.png",
             "/assets/sprites/Pistol/PIS001.png",
         ])
-        .ammoPickupMesh("/assets/mesh/ammo_pickup_handgun.glb")
+        .ammoPickupMesh("/assets/mesh/ammo_pickup_handgun.gltf")
         .sound({
             fire: "/assets/sounds/fire-gun.wav",
             reload: "/assets/sounds/reload.wav",
@@ -143,7 +143,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
             "/assets/sprites/Shotgun/SHT005.png",
             "/assets/sprites/Shotgun/SHT006.png",
         ])
-        .ammoPickupMesh("/assets/mesh/ammo_pickup_shotgun.glb")
+        .ammoPickupMesh("/assets/mesh/ammo_pickup_shotgun.gltf")
         .sound({
             fire: "/assets/sounds/fire-shotgun.wav",
             reload: "/assets/sounds/reload.wav",
@@ -164,7 +164,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
             "/assets/sprites/Machinegun/MG0003.png",
             "/assets/sprites/Machinegun/MG0004.png",
         ])
-        .ammoPickupMesh("/assets/mesh/ammo_pickup_machinegun.glb")
+        .ammoPickupMesh("/assets/mesh/ammo_pickup_machinegun.gltf")
         .sound({
             fire: "/assets/sounds/fire-machine-gun.wav",
             reload: "/assets/sounds/reload.wav",
@@ -185,7 +185,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
             "/assets/sprites/Plasma/PLR009.png",
             "/assets/sprites/Plasma/PLR007.png",
         ])
-        .ammoPickupMesh("/assets/mesh/ammo_pickup_plasma.glb")
+        .ammoPickupMesh("/assets/mesh/ammo_pickup_plasma.gltf")
         .sound({
             fire: "/assets/sounds/fire-plasma.wav",
             reload: "/assets/sounds/reload.wav",
