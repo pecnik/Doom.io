@@ -43,7 +43,12 @@ import {
 } from "./Action";
 import { Sound2D } from "./sound/Sound2D";
 import { HitIndicatorSystem } from "./systems/hud/HitIndicatorSystem";
-import { getHeadPosition, getHeadingVector3, getWeaponSpec } from "./Helpers";
+import {
+    getHeadPosition,
+    getHeadingVector3,
+    getWeaponSpec,
+    isScopeActive,
+} from "./Helpers";
 import { ProjectileDisposalSystem } from "./systems/ProjectileDisposalSystem";
 import { PLAYER_RADIUS } from "./data/Globals";
 
@@ -284,7 +289,8 @@ export class GameClient implements Game {
 
     public emitProjectile(avatar: Entity<LocalAvatarArchetype>) {
         const weaponSpec = getWeaponSpec(avatar);
-        const spread = weaponSpec.spread;
+        const steady = isScopeActive(avatar) ? 0.25 : 1;
+        const spread = weaponSpec.spread * steady;
         const rotation = new Vector3(avatar.rotation.x, avatar.rotation.y, 0);
         rotation.x += random(-spread, spread, true);
         rotation.y += random(-spread, spread, true);

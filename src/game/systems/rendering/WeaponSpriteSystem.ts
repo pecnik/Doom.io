@@ -142,7 +142,7 @@ export class WeaponSpriteSystem extends System {
         let activeSprite = weaponSpec.povSprite;
         if (this.shootFrames.play) {
             this.shootFrames.time += dt;
-            if (this.shootFrames.time > 1 / 20) {
+            if (this.shootFrames.time > 1 / 30) {
                 this.shootFrames.time = 0;
                 this.shootFrames.frame++;
             }
