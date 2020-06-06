@@ -45,6 +45,7 @@ import { Sound2D } from "./sound/Sound2D";
 import { HitIndicatorSystem } from "./systems/hud/HitIndicatorSystem";
 import { getHeadPosition, getHeadingVector3, getWeaponSpec } from "./Helpers";
 import { ProjectileDisposalSystem } from "./systems/ProjectileDisposalSystem";
+import { PLAYER_RADIUS } from "./data/Globals";
 
 export class GameClient implements Game {
     private readonly stats = GameClient.createStats();
@@ -288,15 +289,20 @@ export class GameClient implements Game {
         rotation.x += random(-spread, spread, true);
         rotation.y += random(-spread, spread, true);
 
+        const velcotiy = getHeadingVector3(rotation);
+
         const position = getHeadPosition(avatar);
         position.y -= 0.125; // Dunno
+        position.x += velcotiy.x * PLAYER_RADIUS * 2;
+        position.y += velcotiy.y * PLAYER_RADIUS * 2;
+        position.z += velcotiy.z * PLAYER_RADIUS * 2;
 
         const action: EmitProjectileAction = {
             type: ActionType.EmitProjectile,
             projectileId: uniqueId(`${avatar.playerId}-pe`),
             playerId: avatar.playerId,
-            position: position,
-            velcotiy: getHeadingVector3(rotation),
+            position,
+            velcotiy,
         };
         this.sendAndRun(action);
     }
