@@ -24,7 +24,7 @@ export class ProjectileDamageSystem extends System {
 
                 const p1 = projectile.position;
                 const p2 = avatar.position;
-                if (p1.distanceToSquared(p2) > 0.5) return;
+                if (p1.distanceToSquared(p2) > 0.25) return;
 
                 const shooter = getPlayerAvatar(
                     projectile.playerId,

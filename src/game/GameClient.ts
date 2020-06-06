@@ -18,7 +18,7 @@ import { Sound3D } from "./sound/Sound3D";
 import { FootstepAudioSystem } from "./systems/audio/FootstepAudioSystem";
 import { createSkybox } from "./data/Skybox";
 import { WEAPON_SPEC_RECORD, WeaponType } from "./data/Weapon";
-import { uniq, uniqueId } from "lodash";
+import { uniq, uniqueId, random } from "lodash";
 import { CrosshairSystem } from "./systems/hud/CrosshairSystem";
 import { PlayerDashSystem } from "./systems/PlayerDashSystem";
 import { AvatarMeshSystem } from "./systems/rendering/AvatarMeshSystem";
@@ -43,7 +43,7 @@ import {
 } from "./Action";
 import { Sound2D } from "./sound/Sound2D";
 import { HitIndicatorSystem } from "./systems/hud/HitIndicatorSystem";
-import { getHeadPosition, getHeadingVector3 } from "./Helpers";
+import { getHeadPosition, getHeadingVector3, getWeaponSpec } from "./Helpers";
 import { ProjectileDisposalSystem } from "./systems/ProjectileDisposalSystem";
 
 export class GameClient implements Game {
@@ -282,9 +282,14 @@ export class GameClient implements Game {
     }
 
     public emitProjectile(avatar: Entity<LocalAvatarArchetype>) {
+        const weaponSpec = getWeaponSpec(avatar);
+        const spread = weaponSpec.spread;
         const rotation = new Vector3(avatar.rotation.x, avatar.rotation.y, 0);
+        rotation.x += random(-spread, spread, true);
+        rotation.y += random(-spread, spread, true);
+
         const position = getHeadPosition(avatar);
-        position.y -= 0.25; // Dunno
+        position.y -= 0.125; // Dunno
 
         const action: EmitProjectileAction = {
             type: ActionType.EmitProjectile,

@@ -41,6 +41,6 @@ export class ProjectileArchetype implements AnyComponents {
     public velocity = new Components.Velocity();
     public collision = new Components.Collision();
     public entityMesh = new Components.EntityMesh(
-        "/assets/mesh/ammo_pickup_handgun.glb"
+        "/assets/mesh/projectile.glb"
     );
 }
