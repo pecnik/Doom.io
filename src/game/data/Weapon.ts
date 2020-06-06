@@ -174,7 +174,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
     [WeaponType.Plasma]: new WeaponSpecBuilder()
         .type(WeaponType.Plasma)
         .name("Machinegun")
-        .icon("/assets/sprites/hud/icon_mg.png")
+        .icon("/assets/sprites/hud/icon_pl.png")
         .ammo(20, 100)
         .damage(100)
         .accuracy(0.75)
@@ -185,7 +185,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
             "/assets/sprites/Plasma/PLR009.png",
             "/assets/sprites/Plasma/PLR007.png",
         ])
-        .ammoPickupMesh("/assets/mesh/ammo_pickup_machinegun.glb")
+        .ammoPickupMesh("/assets/mesh/ammo_pickup_plasma.glb")
         .sound({
             fire: "/assets/sounds/fire-plasma.wav",
             reload: "/assets/sounds/reload.wav",
