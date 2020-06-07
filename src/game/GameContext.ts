@@ -8,4 +8,8 @@ export abstract class GameContext {
     public spawnAmmoPack(_position: Vector3, _weaponType: WeaponType) {
         // ...
     }
+
+    public pickupAmmoPack(_avatarId: string, _pickupId: string) {
+        // ...
+    }
 }

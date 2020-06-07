@@ -4,6 +4,7 @@ import { WeaponType, WEAPON_SPEC_RECORD } from "./data/Weapon";
 import { EntityFactory } from "./data/EntityFactory";
 import { padStart } from "lodash";
 import { AvatarUpdateParcer, ActionParser } from "./ActionParsers";
+import { getWeaponAmmo, getWeaponSpec } from "./Helpers";
 
 export enum ActionType {
     PlaySound,
@@ -74,6 +75,12 @@ export interface AmmoPackSpawnAction {
     weaponType: WeaponType;
 }
 
+export interface AmmoPackPickupAction {
+    readonly type: ActionType.AmmoPackPickup;
+    pickupId: string;
+    avatarId: string;
+}
+
 export type Action =
     | PlaySoundAction
     | SpawnDecalAction
@@ -82,7 +89,8 @@ export type Action =
     | AvatarUpdateAction
     | RemoveEntityAction
     | EmitProjectileAction
-    | AmmoPackSpawnAction;
+    | AmmoPackSpawnAction
+    | AmmoPackPickupAction;
 
 export function runAction(world: World, action: Action) {
     switch (action.type) {
@@ -173,6 +181,29 @@ export function runAction(world: World, action: Action) {
             pickup.id = action.entityId;
             pickup.position.copy(action.position);
             world.addEntity(pickup);
+            break;
+        }
+
+        case ActionType.AmmoPackPickup: {
+            const pickup = world.entities.get(action.pickupId);
+            if (pickup === undefined) return;
+            if (pickup.pickup === undefined) return;
+
+            const avatar = world.entities.get(action.avatarId);
+            if (avatar === undefined) return;
+            if (avatar.shooter === undefined) return;
+
+            const { shooter } = avatar;
+            const ammo = getWeaponAmmo({ shooter }, pickup.pickup.weaponType);
+            const spec = getWeaponSpec({ shooter }, pickup.pickup.weaponType);
+            if (ammo.reserved >= spec.maxReservedAmmo) {
+                return;
+            }
+
+            world.removeEntity(pickup.id);
+            ammo.reserved += 10;
+            ammo.reserved = Math.min(ammo.reserved, spec.maxReservedAmmo);
+
             break;
         }
     }

@@ -1,7 +1,7 @@
 import Stats from "stats.js";
 import { Hud } from "./data/Hud";
 import { Input } from "./core/Input";
-import { World, Entity } from "./ecs";
+import { World, Entity, Family } from "./ecs";
 import { PlayerInputSystem } from "./systems/PlayerInputSystem";
 import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
@@ -10,7 +10,7 @@ import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { WeaponSpriteSystem } from "./systems/rendering/WeaponSpriteSystem";
 import { Game } from "./core/Engine";
 import { InfineteRespawnSystem } from "./systems/InfineteRespawnSystem";
-import { LocalAvatarArchetype } from "./ecs/Archetypes";
+import { LocalAvatarArchetype, AvatarArchetype } from "./ecs/Archetypes";
 import { AvatarStateSystem } from "./systems/AvatarStateSystem";
 import { ShooterAudioSystem } from "./systems/audio/ShooterAudioSystem";
 import { Sound3D } from "./sound/Sound3D";
@@ -40,6 +40,7 @@ import {
     AvatarHitAction,
     EmitProjectileAction,
     AmmoPackSpawnAction,
+    AmmoPackPickupAction,
 } from "./Action";
 import { Sound2D } from "./sound/Sound2D";
 import { HitIndicatorSystem } from "./systems/hud/HitIndicatorSystem";
@@ -53,6 +54,7 @@ import { ProjectileDisposalSystem } from "./systems/ProjectileDisposalSystem";
 import { PLAYER_RADIUS } from "./data/Globals";
 import { ItemSpawnSystem } from "./systems/ItemSpawnSystem";
 import { GameContext } from "./GameContext";
+import { ItemPickupSystem } from "./systems/ItemPickupSystem";
 
 export class GameClient extends GameContext implements Game {
     private readonly stats = GameClient.createStats();
@@ -63,6 +65,7 @@ export class GameClient extends GameContext implements Game {
     public readonly hud = new Hud();
     public readonly world = new World();
     public readonly input = new Input({ requestPointerLock: true });
+    public readonly avatars = Family.findOrCreate(new AvatarArchetype());
 
     private static createStats() {
         if (Settings.props.fpsMeter) {
@@ -178,6 +181,7 @@ export class GameClient extends GameContext implements Game {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };
             this.world.addSystem(new InfineteRespawnSystem(this.world));
             this.world.addSystem(new ItemSpawnSystem(this));
+            this.world.addSystem(new ItemPickupSystem(this));
             this.world.addEntity(avatar);
         }
     }
@@ -243,6 +247,18 @@ export class GameClient extends GameContext implements Game {
                 } else {
                     Sound3D.get(sound).emitFrom(entity);
                 }
+                return;
+            }
+
+            case ActionType.AmmoPackPickup: {
+                runAction(this.world, action);
+
+                const playSound: PlaySoundAction = {
+                    type: ActionType.PlaySound,
+                    entityId: action.avatarId,
+                    sound: "/assets/sounds/pickup_1.wav",
+                };
+                this.run(playSound);
                 return;
             }
 
@@ -317,12 +333,25 @@ export class GameClient extends GameContext implements Game {
 
     public spawnAmmoPack(position: Vector3, weaponType: WeaponType) {
         if (this.isMultiplayer) return;
+
         const action: AmmoPackSpawnAction = {
             type: ActionType.AmmoPackSpawn,
             entityId: uniqueId("pickup"),
             position,
             weaponType,
         };
+        this.run(action);
+    }
+
+    public pickupAmmoPack(avatarId: string, pickupId: string) {
+        if (this.isMultiplayer) return;
+
+        const action: AmmoPackPickupAction = {
+            type: ActionType.AmmoPackPickup,
+            avatarId,
+            pickupId,
+        };
+
         this.run(action);
     }
 }
