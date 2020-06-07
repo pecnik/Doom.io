@@ -108,8 +108,8 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
         .type(WeaponType.Pistol)
         .name("Pistol")
         .icon("/assets/sprites/hud/icon_hg.png")
-        .ammo(8, 256)
-        .damage(20)
+        .ammo(7, 60)
+        .damage(15)
         .accuracy(0.9)
         .roundsPerSec(6)
         .reloadSpeed(1)
@@ -124,14 +124,13 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
             fire: "/assets/sounds/fire-gun.wav",
             reload: "/assets/sounds/reload.wav",
         })
-        .scope()
         .build(),
 
     [WeaponType.Shotgun]: new WeaponSpecBuilder()
         .type(WeaponType.Shotgun)
         .name("Shotgun")
         .icon("/assets/sprites/hud/icon_sg.png")
-        .ammo(3, 128)
+        .ammo(3, 64)
         .damage(15, 4)
         .accuracy(0.1)
         .roundsPerSec(2)
@@ -154,9 +153,10 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
         .type(WeaponType.Machinegun)
         .name("Machinegun")
         .icon("/assets/sprites/hud/icon_mg.png")
-        .ammo(40, 512)
+        .ammo(32, 128)
+        .scope()
         .damage(10)
-        .accuracy(0.6)
+        .accuracy(0.8)
         .roundsPerSec(15)
         .reloadSpeed(1.5)
         .povSprite("/assets/sprites/Machinegun/MG0001.png", [
@@ -176,7 +176,7 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
         .name("Machinegun")
         .icon("/assets/sprites/hud/icon_pl.png")
         .scope()
-        .ammo(20, 512)
+        .ammo(20, 100)
         .damage(100)
         .accuracy(0.75)
         .roundsPerSec(10)
