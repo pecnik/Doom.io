@@ -13,6 +13,8 @@ export enum ActionType {
     AvatarUpdate,
     RemoveEntity,
     EmitProjectile,
+    AmmoPackSpawn,
+    AmmoPackPickup,
 }
 
 export interface PlaySoundAction {
@@ -65,6 +67,13 @@ export interface EmitProjectileAction {
     velcotiy: Vector3;
 }
 
+export interface AmmoPackSpawnAction {
+    readonly type: ActionType.AmmoPackSpawn;
+    entityId: string;
+    position: Vector3;
+    weaponType: WeaponType;
+}
+
 export type Action =
     | PlaySoundAction
     | SpawnDecalAction
@@ -72,7 +81,8 @@ export type Action =
     | AvatarHitAction
     | AvatarUpdateAction
     | RemoveEntityAction
-    | EmitProjectileAction;
+    | EmitProjectileAction
+    | AmmoPackSpawnAction;
 
 export function runAction(world: World, action: Action) {
     switch (action.type) {
@@ -156,6 +166,14 @@ export function runAction(world: World, action: Action) {
             projectile.velocity.multiplyScalar(10);
             world.addEntity(projectile);
             return;
+        }
+
+        case ActionType.AmmoPackSpawn: {
+            const pickup = EntityFactory.AmmoPikcup(action.weaponType);
+            pickup.id = action.entityId;
+            pickup.position.copy(action.position);
+            world.addEntity(pickup);
+            break;
         }
     }
 }

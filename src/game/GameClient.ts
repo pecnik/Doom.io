@@ -10,7 +10,6 @@ import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { WeaponSpriteSystem } from "./systems/rendering/WeaponSpriteSystem";
 import { Game } from "./core/Engine";
 import { InfineteRespawnSystem } from "./systems/InfineteRespawnSystem";
-import { PickupSystem } from "./systems/PickupSystem";
 import { LocalAvatarArchetype } from "./ecs/Archetypes";
 import { AvatarStateSystem } from "./systems/AvatarStateSystem";
 import { ShooterAudioSystem } from "./systems/audio/ShooterAudioSystem";
@@ -40,6 +39,7 @@ import {
     SpawnDecalAction,
     AvatarHitAction,
     EmitProjectileAction,
+    AmmoPackSpawnAction,
 } from "./Action";
 import { Sound2D } from "./sound/Sound2D";
 import { HitIndicatorSystem } from "./systems/hud/HitIndicatorSystem";
@@ -51,8 +51,10 @@ import {
 } from "./Helpers";
 import { ProjectileDisposalSystem } from "./systems/ProjectileDisposalSystem";
 import { PLAYER_RADIUS } from "./data/Globals";
+import { ItemSpawnSystem } from "./systems/ItemSpawnSystem";
+import { GameContext } from "./GameContext";
 
-export class GameClient implements Game {
+export class GameClient extends GameContext implements Game {
     private readonly stats = GameClient.createStats();
 
     private readonly route = location.hash.replace("#", "");
@@ -143,7 +145,6 @@ export class GameClient implements Game {
         this.world.addSystem(new PlayerDashSystem(this));
         this.world.addSystem(new PlayerBounceSystem(this));
         this.world.addSystem(new PhysicsSystem(this.world));
-        this.world.addSystem(new PickupSystem(this.world));
         this.world.addSystem(new AvatarStateSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new PlayerShootSystem(this));
@@ -176,6 +177,7 @@ export class GameClient implements Game {
         } else {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };
             this.world.addSystem(new InfineteRespawnSystem(this.world));
+            this.world.addSystem(new ItemSpawnSystem(this));
             this.world.addEntity(avatar);
         }
     }
@@ -311,5 +313,16 @@ export class GameClient implements Game {
             velcotiy,
         };
         this.sendAndRun(action);
+    }
+
+    public spawnAmmoPack(position: Vector3, weaponType: WeaponType) {
+        if (this.isMultiplayer) return;
+        const action: AmmoPackSpawnAction = {
+            type: ActionType.AmmoPackSpawn,
+            entityId: uniqueId("pickup"),
+            position,
+            weaponType,
+        };
+        this.run(action);
     }
 }
