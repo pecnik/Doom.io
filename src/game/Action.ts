@@ -185,11 +185,11 @@ export function runAction(world: World, action: Action) {
         }
 
         case ActionType.AmmoPackPickup: {
+            world.removeEntity(action.pickupId);
+
             const pickup = world.entities.get(action.pickupId);
             if (pickup === undefined) return;
             if (pickup.pickup === undefined) return;
-
-            world.removeEntity(pickup.id);
 
             const avatar = world.entities.get(action.avatarId);
             if (avatar === undefined) return;

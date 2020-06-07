@@ -100,7 +100,7 @@ export class GameServer extends GameContext {
         this.pickups.entities.forEach((pickup) => {
             const action: AmmoPackSpawnAction = {
                 type: ActionType.AmmoPackSpawn,
-                entityId: uniqueId("pickup"),
+                entityId: pickup.id,
                 position: pickup.position,
                 weaponType: pickup.pickup.weaponType,
             };
