@@ -19,7 +19,7 @@ export class ItemSpawnSystem extends System {
         this.game = game;
     }
 
-    public readonly updateInterval = 1;
+    public readonly updateInterval = 3; // every 3 sec
     public update() {
         if (this.pickups.entities.size > 4) return;
 

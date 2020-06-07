@@ -189,6 +189,8 @@ export function runAction(world: World, action: Action) {
             if (pickup === undefined) return;
             if (pickup.pickup === undefined) return;
 
+            world.removeEntity(pickup.id);
+
             const avatar = world.entities.get(action.avatarId);
             if (avatar === undefined) return;
             if (avatar.shooter === undefined) return;
@@ -200,7 +202,6 @@ export function runAction(world: World, action: Action) {
                 return;
             }
 
-            world.removeEntity(pickup.id);
             ammo.reserved += 10;
             ammo.reserved = Math.min(ammo.reserved, spec.maxReservedAmmo);
 

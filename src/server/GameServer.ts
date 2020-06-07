@@ -12,6 +12,7 @@ import {
     Action,
     RemoveEntityAction,
     AmmoPackSpawnAction,
+    AmmoPackPickupAction,
 } from "../game/Action";
 import { AvatarSpawnSystem } from "./AvatarSpawnSystem";
 import { ProjectileDisposalSystem } from "../game/systems/ProjectileDisposalSystem";
@@ -20,6 +21,7 @@ import { ProjectileDamageSystem } from "../game/systems/ProjectileDamageSystem";
 import { GameContext } from "../game/GameContext";
 import { WeaponType } from "../game/data/Weapon";
 import { ItemSpawnSystem } from "../game/systems/ItemSpawnSystem";
+import { ItemPickupSystem } from "../game/systems/ItemPickupSystem";
 
 export interface PlayerConnectionArchetype extends AnyComponents {
     readonly socket: WebSocket;
@@ -49,6 +51,7 @@ export class GameServer extends GameContext {
         // Init systems
         this.world.addSystem(new AvatarSpawnSystem(this.world));
         this.world.addSystem(new ItemSpawnSystem(this));
+        this.world.addSystem(new ItemPickupSystem(this));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new ProjectileDamageSystem(this));
         this.world.addSystem(new ProjectileDisposalSystem(this.world));
@@ -207,6 +210,17 @@ export class GameServer extends GameContext {
             position,
             weaponType,
         };
+        runAction(this.world, action);
+        this.broadcastToAll(Action.serialize(action));
+    }
+
+    public pickupAmmoPack(avatarId: string, pickupId: string) {
+        const action: AmmoPackPickupAction = {
+            type: ActionType.AmmoPackPickup,
+            avatarId,
+            pickupId,
+        };
+
         runAction(this.world, action);
         this.broadcastToAll(Action.serialize(action));
     }
