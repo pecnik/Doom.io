@@ -3,6 +3,7 @@ import { PickupArchetype, AvatarArchetype } from "../ecs/Archetypes";
 import { sample } from "lodash";
 import { WeaponType } from "../data/Weapon";
 import { GameContext } from "../GameContext";
+import { Action } from "../Action";
 
 export class ItemSpawnSystem extends System {
     private readonly game: GameContext;
@@ -46,7 +47,7 @@ export class ItemSpawnSystem extends System {
         if (weaponType !== undefined) {
             const position = spawnPoint.clone();
             position.y -= 0.5;
-            this.game.spawnAmmoPack(position, weaponType);
+            this.game.dispatch(Action.spawnAmmoPack(position, weaponType));
         }
     }
 }

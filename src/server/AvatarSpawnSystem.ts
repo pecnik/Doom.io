@@ -4,20 +4,22 @@ import { sample } from "lodash";
 import { Family, System, Components } from "../game/ecs";
 import { AvatarArchetype } from "../game/ecs/Archetypes";
 import { getPlayerAvatar } from "../game/Helpers";
-import {
-    ActionType,
-    AvatarSpawnAction,
-    runAction,
-    Action,
-} from "../game/Action";
+import { ActionType, AvatarSpawnAction, Action } from "../game/Action";
 import { PlayerConnectionArchetype } from "./GameServer";
+import { GameContext } from "../game/GameContext";
 
 export class AvatarSpawnSystem extends System {
+    private readonly game: GameContext;
     private readonly avatars = Family.findOrCreate(new AvatarArchetype());
     private readonly players = Family.findOrCreate<PlayerConnectionArchetype>({
         socket: {} as WebSocket,
         respawn: new Components.Respawn(),
     });
+
+    public constructor(game: GameContext) {
+        super(game.world);
+        this.game = game;
+    }
 
     public update() {
         this.players.entities.forEach((player) => {
@@ -38,8 +40,8 @@ export class AvatarSpawnSystem extends System {
 
             const actions = this.spawnAvatarAction(player.id);
             const [spawnLocalAvatar, spawnEnemyAvatar] = actions;
-            runAction(this.world, spawnEnemyAvatar);
-            console.log(`> Server::spawn Avatar(${player.id})`)
+            this.game.runDispatch(spawnEnemyAvatar);
+            console.log(`> Server::spawn Avatar(${player.id})`);
 
             const spawnLocalAvatarMsg = Action.serialize(spawnLocalAvatar);
             const spawnEnemyAvatarMsg = Action.serialize(spawnEnemyAvatar);

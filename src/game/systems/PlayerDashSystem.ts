@@ -5,16 +5,17 @@ import { Vector2 } from "three";
 import { RUN_SPEED, JUMP_SPEED, DASH_CHARGE } from "../data/Globals";
 import { GameClient } from "../GameClient";
 import { getMoveDirection } from "../Helpers";
+import { Action } from "../Action";
 
 export class PlayerDashSystem extends System {
-    private readonly client: GameClient;
+    private readonly game: GameClient;
     private readonly family = this.createEntityFamily({
         archetype: new LocalAvatarArchetype(),
     });
 
     public constructor(client: GameClient) {
         super(client.world);
-        this.client = client;
+        this.game = client;
     }
 
     public update(dt: number) {
@@ -46,7 +47,9 @@ export class PlayerDashSystem extends System {
                 avatar.velocity.z = move.y;
                 avatar.velocity.y = JUMP_SPEED * 0.1;
 
-                this.client.playSound(avatar.id, "/assets/sounds/whoosh.wav");
+                this.game.dispatch(
+                    Action.playSound(avatar.id, "/assets/sounds/whoosh.wav")
+                );
             }
 
             // Halt

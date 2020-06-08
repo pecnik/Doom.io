@@ -1,20 +1,20 @@
 import { System, Entity } from "../ecs";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
-import { GameClient } from "../GameClient";
 import { AvatarUpdateAction, ActionType } from "../Action";
 import { Vector3, Vector2 } from "three";
 import { WeaponType } from "../data/Weapon";
+import { GameContext } from "../GameContext";
 
 export class PlayerSyncSystem extends System {
     private readonly prevSync = this.createAvatarUpdateAction();
     private readonly nextSync = this.createAvatarUpdateAction();
 
-    private readonly client: GameClient;
+    private readonly client: GameContext;
     private readonly family = this.createEntityFamily({
         archetype: new LocalAvatarArchetype(),
     });
 
-    public constructor(client: GameClient) {
+    public constructor(client: GameContext) {
         super(client.world);
         this.client = client;
     }
@@ -26,7 +26,7 @@ export class PlayerSyncSystem extends System {
             this.fillActionData(this.nextSync, avatar);
             if (this.actionDiff(this.nextSync, this.prevSync)) {
                 this.fillActionData(this.prevSync, avatar);
-                this.client.send(this.nextSync);
+                this.client.dispatch(this.nextSync);
             }
         }
     }

@@ -1,25 +1,16 @@
 import fs from "fs";
 import WebSocket from "ws";
-import { Clock, Vector3 } from "three";
+import { Clock } from "three";
 import { uniqueId } from "lodash";
 import { World, Family, AnyComponents, Entity, Components } from "../game/ecs";
 import { AvatarArchetype, PickupArchetype } from "../game/ecs/Archetypes";
 import { getPlayerAvatar } from "../game/Helpers";
-import {
-    ActionType,
-    AvatarSpawnAction,
-    runAction,
-    Action,
-    RemoveEntityAction,
-    AmmoPackSpawnAction,
-    AmmoPackPickupAction,
-} from "../game/Action";
+import { ActionType, Action, AmmoPackSpawnAction } from "../game/Action";
 import { AvatarSpawnSystem } from "./AvatarSpawnSystem";
 import { ProjectileDisposalSystem } from "../game/systems/ProjectileDisposalSystem";
 import { PhysicsSystem } from "../game/systems/PhysicsSystem";
 import { ProjectileDamageSystem } from "../game/systems/ProjectileDamageSystem";
 import { GameContext } from "../game/GameContext";
-import { WeaponType } from "../game/data/Weapon";
 import { ItemSpawnSystem } from "../game/systems/ItemSpawnSystem";
 import { ItemPickupSystem } from "../game/systems/ItemPickupSystem";
 
@@ -49,7 +40,7 @@ export class GameServer extends GameContext {
         this.world.level.readJson(JSON.parse(String(levelJson)));
 
         // Init systems
-        this.world.addSystem(new AvatarSpawnSystem(this.world));
+        this.world.addSystem(new AvatarSpawnSystem(this));
         this.world.addSystem(new ItemSpawnSystem(this));
         this.world.addSystem(new ItemPickupSystem(this));
         this.world.addSystem(new PhysicsSystem(this.world));
@@ -57,7 +48,10 @@ export class GameServer extends GameContext {
         this.world.addSystem(new ProjectileDisposalSystem(this.world));
 
         // Start game loop
-        setInterval(this.update.bind(this), 1 / 60);
+        setInterval(() => {
+            const dt = this.clock.getDelta();
+            this.world.update(dt);
+        }, 1 / 60);
 
         // Handle socket events
         this.wss = wss;
@@ -70,9 +64,26 @@ export class GameServer extends GameContext {
         });
     }
 
-    private update() {
-        const dt = this.clock.getDelta();
-        this.world.update(dt);
+    public syncDispatch(action: Action) {
+        const msg = Action.serialize(action);
+        this.players.entities.forEach((player) => {
+            player.socket.send(msg);
+        });
+    }
+
+    public runDispatch(action: Action) {
+        super.runDispatch(action);
+        switch (action.type) {
+            case ActionType.AvatarHit: {
+                const target = this.avatars.entities.get(action.targetId);
+                if (target === undefined) return;
+                if (target.health.value > 0) return;
+
+                const avatarId = action.targetId;
+                this.dispatch(Action.removeEntity(avatarId));
+                return;
+            }
+        }
     }
 
     private playerConnection(socket: WebSocket) {
@@ -91,7 +102,11 @@ export class GameServer extends GameContext {
             const avatar = getPlayerAvatar(peer.id, this.avatars);
             if (avatar !== undefined) {
                 const { playerId, position } = avatar;
-                const spawnPeer = this.spawnAvatar(playerId, "enemy", position);
+                const spawnPeer = Action.spawnAvatar(
+                    playerId,
+                    "enemy",
+                    position
+                );
                 player.socket.send(Action.serialize(spawnPeer));
             }
         });
@@ -118,110 +133,44 @@ export class GameServer extends GameContext {
 
             const avatar = getPlayerAvatar(player.id, this.avatars);
             if (avatar !== undefined) {
-                const avatarDeath = this.removeEntity(avatar.id);
-                runAction(this.world, avatarDeath);
-                this.broadcast(player.id, Action.serialize(avatarDeath));
+                this.dispatch(Action.removeEntity(avatar.id));
             }
         }
     }
 
-    public playerMessage(playerId: string, msg: string) {
+    private playerMessage(playerId: string, msg: string) {
         const action = Action.deserialize(msg);
         if (action === undefined) return;
 
         switch (action.type) {
-            // Run & broadcast
-            case ActionType.AvatarUpdate:
-            case ActionType.EmitProjectile: {
-                runAction(this.world, action);
-                this.broadcast(playerId, msg);
-                return;
-            }
-
-            // Only broadcast
+            /**
+             * Simple actions that are not crucial for gameplay.
+             * Can be forwarded to peer players, no need for server side execution.
+             */
             case ActionType.PlaySound:
             case ActionType.SpawnDecal: {
-                this.broadcast(playerId, msg);
+                this.forwardDispatch(playerId, msg);
                 return;
             }
 
-            case ActionType.AvatarHit: {
-                const shooter = this.avatars.entities.get(action.shooterId);
-                if (shooter === undefined) return;
-                if (shooter.playerId !== playerId) return;
-
-                const target = this.avatars.entities.get(action.targetId);
-                if (target === undefined) return;
-                if (target.health.value <= 0) return;
-
-                runAction(this.world, action);
-                this.broadcastToAll(msg);
-
-                if (target.health.value <= 0) {
-                    const avatarId = action.targetId;
-                    const avatarDeath = this.removeEntity(avatarId);
-                    runAction(this.world, avatarDeath);
-                    this.broadcastToAll(Action.serialize(avatarDeath));
-                }
-
+            /**
+             * Crucial actions server & client side execution required.
+             */
+            case ActionType.AvatarHit:
+            case ActionType.AvatarUpdate:
+            case ActionType.EmitProjectile: {
+                this.runDispatch(action);
+                this.forwardDispatch(playerId, msg);
                 return;
             }
         }
     }
 
-    public broadcast(playerId: string, msg: string) {
+    private forwardDispatch(playerId: string, msg: string) {
         this.players.entities.forEach((player) => {
             if (player.id !== playerId) {
                 player.socket.send(msg);
             }
         });
-    }
-
-    public broadcastToAll(msg: string) {
-        this.players.entities.forEach((player) => {
-            player.socket.send(msg);
-        });
-    }
-
-    private spawnAvatar(
-        playerId: string,
-        avatarType: "local" | "enemy",
-        position = new Vector3()
-    ): AvatarSpawnAction {
-        const avatarId = "a" + playerId;
-        position = position || new Vector3();
-        return {
-            type: ActionType.AvatarSpawn,
-            playerId,
-            avatarId,
-            avatarType,
-            position,
-        };
-    }
-
-    public removeEntity(avatarId: string): RemoveEntityAction {
-        return { type: ActionType.RemoveEntity, entityId: avatarId };
-    }
-
-    public spawnAmmoPack(position: Vector3, weaponType: WeaponType) {
-        const action: AmmoPackSpawnAction = {
-            type: ActionType.AmmoPackSpawn,
-            entityId: uniqueId("pickup"),
-            position,
-            weaponType,
-        };
-        runAction(this.world, action);
-        this.broadcastToAll(Action.serialize(action));
-    }
-
-    public pickupAmmoPack(avatarId: string, pickupId: string) {
-        const action: AmmoPackPickupAction = {
-            type: ActionType.AmmoPackPickup,
-            avatarId,
-            pickupId,
-        };
-
-        runAction(this.world, action);
-        this.broadcastToAll(Action.serialize(action));
     }
 }

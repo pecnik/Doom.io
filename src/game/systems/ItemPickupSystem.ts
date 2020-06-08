@@ -2,6 +2,7 @@ import { System } from "../ecs";
 import { GameContext } from "../GameContext";
 import { PickupArchetype, AvatarArchetype } from "../ecs/Archetypes";
 import { getWeaponAmmo, getWeaponSpec } from "../Helpers";
+import { Action } from "../Action";
 
 export class ItemPickupSystem extends System {
     private readonly game: GameContext;
@@ -32,7 +33,9 @@ export class ItemPickupSystem extends System {
                 const p2 = pickup.position;
                 const dist = p1.distanceToSquared(p2);
                 if (dist < 0.5 ** 2) {
-                    this.game.pickupAmmoPack(avatar.id, pickup.id);
+                    this.game.dispatch(
+                        Action.pickupAmmoPack(avatar.id, pickup.id)
+                    );
                 }
             });
         });
