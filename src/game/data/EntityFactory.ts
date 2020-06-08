@@ -43,7 +43,7 @@ export module EntityFactory {
         const pickup = { id: nextID(), ...new PickupArchetype() };
         pickup.pickup.pickupType = Components.PickupType.Health;
 
-        const mesh = "/assets/mesh/missing.glb";
+        const mesh = "/assets/mesh/healt_pickup.gltf";
         pickup.entityMesh = new Components.EntityMesh(mesh);
 
         return pickup;
