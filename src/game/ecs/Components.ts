@@ -110,8 +110,9 @@ export module Components {
     }
 
     export class Pickup {
-        public type = PickupType.Ammo;
+        public pickupType = PickupType.Ammo;
         public weaponType = WeaponType.Pistol;
+        public value = 0;
     }
 
     export class PlayerData {

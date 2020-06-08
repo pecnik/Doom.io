@@ -21,8 +21,16 @@ export module EntityFactory {
         return enemy;
     }
 
-    export function AmmoPikcup(weaponType: WeaponType) {
+    export function Projectile(id = nextID()) {
+        const projectile = { id, ...new ProjectileArchetype() };
+        projectile.collision.height = 0.25;
+        projectile.collision.radius = 0.125;
+        return projectile;
+    }
+
+    export function AmmoPickup(weaponType: WeaponType) {
         const pickup = { id: nextID(), ...new PickupArchetype() };
+        pickup.pickup.pickupType = Components.PickupType.Ammo;
         pickup.pickup.weaponType = weaponType;
 
         const mesh = WEAPON_SPEC_RECORD[weaponType].ammoPickupMesh;
@@ -31,10 +39,13 @@ export module EntityFactory {
         return pickup;
     }
 
-    export function Projectile(id = nextID()) {
-        const projectile = { id, ...new ProjectileArchetype() };
-        projectile.collision.height = 0.25;
-        projectile.collision.radius = 0.125;
-        return projectile;
+    export function HealthPickup() {
+        const pickup = { id: nextID(), ...new PickupArchetype() };
+        pickup.pickup.pickupType = Components.PickupType.Health;
+
+        const mesh = "/assets/mesh/missing.glb";
+        pickup.entityMesh = new Components.EntityMesh(mesh);
+
+        return pickup;
     }
 }

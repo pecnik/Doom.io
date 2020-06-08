@@ -1,4 +1,4 @@
-import { World } from "./ecs";
+import { World, Components } from "./ecs";
 import { Action, ActionType } from "./Action";
 import { EntityFactory } from "./data/EntityFactory";
 import { WEAPON_SPEC_RECORD } from "./data/Weapon";
@@ -106,31 +106,52 @@ export abstract class GameContext {
                 return;
             }
 
-            case ActionType.AmmoPackSpawn: {
-                const pickup = EntityFactory.AmmoPikcup(action.weaponType);
+            case ActionType.ItemSpawn: {
+                const { pickupType, weaponType } = action.pickup.pickup;
+
+                const pickup =
+                    pickupType === Components.PickupType.Ammo
+                        ? EntityFactory.AmmoPickup(weaponType)
+                        : EntityFactory.HealthPickup();
+
                 pickup.id = action.entityId;
-                pickup.position.copy(action.position);
+                pickup.pickup.value = action.pickup.pickup.value;
+                pickup.position.copy(action.pickup.position);
+
                 this.world.addEntity(pickup);
+
                 return;
             }
 
-            case ActionType.AmmoPackPickup: {
-                const pickup = this.world.entities.get(action.pickupId);
+            case ActionType.ItemPickup: {
+                const item = this.world.entities.get(action.pickupId);
                 this.world.removeEntity(action.pickupId);
-                if (pickup === undefined) return;
-                if (pickup.pickup === undefined) return;
+                if (item === undefined) return;
+                if (item.pickup === undefined) return;
 
                 const avatar = this.world.entities.get(action.avatarId);
                 if (avatar === undefined) return;
+                if (avatar.health === undefined) return;
                 if (avatar.shooter === undefined) return;
 
-                // Update ammo
-                const { shooter } = avatar;
-                const { weaponType } = pickup.pickup;
-                const ammo = getWeaponAmmo({ shooter }, weaponType);
-                const spec = getWeaponSpec({ shooter }, weaponType);
-                ammo.reserved += 10;
-                ammo.reserved = Math.min(ammo.reserved, spec.maxReservedAmmo);
+                const { pickupType, weaponType, value } = item.pickup;
+
+                if (pickupType === Components.PickupType.Ammo) {
+                    const { shooter } = avatar;
+                    const ammo = getWeaponAmmo({ shooter }, weaponType);
+                    const spec = getWeaponSpec({ shooter }, weaponType);
+                    ammo.reserved += value;
+                    ammo.reserved = Math.min(
+                        ammo.reserved,
+                        spec.maxReservedAmmo
+                    );
+                }
+
+                if (pickupType === Components.PickupType.Health) {
+                    const { health } = avatar;
+                    health.value += value;
+                    health.value = Math.min(health.value, 100);
+                }
 
                 // Play pickup sound
                 this.runDispatch(

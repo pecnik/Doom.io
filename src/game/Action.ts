@@ -9,7 +9,7 @@ import {
     getHeadingVector3,
     getHeadPosition,
 } from "./Helpers";
-import { LocalAvatarArchetype } from "./ecs/Archetypes";
+import { LocalAvatarArchetype, PickupArchetype } from "./ecs/Archetypes";
 import { PLAYER_RADIUS } from "./data/Globals";
 
 export enum ActionType {
@@ -20,8 +20,8 @@ export enum ActionType {
     AvatarUpdate,
     RemoveEntity,
     EmitProjectile,
-    AmmoPackSpawn,
-    AmmoPackPickup,
+    ItemSpawn,
+    ItemPickup,
 }
 
 export interface PlaySoundAction {
@@ -74,15 +74,14 @@ export interface EmitProjectileAction {
     velcotiy: Vector3;
 }
 
-export interface AmmoPackSpawnAction {
-    readonly type: ActionType.AmmoPackSpawn;
+export interface ItemSpawnAction {
+    readonly type: ActionType.ItemSpawn;
     entityId: string;
-    position: Vector3;
-    weaponType: WeaponType;
+    pickup: PickupArchetype;
 }
 
-export interface AmmoPackPickupAction {
-    readonly type: ActionType.AmmoPackPickup;
+export interface ItemPickupAction {
+    readonly type: ActionType.ItemPickup;
     pickupId: string;
     avatarId: string;
 }
@@ -95,8 +94,8 @@ export type Action =
     | AvatarUpdateAction
     | RemoveEntityAction
     | EmitProjectileAction
-    | AmmoPackSpawnAction
-    | AmmoPackPickupAction;
+    | ItemSpawnAction
+    | ItemPickupAction;
 
 export module Action {
     const parsers = new Map<ActionType, ActionParser>();
@@ -183,24 +182,20 @@ export module Action {
         };
     }
 
-    export function spawnAmmoPack(
-        position: Vector3,
-        weaponType: WeaponType
-    ): AmmoPackSpawnAction {
+    export function spawnItemPickup(pickup: PickupArchetype): ItemSpawnAction {
         return {
-            type: ActionType.AmmoPackSpawn,
+            type: ActionType.ItemSpawn,
             entityId: uniqueId("pickup"),
-            position,
-            weaponType,
+            pickup,
         };
     }
 
-    export function pickupAmmoPack(
+    export function pickupItem(
         avatarId: string,
         pickupId: string
-    ): AmmoPackPickupAction {
+    ): ItemPickupAction {
         return {
-            type: ActionType.AmmoPackPickup,
+            type: ActionType.ItemPickup,
             avatarId,
             pickupId,
         };

@@ -4,6 +4,7 @@ import { sample } from "lodash";
 import { WeaponType } from "../data/Weapon";
 import { GameContext } from "../GameContext";
 import { Action } from "../Action";
+import { EntityFactory } from "../data/EntityFactory";
 
 export class ItemSpawnSystem extends System {
     private readonly game: GameContext;
@@ -37,6 +38,18 @@ export class ItemSpawnSystem extends System {
             if (dist < 4) return;
         }
 
+        const pickup = this.createPickup();
+        pickup.pickup.value = 8;
+        pickup.position.copy(spawnPoint);
+        pickup.position.y -= 0.5;
+        this.game.dispatch(Action.spawnItemPickup(pickup));
+    }
+
+    private createPickup(): PickupArchetype {
+        if (Math.random() < 0.4) {
+            return EntityFactory.HealthPickup();
+        }
+
         const weaponType = sample([
             WeaponType.Pistol,
             WeaponType.Shotgun,
@@ -45,9 +58,9 @@ export class ItemSpawnSystem extends System {
         ]);
 
         if (weaponType !== undefined) {
-            const position = spawnPoint.clone();
-            position.y -= 0.5;
-            this.game.dispatch(Action.spawnAmmoPack(position, weaponType));
+            return EntityFactory.AmmoPickup(weaponType);
         }
+
+        return EntityFactory.HealthPickup();
     }
 }

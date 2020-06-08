@@ -5,7 +5,7 @@ import { uniqueId } from "lodash";
 import { World, Family, AnyComponents, Entity, Components } from "../game/ecs";
 import { AvatarArchetype, PickupArchetype } from "../game/ecs/Archetypes";
 import { getPlayerAvatar } from "../game/Helpers";
-import { ActionType, Action, AmmoPackSpawnAction } from "../game/Action";
+import { ActionType, Action, ItemSpawnAction } from "../game/Action";
 import { AvatarSpawnSystem } from "./AvatarSpawnSystem";
 import { ProjectileDisposalSystem } from "../game/systems/ProjectileDisposalSystem";
 import { PhysicsSystem } from "../game/systems/PhysicsSystem";
@@ -113,11 +113,10 @@ export class GameServer extends GameContext {
 
         // Sync exisitng ammo pickups
         this.pickups.entities.forEach((pickup) => {
-            const action: AmmoPackSpawnAction = {
-                type: ActionType.AmmoPackSpawn,
+            const action: ItemSpawnAction = {
+                type: ActionType.ItemSpawn,
                 entityId: pickup.id,
-                position: pickup.position,
-                weaponType: pickup.pickup.weaponType,
+                pickup,
             };
             player.socket.send(Action.serialize(action));
         });
