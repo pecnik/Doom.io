@@ -15,13 +15,13 @@ import { PLAYER_RADIUS } from "./data/Globals";
 export enum ActionType {
     PlaySound,
     SpawnDecal,
-    AvatarSpawn,
     AvatarHit,
     AvatarUpdate,
     RemoveEntity,
     EmitProjectile,
-    ItemSpawn,
     ItemPickup,
+    ItemSpawn,
+    SpawnAvatar,
 }
 
 export interface PlaySoundAction {
@@ -34,14 +34,6 @@ export interface SpawnDecalAction {
     type: ActionType.SpawnDecal;
     point: Vector3;
     normal: Vector3;
-}
-
-export interface AvatarSpawnAction {
-    type: ActionType.AvatarSpawn;
-    playerId: string;
-    avatarId: string;
-    avatarType: "local" | "enemy";
-    position: Vector3;
 }
 
 export interface AvatarHitAction {
@@ -74,22 +66,30 @@ export interface EmitProjectileAction {
     velcotiy: Vector3;
 }
 
-export interface ItemSpawnAction {
-    readonly type: ActionType.ItemSpawn;
-    entityId: string;
-    pickup: PickupArchetype;
-}
-
 export interface ItemPickupAction {
     readonly type: ActionType.ItemPickup;
     pickupId: string;
     avatarId: string;
 }
 
+export interface ItemSpawnAction {
+    readonly type: ActionType.ItemSpawn;
+    entityId: string;
+    pickup: PickupArchetype;
+}
+
+export interface SpawnAvatarAction {
+    type: ActionType.SpawnAvatar;
+    playerId: string;
+    avatarId: string;
+    avatarType: "local" | "enemy";
+    position: Vector3;
+}
+
 export type Action =
     | PlaySoundAction
     | SpawnDecalAction
-    | AvatarSpawnAction
+    | SpawnAvatarAction
     | AvatarHitAction
     | AvatarUpdateAction
     | RemoveEntityAction
@@ -205,11 +205,11 @@ export module Action {
         playerId: string,
         avatarType: "local" | "enemy",
         position = new Vector3()
-    ): AvatarSpawnAction {
+    ): SpawnAvatarAction {
         const avatarId = "a" + playerId;
         position = position || new Vector3();
         return {
-            type: ActionType.AvatarSpawn,
+            type: ActionType.SpawnAvatar,
             playerId,
             avatarId,
             avatarType,

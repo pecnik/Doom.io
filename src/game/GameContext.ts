@@ -24,7 +24,7 @@ export abstract class GameContext {
                 return;
             }
 
-            case ActionType.AvatarSpawn: {
+            case ActionType.SpawnAvatar: {
                 const avatar =
                     action.avatarType === "local"
                         ? EntityFactory.LocalAvatar(action.avatarId)

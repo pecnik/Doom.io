@@ -4,7 +4,7 @@ import { sample } from "lodash";
 import { Family, System, Components } from "../game/ecs";
 import { AvatarArchetype } from "../game/ecs/Archetypes";
 import { getPlayerAvatar } from "../game/Helpers";
-import { ActionType, AvatarSpawnAction, Action } from "../game/Action";
+import { ActionType, SpawnAvatarAction, Action } from "../game/Action";
 import { PlayerConnectionArchetype } from "./GameServer";
 import { GameContext } from "../game/GameContext";
 
@@ -55,11 +55,11 @@ export class AvatarSpawnSystem extends System {
         });
     }
 
-    private spawnAvatarAction(playerId: string): AvatarSpawnAction[] {
+    private spawnAvatarAction(playerId: string): SpawnAvatarAction[] {
         const avatarId = "a" + playerId;
         const position = sample(this.world.level.getSpawnPoints());
-        const spawnAvatar: AvatarSpawnAction = {
-            type: ActionType.AvatarSpawn,
+        const spawnAvatar: SpawnAvatarAction = {
+            type: ActionType.SpawnAvatar,
             playerId,
             avatarId,
             avatarType: "enemy",
