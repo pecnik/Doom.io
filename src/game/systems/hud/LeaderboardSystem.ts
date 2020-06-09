@@ -22,7 +22,7 @@ export class LeaderboardSystem extends System {
         this.el.moveLeft();
         this.el.moveTop();
         layer.add(this.el.sprite);
-        layer.add(this.el.boxHelper());
+        // layer.add(this.el.boxHelper());
         this.render();
     }
 
