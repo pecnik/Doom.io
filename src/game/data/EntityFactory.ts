@@ -5,10 +5,15 @@ import {
     ProjectileArchetype,
     AmmoPackArchetype,
     HealthArchetype,
+    PlayerArchetype,
 } from "../ecs/Archetypes";
 
 export module EntityFactory {
     const nextID = () => uniqueId("e");
+
+    export function Player(id = nextID()) {
+        return { id, ...new PlayerArchetype() };
+    }
 
     export function LocalAvatar(id = nextID()) {
         return { id, ...new LocalAvatarArchetype() };
@@ -33,12 +38,5 @@ export module EntityFactory {
 
     export function HealthPack(id = nextID()) {
         return { id, ...new HealthArchetype() };
-        // const pickup = { id: nextID(), ...new PickupArchetype() };
-        // pickup.pickup.pickupType = Components.PickupType.Health;
-
-        // const mesh = "/assets/mesh/healt_pickup.gltf";
-        // pickup.entityMesh = new Components.EntityMesh(mesh);
-
-        // return pickup;
     }
 }

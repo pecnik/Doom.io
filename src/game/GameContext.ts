@@ -106,6 +106,16 @@ export abstract class GameContext {
                 return;
             }
 
+            case ActionType.SpawnPlayer: {
+                const { playerId, data } = action;
+                const player = EntityFactory.Player(playerId);
+                player.id = playerId;
+                player.playerId = playerId;
+                Object.assign(player.playerData, data);
+                this.world.addEntity(player);
+                return;
+            }
+
             case ActionType.SpawnAmmoPack: {
                 const { id, position, weaponType, ammo } = action;
 
@@ -174,6 +184,8 @@ export abstract class GameContext {
 
             case ActionType.UpdateKillLog: {
                 const { killerPlayerId, victimPlayerId } = action;
+                // const player = this.world
+
                 console.log(`> ${killerPlayerId} -> ${victimPlayerId}`);
                 return;
             }

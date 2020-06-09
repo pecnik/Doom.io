@@ -107,7 +107,6 @@ export module Components {
     }
 
     export class PlayerData {
-        public id = "";
         public name = "noname";
         public kills = 0;
         public deaths = 0;

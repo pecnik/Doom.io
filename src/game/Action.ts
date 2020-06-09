@@ -1,5 +1,5 @@
 import { Vector3, Vector2 } from "three";
-import { Entity } from "./ecs";
+import { Entity, Components } from "./ecs";
 import { WeaponType } from "./data/Weapon";
 import { padStart, random, uniqueId } from "lodash";
 import { AvatarUpdateParcer, ActionParser } from "./ActionParsers";
@@ -13,6 +13,10 @@ import { LocalAvatarArchetype } from "./ecs/Archetypes";
 import { PLAYER_RADIUS } from "./data/Globals";
 
 export enum ActionType {
+    SpawnPlayer,
+    SpawnAvatar,
+    SpawnAmmoPack,
+    SpawnHealthPack,
     PlaySound,
     SpawnDecal,
     AvatarHit,
@@ -20,9 +24,6 @@ export enum ActionType {
     RemoveEntity,
     EmitProjectile,
     ConsumePickup,
-    SpawnAvatar,
-    SpawnAmmoPack,
-    SpawnHealthPack,
     UpdateKillLog,
 }
 
@@ -74,6 +75,12 @@ export interface ConsumePickupAction {
     avatarId: string;
 }
 
+export interface SpawnPlayerAction {
+    readonly type: ActionType.SpawnPlayer;
+    playerId: string;
+    data: Components.PlayerData;
+}
+
 export interface SpawnAvatarAction {
     readonly type: ActionType.SpawnAvatar;
     playerId: string;
@@ -104,6 +111,10 @@ export interface UpdateKillLogAction {
 }
 
 export type Action =
+    | SpawnPlayerAction
+    | SpawnAvatarAction
+    | SpawnAmmoPackAction
+    | SpawnHealthPackAction
     | PlaySoundAction
     | SpawnDecalAction
     | AvatarHitAction
@@ -111,9 +122,6 @@ export type Action =
     | RemoveEntityAction
     | EmitProjectileAction
     | ConsumePickupAction
-    | SpawnAvatarAction
-    | SpawnAmmoPackAction
-    | SpawnHealthPackAction
     | UpdateKillLogAction;
 
 export module Action {
@@ -198,6 +206,17 @@ export module Action {
             playerId: avatar.playerId,
             position,
             velcotiy,
+        };
+    }
+
+    export function spawnPlayer(
+        playerId: string,
+        data: Components.PlayerData
+    ): SpawnPlayerAction {
+        return {
+            type: ActionType.SpawnPlayer,
+            playerId,
+            data,
         };
     }
 

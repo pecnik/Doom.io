@@ -76,7 +76,9 @@ export class GameServer extends GameContext {
     public syncDispatch(action: Action) {
         const msg = Action.serialize(action);
         this.players.entities.forEach((player) => {
-            player.socket.send(msg);
+            if (player.socket.readyState === player.socket.OPEN) {
+                player.socket.send(msg);
+            }
         });
     }
 
@@ -115,11 +117,28 @@ export class GameServer extends GameContext {
             id,
             socket,
         };
+
+        player.playerId = id;
+        player.playerData.name = `Player-${id}`;
+        player.playerData.kills = 0;
+        player.playerData.deaths = 0;
+
         this.world.addEntity(player);
         console.log(`> Server::playerConnection(${id})`);
 
         // Sync existing entities
         this.players.entities.forEach((peer) => {
+            const spawnPlayer = Action.spawnPlayer(peer.id, peer.playerData);
+            player.socket.send(Action.serialize(spawnPlayer));
+
+            if (peer.id !== player.id) {
+                const spawnPlayer = Action.spawnPlayer(
+                    player.id,
+                    player.playerData
+                );
+                peer.socket.send(Action.serialize(spawnPlayer));
+            }
+
             const avatar = getPlayerAvatar(peer.id, this.avatars);
             if (avatar !== undefined) {
                 const { playerId, position } = avatar;
@@ -159,7 +178,7 @@ export class GameServer extends GameContext {
     private playerDisconnect(playerId: string) {
         const player = this.players.entities.get(playerId);
         if (player !== undefined) {
-            this.world.removeEntity(player.id);
+            this.dispatch(Action.removeEntity(playerId));
             console.log(`> Server::playerDisconnect(${playerId})`);
 
             const avatar = getPlayerAvatar(player.id, this.avatars);
