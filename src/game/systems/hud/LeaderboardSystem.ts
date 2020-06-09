@@ -11,9 +11,9 @@ export class LeaderboardSystem extends System {
 
     private readonly el = new HudElement({
         width: 256,
-        height: 512,
+        height: 256,
         props: {
-            health: 0,
+
         },
     });
 
@@ -32,10 +32,11 @@ export class LeaderboardSystem extends System {
     }
 
     private render() {
-        this.el.ctx.font = `Bold 20px 'Share Tech Mono'`;
+        this.el.texture.needsUpdate = true;
+        this.el.ctx.font = `Bold 16px 'Share Tech Mono'`;
         this.el.ctx.textBaseline = "top";
         this.el.ctx.textAlign = "left";
-        this.el.texture.needsUpdate = true;
+        this.el.ctx.clearRect(0, 0, this.el.width, this.el.height);
 
         const fillText = (text: string, x: number, y: number) => {
             this.el.ctx.fillStyle = "black";
@@ -51,8 +52,8 @@ export class LeaderboardSystem extends System {
             const { name, kills, deaths } = player.playerData;
             fillText(name, x, y);
             fillText(kills.toString(), x + 128, y);
-            fillText(deaths.toString(), x + 160, y);
-            y += 32;
+            fillText(deaths.toString(), x + 172, y);
+            y += 24;
         });
     }
 }

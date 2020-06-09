@@ -108,6 +108,8 @@ export interface UpdateKillLogAction {
     readonly type: ActionType.UpdateKillLog;
     killerPlayerId: string;
     victimPlayerId: string;
+    killCount: number;
+    deathCount: number;
 }
 
 export type Action =

@@ -95,16 +95,25 @@ export class GameServer extends GameContext {
                 const target = this.avatars.entities.get(action.targetId);
                 if (target === undefined) return;
                 if (target.health.value <= 0) {
-                    const avatarId = action.targetId;
-                    this.dispatch(Action.removeEntity(avatarId));
+                    const kAvatar = this.avatars.entities.get(action.shooterId);
+                    const vAvatar = this.avatars.entities.get(action.targetId);
+                    this.dispatch(Action.removeEntity(action.targetId));
 
-                    const killer = this.avatars.entities.get(action.shooterId);
+                    // TODO - streamline action data?
+                    if (kAvatar === undefined) return;
+                    if (vAvatar === undefined) return;
+
+                    const killer = this.players.entities.get(kAvatar.playerId);
+                    const victim = this.players.entities.get(vAvatar.playerId);
                     if (killer === undefined) return;
+                    if (victim === undefined) return;
 
                     const killLog: UpdateKillLogAction = {
                         type: ActionType.UpdateKillLog,
-                        killerPlayerId: killer.playerId,
-                        victimPlayerId: target.playerId,
+                        killerPlayerId: kAvatar.playerId,
+                        victimPlayerId: vAvatar.playerId,
+                        killCount: killer.playerData.kills + 1,
+                        deathCount: victim.playerData.deaths + 1,
                     };
                     this.dispatch(killLog);
                 }

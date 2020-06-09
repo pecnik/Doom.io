@@ -187,17 +187,29 @@ export abstract class GameContext {
             }
 
             case ActionType.UpdateKillLog: {
-                const { killerPlayerId, victimPlayerId } = action;
+                const {
+                    killerPlayerId,
+                    victimPlayerId,
+                    killCount,
+                    deathCount,
+                } = action;
                 const killer = this.players.entities.get(killerPlayerId);
                 const victim = this.players.entities.get(victimPlayerId);
 
-                if (killer === undefined || victim === undefined) {
-                    console.log(`> ${killerPlayerId} ==> ${victimPlayerId}`);
-                } else {
-                    const kname = killer.playerData.name;
-                    const vname = victim.playerData.name;
-                    console.log(`> ${kname} ==> ${vname}`);
+                let kname = killerPlayerId;
+                let vname = victimPlayerId;
+
+                if (killer !== undefined) {
+                    killer.playerData.kills = killCount;
+                    kname = killer.playerData.name;
                 }
+
+                if (victim !== undefined) {
+                    victim.playerData.deaths = deathCount;
+                    vname = victim.playerData.name;
+                }
+
+                console.log(`> ${kname} ==> ${vname}`);
 
                 return;
             }
