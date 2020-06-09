@@ -23,6 +23,7 @@ export enum ActionType {
     SpawnAvatar,
     SpawnAmmoPack,
     SpawnHealthPack,
+    UpdateKillLog,
 }
 
 export interface PlaySoundAction {
@@ -96,6 +97,12 @@ export interface SpawnHealthPackAction {
     position: Vector3;
 }
 
+export interface UpdateKillLogAction {
+    readonly type: ActionType.UpdateKillLog;
+    killerPlayerId: string;
+    victimPlayerId: string;
+}
+
 export type Action =
     | PlaySoundAction
     | SpawnDecalAction
@@ -106,7 +113,8 @@ export type Action =
     | ConsumePickupAction
     | SpawnAvatarAction
     | SpawnAmmoPackAction
-    | SpawnHealthPackAction;
+    | SpawnHealthPackAction
+    | UpdateKillLogAction;
 
 export module Action {
     const parsers = new Map<ActionType, ActionParser>();

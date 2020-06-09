@@ -2,14 +2,15 @@ import fs from "fs";
 import WebSocket from "ws";
 import { Clock } from "three";
 import { uniqueId } from "lodash";
-import { World, Family, AnyComponents, Entity, Components } from "../game/ecs";
+import { World, Family, Entity, Components } from "../game/ecs";
 import {
     AvatarArchetype,
     AmmoPackArchetype,
     HealthArchetype,
+    PlayerArchetype,
 } from "../game/ecs/Archetypes";
 import { getPlayerAvatar } from "../game/Helpers";
-import { ActionType, Action } from "../game/Action";
+import { ActionType, Action, UpdateKillLogAction } from "../game/Action";
 import { AvatarSpawnSystem } from "./AvatarSpawnSystem";
 import { ProjectileDisposalSystem } from "../game/systems/ProjectileDisposalSystem";
 import { PhysicsSystem } from "../game/systems/PhysicsSystem";
@@ -18,9 +19,12 @@ import { GameContext } from "../game/GameContext";
 import { PickupSpawnSystem } from "../game/systems/PickupSpawnSystem";
 import { PickupConsumeSystem } from "../game/systems/PickupConsumeSystem";
 
-export interface PlayerConnectionArchetype extends AnyComponents {
-    readonly socket: WebSocket;
-    readonly respawn: Components.Respawn;
+/**
+ * Server-side player entity archetype
+ */
+export class ServerPlayerArchetype extends PlayerArchetype {
+    public readonly socket: WebSocket = {} as WebSocket;
+    public readonly respawn = new Components.Respawn();
 }
 
 export class GameServer extends GameContext {
@@ -29,10 +33,9 @@ export class GameServer extends GameContext {
     public readonly clock = new Clock();
 
     public readonly avatars = Family.findOrCreate(new AvatarArchetype());
-    public readonly players = Family.findOrCreate<PlayerConnectionArchetype>({
-        socket: {} as WebSocket,
-        respawn: new Components.Respawn(),
-    });
+    public readonly players = Family.findOrCreate<ServerPlayerArchetype>(
+        new ServerPlayerArchetype()
+    );
 
     public readonly ammoPacks = Family.findOrCreate(new AmmoPackArchetype());
     public readonly healthPacks = Family.findOrCreate(new HealthArchetype());
@@ -79,14 +82,26 @@ export class GameServer extends GameContext {
 
     public runDispatch(action: Action) {
         super.runDispatch(action);
+
         switch (action.type) {
             case ActionType.AvatarHit: {
                 const target = this.avatars.entities.get(action.targetId);
                 if (target === undefined) return;
-                if (target.health.value > 0) return;
+                if (target.health.value <= 0) {
+                    const avatarId = action.targetId;
+                    this.dispatch(Action.removeEntity(avatarId));
 
-                const avatarId = action.targetId;
-                this.dispatch(Action.removeEntity(avatarId));
+                    const killer = this.avatars.entities.get(action.shooterId);
+                    if (killer === undefined) return;
+
+                    const killLog: UpdateKillLogAction = {
+                        type: ActionType.UpdateKillLog,
+                        killerPlayerId: killer.playerId,
+                        victimPlayerId: target.playerId,
+                    };
+                    this.dispatch(killLog);
+                }
+
                 return;
             }
         }
@@ -95,10 +110,10 @@ export class GameServer extends GameContext {
     private playerConnection(socket: WebSocket) {
         // Create player connection enetiy
         const id = uniqueId("p");
-        const player: Entity<PlayerConnectionArchetype> = {
+        const player: Entity<ServerPlayerArchetype> = {
+            ...new ServerPlayerArchetype(),
             id,
             socket,
-            respawn: new Components.Respawn(),
         };
         this.world.addEntity(player);
         console.log(`> Server::playerConnection(${id})`);

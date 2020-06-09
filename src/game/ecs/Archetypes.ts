@@ -1,5 +1,10 @@
 import { Components, AnyComponents } from "./Components";
 
+export class PlayerArchetype implements AnyComponents {
+    public playerId = "";
+    public playerData = new Components.PlayerData();
+}
+
 export class AvatarArchetype implements AnyComponents {
     public playerId = "";
     public avatarTag = true;

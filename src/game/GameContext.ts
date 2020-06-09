@@ -171,6 +171,12 @@ export abstract class GameContext {
 
                 return;
             }
+
+            case ActionType.UpdateKillLog: {
+                const { killerPlayerId, victimPlayerId } = action;
+                console.log(`> ${killerPlayerId} -> ${victimPlayerId}`);
+                return;
+            }
         }
     }
 }
