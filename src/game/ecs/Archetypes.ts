@@ -27,13 +27,6 @@ export class EnemyAvatarArchetype extends AvatarArchetype {
     public entityMesh = new Components.EntityMesh("/assets/mesh/snowman.glb");
 }
 
-export class PickupArchetype implements AnyComponents {
-    public position = new Components.Position();
-    public rotation = new Components.Rotation();
-    public pickup = new Components.Pickup();
-    public entityMesh = new Components.EntityMesh();
-}
-
 export class ProjectileArchetype implements AnyComponents {
     public playerId = "";
     public projectile = new Components.Projectile();
@@ -43,4 +36,27 @@ export class ProjectileArchetype implements AnyComponents {
     public entityMesh = new Components.EntityMesh(
         "/assets/mesh/projectile.glb"
     );
+}
+
+export class PickupArchetype implements AnyComponents {
+    public pickupTag = true;
+    public position = new Components.Position();
+    public rotation = new Components.Rotation();
+    public entityMesh = new Components.EntityMesh();
+}
+
+export class AmmoPackArchetype extends PickupArchetype {
+    public pickupTag = true;
+    public pickupAmmo = new Components.PickupAmmo();
+    public position = new Components.Position();
+    public rotation = new Components.Rotation();
+    public entityMesh = new Components.EntityMesh();
+}
+
+export class HealthArchetype extends PickupArchetype {
+    public pickupTag = true;
+    public pickupHealth = new Components.PickupHealth();
+    public position = new Components.Position();
+    public rotation = new Components.Rotation();
+    public entityMesh = new Components.EntityMesh();
 }

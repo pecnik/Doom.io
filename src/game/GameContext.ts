@@ -106,54 +106,62 @@ export abstract class GameContext {
                 return;
             }
 
-            case ActionType.ItemSpawn: {
-                const { pickupType, weaponType } = action.pickup.pickup;
+            case ActionType.SpawnAmmoPack: {
+                const { id, position, weaponType, ammo } = action;
 
-                const pickup =
-                    pickupType === Components.PickupType.Ammo
-                        ? EntityFactory.AmmoPickup(weaponType)
-                        : EntityFactory.HealthPickup();
+                const ammoPack = EntityFactory.AmmoPack(id);
+                ammoPack.pickupAmmo.ammo = ammo;
+                ammoPack.pickupAmmo.weaponType = weaponType;
+                ammoPack.position.copy(position);
 
-                pickup.id = action.entityId;
-                pickup.pickup.value = action.pickup.pickup.value;
-                pickup.position.copy(action.pickup.position);
+                const mesh = WEAPON_SPEC_RECORD[weaponType].ammoPickupMesh;
+                ammoPack.entityMesh = new Components.EntityMesh(mesh);
 
-                this.world.addEntity(pickup);
-
+                this.world.addEntity(ammoPack);
                 return;
             }
 
-            case ActionType.ItemPickup: {
-                const item = this.world.entities.get(action.pickupId);
+            case ActionType.SpawnHealthPack: {
+                const { id, position, heal } = action;
+                const healthPack = EntityFactory.HealthPack(id);
+                healthPack.pickupHealth.heal = heal;
+                healthPack.position.copy(position);
+
+                const mesh = "/assets/mesh/healt_pickup.gltf";
+                healthPack.entityMesh = new Components.EntityMesh(mesh);
+
+                this.world.addEntity(healthPack);
+                break;
+            }
+
+            case ActionType.ConsumePickup: {
+                const pickup = this.world.entities.get(action.pickupId);
                 this.world.removeEntity(action.pickupId);
-                if (item === undefined) return;
-                if (item.pickup === undefined) return;
+                if (pickup === undefined) return;
 
                 const avatar = this.world.entities.get(action.avatarId);
                 if (avatar === undefined) return;
                 if (avatar.health === undefined) return;
                 if (avatar.shooter === undefined) return;
 
-                const { pickupType, weaponType, value } = item.pickup;
+                if (pickup.pickupHealth !== undefined) {
+                    const { health } = avatar;
+                    health.value += pickup.pickupHealth.heal;
+                    health.value = Math.min(health.value, 100);
+                }
 
-                if (pickupType === Components.PickupType.Ammo) {
+                if (pickup.pickupAmmo !== undefined) {
+                    const { weaponType } = pickup.pickupAmmo;
                     const { shooter } = avatar;
                     const ammo = getWeaponAmmo({ shooter }, weaponType);
                     const spec = getWeaponSpec({ shooter }, weaponType);
-                    ammo.reserved += value;
+                    ammo.reserved += pickup.pickupAmmo.ammo;
                     ammo.reserved = Math.min(
                         ammo.reserved,
                         spec.maxReservedAmmo
                     );
                 }
 
-                if (pickupType === Components.PickupType.Health) {
-                    const { health } = avatar;
-                    health.value += value;
-                    health.value = Math.min(health.value, 100);
-                }
-
-                // Play pickup sound
                 this.runDispatch(
                     Action.playSound(
                         action.avatarId,

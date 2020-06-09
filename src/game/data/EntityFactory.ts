@@ -1,12 +1,11 @@
 import { uniqueId } from "lodash";
 import {
     LocalAvatarArchetype,
-    PickupArchetype,
     EnemyAvatarArchetype,
     ProjectileArchetype,
+    AmmoPackArchetype,
+    HealthArchetype,
 } from "../ecs/Archetypes";
-import { WeaponType, WEAPON_SPEC_RECORD } from "./Weapon";
-import { Components } from "../ecs";
 
 export module EntityFactory {
     const nextID = () => uniqueId("e");
@@ -28,24 +27,18 @@ export module EntityFactory {
         return projectile;
     }
 
-    export function AmmoPickup(weaponType: WeaponType) {
-        const pickup = { id: nextID(), ...new PickupArchetype() };
-        pickup.pickup.pickupType = Components.PickupType.Ammo;
-        pickup.pickup.weaponType = weaponType;
-
-        const mesh = WEAPON_SPEC_RECORD[weaponType].ammoPickupMesh;
-        pickup.entityMesh = new Components.EntityMesh(mesh);
-
-        return pickup;
+    export function AmmoPack(id = nextID()) {
+        return { id, ...new AmmoPackArchetype() };
     }
 
-    export function HealthPickup() {
-        const pickup = { id: nextID(), ...new PickupArchetype() };
-        pickup.pickup.pickupType = Components.PickupType.Health;
+    export function HealthPack(id = nextID()) {
+        return { id, ...new HealthArchetype() };
+        // const pickup = { id: nextID(), ...new PickupArchetype() };
+        // pickup.pickup.pickupType = Components.PickupType.Health;
 
-        const mesh = "/assets/mesh/healt_pickup.gltf";
-        pickup.entityMesh = new Components.EntityMesh(mesh);
+        // const mesh = "/assets/mesh/healt_pickup.gltf";
+        // pickup.entityMesh = new Components.EntityMesh(mesh);
 
-        return pickup;
+        // return pickup;
     }
 }

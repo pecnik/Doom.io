@@ -35,9 +35,9 @@ import { Action, ActionType } from "./Action";
 import { Sound2D } from "./sound/Sound2D";
 import { HitIndicatorSystem } from "./systems/hud/HitIndicatorSystem";
 import { ProjectileDisposalSystem } from "./systems/ProjectileDisposalSystem";
-import { ItemSpawnSystem } from "./systems/ItemSpawnSystem";
+import { PickupSpawnSystem } from "./systems/PickupSpawnSystem";
 import { GameContext } from "./GameContext";
-import { ItemPickupSystem } from "./systems/ItemPickupSystem";
+import { PickupConsumeSystem } from "./systems/PickupConsumeSystem";
 import { getHeadPosition } from "./Helpers";
 
 export class GameClient extends GameContext implements Game {
@@ -189,8 +189,8 @@ export class GameClient extends GameContext implements Game {
         } else {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };
             this.world.addSystem(new InfineteRespawnSystem(this.world));
-            this.world.addSystem(new ItemSpawnSystem(this));
-            this.world.addSystem(new ItemPickupSystem(this));
+            this.world.addSystem(new PickupSpawnSystem(this));
+            this.world.addSystem(new PickupConsumeSystem(this));
             this.world.addEntity(avatar);
         }
     }

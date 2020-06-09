@@ -9,7 +9,7 @@ import {
     getHeadingVector3,
     getHeadPosition,
 } from "./Helpers";
-import { LocalAvatarArchetype, PickupArchetype } from "./ecs/Archetypes";
+import { LocalAvatarArchetype } from "./ecs/Archetypes";
 import { PLAYER_RADIUS } from "./data/Globals";
 
 export enum ActionType {
@@ -19,9 +19,10 @@ export enum ActionType {
     AvatarUpdate,
     RemoveEntity,
     EmitProjectile,
-    ItemPickup,
-    ItemSpawn,
+    ConsumePickup,
     SpawnAvatar,
+    SpawnAmmoPack,
+    SpawnHealthPack,
 }
 
 export interface PlaySoundAction {
@@ -66,36 +67,46 @@ export interface EmitProjectileAction {
     velcotiy: Vector3;
 }
 
-export interface ItemPickupAction {
-    readonly type: ActionType.ItemPickup;
+export interface ConsumePickupAction {
+    readonly type: ActionType.ConsumePickup;
     pickupId: string;
     avatarId: string;
 }
 
-export interface ItemSpawnAction {
-    readonly type: ActionType.ItemSpawn;
-    entityId: string;
-    pickup: PickupArchetype;
-}
-
 export interface SpawnAvatarAction {
-    type: ActionType.SpawnAvatar;
+    readonly type: ActionType.SpawnAvatar;
     playerId: string;
     avatarId: string;
     avatarType: "local" | "enemy";
     position: Vector3;
 }
 
+export interface SpawnAmmoPackAction {
+    readonly type: ActionType.SpawnAmmoPack;
+    id: string;
+    ammo: number;
+    position: Vector3;
+    weaponType: WeaponType;
+}
+
+export interface SpawnHealthPackAction {
+    readonly type: ActionType.SpawnHealthPack;
+    id: string;
+    heal: number;
+    position: Vector3;
+}
+
 export type Action =
     | PlaySoundAction
     | SpawnDecalAction
-    | SpawnAvatarAction
     | AvatarHitAction
     | AvatarUpdateAction
     | RemoveEntityAction
     | EmitProjectileAction
-    | ItemSpawnAction
-    | ItemPickupAction;
+    | ConsumePickupAction
+    | SpawnAvatarAction
+    | SpawnAmmoPackAction
+    | SpawnHealthPackAction;
 
 export module Action {
     const parsers = new Map<ActionType, ActionParser>();
@@ -182,25 +193,6 @@ export module Action {
         };
     }
 
-    export function spawnItemPickup(pickup: PickupArchetype): ItemSpawnAction {
-        return {
-            type: ActionType.ItemSpawn,
-            entityId: uniqueId("pickup"),
-            pickup,
-        };
-    }
-
-    export function pickupItem(
-        avatarId: string,
-        pickupId: string
-    ): ItemPickupAction {
-        return {
-            type: ActionType.ItemPickup,
-            avatarId,
-            pickupId,
-        };
-    }
-
     export function spawnAvatar(
         playerId: string,
         avatarType: "local" | "enemy",
@@ -214,6 +206,45 @@ export module Action {
             avatarId,
             avatarType,
             position,
+        };
+    }
+
+    export function spawnAmmoPack(
+        id: string,
+        position: Vector3,
+        weaponType: WeaponType,
+        ammo = 10
+    ): SpawnAmmoPackAction {
+        return {
+            type: ActionType.SpawnAmmoPack,
+            id,
+            ammo,
+            position,
+            weaponType,
+        };
+    }
+
+    export function spawnHealthPack(
+        id: string,
+        position: Vector3,
+        heal = 15
+    ): SpawnHealthPackAction {
+        return {
+            type: ActionType.SpawnHealthPack,
+            id,
+            heal,
+            position,
+        };
+    }
+
+    export function consumePickup(
+        avatarId: string,
+        pickupId: string
+    ): ConsumePickupAction {
+        return {
+            type: ActionType.ConsumePickup,
+            avatarId,
+            pickupId,
         };
     }
 

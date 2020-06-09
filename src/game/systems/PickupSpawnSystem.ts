@@ -1,12 +1,12 @@
 import { System } from "../ecs";
-import { PickupArchetype, AvatarArchetype } from "../ecs/Archetypes";
-import { sample } from "lodash";
+import { AvatarArchetype, PickupArchetype } from "../ecs/Archetypes";
+import { sample, uniqueId } from "lodash";
 import { WeaponType } from "../data/Weapon";
 import { GameContext } from "../GameContext";
 import { Action } from "../Action";
-import { EntityFactory } from "../data/EntityFactory";
+import { Vector3 } from "three";
 
-export class ItemSpawnSystem extends System {
+export class PickupSpawnSystem extends System {
     private readonly game: GameContext;
     private readonly pickups = this.createEntityFamily({
         archetype: new PickupArchetype(),
@@ -15,6 +15,16 @@ export class ItemSpawnSystem extends System {
     private readonly avatars = this.createEntityFamily({
         archetype: new AvatarArchetype(),
     });
+
+    private readonly getRandomWeaponType = (() => {
+        const types = [
+            WeaponType.Pistol,
+            WeaponType.Shotgun,
+            WeaponType.Machinegun,
+            WeaponType.Plasma,
+        ];
+        return () => sample(types) as WeaponType;
+    })();
 
     public constructor(game: GameContext) {
         super(game.world);
@@ -38,29 +48,16 @@ export class ItemSpawnSystem extends System {
             if (dist < 4) return;
         }
 
-        const pickup = this.createPickup();
-        pickup.pickup.value = 8;
-        pickup.position.copy(spawnPoint);
-        pickup.position.y -= 0.5;
-        this.game.dispatch(Action.spawnItemPickup(pickup));
-    }
+        const id = uniqueId("pickup");
+        const position = new Vector3();
+        position.copy(spawnPoint);
+        position.y -= 0.5;
 
-    private createPickup(): PickupArchetype {
-        if (Math.random() < 0.4) {
-            return EntityFactory.HealthPickup();
+        if (Math.random() < 0.25) {
+            this.game.dispatch(Action.spawnHealthPack(id, position));
+        } else {
+            const weaponType = this.getRandomWeaponType();
+            this.game.dispatch(Action.spawnAmmoPack(id, position, weaponType));
         }
-
-        const weaponType = sample([
-            WeaponType.Pistol,
-            WeaponType.Shotgun,
-            WeaponType.Machinegun,
-            WeaponType.Plasma,
-        ]);
-
-        if (weaponType !== undefined) {
-            return EntityFactory.AmmoPickup(weaponType);
-        }
-
-        return EntityFactory.HealthPickup();
     }
 }

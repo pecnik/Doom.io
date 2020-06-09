@@ -3,16 +3,20 @@ import WebSocket from "ws";
 import { Clock } from "three";
 import { uniqueId } from "lodash";
 import { World, Family, AnyComponents, Entity, Components } from "../game/ecs";
-import { AvatarArchetype, PickupArchetype } from "../game/ecs/Archetypes";
+import {
+    AvatarArchetype,
+    AmmoPackArchetype,
+    HealthArchetype,
+} from "../game/ecs/Archetypes";
 import { getPlayerAvatar } from "../game/Helpers";
-import { ActionType, Action, ItemSpawnAction } from "../game/Action";
+import { ActionType, Action } from "../game/Action";
 import { AvatarSpawnSystem } from "./AvatarSpawnSystem";
 import { ProjectileDisposalSystem } from "../game/systems/ProjectileDisposalSystem";
 import { PhysicsSystem } from "../game/systems/PhysicsSystem";
 import { ProjectileDamageSystem } from "../game/systems/ProjectileDamageSystem";
 import { GameContext } from "../game/GameContext";
-import { ItemSpawnSystem } from "../game/systems/ItemSpawnSystem";
-import { ItemPickupSystem } from "../game/systems/ItemPickupSystem";
+import { PickupSpawnSystem } from "../game/systems/PickupSpawnSystem";
+import { PickupConsumeSystem } from "../game/systems/PickupConsumeSystem";
 
 export interface PlayerConnectionArchetype extends AnyComponents {
     readonly socket: WebSocket;
@@ -24,12 +28,14 @@ export class GameServer extends GameContext {
     public readonly wss: WebSocket.Server;
     public readonly clock = new Clock();
 
-    public readonly pickups = Family.findOrCreate(new PickupArchetype());
     public readonly avatars = Family.findOrCreate(new AvatarArchetype());
     public readonly players = Family.findOrCreate<PlayerConnectionArchetype>({
         socket: {} as WebSocket,
         respawn: new Components.Respawn(),
     });
+
+    public readonly ammoPacks = Family.findOrCreate(new AmmoPackArchetype());
+    public readonly healthPacks = Family.findOrCreate(new HealthArchetype());
 
     public constructor(wss: WebSocket.Server) {
         super();
@@ -41,8 +47,8 @@ export class GameServer extends GameContext {
 
         // Init systems
         this.world.addSystem(new AvatarSpawnSystem(this));
-        this.world.addSystem(new ItemSpawnSystem(this));
-        this.world.addSystem(new ItemPickupSystem(this));
+        this.world.addSystem(new PickupSpawnSystem(this));
+        this.world.addSystem(new PickupConsumeSystem(this));
         this.world.addSystem(new PhysicsSystem(this.world));
         this.world.addSystem(new ProjectileDamageSystem(this));
         this.world.addSystem(new ProjectileDisposalSystem(this.world));
@@ -112,12 +118,23 @@ export class GameServer extends GameContext {
         });
 
         // Sync exisitng ammo pickups
-        this.pickups.entities.forEach((pickup) => {
-            const action: ItemSpawnAction = {
-                type: ActionType.ItemSpawn,
-                entityId: pickup.id,
-                pickup,
-            };
+        this.ammoPacks.entities.forEach((pickup) => {
+            const action = Action.spawnAmmoPack(
+                pickup.id,
+                pickup.position,
+                pickup.pickupAmmo.weaponType,
+                pickup.pickupAmmo.ammo
+            );
+            player.socket.send(Action.serialize(action));
+        });
+
+        // Sync exisitng health pickups
+        this.healthPacks.entities.forEach((pickup) => {
+            const action = Action.spawnHealthPack(
+                pickup.id,
+                pickup.position,
+                pickup.pickupHealth.heal
+            );
             player.socket.send(Action.serialize(action));
         });
 
