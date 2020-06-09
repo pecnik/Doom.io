@@ -33,7 +33,12 @@ export class GameServer extends GameContext {
     public readonly clock = new Clock();
 
     public readonly avatars = Family.findOrCreate(new AvatarArchetype());
-    public readonly players = Family.findOrCreate<ServerPlayerArchetype>(
+
+    // Player entity archetype shared with the client
+    public readonly players = Family.findOrCreate(new PlayerArchetype());
+
+    // Are just players with a websocket component
+    public readonly serverPlayers = Family.findOrCreate(
         new ServerPlayerArchetype()
     );
 
@@ -75,7 +80,7 @@ export class GameServer extends GameContext {
 
     public syncDispatch(action: Action) {
         const msg = Action.serialize(action);
-        this.players.entities.forEach((player) => {
+        this.serverPlayers.entities.forEach((player) => {
             if (player.socket.readyState === player.socket.OPEN) {
                 player.socket.send(msg);
             }
@@ -127,7 +132,7 @@ export class GameServer extends GameContext {
         console.log(`> Server::playerConnection(${id})`);
 
         // Sync existing entities
-        this.players.entities.forEach((peer) => {
+        this.serverPlayers.entities.forEach((peer) => {
             const spawnPlayer = Action.spawnPlayer(peer.id, peer.playerData);
             player.socket.send(Action.serialize(spawnPlayer));
 
@@ -176,7 +181,7 @@ export class GameServer extends GameContext {
     }
 
     private playerDisconnect(playerId: string) {
-        const player = this.players.entities.get(playerId);
+        const player = this.serverPlayers.entities.get(playerId);
         if (player !== undefined) {
             this.dispatch(Action.removeEntity(playerId));
             console.log(`> Server::playerDisconnect(${playerId})`);
@@ -217,7 +222,7 @@ export class GameServer extends GameContext {
     }
 
     private forwardDispatch(playerId: string, msg: string) {
-        this.players.entities.forEach((player) => {
+        this.serverPlayers.entities.forEach((player) => {
             if (player.id !== playerId) {
                 player.socket.send(msg);
             }

@@ -1,11 +1,15 @@
-import { World, Components } from "./ecs";
+import { World, Components, Family } from "./ecs";
 import { Action, ActionType } from "./Action";
 import { EntityFactory } from "./data/EntityFactory";
 import { WEAPON_SPEC_RECORD } from "./data/Weapon";
 import { getWeaponAmmo, getWeaponSpec } from "./Helpers";
+import { PlayerArchetype, AvatarArchetype } from "./ecs/Archetypes";
 
 export abstract class GameContext {
     public abstract readonly world: World;
+
+    public readonly players = Family.findOrCreate(new PlayerArchetype());
+    public readonly avatars = Family.findOrCreate(new AvatarArchetype());
 
     public dispatch(action: Action) {
         this.syncDispatch(action);
@@ -184,9 +188,17 @@ export abstract class GameContext {
 
             case ActionType.UpdateKillLog: {
                 const { killerPlayerId, victimPlayerId } = action;
-                // const player = this.world
+                const killer = this.players.entities.get(killerPlayerId);
+                const victim = this.players.entities.get(victimPlayerId);
 
-                console.log(`> ${killerPlayerId} -> ${victimPlayerId}`);
+                if (killer === undefined || victim === undefined) {
+                    console.log(`> ${killerPlayerId} ==> ${victimPlayerId}`);
+                } else {
+                    const kname = killer.playerData.name;
+                    const vname = victim.playerData.name;
+                    console.log(`> ${kname} ==> ${vname}`);
+                }
+
                 return;
             }
         }
