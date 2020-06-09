@@ -39,6 +39,7 @@ import { PickupSpawnSystem } from "./systems/PickupSpawnSystem";
 import { GameContext } from "./GameContext";
 import { PickupConsumeSystem } from "./systems/PickupConsumeSystem";
 import { getHeadPosition } from "./Helpers";
+import { LeaderboardSystem } from "./systems/hud/LeaderboardSystem";
 
 export class GameClient extends GameContext implements Game {
     private readonly stats = GameClient.createStats();
@@ -176,6 +177,7 @@ export class GameClient extends GameContext implements Game {
             this.world.addSystem(new AmmoCountSystem(this.world, layers[1]));
             this.world.addSystem(new DashChargeSystem(this.world, layers[1]));
             this.world.addSystem(new HealthBarSystem(this.world, layers[1]));
+            this.world.addSystem(new LeaderboardSystem(this.world, layers[1]));
             this.world.addSystem(new HitIndicatorSystem(this, layers[1]));
         }
 
