@@ -1,4 +1,3 @@
-import Stats from "stats.js";
 import { Hud } from "./data/Hud";
 import { Input } from "./core/Input";
 import { World } from "./ecs";
@@ -42,8 +41,6 @@ import { getHeadPosition } from "./Helpers";
 import { LeaderboardSystem } from "./systems/hud/LeaderboardSystem";
 
 export class GameClient extends GameContext implements Game {
-    private readonly stats = GameClient.createStats();
-
     private readonly route = location.hash.replace("#", "");
     private readonly isMultiplayer = this.route === "/game/multiplayer";
 
@@ -53,19 +50,6 @@ export class GameClient extends GameContext implements Game {
         requestPointerLock: true,
         element: document.getElementById("viewport") as HTMLCanvasElement,
     });
-
-    private static createStats() {
-        if (Settings.graphics.fpsMeter) {
-            const stats = new Stats();
-            document.body.appendChild(stats.dom);
-            return stats;
-        }
-
-        return {
-            begin() {},
-            end() {},
-        };
-    }
 
     private connect() {
         const url = location.origin
@@ -206,10 +190,8 @@ export class GameClient extends GameContext implements Game {
     }
 
     public update(dt: number) {
-        this.stats.begin();
         this.world.update(dt);
         this.input.clear();
-        this.stats.end();
     }
 
     /**

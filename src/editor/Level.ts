@@ -481,6 +481,7 @@ export class Level {
             const geometry = new Geometry();
             planes.forEach((plane) => geometry.merge(plane));
             planes.forEach((plane) => plane.dispose());
+            geometry.mergeVertices();
             geometry.elementsNeedUpdate = true;
             return geometry;
         })();
