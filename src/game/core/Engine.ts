@@ -1,6 +1,6 @@
 import { WebGLRenderer, Scene, Camera, PerspectiveCamera } from "three";
 import { clamp } from "lodash";
-import { Settings } from "../Settings";
+import { Settings } from "../../settings/Settings";
 
 export interface Game {
     readonly world: { scene: Scene; camera: PerspectiveCamera };
@@ -28,13 +28,13 @@ export class Engine {
         this.gamearea = gamearea;
         this.renderer = new WebGLRenderer({
             canvas: this.viewport,
-            antialias: Settings.props.antialiasing,
+            antialias: Settings.graphics.antialiasing,
         });
         this.renderer.autoClear = false;
         this.renderer.setClearColor(0x6495ed);
-        this.renderer.setPixelRatio(Settings.props.renderResolution);
-        this.renderer.toneMapping = Settings.props.toneMapping;
-        this.renderer.toneMappingExposure = Settings.props.toneMappingExposure;
+        this.renderer.setPixelRatio(Settings.graphics.renderResolution);
+        this.renderer.toneMapping = Settings.graphics.toneMap;
+        this.renderer.toneMappingExposure = Settings.graphics.toneMapExposure;
     }
 
     public start(width: number, height: number) {

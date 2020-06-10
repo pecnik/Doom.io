@@ -6,7 +6,9 @@ import { Input, KeyCode, MouseBtn } from "../core/Input";
 import { modulo } from "../core/Utils";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { WeaponType, WEAPON_SPEC_RECORD } from "../data/Weapon";
-import { Settings } from "../Settings";
+import { Settings } from "../../settings/Settings";
+
+const MOUSE_SENSITIVITY = Settings.input.mouseSensitivity * 0.25;
 
 export class PlayerInputSystem extends System {
     private readonly input: Input;
@@ -21,7 +23,6 @@ export class PlayerInputSystem extends System {
 
     public update(dt: number) {
         // Look input
-        const mouseSensitivity = Settings.props.mouseSensitivity;
         const lookHor = this.input.mouse.dx;
         const lookVer = this.input.mouse.dy;
 
@@ -57,10 +58,10 @@ export class PlayerInputSystem extends System {
             if (rotation !== undefined) {
                 const str = input.scope ? 0.5 : 1;
 
-                rotation.y -= lookHor * mouseSensitivity * str * dt;
+                rotation.y -= lookHor * MOUSE_SENSITIVITY * str * dt;
                 rotation.y = modulo(rotation.y, Math.PI * 2);
 
-                rotation.x -= lookVer * mouseSensitivity * str * dt;
+                rotation.x -= lookVer * MOUSE_SENSITIVITY * str * dt;
                 rotation.x = clamp(rotation.x, -Math.PI / 2, Math.PI / 2);
             }
         });

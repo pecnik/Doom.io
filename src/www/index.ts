@@ -1,4 +1,4 @@
-import { Settings } from "../game/Settings";
+import { loadSettings, Settings } from "../settings/Settings";
 
 const route = location.hash.replace("#", "");
 window.addEventListener("hashchange", () => {
@@ -6,7 +6,7 @@ window.addEventListener("hashchange", () => {
 });
 
 // Init settings
-Settings.load();
+loadSettings(Settings);
 
 // Idk ...
 const removeGamearea = () => {

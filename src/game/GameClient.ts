@@ -26,7 +26,7 @@ import { PickupMeshSystem } from "./systems/rendering/PickupMeshSystem";
 import { Scene } from "three";
 import { AmmoCountSystem } from "./systems/hud/AmmoCountSystem";
 import { DashChargeSystem } from "./systems/hud/DashChargeSystem";
-import { Settings } from "./Settings";
+import { Settings } from "../settings/Settings";
 import { PlayerBounceSystem } from "./systems/PlayerBounceSystem";
 import { HealthBarSystem } from "./systems/hud/HealthBarSystem";
 import { LevelJSON } from "../editor/Level";
@@ -53,7 +53,7 @@ export class GameClient extends GameContext implements Game {
     public readonly avatars = Family.findOrCreate(new AvatarArchetype());
 
     private static createStats() {
-        if (Settings.props.fpsMeter) {
+        if (Settings.graphics.fpsMeter) {
             const stats = new Stats();
             document.body.appendChild(stats.dom);
             return stats;
@@ -86,7 +86,7 @@ export class GameClient extends GameContext implements Game {
         };
 
         socket.onopen = () => {
-            const playerName = Settings.props.displayName;
+            const playerName = Settings.profile.displayName;
             const register = Action.registerPlayer(playerName || "");
             socket.send(Action.serialize(register));
         };

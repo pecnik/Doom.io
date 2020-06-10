@@ -29,7 +29,6 @@ export class FootstepAudioSystem extends System {
             const footstepSound = Sound3D.get("/assets/sounds/footstep.wav");
             footstepSound.emitFrom(entity, (audio) => {
                 audio.detune = random(100, 600);
-                audio.setVolume(random(0.5, 1, true));
             });
         });
     }
