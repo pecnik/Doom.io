@@ -33,7 +33,6 @@ export class LeaderboardSystem extends System {
         this.killfeed.moveRight();
         this.killfeed.moveTop();
         layer.add(this.killfeed.sprite);
-        layer.add(this.killfeed.boxHelper());
 
         this.updateLeaderboard();
     }
