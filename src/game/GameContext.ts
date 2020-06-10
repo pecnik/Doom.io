@@ -209,11 +209,12 @@ export abstract class GameContext {
                     vname = victim.playerData.name;
                 }
 
-                if (this.world.killfeed.length > 6) {
+                if (this.world.killfeed.length > 4) {
                     this.world.killfeed.shift();
                 }
 
-                this.world.killfeed.push({
+                this.world.killfeed.unshift({
+                    time: this.world.elapsedTime,
                     killer: kname,
                     victim: vname,
                 });

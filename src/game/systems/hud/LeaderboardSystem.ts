@@ -36,30 +36,27 @@ export class LeaderboardSystem extends System {
         this.updateLeaderboard();
     }
 
-    public updateInterval = 1.0;
+    public updateInterval = 1 / 30;
     public update() {
         this.updateLeaderboard();
         this.updateKillFeed();
     }
 
     private updateLeaderboard() {
-        this.leaderboard.texture.needsUpdate = true;
-        this.leaderboard.ctx.font = `Bold 16px 'Share Tech Mono'`;
-        this.leaderboard.ctx.textBaseline = "top";
-        this.leaderboard.ctx.textAlign = "left";
-        this.leaderboard.ctx.clearRect(
-            0,
-            0,
-            this.leaderboard.width,
-            this.leaderboard.height
-        );
+        const el = this.leaderboard;
+
+        el.texture.needsUpdate = true;
+        el.ctx.font = `Bold 16px 'Share Tech Mono'`;
+        el.ctx.textBaseline = "top";
+        el.ctx.textAlign = "left";
+        el.ctx.clearRect(0, 0, el.width, el.height);
 
         const fillText = (text: string, x: number, y: number) => {
-            this.leaderboard.ctx.fillStyle = "black";
-            this.leaderboard.ctx.fillText(text, x + 2, y + 2);
+            el.ctx.fillStyle = "black";
+            el.ctx.fillText(text, x + 2, y + 2);
 
-            this.leaderboard.ctx.fillStyle = "white";
-            this.leaderboard.ctx.fillText(text, x, y);
+            el.ctx.fillStyle = "white";
+            el.ctx.fillText(text, x, y);
         };
 
         let x = 8;
@@ -74,31 +71,32 @@ export class LeaderboardSystem extends System {
     }
 
     private updateKillFeed() {
-        this.killfeed.texture.needsUpdate = true;
-        this.killfeed.ctx.font = `Bold 14px 'Share Tech Mono'`;
-        this.killfeed.ctx.textBaseline = "top";
-        this.killfeed.ctx.textAlign = "left";
-        this.killfeed.ctx.clearRect(
-            0,
-            0,
-            this.killfeed.width,
-            this.killfeed.height
-        );
+        const el = this.killfeed;
 
-        const fillText = (text: string, x: number, y: number) => {
-            this.killfeed.ctx.fillStyle = "black";
-            this.killfeed.ctx.fillText(text, x + 2, y + 2);
+        el.texture.needsUpdate = true;
+        el.ctx.font = `Bold 14px 'Share Tech Mono'`;
+        el.ctx.textBaseline = "top";
+        el.ctx.textAlign = "left";
+        el.ctx.clearRect(0, 0, el.width, el.height);
 
-            this.killfeed.ctx.fillStyle = "white";
-            this.killfeed.ctx.fillText(text, x, y);
+        const fillText = (text: string, x: number, y: number, c = "white") => {
+            el.ctx.fillStyle = "black";
+            el.ctx.fillText(text, x + 2, y + 2);
+
+            el.ctx.fillStyle = c;
+            el.ctx.fillText(text, x, y);
         };
 
         let x = 8;
         let y = 8;
         this.world.killfeed.forEach((log) => {
-            fillText(log.killer, x, y);
-            fillText(log.victim, x + 128, y);
-            y += 24;
+            const max = 10;
+            const delta = this.world.elapsedTime - log.time;
+            if (delta < max) {
+                fillText(log.killer, x, y);
+                fillText(log.victim, x + 128, y);
+                y += 24;
+            }
         });
     }
 }

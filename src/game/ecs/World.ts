@@ -74,7 +74,11 @@ export class World {
     public readonly level = new Level();
     public readonly decals = new BulletDecals();
     public readonly particles = new Particles();
-    public readonly killfeed = new Array<{ killer: string; victim: string }>();
+    public readonly killfeed = new Array<{
+        time: number;
+        killer: string;
+        victim: string;
+    }>();
     public elapsedTime = 0;
 
     public constructor() {
