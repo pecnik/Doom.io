@@ -66,20 +66,6 @@ export class GameClient extends GameContext implements Game {
     }
 
     private connect() {
-        let playerName = prompt(
-            "Player name:",
-            localStorage.getItem("playerName") || ""
-        );
-
-        if (playerName === null) {
-            location.reload();
-            return;
-        }
-
-        playerName = playerName.substr(0, 12);
-
-        localStorage.setItem("playerName", playerName);
-
         const url = location.origin
             .replace(location.port, "8080")
             .replace("http://", "ws://")
@@ -100,6 +86,7 @@ export class GameClient extends GameContext implements Game {
         };
 
         socket.onopen = () => {
+            const playerName = Settings.props.displayName;
             const register = Action.registerPlayer(playerName || "");
             socket.send(Action.serialize(register));
         };

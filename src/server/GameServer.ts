@@ -190,6 +190,7 @@ export class GameServer extends GameContext {
 
                 // Set name
                 player.playerData.name = action.name || "noname";
+                player.playerData.name = player.playerData.name.substr(0, 12);
 
                 // Sync existing entities
                 this.serverPlayers.entities.forEach((peer) => {

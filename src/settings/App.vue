@@ -7,10 +7,21 @@
             </div>
             <v-list class="mb-4">
                 <v-list-item>
+                    <v-list-item-title>Player name</v-list-item-title>
+                </v-list-item>
+                <v-list-item>
+                    <v-text-field v-model="settings.displayName"></v-text-field>
+                </v-list-item>
+            </v-list>
+            <v-list class="mb-4">
+                <v-list-item>
                     <v-list-item-title>Stats</v-list-item-title>
                 </v-list-item>
                 <v-list-item>
-                    <v-switch label="FPS Meter" v-model="settings.fpsMeter"></v-switch>
+                    <v-switch
+                        label="FPS Meter"
+                        v-model="settings.fpsMeter"
+                    ></v-switch>
                 </v-list-item>
             </v-list>
 
@@ -35,7 +46,10 @@
                     <v-list-item-title>Rendering</v-list-item-title>
                 </v-list-item>
                 <v-list-item>
-                    <v-switch label="Antialiasing" v-model="settings.antialiasing"></v-switch>
+                    <v-switch
+                        label="Antialiasing"
+                        v-model="settings.antialiasing"
+                    ></v-switch>
                 </v-list-item>
                 <v-list-item>
                     <v-slider

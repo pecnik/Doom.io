@@ -17,6 +17,7 @@ export const ToneMapping = {
 };
 
 export class SettingsProps {
+    public displayName = "No-name";
     public fpsMeter = false;
     public antialiasing = true;
     public toneMapping = ToneMapping.NoToneMapping;
