@@ -7,6 +7,7 @@ import { Family } from "./Family";
 import { AnyComponents } from "./Components";
 import { Level } from "../../editor/Level";
 import { sortBy } from "lodash";
+import { WeaponType } from "../data/Weapon";
 
 module Benchmark {
     const time = new Clock();
@@ -78,6 +79,7 @@ export class World {
         time: number;
         killer: string;
         victim: string;
+        weaponType: WeaponType;
     }>();
     public elapsedTime = 0;
 

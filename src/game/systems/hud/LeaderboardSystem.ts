@@ -3,6 +3,8 @@ import { World } from "../../ecs";
 import { Scene } from "three";
 import { HudElement } from "../../data/HudElement";
 import { PlayerArchetype } from "../../ecs/Archetypes";
+import { WEAPON_SPEC_RECORD } from "../../data/Weapon";
+import { getImage } from "../../Helpers";
 
 export class LeaderboardSystem extends System {
     private readonly players = this.createEntityFamily({
@@ -93,7 +95,13 @@ export class LeaderboardSystem extends System {
             const max = 10;
             const delta = this.world.elapsedTime - log.time;
             if (delta < max) {
-                fillText(log.killer, x, y);
+                const spec = WEAPON_SPEC_RECORD[log.weaponType];
+                const icon = getImage(spec.icon);
+                if (icon.width > 0) {
+                    el.ctx.drawImage(icon, x, y, 16, 16);
+                }
+
+                fillText(log.killer, x + 24, y);
                 fillText(log.victim, x + 128, y);
                 y += 24;
             }

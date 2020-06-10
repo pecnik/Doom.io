@@ -192,6 +192,7 @@ export abstract class GameContext {
                     victimPlayerId,
                     killCount,
                     deathCount,
+                    weaponType,
                 } = action;
                 const killer = this.players.entities.get(killerPlayerId);
                 const victim = this.players.entities.get(victimPlayerId);
@@ -217,6 +218,7 @@ export abstract class GameContext {
                     time: this.world.elapsedTime,
                     killer: kname,
                     victim: vname,
+                    weaponType,
                 });
 
                 console.log(`> ${kname} ==> ${vname}`);

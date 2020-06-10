@@ -36,7 +36,7 @@ export class ProjectileDamageSystem extends System {
 
                 const hitEntity: AvatarHitAction = {
                     type: ActionType.AvatarHit,
-                    weaponType: WeaponType.Shotgun, // Will it be always tho?
+                    weaponType: WeaponType.Plasma, // Will it be always tho?
                     shooterId: shooter.id,
                     targetId: avatar.id,
                     headshot: false, /// ammm no

@@ -110,6 +110,7 @@ export interface UpdateKillLogAction {
     victimPlayerId: string;
     killCount: number;
     deathCount: number;
+    weaponType: WeaponType;
 }
 
 export type Action =

@@ -114,6 +114,7 @@ export class GameServer extends GameContext {
                         victimPlayerId: vAvatar.playerId,
                         killCount: killer.playerData.kills + 1,
                         deathCount: victim.playerData.deaths + 1,
+                        weaponType: action.weaponType,
                     };
                     this.dispatch(killLog);
                 }
