@@ -17,7 +17,7 @@ import { Sound3D } from "./sound/Sound3D";
 import { FootstepAudioSystem } from "./systems/audio/FootstepAudioSystem";
 import { createSkybox } from "./data/Skybox";
 import { WEAPON_SPEC_RECORD } from "./data/Weapon";
-import { uniq } from "lodash";
+import { uniq, debounce, sample } from "lodash";
 import { CrosshairSystem } from "./systems/hud/CrosshairSystem";
 import { PlayerDashSystem } from "./systems/PlayerDashSystem";
 import { AvatarMeshSystem } from "./systems/rendering/AvatarMeshSystem";
@@ -253,8 +253,33 @@ export class GameClient extends GameContext implements Game {
                     .normalize()
                     .multiplyScalar(-1);
                 this.world.particles.blood(p1, direction);
+
+                if (target.health.value > 0 && target.localAvatarTag === true) {
+                    this.painSound(false);
+                }
+
                 return;
             }
         }
     }
+
+    public painSound = (() => {
+        const death = [
+            "/assets/sounds/death_jack_01.wav",
+            "/assets/sounds/death_jack_02.wav",
+        ];
+
+        const pain = [
+            "/assets/sounds/pain_jack_01.wav",
+            "/assets/sounds/pain_jack_02.wav",
+            "/assets/sounds/pain_jack_03.wav",
+        ];
+
+        return debounce((dead = false) => {
+            const sound = dead ? sample(death) : sample(pain);
+            if (sound !== undefined) {
+                Sound2D.get(sound).play();
+            }
+        }, 1000 / 30);
+    })();
 }

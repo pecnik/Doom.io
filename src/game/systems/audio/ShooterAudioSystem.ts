@@ -4,16 +4,19 @@ import { getWeaponSpec } from "../../Helpers";
 import { LocalAvatarArchetype } from "../../ecs/Archetypes";
 import { Sound2D } from "../../sound/Sound2D";
 import { WEAPON_SPEC_RECORD } from "../../data/Weapon";
-import { GameContext } from "../../GameContext";
 import { Action } from "../../Action";
+import { GameClient } from "../../GameClient";
 
 export class ShooterAudioSystem extends System {
-    private readonly game: GameContext;
+    private readonly game: GameClient;
     private readonly family = this.createEntityFamily({
         archetype: new LocalAvatarArchetype(),
+        onEntityRemvoed: () => {
+            this.game.painSound(true);
+        },
     });
 
-    public constructor(client: GameContext) {
+    public constructor(client: GameClient) {
         super(client.world);
         this.game = client;
     }
