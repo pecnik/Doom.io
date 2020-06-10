@@ -209,6 +209,15 @@ export abstract class GameContext {
                     vname = victim.playerData.name;
                 }
 
+                if (this.world.killfeed.length > 6) {
+                    this.world.killfeed.shift();
+                }
+
+                this.world.killfeed.push({
+                    killer: kname,
+                    victim: vname,
+                });
+
                 console.log(`> ${kname} ==> ${vname}`);
 
                 return;
