@@ -9,6 +9,7 @@ export type AnyComponents = Partial<AllComponents>;
 export type AllComponents = {
     playerId: string;
     avatarTag: boolean;
+    pickupTag: boolean;
     enemyAvatarTag: boolean;
     localAvatarTag: boolean;
     gravity: boolean;
@@ -21,13 +22,14 @@ export type AllComponents = {
     shooter: Components.Shooter;
     health: Components.Health;
     jump: Components.Jump;
-    pickup: Components.Pickup;
     avatar: Components.Avatar;
     footstep: Components.Footstep;
     entityMesh: Components.EntityMesh;
     hitIndicator: Components.HitIndicator;
     cameraShake: Components.CameraShake;
     projectile: Components.Projectile;
+    pickupAmmo: Components.PickupAmmo;
+    pickupHealth: Components.PickupHealth;
 };
 
 export module Components {
@@ -104,19 +106,8 @@ export module Components {
         public speed = 0;
     }
 
-    export enum PickupType {
-        Ammo,
-        Health,
-    }
-
-    export class Pickup {
-        public type = PickupType.Ammo;
-        public weaponType = WeaponType.Pistol;
-    }
-
     export class PlayerData {
-        public id = "";
-        public name = "noname";
+        public name = "";
         public kills = 0;
         public deaths = 0;
     }
@@ -147,5 +138,14 @@ export module Components {
 
     export class Projectile {
         public spawnTime = 0;
+    }
+
+    export class PickupAmmo {
+        public weaponType = WeaponType.Pistol;
+        public ammo = 0;
+    }
+
+    export class PickupHealth {
+        public heal = 0;
     }
 }

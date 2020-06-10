@@ -1,23 +1,23 @@
-import WebSocket from "ws";
 import { Vector3 } from "three";
 import { sample } from "lodash";
-import { Family, System, Components } from "../game/ecs";
+import { Family, System } from "../game/ecs";
 import { AvatarArchetype } from "../game/ecs/Archetypes";
 import { getPlayerAvatar } from "../game/Helpers";
-import {
-    ActionType,
-    AvatarSpawnAction,
-    runAction,
-    Action,
-} from "../game/Action";
-import { PlayerConnectionArchetype } from "./GameServer";
+import { ActionType, SpawnAvatarAction, Action } from "../game/Action";
+import { ServerPlayerArchetype } from "./GameServer";
+import { GameContext } from "../game/GameContext";
 
 export class AvatarSpawnSystem extends System {
+    private readonly game: GameContext;
     private readonly avatars = Family.findOrCreate(new AvatarArchetype());
-    private readonly players = Family.findOrCreate<PlayerConnectionArchetype>({
-        socket: {} as WebSocket,
-        respawn: new Components.Respawn(),
-    });
+    private readonly players = Family.findOrCreate<ServerPlayerArchetype>(
+        new ServerPlayerArchetype()
+    );
+
+    public constructor(game: GameContext) {
+        super(game.world);
+        this.game = game;
+    }
 
     public update() {
         this.players.entities.forEach((player) => {
@@ -38,8 +38,8 @@ export class AvatarSpawnSystem extends System {
 
             const actions = this.spawnAvatarAction(player.id);
             const [spawnLocalAvatar, spawnEnemyAvatar] = actions;
-            runAction(this.world, spawnEnemyAvatar);
-            console.log(`> Server::spawn Avatar(${player.id})`)
+            this.game.runDispatch(spawnEnemyAvatar);
+            console.log(`> Server::spawn Avatar(${player.id})`);
 
             const spawnLocalAvatarMsg = Action.serialize(spawnLocalAvatar);
             const spawnEnemyAvatarMsg = Action.serialize(spawnEnemyAvatar);
@@ -53,11 +53,11 @@ export class AvatarSpawnSystem extends System {
         });
     }
 
-    private spawnAvatarAction(playerId: string): AvatarSpawnAction[] {
+    private spawnAvatarAction(playerId: string): SpawnAvatarAction[] {
         const avatarId = "a" + playerId;
         const position = sample(this.world.level.getSpawnPoints());
-        const spawnAvatar: AvatarSpawnAction = {
-            type: ActionType.AvatarSpawn,
+        const spawnAvatar: SpawnAvatarAction = {
+            type: ActionType.SpawnAvatar,
             playerId,
             avatarId,
             avatarType: "enemy",

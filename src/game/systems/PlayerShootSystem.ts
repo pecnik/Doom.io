@@ -7,13 +7,14 @@ import {
     getWeaponSpec,
     getEntityMesh,
 } from "../Helpers";
-import { Matrix3, Intersection, Vector3 } from "three";
+import { Intersection, Vector3 } from "three";
 import { random } from "lodash";
 import { SWAP_SPEED } from "../data/Globals";
 import { WeaponState, WeaponAmmo } from "../data/Types";
 import { LocalAvatarArchetype, EnemyAvatarArchetype } from "../ecs/Archetypes";
 import { WEAPON_SPEC_RECORD, WeaponSpec, WeaponType } from "../data/Weapon";
 import { GameClient } from "../GameClient";
+import { Action } from "../Action";
 
 class HitscanResponse {
     public intersection: Intersection;
@@ -30,7 +31,7 @@ class HitscanResponse {
     }
 }
 export class PlayerShootSystem extends System {
-    private readonly client: GameClient;
+    private readonly game: GameClient;
 
     private readonly players = this.createEntityFamily({
         archetype: new LocalAvatarArchetype(),
@@ -42,7 +43,7 @@ export class PlayerShootSystem extends System {
 
     public constructor(client: GameClient) {
         super(client.world);
-        this.client = client;
+        this.game = client;
     }
 
     public update() {
@@ -185,7 +186,7 @@ export class PlayerShootSystem extends System {
         const weaponSpec = getWeaponSpec(player);
 
         if (weaponSpec.type === WeaponType.Plasma) {
-            this.client.emitProjectile(player);
+            this.game.dispatch(Action.emitProjectile(player));
             return;
         }
 
@@ -201,29 +202,31 @@ export class PlayerShootSystem extends System {
 
             // Only the level was hit, spawn bullet decal
             if (rsp.enemyEntity === undefined) {
-                this.client.spawnDecal(rsp.point, rsp.normal);
+                this.game.dispatch(Action.spawnDecal(rsp.point, rsp.normal));
                 continue;
             }
 
-            this.emitBloodParticles(rsp);
-            this.client.hitAvatar(
-                player.id,
-                rsp.enemyEntity.id,
-                rsp.enemyHit === "head",
-                player.shooter.weaponType
+            // this.emitBloodParticles(rsp);
+            this.game.dispatch(
+                Action.hitAvatar(
+                    player.id,
+                    rsp.enemyEntity.id,
+                    rsp.enemyHit === "head",
+                    player.shooter.weaponType
+                )
             );
         }
     }
 
-    private emitBloodParticles(rsp: HitscanResponse) {
-        const matrix = new Matrix3();
-        matrix.getNormalMatrix(rsp.intersection.object.matrixWorld);
-        const worldNormal = rsp.normal
-            .clone()
-            .applyMatrix3(matrix)
-            .normalize();
-        this.world.particles.blood(rsp.point, worldNormal);
-    }
+    // private emitBloodParticles(rsp: HitscanResponse) {
+    //     const matrix = new Matrix3();
+    //     matrix.getNormalMatrix(rsp.intersection.object.matrixWorld);
+    //     const worldNormal = rsp.normal
+    //         .clone()
+    //         .applyMatrix3(matrix)
+    //         .normalize();
+    //     this.world.particles.blood(rsp.point, worldNormal);
+    // }
 
     private hitscan(player: Entity<LocalAvatarArchetype>) {
         const weaponSpec = getWeaponSpec(player);

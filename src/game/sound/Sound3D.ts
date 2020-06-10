@@ -1,6 +1,7 @@
 import { AudioListener, PositionalAudio, AudioLoader, Group } from "three";
 import { memoize } from "lodash";
 import { Entity } from "../ecs";
+import { Settings } from "../../settings/Settings";
 
 export class SoundAsset3D {
     public readonly group = new Group();
@@ -20,7 +21,8 @@ export class SoundAsset3D {
                 for (let i = 0; i < 4; i++) {
                     const audio = new PositionalAudio(listener);
                     audio.setBuffer(this.buffer);
-                    audio.setRefDistance(0.25);
+                    audio.setRefDistance(2);
+                    audio.setVolume(Settings.audio.masterVolume);
                     this.group.add(audio);
                     resolve();
                 }

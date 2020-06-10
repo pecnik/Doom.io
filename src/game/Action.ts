@@ -1,18 +1,35 @@
 import { Vector3, Vector2 } from "three";
-import { World } from "./ecs";
-import { WeaponType, WEAPON_SPEC_RECORD } from "./data/Weapon";
-import { EntityFactory } from "./data/EntityFactory";
-import { padStart } from "lodash";
+import { Entity, Components } from "./ecs";
+import { WeaponType } from "./data/Weapon";
+import { padStart, random, uniqueId } from "lodash";
 import { AvatarUpdateParcer, ActionParser } from "./ActionParsers";
+import {
+    getWeaponSpec,
+    isScopeActive,
+    getHeadingVector3,
+    getHeadPosition,
+} from "./Helpers";
+import { LocalAvatarArchetype } from "./ecs/Archetypes";
+import { PLAYER_RADIUS } from "./data/Globals";
 
 export enum ActionType {
+    RegisterPlayer,
+    SpawnPlayer,
+    SpawnAvatar,
+    SpawnAmmoPack,
+    SpawnHealthPack,
     PlaySound,
     SpawnDecal,
-    AvatarSpawn,
     AvatarHit,
     AvatarUpdate,
     RemoveEntity,
     EmitProjectile,
+    ConsumePickup,
+    UpdateKillLog,
+}
+export interface RegisterPlayerAction {
+    type: ActionType.RegisterPlayer;
+    name: string;
 }
 
 export interface PlaySoundAction {
@@ -25,14 +42,6 @@ export interface SpawnDecalAction {
     type: ActionType.SpawnDecal;
     point: Vector3;
     normal: Vector3;
-}
-
-export interface AvatarSpawnAction {
-    type: ActionType.AvatarSpawn;
-    playerId: string;
-    avatarId: string;
-    avatarType: "local" | "enemy";
-    position: Vector3;
 }
 
 export interface AvatarHitAction {
@@ -65,100 +74,64 @@ export interface EmitProjectileAction {
     velcotiy: Vector3;
 }
 
+export interface ConsumePickupAction {
+    readonly type: ActionType.ConsumePickup;
+    pickupId: string;
+    avatarId: string;
+}
+
+export interface SpawnPlayerAction {
+    readonly type: ActionType.SpawnPlayer;
+    playerId: string;
+    data: Components.PlayerData;
+}
+
+export interface SpawnAvatarAction {
+    readonly type: ActionType.SpawnAvatar;
+    playerId: string;
+    avatarId: string;
+    avatarType: "local" | "enemy";
+    position: Vector3;
+}
+
+export interface SpawnAmmoPackAction {
+    readonly type: ActionType.SpawnAmmoPack;
+    id: string;
+    ammo: number;
+    position: Vector3;
+    weaponType: WeaponType;
+}
+
+export interface SpawnHealthPackAction {
+    readonly type: ActionType.SpawnHealthPack;
+    id: string;
+    heal: number;
+    position: Vector3;
+}
+
+export interface UpdateKillLogAction {
+    readonly type: ActionType.UpdateKillLog;
+    killerPlayerId: string;
+    victimPlayerId: string;
+    killCount: number;
+    deathCount: number;
+    weaponType: WeaponType;
+}
+
 export type Action =
+    | RegisterPlayerAction
+    | SpawnPlayerAction
+    | SpawnAvatarAction
+    | SpawnAmmoPackAction
+    | SpawnHealthPackAction
     | PlaySoundAction
     | SpawnDecalAction
-    | AvatarSpawnAction
     | AvatarHitAction
     | AvatarUpdateAction
     | RemoveEntityAction
-    | EmitProjectileAction;
-
-export function runAction(world: World, action: Action) {
-    switch (action.type) {
-        case ActionType.AvatarSpawn: {
-            const avatar =
-                action.avatarType === "local"
-                    ? EntityFactory.LocalAvatar(action.avatarId)
-                    : EntityFactory.EnemyAvatar(action.avatarId);
-            avatar.playerId = action.playerId;
-            avatar.position.copy(action.position);
-            world.addEntity(avatar);
-            return;
-        }
-
-        case ActionType.RemoveEntity: {
-            world.removeEntity(action.entityId);
-            return;
-        }
-
-        case ActionType.AvatarUpdate: {
-            const avatar = world.entities.get(action.avatarId);
-            if (avatar === undefined) return;
-
-            if (avatar.position !== undefined) {
-                avatar.position.copy(action.position);
-            }
-
-            if (avatar.velocity !== undefined) {
-                avatar.velocity.copy(action.velocity);
-            }
-
-            if (avatar.rotation !== undefined) {
-                avatar.rotation.copy(action.rotation);
-            }
-
-            if (avatar.shooter !== undefined) {
-                avatar.shooter.weaponType = action.weaponType;
-            }
-            return;
-        }
-
-        case ActionType.AvatarHit: {
-            const shooter = world.entities.get(action.shooterId);
-            if (shooter === undefined) return;
-            if (shooter.shooter === undefined) return;
-            if (shooter.position === undefined) return;
-
-            const target = world.entities.get(action.targetId);
-            if (target === undefined) return;
-            if (target.health === undefined) return;
-            if (target.health.value <= 0) return;
-
-            const weaponSpec = WEAPON_SPEC_RECORD[action.weaponType];
-            const damage = weaponSpec.bulletDamage;
-            const headshot = action.headshot ? 3 : 1;
-
-            target.health.value -= damage * headshot;
-            target.health.value = Math.max(target.health.value, 0);
-
-            if (target.cameraShake !== undefined) {
-                target.cameraShake.setScalar(1);
-            }
-
-            if (target.hitIndicator !== undefined) {
-                target.hitIndicator.show = true;
-                target.hitIndicator.time = world.elapsedTime;
-                target.hitIndicator.origin.copy(shooter.position);
-            }
-
-            return;
-        }
-
-        case ActionType.EmitProjectile: {
-            const { projectileId, playerId, position, velcotiy } = action;
-            const projectile = EntityFactory.Projectile(projectileId);
-            projectile.projectile.spawnTime = world.elapsedTime;
-            projectile.playerId = playerId;
-            projectile.position.copy(position);
-            projectile.velocity.copy(velcotiy);
-            projectile.velocity.normalize();
-            projectile.velocity.multiplyScalar(10);
-            world.addEntity(projectile);
-            return;
-        }
-    }
-}
+    | EmitProjectileAction
+    | ConsumePickupAction
+    | UpdateKillLogAction;
 
 export module Action {
     const parsers = new Map<ActionType, ActionParser>();
@@ -179,5 +152,146 @@ export module Action {
         const body = msg.slice(2);
         const action = parser ? parser.deserialize(body) : JSON.parse(body);
         return action;
+    }
+
+    export function registerPlayer(name: string): RegisterPlayerAction {
+        return {
+            type: ActionType.RegisterPlayer,
+            name,
+        };
+    }
+
+    export function playSound(
+        entityId: string,
+        sound: string
+    ): PlaySoundAction {
+        return {
+            type: ActionType.PlaySound,
+            entityId,
+            sound,
+        };
+    }
+
+    export function spawnDecal(
+        point: Vector3,
+        normal: Vector3
+    ): SpawnDecalAction {
+        return {
+            type: ActionType.SpawnDecal,
+            point,
+            normal,
+        };
+    }
+
+    export function hitAvatar(
+        shooterId: string,
+        targetId: string,
+        headshot: boolean,
+        weaponType: WeaponType
+    ): AvatarHitAction {
+        return {
+            type: ActionType.AvatarHit,
+            shooterId,
+            targetId,
+            weaponType,
+            headshot,
+        };
+    }
+
+    export function emitProjectile(
+        avatar: Entity<LocalAvatarArchetype>
+    ): EmitProjectileAction {
+        const weaponSpec = getWeaponSpec(avatar);
+        const steady = isScopeActive(avatar) ? 0.25 : 1;
+        const spread = weaponSpec.spread * steady;
+        const rotation = new Vector3(avatar.rotation.x, avatar.rotation.y, 0);
+        rotation.x += random(-spread, spread, true);
+        rotation.y += random(-spread, spread, true);
+
+        const velcotiy = getHeadingVector3(rotation);
+
+        const position = getHeadPosition(avatar);
+        position.y -= 0.125; // Dunno
+        position.x += velcotiy.x * PLAYER_RADIUS * 2;
+        position.y += velcotiy.y * PLAYER_RADIUS * 2;
+        position.z += velcotiy.z * PLAYER_RADIUS * 2;
+
+        return {
+            type: ActionType.EmitProjectile,
+            projectileId: uniqueId(`${avatar.playerId}-pe`),
+            playerId: avatar.playerId,
+            position,
+            velcotiy,
+        };
+    }
+
+    export function spawnPlayer(
+        playerId: string,
+        data: Components.PlayerData
+    ): SpawnPlayerAction {
+        return {
+            type: ActionType.SpawnPlayer,
+            playerId,
+            data,
+        };
+    }
+
+    export function spawnAvatar(
+        playerId: string,
+        avatarType: "local" | "enemy",
+        position = new Vector3()
+    ): SpawnAvatarAction {
+        const avatarId = "a" + playerId;
+        position = position || new Vector3();
+        return {
+            type: ActionType.SpawnAvatar,
+            playerId,
+            avatarId,
+            avatarType,
+            position,
+        };
+    }
+
+    export function spawnAmmoPack(
+        id: string,
+        position: Vector3,
+        weaponType: WeaponType,
+        ammo = 10
+    ): SpawnAmmoPackAction {
+        return {
+            type: ActionType.SpawnAmmoPack,
+            id,
+            ammo,
+            position,
+            weaponType,
+        };
+    }
+
+    export function spawnHealthPack(
+        id: string,
+        position: Vector3,
+        heal = 15
+    ): SpawnHealthPackAction {
+        return {
+            type: ActionType.SpawnHealthPack,
+            id,
+            heal,
+            position,
+        };
+    }
+
+    export function consumePickup(
+        avatarId: string,
+        pickupId: string
+    ): ConsumePickupAction {
+        return {
+            type: ActionType.ConsumePickup,
+            avatarId,
+            pickupId,
+        };
+    }
+
+    export function removeEntity(avatarId: string): RemoveEntityAction {
+        return { type: ActionType.RemoveEntity, entityId: avatarId };
     }
 }

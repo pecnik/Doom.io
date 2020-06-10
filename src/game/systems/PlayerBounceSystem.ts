@@ -2,16 +2,17 @@ import { System } from "../ecs";
 import { JUMP_SPEED } from "../data/Globals";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { GameClient } from "../GameClient";
+import { Action } from "../Action";
 
 export class PlayerBounceSystem extends System {
-    private readonly client: GameClient;
+    private readonly game: GameClient;
     private readonly family = this.createEntityFamily({
         archetype: new LocalAvatarArchetype(),
     });
 
     public constructor(client: GameClient) {
         super(client.world);
-        this.client = client;
+        this.game = client;
     }
 
     public update() {
@@ -25,7 +26,7 @@ export class PlayerBounceSystem extends System {
                     velocity.z *= 0.25;
 
                     const src = "/assets/sounds/bounce.wav";
-                    this.client.playSound(entity.id, src);
+                    this.game.dispatch(Action.playSound(entity.id, src));
                 }
             }
         });

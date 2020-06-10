@@ -1,7 +1,7 @@
 import Stats from "stats.js";
 import { Hud } from "./data/Hud";
 import { Input } from "./core/Input";
-import { World, Entity } from "./ecs";
+import { World, Family } from "./ecs";
 import { PlayerInputSystem } from "./systems/PlayerInputSystem";
 import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
@@ -10,44 +10,38 @@ import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { WeaponSpriteSystem } from "./systems/rendering/WeaponSpriteSystem";
 import { Game } from "./core/Engine";
 import { InfineteRespawnSystem } from "./systems/InfineteRespawnSystem";
-import { PickupSystem } from "./systems/PickupSystem";
-import { LocalAvatarArchetype } from "./ecs/Archetypes";
+import { LocalAvatarArchetype, AvatarArchetype } from "./ecs/Archetypes";
 import { AvatarStateSystem } from "./systems/AvatarStateSystem";
 import { ShooterAudioSystem } from "./systems/audio/ShooterAudioSystem";
 import { Sound3D } from "./sound/Sound3D";
 import { FootstepAudioSystem } from "./systems/audio/FootstepAudioSystem";
 import { createSkybox } from "./data/Skybox";
-import { WEAPON_SPEC_RECORD, WeaponType } from "./data/Weapon";
-import { uniq, uniqueId, random } from "lodash";
+import { WEAPON_SPEC_RECORD } from "./data/Weapon";
+import { uniq } from "lodash";
 import { CrosshairSystem } from "./systems/hud/CrosshairSystem";
 import { PlayerDashSystem } from "./systems/PlayerDashSystem";
 import { AvatarMeshSystem } from "./systems/rendering/AvatarMeshSystem";
 import { EntityMeshSystem } from "./systems/rendering/EntityMeshSystem";
 import { PickupMeshSystem } from "./systems/rendering/PickupMeshSystem";
-import { Scene, Vector3 } from "three";
+import { Scene } from "three";
 import { AmmoCountSystem } from "./systems/hud/AmmoCountSystem";
 import { DashChargeSystem } from "./systems/hud/DashChargeSystem";
-import { Settings } from "./Settings";
+import { Settings } from "../settings/Settings";
 import { PlayerBounceSystem } from "./systems/PlayerBounceSystem";
 import { HealthBarSystem } from "./systems/hud/HealthBarSystem";
 import { LevelJSON } from "../editor/Level";
 import { PlayerSyncSystem } from "./systems/PlayerSyncSystem";
-import {
-    Action,
-    ActionType,
-    runAction,
-    PlaySoundAction,
-    SpawnDecalAction,
-    AvatarHitAction,
-    EmitProjectileAction,
-} from "./Action";
+import { Action, ActionType } from "./Action";
 import { Sound2D } from "./sound/Sound2D";
 import { HitIndicatorSystem } from "./systems/hud/HitIndicatorSystem";
-import { getHeadPosition, getHeadingVector3, getWeaponSpec } from "./Helpers";
 import { ProjectileDisposalSystem } from "./systems/ProjectileDisposalSystem";
-import { PLAYER_RADIUS } from "./data/Globals";
+import { PickupSpawnSystem } from "./systems/PickupSpawnSystem";
+import { GameContext } from "./GameContext";
+import { PickupConsumeSystem } from "./systems/PickupConsumeSystem";
+import { getHeadPosition } from "./Helpers";
+import { LeaderboardSystem } from "./systems/hud/LeaderboardSystem";
 
-export class GameClient implements Game {
+export class GameClient extends GameContext implements Game {
     private readonly stats = GameClient.createStats();
 
     private readonly route = location.hash.replace("#", "");
@@ -56,9 +50,10 @@ export class GameClient implements Game {
     public readonly hud = new Hud();
     public readonly world = new World();
     public readonly input = new Input({ requestPointerLock: true });
+    public readonly avatars = Family.findOrCreate(new AvatarArchetype());
 
     private static createStats() {
-        if (Settings.props.fpsMeter) {
+        if (Settings.graphics.fpsMeter) {
             const stats = new Stats();
             document.body.appendChild(stats.dom);
             return stats;
@@ -67,6 +62,37 @@ export class GameClient implements Game {
         return {
             begin() {},
             end() {},
+        };
+    }
+
+    private connect() {
+        const url = location.origin
+            .replace(location.port, "8080")
+            .replace("http://", "ws://")
+            .replace("https://", "ws://");
+
+        const socket = new WebSocket(url);
+
+        socket.onmessage = (ev) => {
+            const msg = ev.data as string;
+            const action = Action.deserialize(msg);
+            if (action !== undefined) {
+                this.runDispatch(action);
+            }
+        };
+
+        this.syncDispatch = (action: Action) => {
+            socket.send(Action.serialize(action));
+        };
+
+        socket.onopen = () => {
+            const playerName = Settings.profile.displayName;
+            const register = Action.registerPlayer(playerName || "");
+            socket.send(Action.serialize(register));
+        };
+
+        socket.onclose = () => {
+            this.syncDispatch = () => {};
         };
     }
 
@@ -138,7 +164,6 @@ export class GameClient implements Game {
         this.world.addSystem(new PlayerDashSystem(this));
         this.world.addSystem(new PlayerBounceSystem(this));
         this.world.addSystem(new PhysicsSystem(this.world));
-        this.world.addSystem(new PickupSystem(this.world));
         this.world.addSystem(new AvatarStateSystem(this.world));
         this.world.addSystem(new PlayerCameraSystem(this.world));
         this.world.addSystem(new PlayerShootSystem(this));
@@ -158,6 +183,7 @@ export class GameClient implements Game {
             this.world.addSystem(new AmmoCountSystem(this.world, layers[1]));
             this.world.addSystem(new DashChargeSystem(this.world, layers[1]));
             this.world.addSystem(new HealthBarSystem(this.world, layers[1]));
+            this.world.addSystem(new LeaderboardSystem(this.world, layers[1]));
             this.world.addSystem(new HitIndicatorSystem(this, layers[1]));
         }
 
@@ -171,6 +197,8 @@ export class GameClient implements Game {
         } else {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };
             this.world.addSystem(new InfineteRespawnSystem(this.world));
+            this.world.addSystem(new PickupSpawnSystem(this));
+            this.world.addSystem(new PickupConsumeSystem(this));
             this.world.addEntity(avatar);
         }
     }
@@ -182,49 +210,21 @@ export class GameClient implements Game {
         this.stats.end();
     }
 
-    // Actions
+    /**
+     * Send action over the network.
+     *
+     * The function is blank when in single player mode.
+     * Is overwritten in the connect method.
+     */
+    public syncDispatch(_action: Action) {}
 
-    private connect() {
-        const url = location.origin
-            .replace(location.port, "8080")
-            .replace("http://", "ws://")
-            .replace("https://", "ws://");
-
-        const socket = new WebSocket(url);
-
-        socket.onmessage = (ev) => {
-            const msg = ev.data as string;
-            const action = Action.deserialize(msg);
-            if (action !== undefined) {
-                this.run(action);
-            }
-        };
-
-        this.send = (action: Action) => {
-            socket.send(Action.serialize(action));
-        };
-
-        socket.onclose = () => {
-            this.send = () => {};
-        };
-    }
-
-    public sendAndRun(action: Action) {
-        this.run(action);
-        this.send(action);
-    }
-
-    public send(_action: Action) {
-        // overwrite in connect method
-    }
-
-    public run(action: Action) {
+    /**
+     * Execute the dispatched action.
+     * Handle some client side specific stuff like sound.
+     */
+    public runDispatch(action: Action) {
+        super.runDispatch(action);
         switch (action.type) {
-            case ActionType.SpawnDecal: {
-                this.world.decals.spawn(action.point, action.normal);
-                return;
-            }
-
             case ActionType.PlaySound: {
                 const { entityId, sound } = action;
                 const entity = this.world.entities.get(entityId);
@@ -239,71 +239,22 @@ export class GameClient implements Game {
                 return;
             }
 
-            default: {
-                runAction(this.world, action);
+            case ActionType.AvatarHit: {
+                const target = this.avatars.entities.get(action.targetId);
+                const shooter = this.avatars.entities.get(action.shooterId);
+                if (target === undefined) return;
+                if (shooter === undefined) return;
+
+                const p1 = getHeadPosition(target);
+                const p2 = getHeadPosition(shooter);
+                const direction = p1
+                    .clone()
+                    .sub(p2)
+                    .normalize()
+                    .multiplyScalar(-1);
+                this.world.particles.blood(p1, direction);
                 return;
             }
         }
-    }
-
-    // Utils
-
-    public playSound(entityId: string, sound: string) {
-        const playSound: PlaySoundAction = {
-            type: ActionType.PlaySound,
-            entityId,
-            sound,
-        };
-        this.sendAndRun(playSound);
-    }
-
-    public spawnDecal(point: Vector3, normal: Vector3) {
-        const spawnDecal: SpawnDecalAction = {
-            type: ActionType.SpawnDecal,
-            point,
-            normal,
-        };
-        this.sendAndRun(spawnDecal);
-    }
-
-    public hitAvatar(
-        shooterId: string,
-        targetId: string,
-        headshot: boolean,
-        weaponType: WeaponType
-    ) {
-        const hitAvatar: AvatarHitAction = {
-            type: ActionType.AvatarHit,
-            shooterId,
-            targetId,
-            weaponType,
-            headshot,
-        };
-        this.sendAndRun(hitAvatar);
-    }
-
-    public emitProjectile(avatar: Entity<LocalAvatarArchetype>) {
-        const weaponSpec = getWeaponSpec(avatar);
-        const spread = weaponSpec.spread;
-        const rotation = new Vector3(avatar.rotation.x, avatar.rotation.y, 0);
-        rotation.x += random(-spread, spread, true);
-        rotation.y += random(-spread, spread, true);
-
-        const velcotiy = getHeadingVector3(rotation);
-
-        const position = getHeadPosition(avatar);
-        position.y -= 0.125; // Dunno
-        position.x += velcotiy.x * PLAYER_RADIUS * 2;
-        position.y += velcotiy.y * PLAYER_RADIUS * 2;
-        position.z += velcotiy.z * PLAYER_RADIUS * 2;
-
-        const action: EmitProjectileAction = {
-            type: ActionType.EmitProjectile,
-            projectileId: uniqueId(`${avatar.playerId}-pe`),
-            playerId: avatar.playerId,
-            position,
-            velcotiy,
-        };
-        this.sendAndRun(action);
     }
 }

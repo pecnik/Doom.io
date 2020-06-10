@@ -39,6 +39,7 @@ export class AmmoCountSystem extends System {
         this.render();
     }
 
+    public updateInterval = 1 / 30;
     public update() {
         const avatar = this.family.first();
         if (avatar === undefined) {

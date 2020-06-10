@@ -17,6 +17,7 @@ import { WeaponState } from "./data/Types";
 import { PLAYER_HEIGHT } from "./data/Globals";
 import { WEAPON_SPEC_RECORD } from "./data/Weapon";
 import { AvatarArchetype, LocalAvatarArchetype } from "./ecs/Archetypes";
+import { memoize } from "lodash";
 
 export function getEntityMesh(
     world: World,
@@ -146,3 +147,9 @@ export const getHeadingVector3 = (() => {
         return vector.clone();
     };
 })();
+
+export const getImage = memoize((src: string) => {
+    const img = new Image();
+    img.src = src;
+    return img;
+});

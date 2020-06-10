@@ -212,6 +212,10 @@ export class PaintTool extends Tool {
     ) {
         const { x, y, fill } = data;
 
+        if (buffer[x][y] === fill) {
+            return; // Prevent infinete loop
+        }
+
         type Point = { x: number; y: number };
 
         const target = buffer[x][y];
