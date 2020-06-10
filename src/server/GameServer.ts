@@ -134,58 +134,12 @@ export class GameServer extends GameContext {
         };
 
         player.playerId = id;
-        player.playerData.name = `Player-${id}`;
+        player.playerData.name = "";
         player.playerData.kills = 0;
         player.playerData.deaths = 0;
 
         this.world.addEntity(player);
         console.log(`> Server::playerConnection(${id})`);
-
-        // Sync existing entities
-        this.serverPlayers.entities.forEach((peer) => {
-            const spawnPlayer = Action.spawnPlayer(peer.id, peer.playerData);
-            player.socket.send(Action.serialize(spawnPlayer));
-
-            if (peer.id !== player.id) {
-                const spawnPlayer = Action.spawnPlayer(
-                    player.id,
-                    player.playerData
-                );
-                peer.socket.send(Action.serialize(spawnPlayer));
-            }
-
-            const avatar = getPlayerAvatar(peer.id, this.avatars);
-            if (avatar !== undefined) {
-                const { playerId, position } = avatar;
-                const spawnPeer = Action.spawnAvatar(
-                    playerId,
-                    "enemy",
-                    position
-                );
-                player.socket.send(Action.serialize(spawnPeer));
-            }
-        });
-
-        // Sync exisitng ammo pickups
-        this.ammoPacks.entities.forEach((pickup) => {
-            const action = Action.spawnAmmoPack(
-                pickup.id,
-                pickup.position,
-                pickup.pickupAmmo.weaponType,
-                pickup.pickupAmmo.ammo
-            );
-            player.socket.send(Action.serialize(action));
-        });
-
-        // Sync exisitng health pickups
-        this.healthPacks.entities.forEach((pickup) => {
-            const action = Action.spawnHealthPack(
-                pickup.id,
-                pickup.position,
-                pickup.pickupHealth.heal
-            );
-            player.socket.send(Action.serialize(action));
-        });
 
         return id;
     }
@@ -226,6 +180,66 @@ export class GameServer extends GameContext {
             case ActionType.EmitProjectile: {
                 this.runDispatch(action);
                 this.forwardDispatch(playerId, msg);
+                return;
+            }
+
+            case ActionType.RegisterPlayer: {
+                const player = this.serverPlayers.entities.get(playerId);
+                if (player === undefined) return;
+                if (player.playerData.name !== "") return;
+
+                // Set name
+                player.playerData.name = action.name || "noname";
+
+                // Sync existing entities
+                this.serverPlayers.entities.forEach((peer) => {
+                    const spawnPlayer = Action.spawnPlayer(
+                        peer.id,
+                        peer.playerData
+                    );
+                    player.socket.send(Action.serialize(spawnPlayer));
+
+                    if (peer.id !== player.id) {
+                        const spawnPlayer = Action.spawnPlayer(
+                            player.id,
+                            player.playerData
+                        );
+                        peer.socket.send(Action.serialize(spawnPlayer));
+                    }
+
+                    const avatar = getPlayerAvatar(peer.id, this.avatars);
+                    if (avatar !== undefined) {
+                        const { playerId, position } = avatar;
+                        const spawnPeer = Action.spawnAvatar(
+                            playerId,
+                            "enemy",
+                            position
+                        );
+                        player.socket.send(Action.serialize(spawnPeer));
+                    }
+                });
+
+                // Sync exisitng ammo pickups
+                this.ammoPacks.entities.forEach((pickup) => {
+                    const action = Action.spawnAmmoPack(
+                        pickup.id,
+                        pickup.position,
+                        pickup.pickupAmmo.weaponType,
+                        pickup.pickupAmmo.ammo
+                    );
+                    player.socket.send(Action.serialize(action));
+                });
+
+                // Sync exisitng health pickups
+                this.healthPacks.entities.forEach((pickup) => {
+                    const action = Action.spawnHealthPack(
+                        pickup.id,
+                        pickup.position,
+                        pickup.pickupHealth.heal
+                    );
+                    player.socket.send(Action.serialize(action));
+                });
+
                 return;
             }
         }

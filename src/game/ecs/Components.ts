@@ -107,7 +107,7 @@ export module Components {
     }
 
     export class PlayerData {
-        public name = "noname";
+        public name = "";
         public kills = 0;
         public deaths = 0;
     }

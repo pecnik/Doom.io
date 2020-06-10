@@ -13,6 +13,7 @@ import { LocalAvatarArchetype } from "./ecs/Archetypes";
 import { PLAYER_RADIUS } from "./data/Globals";
 
 export enum ActionType {
+    RegisterPlayer,
     SpawnPlayer,
     SpawnAvatar,
     SpawnAmmoPack,
@@ -25,6 +26,10 @@ export enum ActionType {
     EmitProjectile,
     ConsumePickup,
     UpdateKillLog,
+}
+export interface RegisterPlayerAction {
+    type: ActionType.RegisterPlayer;
+    name: string;
 }
 
 export interface PlaySoundAction {
@@ -114,6 +119,7 @@ export interface UpdateKillLogAction {
 }
 
 export type Action =
+    | RegisterPlayerAction
     | SpawnPlayerAction
     | SpawnAvatarAction
     | SpawnAmmoPackAction
@@ -146,6 +152,13 @@ export module Action {
         const body = msg.slice(2);
         const action = parser ? parser.deserialize(body) : JSON.parse(body);
         return action;
+    }
+
+    export function registerPlayer(name: string): RegisterPlayerAction {
+        return {
+            type: ActionType.RegisterPlayer,
+            name,
+        };
     }
 
     export function playSound(
