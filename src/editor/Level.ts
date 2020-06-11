@@ -6,17 +6,17 @@ import {
     PlaneGeometry,
     MeshBasicMaterial,
     Geometry,
-    VertexColors,
     BackSide,
     BoxGeometry,
-    Ray,
     Group,
     IcosahedronGeometry,
     CylinderGeometry,
     NearestFilter,
     Vector2,
+    VertexColors,
+    Ray,
 } from "three";
-import { disposeMeshMaterial, loadTexture } from "../game/Helpers";
+import { loadTexture } from "../game/Helpers";
 import { degToRad, modulo } from "../game/core/Utils";
 import { clamp, isEqual } from "lodash";
 
@@ -27,13 +27,18 @@ export const TEXTURE_H = 512;
 export const TILE_COLS = Math.floor(TEXTURE_W / TILE_W);
 export const TILE_ROWS = Math.floor(TEXTURE_H / TILE_H);
 
+export interface LevelTextureJSON {
+    src: string;
+    scale: number;
+}
+
 export interface LevelJSON {
     width: number;
     height: number;
     depth: number;
     skins: number[][];
     blocks: number[];
-    textures: LevelTexture[];
+    textures: LevelTextureJSON[];
     solidBlocks: number[];
     jumpPadBlocks: { index: number; force: number }[];
     emmitionBlocks: {
@@ -47,6 +52,7 @@ export interface LevelJSON {
 export interface LevelTexture {
     src: string;
     scale: number;
+    material: MeshBasicMaterial;
 }
 
 export class LevelBlock {
@@ -95,30 +101,26 @@ export class LevelBlock {
 }
 
 export class Level {
+    public static Texture(src: string, scale = 0) {
+        return {
+            src,
+            scale,
+            material: new MeshBasicMaterial({ vertexColors: VertexColors }),
+        };
+    }
+
     public width = 0;
     public height = 0;
     public depth = 0;
     public blocks: LevelBlock[] = [];
     public textures: LevelTexture[] = [
-        {
-            src: "/assets/levels/textures/brick.png",
-            scale: 0,
-        },
-        {
-            src: "/assets/levels/textures/metal_1.png",
-            scale: 0,
-        },
-        {
-            src: "/assets/levels/textures/metal_2.png",
-            scale: 0,
-        },
-        {
-            src: "/assets/levels/textures/floor_tile.png",
-            scale: 1,
-        },
+        Level.Texture("/assets/levels/textures/brick.png"),
+        Level.Texture("/assets/levels/textures/metal_1.png"),
+        Level.Texture("/assets/levels/textures/metal_2.png"),
+        Level.Texture("/assets/levels/textures/floor_tile.png"),
     ];
 
-    public readonly mesh = new Mesh();
+    public readonly mesh = new Group();
     public readonly skyboxMesh = new Mesh();
     public readonly lightMeshGroup = new Group();
     public readonly jumpPadMeshGroup = new Group();
@@ -271,18 +273,12 @@ export class Level {
             return loadTexture(texture.src).then((map) => {
                 map.needsUpdate = true;
                 map.magFilter = NearestFilter;
-                return new MeshBasicMaterial({
-                    vertexColors: VertexColors,
-                    map,
-                });
+                texture.material.map = map;
+                texture.material.needsUpdate = true;
             });
         };
 
-        const loadMaterials = this.textures.map(loadTextureMaterial);
-        return Promise.all(loadMaterials).then((materials) => {
-            disposeMeshMaterial(this.mesh.material);
-            this.mesh.material = materials;
-        });
+        return Promise.all(this.textures.map(loadTextureMaterial));
     }
 
     public loadSkybox() {
@@ -332,19 +328,39 @@ export class Level {
         this.updateJumpPadMeshGroup();
         this.updateLightMeshGroup();
         this.updateFloorMesh();
+
         this.wireframeMesh.geometry.dispose();
-        this.wireframeMesh.geometry = this.mesh.geometry.clone();
+        this.wireframeMesh.geometry = (() => {
+            const wireframeGeo = new Geometry();
+            this.mesh.children.forEach((child) => {
+                const mesh = child as Mesh;
+                wireframeGeo.merge(mesh.geometry as Geometry);
+            });
+            return wireframeGeo;
+        })();
     }
 
     private updateMeshGeometry() {
+        // Basic shading
+        const bright2 = new Color(2, 2, 2);
+        const bright1 = new Color(1, 1, 1);
+        const dark1 = new Color(0.75, 0.75, 0.75);
+        const dark2 = new Color(0.5, 0.5, 0.5);
+        const setVertexColor = (plane: PlaneGeometry, color: Color) => {
+            plane.faces[0].vertexColors[0] = color;
+            plane.faces[0].vertexColors[1] = color;
+            plane.faces[0].vertexColors[2] = color;
+            plane.faces[1].vertexColors[0] = color;
+            plane.faces[1].vertexColors[1] = color;
+            plane.faces[1].vertexColors[2] = color;
+        };
+
         const setTextureUV = (
             plane: PlaneGeometry,
             textureId: number,
             x: number = 0,
             y: number = 0
         ) => {
-            plane.faces[0].materialIndex = textureId;
-            plane.faces[1].materialIndex = textureId;
             plane.elementsNeedUpdate = true;
 
             // Set texture tiling
@@ -380,23 +396,43 @@ export class Level {
             }
         };
 
-        // Basic shading
-        const bright2 = new Color(2, 2, 2);
-        const bright1 = new Color(1, 1, 1);
-        const dark1 = new Color(0.75, 0.75, 0.75);
-        const dark2 = new Color(0.5, 0.5, 0.5);
-        const setVertexColor = (plane: PlaneGeometry, color: Color) => {
-            plane.faces[0].vertexColors[0] = color;
-            plane.faces[0].vertexColors[1] = color;
-            plane.faces[0].vertexColors[2] = color;
-            plane.faces[1].vertexColors[0] = color;
-            plane.faces[1].vertexColors[1] = color;
-            plane.faces[1].vertexColors[2] = color;
+        /**
+         * Create planes for each texture material.
+         */
+        const texturePlanes: PlaneGeometry[][] = [];
+        this.textures.forEach((_, textureId) => {
+            texturePlanes[textureId] = [];
+        });
+
+        const planesOf = (textureId: number) => {
+            if (texturePlanes[textureId] === undefined) {
+                for (let i = 0; i <= textureId; i++) {
+                    if (texturePlanes[i] === undefined) {
+                        texturePlanes[i] = [];
+                    }
+                }
+            }
+            return texturePlanes[textureId];
         };
 
-        const createBlockGeometry = (block: LevelBlock) => {
+        const emptryMaterial = new MeshBasicMaterial({ color: 0xff00ff });
+        const materialOf = (textureId: number) => {
+            if (this.textures[textureId] === undefined) {
+                return emptryMaterial;
+            }
+            return this.textures[textureId].material;
+        };
+
+        /**
+         * Loop through each solid block.
+         * Create optimized geometry by only creating
+         * block planes that are visible.
+         */
+        this.blocks.forEach((block) => {
+            if (!block.solid) return;
+
             const { origin } = block;
-            const planes: PlaneGeometry[] = [];
+
             const hasSolidNeighbor = (x: number, y: number, z: number) => {
                 const neighbor = this.getBlock(
                     origin.x + x,
@@ -408,83 +444,100 @@ export class Level {
 
             if (!hasSolidNeighbor(-1, 0, 0) && origin.x > 0) {
                 const xmin = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(xmin, block.faces[0], origin.z, -origin.y);
+                const textureId = block.faces[0];
+                setTextureUV(xmin, textureId, origin.z, -origin.y);
                 setVertexColor(xmin, bright1);
                 xmin.rotateY(Math.PI * -0.5);
                 xmin.translate(origin.x, origin.y, origin.z);
                 xmin.translate(-0.5, 0, 0);
-                planes.push(xmin);
+                planesOf(textureId).push(xmin);
             }
 
             if (!hasSolidNeighbor(1, 0, 0) && origin.x < this.width - 1) {
                 const xmax = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(xmax, block.faces[1], -origin.z, -origin.y);
+                const textureId = block.faces[1];
+                setTextureUV(xmax, textureId, -origin.z, -origin.y);
                 setVertexColor(xmax, bright1);
                 xmax.rotateY(Math.PI * 0.5);
                 xmax.translate(origin.x, origin.y, origin.z);
                 xmax.translate(0.5, 0, 0);
-                planes.push(xmax);
+                planesOf(textureId).push(xmax);
             }
 
             if (!hasSolidNeighbor(0, -1, 0) && origin.y > 0) {
                 const ymin = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(ymin, block.faces[2], origin.x, -origin.z);
+                const textureId = block.faces[2];
+                setTextureUV(ymin, textureId, origin.x, -origin.z);
                 setVertexColor(ymin, dark2);
                 ymin.rotateX(Math.PI * 0.5);
                 ymin.translate(origin.x, origin.y, origin.z);
                 ymin.translate(0, -0.5, 0);
-                planes.push(ymin);
+                planesOf(textureId).push(ymin);
             }
 
             if (!hasSolidNeighbor(0, 1, 0)) {
                 const ymax = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(ymax, block.faces[3], origin.x, origin.z);
+                const textureId = block.faces[3];
+                setTextureUV(ymax, textureId, origin.x, origin.z);
                 setVertexColor(ymax, bright2);
                 ymax.rotateX(Math.PI * -0.5);
                 ymax.translate(origin.x, origin.y, origin.z);
                 ymax.translate(0, 0.5, 0);
-                planes.push(ymax);
+                planesOf(textureId).push(ymax);
             }
 
             if (!hasSolidNeighbor(0, 0, -1) && origin.z > 0) {
                 const zmin = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(zmin, block.faces[4], origin.x, -origin.y);
+                const textureId = block.faces[4];
+                setTextureUV(zmin, textureId, origin.x, -origin.y);
                 setVertexColor(zmin, dark1);
                 zmin.rotateY(Math.PI);
                 zmin.translate(origin.x, origin.y, origin.z);
                 zmin.translate(0, 0, -0.5);
-                planes.push(zmin);
+                planesOf(textureId).push(zmin);
             }
 
             if (!hasSolidNeighbor(0, 0, 1) && origin.z < this.depth - 1) {
                 const zmax = new PlaneGeometry(1, 1, 1, 1);
-                setTextureUV(zmax, block.faces[5], -origin.x, -origin.y);
+                const textureId = block.faces[5];
+                setTextureUV(zmax, textureId, -origin.x, -origin.y);
                 setVertexColor(zmax, dark1);
                 zmax.translate(origin.x, origin.y, origin.z);
                 zmax.translate(0, 0, 0.5);
-                planes.push(zmax);
-            }
-
-            return planes;
-        };
-
-        const planes = new Array<Geometry>();
-        this.blocks.forEach((block) => {
-            if (block.solid) {
-                planes.push(...createBlockGeometry(block));
+                planesOf(textureId).push(zmax);
             }
         });
 
-        // Update level geometry
-        this.mesh.geometry.dispose();
-        this.mesh.geometry = (() => {
+        /**
+         * Hide and dispose old mesh geometry.
+         */
+        this.mesh.children.forEach((child) => {
+            const mesh = child as Mesh;
+            mesh.visible = false;
+            mesh.geometry.dispose();
+        });
+
+        /**
+         * Build one mesh for each texture material.
+         * So there will be only 1 draw call per texture type.
+         */
+        texturePlanes.forEach((planes, textureId) => {
+            const material = materialOf(textureId);
             const geometry = new Geometry();
             planes.forEach((plane) => geometry.merge(plane));
             planes.forEach((plane) => plane.dispose());
             geometry.mergeVertices();
             geometry.elementsNeedUpdate = true;
-            return geometry;
-        })();
+
+            let mesh = this.mesh.children[textureId] as Mesh;
+            if (mesh === undefined) {
+                mesh = new Mesh(new Geometry(), material);
+                this.mesh.add(mesh);
+            }
+
+            mesh.visible = planes.length > 0;
+            mesh.geometry = geometry;
+        });
     }
 
     private updateFloorMesh() {
@@ -622,30 +675,40 @@ export class Level {
             return result;
         };
 
-        return new Promise((resolve, reject) => {
-            const geometry = this.mesh.geometry as Geometry;
+        const updateMesh = (mesh: Mesh) => {
+            return new Promise((resolve, reject) => {
+                const geometry = mesh.geometry as Geometry;
 
-            let index = 0;
-            const updateFace = () => {
-                if (geometry !== this.mesh.geometry) return reject();
-                if (geometry.faces.length <= index) return resolve();
+                let index = 0;
+                const updateFace = () => {
+                    if (geometry !== mesh.geometry) return reject();
+                    if (geometry.faces.length <= index) return resolve();
 
-                for (let i = 0; i < 100 && index < geometry.faces.length; i++) {
-                    const f = geometry.faces[index];
-                    const v = geometry.vertices;
-                    f.vertexColors[0] = aggregateLight(v[f.a], f.normal);
-                    f.vertexColors[1] = aggregateLight(v[f.b], f.normal);
-                    f.vertexColors[2] = aggregateLight(v[f.c], f.normal);
-                    index++;
-                }
+                    const { faces, vertices } = geometry;
+                    for (let i = 0; i < 100 && index < faces.length; i++) {
+                        const f = faces[index];
+                        const v = vertices;
+                        f.vertexColors[0] = aggregateLight(v[f.a], f.normal);
+                        f.vertexColors[1] = aggregateLight(v[f.b], f.normal);
+                        f.vertexColors[2] = aggregateLight(v[f.c], f.normal);
+                        index++;
+                    }
 
-                geometry.elementsNeedUpdate = true;
+                    geometry.elementsNeedUpdate = true;
 
-                setTimeout(updateFace);
-            };
+                    setTimeout(updateFace);
+                };
 
-            updateFace();
-        });
+                updateFace();
+            });
+        };
+
+        return Promise.all(
+            this.mesh.children.map((child) => {
+                const mesh = child as Mesh;
+                return updateMesh(mesh);
+            })
+        );
     }
 
     public updateAmbientOcclusion() {
@@ -690,15 +753,18 @@ export class Level {
             color.b *= fac;
         };
 
-        const geometry = this.mesh.geometry as Geometry;
-        geometry.elementsNeedUpdate = true;
-        for (let i = 0; i < geometry.faces.length; i++) {
-            const face = geometry.faces[i];
-            const verts = geometry.vertices;
-            occlusion(face.vertexColors[0], verts[face.a], face.normal);
-            occlusion(face.vertexColors[1], verts[face.b], face.normal);
-            occlusion(face.vertexColors[2], verts[face.c], face.normal);
-        }
+        this.mesh.children.forEach((child) => {
+            const mesh = child as Mesh;
+            const geometry = mesh.geometry as Geometry;
+            geometry.elementsNeedUpdate = true;
+            for (let i = 0; i < geometry.faces.length; i++) {
+                const face = geometry.faces[i];
+                const verts = geometry.vertices;
+                occlusion(face.vertexColors[0], verts[face.a], face.normal);
+                occlusion(face.vertexColors[1], verts[face.b], face.normal);
+                occlusion(face.vertexColors[2], verts[face.c], face.normal);
+            }
+        });
     }
 
     public readJson(json: LevelJSON) {
@@ -730,11 +796,9 @@ export class Level {
         });
 
         if (json.textures) {
-            this.textures = json.textures.map((texture) => {
-                return {
-                    src: texture.src || "/assets/levels/textures/brick.png",
-                    scale: texture.scale || 0,
-                };
+            this.textures.forEach((texture) => texture.material.dispose());
+            this.textures = json.textures.map((json) => {
+                return Level.Texture(json.src, json.scale);
             });
         }
     }
@@ -746,7 +810,9 @@ export class Level {
             depth: this.depth,
             skins: [],
             blocks: [],
-            textures: [...this.textures],
+            textures: this.textures.map((texture) => {
+                return { src: texture.src, scale: texture.scale };
+            }),
             solidBlocks: [],
             jumpPadBlocks: [],
             emmitionBlocks: [],

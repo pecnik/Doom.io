@@ -232,7 +232,7 @@ export class PlayerShootSystem extends System<GameClient> {
         Hitscan.raycaster.setFromCamera(Hitscan.origin, Hitscan.camera);
 
         const buffer: Intersection[] = [];
-        Hitscan.raycaster.intersectObject(this.world.level.mesh, false, buffer);
+        Hitscan.raycaster.intersectObject(this.world.level.mesh, true, buffer);
 
         let response: HitscanResponse | undefined = undefined;
         if (buffer[0] !== undefined) {

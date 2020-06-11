@@ -40,6 +40,7 @@
 <script>
 import TextureInput from "./TextureInput.vue";
 import { editor } from "../Editor";
+import { Level } from "../Level";
 import { clamp } from "lodash";
 
 export default {
@@ -68,10 +69,7 @@ export default {
                     .then(rsp => rsp.json())
                     .then(rsp => {
                         editor.commitLevelMutation(level => {
-                            level.textures.push({
-                                src: rsp.src,
-                                scale: 0
-                            });
+                            level.textures.push(Level.Texture(rsp.src));
                         });
                     })
                     .catch(console.error);
