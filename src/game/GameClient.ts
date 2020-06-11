@@ -1,7 +1,7 @@
 import Stats from "stats.js";
 import { Hud } from "./data/Hud";
 import { Input } from "./core/Input";
-import { World, Family } from "./ecs";
+import { World } from "./ecs";
 import { PlayerInputSystem } from "./systems/PlayerInputSystem";
 import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
@@ -10,7 +10,7 @@ import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { WeaponSpriteSystem } from "./systems/rendering/WeaponSpriteSystem";
 import { Game } from "./core/Engine";
 import { InfineteRespawnSystem } from "./systems/InfineteRespawnSystem";
-import { LocalAvatarArchetype, AvatarArchetype } from "./ecs/Archetypes";
+import { LocalAvatarArchetype } from "./ecs/Archetypes";
 import { AvatarStateSystem } from "./systems/AvatarStateSystem";
 import { ShooterAudioSystem } from "./systems/audio/ShooterAudioSystem";
 import { Sound3D } from "./sound/Sound3D";
@@ -49,8 +49,10 @@ export class GameClient extends GameContext implements Game {
 
     public readonly hud = new Hud();
     public readonly world = new World();
-    public readonly input = new Input({ requestPointerLock: true });
-    public readonly avatars = Family.findOrCreate(new AvatarArchetype());
+    public readonly input = new Input({
+        requestPointerLock: true,
+        element: document.getElementById("viewport") as HTMLCanvasElement,
+    });
 
     private static createStats() {
         if (Settings.graphics.fpsMeter) {
