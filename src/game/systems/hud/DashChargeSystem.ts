@@ -1,9 +1,9 @@
 import { System, Components } from "../../ecs";
-import { World } from "../../ecs";
 import { Scene } from "three";
 import { LocalAvatarArchetype } from "../../ecs/Archetypes";
 import { HudElement } from "../../data/HudElement";
 import { clamp } from "lodash";
+import { GameClient } from "../../GameClient";
 
 export class DashChargeSystem extends System {
     private readonly el = new HudElement({
@@ -18,8 +18,8 @@ export class DashChargeSystem extends System {
         archetype: new LocalAvatarArchetype(),
     });
 
-    public constructor(world: World, layer: Scene) {
-        super(world);
+    public constructor(game: GameClient, layer: Scene) {
+        super(game);
         this.el.moveLeft();
         this.el.moveBottom();
         layer.add(this.el.sprite);

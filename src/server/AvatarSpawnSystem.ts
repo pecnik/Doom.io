@@ -5,19 +5,12 @@ import { AvatarArchetype } from "../game/ecs/Archetypes";
 import { getPlayerAvatar } from "../game/Helpers";
 import { ActionType, SpawnAvatarAction, Action } from "../game/Action";
 import { ServerPlayerArchetype } from "./GameServer";
-import { GameContext } from "../game/GameContext";
 
 export class AvatarSpawnSystem extends System {
-    private readonly game: GameContext;
     private readonly avatars = Family.findOrCreate(new AvatarArchetype());
     private readonly players = Family.findOrCreate<ServerPlayerArchetype>(
         new ServerPlayerArchetype()
     );
-
-    public constructor(game: GameContext) {
-        super(game.world);
-        this.game = game;
-    }
 
     public update() {
         this.players.entities.forEach((player) => {

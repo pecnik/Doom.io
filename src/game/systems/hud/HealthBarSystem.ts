@@ -1,10 +1,10 @@
 import { System } from "../../ecs";
-import { World } from "../../ecs";
 import { Scene } from "three";
 import { LocalAvatarArchetype } from "../../ecs/Archetypes";
 import { HudElement } from "../../data/HudElement";
 import { clamp } from "lodash";
 import { lerp } from "../../core/Utils";
+import { GameClient } from "../../GameClient";
 
 export class HealthBarSystem extends System {
     private readonly colors = [
@@ -26,8 +26,8 @@ export class HealthBarSystem extends System {
         archetype: new LocalAvatarArchetype(),
     });
 
-    public constructor(world: World, layer: Scene) {
-        super(world);
+    public constructor(game: GameClient, layer: Scene) {
+        super(game);
         this.el.moveLeft(64);
         this.el.moveBottom();
         layer.add(this.el.sprite);

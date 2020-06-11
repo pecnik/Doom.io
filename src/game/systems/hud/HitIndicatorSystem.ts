@@ -20,7 +20,7 @@ export class HitIndicatorSystem extends System {
     });
 
     public constructor(client: GameClient, layer: Scene) {
-        super(client.world);
+        super(client);
 
         const geo = new CircleGeometry(32, 3, Math.PI + Math.PI / 6);
         const mat = new MeshBasicMaterial({

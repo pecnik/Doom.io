@@ -159,44 +159,44 @@ export class GameClient extends GameContext implements Game {
         this.world.scene.add(Sound3D.group);
 
         // Systems
-        this.world.addSystem(new PlayerInputSystem(this.world, this.input));
-        this.world.addSystem(new PlayerMoveSystem(this.world));
+        this.world.addSystem(new PlayerInputSystem(this));
+        this.world.addSystem(new PlayerMoveSystem(this));
         this.world.addSystem(new PlayerDashSystem(this));
         this.world.addSystem(new PlayerBounceSystem(this));
-        this.world.addSystem(new PhysicsSystem(this.world));
-        this.world.addSystem(new AvatarStateSystem(this.world));
-        this.world.addSystem(new PlayerCameraSystem(this.world));
+        this.world.addSystem(new PhysicsSystem(this));
+        this.world.addSystem(new AvatarStateSystem(this));
+        this.world.addSystem(new PlayerCameraSystem(this));
         this.world.addSystem(new PlayerShootSystem(this));
-        this.world.addSystem(new ProjectileDisposalSystem(this.world));
+        this.world.addSystem(new ProjectileDisposalSystem(this));
 
         // World rendering
-        this.world.addSystem(new EntityMeshSystem(this.world));
-        this.world.addSystem(new AvatarMeshSystem(this.world));
-        this.world.addSystem(new PickupMeshSystem(this.world));
+        this.world.addSystem(new EntityMeshSystem(this));
+        this.world.addSystem(new AvatarMeshSystem(this));
+        this.world.addSystem(new PickupMeshSystem(this));
 
         {
             // Hud rendering
             const layers = [new Scene(), new Scene()];
             this.hud.layers.push(...layers);
-            this.world.addSystem(new WeaponSpriteSystem(this.world, layers[0]));
-            this.world.addSystem(new CrosshairSystem(this.world, layers[1]));
-            this.world.addSystem(new AmmoCountSystem(this.world, layers[1]));
-            this.world.addSystem(new DashChargeSystem(this.world, layers[1]));
-            this.world.addSystem(new HealthBarSystem(this.world, layers[1]));
-            this.world.addSystem(new LeaderboardSystem(this.world, layers[1]));
+            this.world.addSystem(new WeaponSpriteSystem(this, layers[0]));
+            this.world.addSystem(new CrosshairSystem(this, layers[1]));
+            this.world.addSystem(new AmmoCountSystem(this, layers[1]));
+            this.world.addSystem(new DashChargeSystem(this, layers[1]));
+            this.world.addSystem(new HealthBarSystem(this, layers[1]));
+            this.world.addSystem(new LeaderboardSystem(this, layers[1]));
             this.world.addSystem(new HitIndicatorSystem(this, layers[1]));
         }
 
         // Audio
         this.world.addSystem(new ShooterAudioSystem(this));
-        this.world.addSystem(new FootstepAudioSystem(this.world));
+        this.world.addSystem(new FootstepAudioSystem(this));
 
         if (this.isMultiplayer) {
             this.connect();
             this.world.addSystem(new PlayerSyncSystem(this));
         } else {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };
-            this.world.addSystem(new InfineteRespawnSystem(this.world));
+            this.world.addSystem(new InfineteRespawnSystem(this));
             this.world.addSystem(new PickupSpawnSystem(this));
             this.world.addSystem(new PickupConsumeSystem(this));
             this.world.addEntity(avatar);

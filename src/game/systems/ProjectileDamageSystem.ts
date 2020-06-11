@@ -3,21 +3,14 @@ import { ProjectileArchetype, AvatarArchetype } from "../ecs/Archetypes";
 import { AvatarHitAction, ActionType, Action } from "../Action";
 import { WeaponType } from "../data/Weapon";
 import { getPlayerAvatar } from "../Helpers";
-import { GameContext } from "../GameContext";
 
 export class ProjectileDamageSystem extends System {
-    private readonly game: GameContext;
     private readonly avatars = this.createEntityFamily({
         archetype: new AvatarArchetype(),
     });
     private readonly projectiles = this.createEntityFamily({
         archetype: new ProjectileArchetype(),
     });
-
-    public constructor(server: GameContext) {
-        super(server.world);
-        this.game = server;
-    }
 
     public update() {
         this.projectiles.entities.forEach((projectile) => {

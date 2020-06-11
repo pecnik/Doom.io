@@ -1,25 +1,20 @@
 import { System } from "../ecs";
 import { clamp } from "lodash";
-import { World } from "../ecs";
 import { Components } from "../ecs";
-import { Input, KeyCode, MouseBtn } from "../core/Input";
+import { KeyCode, MouseBtn } from "../core/Input";
 import { modulo } from "../core/Utils";
 import { LocalAvatarArchetype } from "../ecs/Archetypes";
 import { WeaponType, WEAPON_SPEC_RECORD } from "../data/Weapon";
 import { Settings } from "../../settings/Settings";
+import { GameClient } from "../GameClient";
 
 const MOUSE_SENSITIVITY = Settings.input.mouseSensitivity * 0.25;
 
-export class PlayerInputSystem extends System {
-    private readonly input: Input;
+export class PlayerInputSystem extends System<GameClient> {
+    private readonly input = this.game.input;
     private readonly family = this.createEntityFamily({
         archetype: new LocalAvatarArchetype(),
     });
-
-    public constructor(world: World, input: Input) {
-        super(world);
-        this.input = input;
-    }
 
     public update(dt: number) {
         // Look input

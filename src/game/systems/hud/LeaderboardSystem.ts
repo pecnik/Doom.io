@@ -1,10 +1,10 @@
 import { System } from "../../ecs";
-import { World } from "../../ecs";
 import { Scene } from "three";
 import { HudElement } from "../../data/HudElement";
 import { PlayerArchetype } from "../../ecs/Archetypes";
 import { WEAPON_SPEC_RECORD } from "../../data/Weapon";
 import { getImage } from "../../Helpers";
+import { GameClient } from "../../GameClient";
 
 export class LeaderboardSystem extends System {
     private readonly players = this.createEntityFamily({
@@ -23,8 +23,8 @@ export class LeaderboardSystem extends System {
         props: {},
     });
 
-    public constructor(world: World, layer: Scene) {
-        super(world);
+    public constructor(game: GameClient, layer: Scene) {
+        super(game);
 
         this.leaderboard.moveLeft();
         this.leaderboard.moveTop();

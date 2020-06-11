@@ -1,10 +1,10 @@
 import { System, Components } from "../../ecs";
-import { World } from "../../ecs";
 import { Scene } from "three";
 import { LocalAvatarArchetype } from "../../ecs/Archetypes";
 import { HudElement } from "../../data/HudElement";
 import { WEAPON_SPEC_RECORD, WeaponType } from "../../data/Weapon";
 import { memoize } from "lodash";
+import { GameClient } from "../../GameClient";
 
 export class AmmoCountSystem extends System {
     private readonly weaponSpecs = Object.values(WEAPON_SPEC_RECORD);
@@ -30,8 +30,8 @@ export class AmmoCountSystem extends System {
         return img;
     });
 
-    public constructor(world: World, layer: Scene) {
-        super(world);
+    public constructor(game: GameClient, layer: Scene) {
+        super(game);
         this.el.moveRight();
         this.el.moveBottom();
         layer.add(this.el.sprite);
