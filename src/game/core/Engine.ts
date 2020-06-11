@@ -4,7 +4,7 @@ import { Settings } from "../../settings/Settings";
 import { Stats } from "./Stats";
 
 const RS = {
-    Textures: Stats.createPanel("Texture"),
+    // Textures: Stats.createPanel("Texture"),
     RenderCalls: Stats.createPanel("Render calls"),
     RenderTime: Stats.createPanel("Render time"),
     RenderTimeClock: new Clock(false),
@@ -87,8 +87,7 @@ export class Engine {
 
         // Update render stats
         const { info } = this.renderer;
-        RS.Textures.update(info.memory.textures, 64);
-        RS.RenderCalls.update(info.render.calls, 64);
+        RS.RenderCalls.update(info.render.calls, 2000);
         RS.RenderTime.update(RS.RenderTimeClock.getDelta() * 10000, 100);
 
         Stats.end();

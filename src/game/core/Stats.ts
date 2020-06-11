@@ -1,5 +1,5 @@
 import StatsJs from "stats.js";
-import { Settings } from "../Settings";
+import { Settings } from "../../settings/Settings";
 
 export interface StatsPanel {
     update(value: number, max: number): void;
@@ -13,7 +13,7 @@ export const Stats = {
     },
 };
 
-if (Settings.props.fpsMeter) {
+if (Settings.graphics.fpsMeter) {
     const stats = new StatsJs();
     Stats.begin = stats.begin.bind(stats);
     Stats.end = stats.end.bind(stats);
