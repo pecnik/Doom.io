@@ -75,7 +75,7 @@ export class Engine {
         this.gameTime = gameTime;
 
         let delta = (this.gameTime - lastTime) * 0.001;
-        delta = clamp(delta, 1 / 120, 1);
+        delta = clamp(delta, 1 / 120, 1 / 30);
         this.update(delta);
 
         requestAnimationFrame(this.loop.bind(this));
