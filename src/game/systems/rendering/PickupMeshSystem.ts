@@ -55,7 +55,6 @@ export class PickupMeshSystem extends System {
                         this.geometry.dispose();
                         this.geometry = mesh.geometry;
                         this.material = mesh.material;
-                        console.log({ mesh });
                     }
                 });
             }
