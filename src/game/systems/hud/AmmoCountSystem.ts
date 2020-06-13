@@ -78,9 +78,10 @@ export class AmmoCountSystem extends System {
         this.el.ctx.clearRect(0, 0, this.el.width, this.el.height);
 
         const fillText = (text: string, x: number, y: number) => {
+            const fillStyle = this.el.ctx.fillStyle;
             this.el.ctx.fillStyle = "black";
             this.el.ctx.fillText(text, x + 2, y + 2);
-            this.el.ctx.fillStyle = "white";
+            this.el.ctx.fillStyle = fillStyle;
             this.el.ctx.fillText(text, x, y);
         };
 
@@ -102,30 +103,14 @@ export class AmmoCountSystem extends System {
             this.el.ctx.font = `Bold 20px 'Share Tech Mono'`;
             this.el.ctx.textBaseline = "top";
 
+            const ammocount = ammo.loaded + ammo.reserved;
+            this.el.ctx.fillStyle = ammocount > 0 ? "white" : "red";
+
             this.el.ctx.textAlign = "right";
             fillText(ammo.loaded.toString() + "|", x + 32, y);
 
             this.el.ctx.textAlign = "left";
             fillText(ammo.reserved.toString(), x + 32, y);
-
-            // if (active) {
-            //     const PADD = 8;
-            //     const TILE = 40;
-            //     const SIZE = TILE - PADD * 2;
-
-            //     const x = 0;
-            //     const y = this.el.height - TILE;
-
-            //     const icon = this.getImage(weaponSpec.icon);
-            //     if (icon.width > 0) {
-            //         this.el.ctx.drawImage(icon, x + PADD, y + PADD, SIZE, SIZE);
-            //     }
-
-            //     this.el.ctx.font = `Bold ${SIZE}px 'Share Tech Mono'`;
-            //     this.el.ctx.textAlign = "left";
-            //     this.el.ctx.textBaseline = "top";
-            //     fillText(ammo.loaded.toString(), x + TILE + PADD, y + PADD);
-            // }
         });
     }
 }

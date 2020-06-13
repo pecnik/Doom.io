@@ -15,6 +15,7 @@ import { LocalAvatarArchetype, EnemyAvatarArchetype } from "../ecs/Archetypes";
 import { WEAPON_SPEC_RECORD, WeaponSpec, WeaponType } from "../data/Weapon";
 import { GameClient } from "../GameClient";
 import { Action } from "../Action";
+import { Sound2D } from "../sound/Sound2D";
 
 class HitscanResponse {
     public intersection: Intersection;
@@ -62,6 +63,8 @@ export class PlayerShootSystem extends System<GameClient> {
 
             if (input.shoot && ammo.loaded > 0) {
                 return this.transition(WeaponState.Shoot, avatar);
+            } else if (input.shootPressed && ammo.loaded === 0) {
+                Sound2D.get("/assets/sounds/gun_outofammo_01.wav").play();
             }
         }
 

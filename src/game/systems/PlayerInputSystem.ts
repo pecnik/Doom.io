@@ -29,6 +29,7 @@ export class PlayerInputSystem extends System<GameClient> {
         const jump = this.input.isKeyPressed(KeyCode.SPACE);
         const dash = this.input.isKeyPressed(KeyCode.SHIFT);
         const shoot = this.input.isMouseDown(MouseBtn.Left);
+        const shootPressed = this.input.isMousePresed(MouseBtn.Left);
         const scope = this.input.isMouseDown(MouseBtn.Right);
         const reload = this.input.isKeyDown(KeyCode.R);
 
@@ -47,6 +48,7 @@ export class PlayerInputSystem extends System<GameClient> {
             input.dash = dash;
             input.shoot = shoot;
             input.scope = scope;
+            input.shootPressed = shootPressed;
             input.reloadQueue = input.reloadQueue || reload;
             input.weaponType = this.getWeaponType(input);
 

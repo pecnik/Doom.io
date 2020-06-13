@@ -52,6 +52,7 @@ export module Components {
         public dash = false;
         public shoot = false;
         public scope = false;
+        public shootPressed = false;
         public reloadQueue = false;
     }
 
@@ -82,7 +83,7 @@ export module Components {
             const spec = WEAPON_SPEC_RECORD[type];
             return {
                 loaded: spec.maxLoadedAmmo,
-                reserved: Math.floor(spec.maxReservedAmmo / 2),
+                reserved: Math.floor(spec.maxReservedAmmo / 4),
             };
         }
     }
