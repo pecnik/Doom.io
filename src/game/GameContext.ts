@@ -1,4 +1,4 @@
-import { World, Components, Family } from "./ecs";
+import { World, Family } from "./ecs";
 import { Action, ActionType } from "./Action";
 import { EntityFactory } from "./data/EntityFactory";
 import { WEAPON_SPEC_RECORD } from "./data/Weapon";
@@ -128,8 +128,8 @@ export abstract class GameContext {
                 ammoPack.pickupAmmo.weaponType = weaponType;
                 ammoPack.position.copy(position);
 
-                const mesh = WEAPON_SPEC_RECORD[weaponType].ammoPickupMesh;
-                ammoPack.entityMesh = new Components.EntityMesh(mesh);
+                // const mesh = WEAPON_SPEC_RECORD[weaponType].ammoPickupMesh;
+                // ammoPack.entityMesh = new Components.EntityMesh(mesh);
 
                 this.world.addEntity(ammoPack);
                 return;
@@ -141,8 +141,8 @@ export abstract class GameContext {
                 healthPack.pickupHealth.heal = heal;
                 healthPack.position.copy(position);
 
-                const mesh = "/assets/mesh/healt_pickup.gltf";
-                healthPack.entityMesh = new Components.EntityMesh(mesh);
+                // const mesh = "/assets/mesh/healt_pickup.gltf";
+                // healthPack.entityMesh = new Components.EntityMesh(mesh);
 
                 this.world.addEntity(healthPack);
                 break;
