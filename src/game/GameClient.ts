@@ -39,6 +39,7 @@ import { GameContext } from "./GameContext";
 import { PickupConsumeSystem } from "./systems/PickupConsumeSystem";
 import { getHeadPosition } from "./Helpers";
 import { LeaderboardSystem } from "./systems/hud/LeaderboardSystem";
+import { ProjectileMeshSystem } from "./systems/rendering/ProjectileMeshSystem";
 
 export class GameClient extends GameContext implements Game {
     private readonly route = location.hash.replace("#", "");
@@ -159,6 +160,7 @@ export class GameClient extends GameContext implements Game {
         this.world.addSystem(new EntityMeshSystem(this));
         this.world.addSystem(new AvatarMeshSystem(this));
         this.world.addSystem(new PickupMeshSystem(this));
+        this.world.addSystem(new ProjectileMeshSystem(this));
 
         {
             // Hud rendering

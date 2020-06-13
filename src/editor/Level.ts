@@ -608,7 +608,7 @@ export class Level {
         }
     }
 
-    public updateGeometryLightning() {
+    public updateGeometryLightning(): Promise<any> {
         const lights = this.getLights();
         if (lights.length === 0) return Promise.resolve();
 
