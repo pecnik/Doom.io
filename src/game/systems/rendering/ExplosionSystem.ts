@@ -3,6 +3,7 @@ import { Sprite, SpriteMaterial, AdditiveBlending } from "three";
 import { loadTexture } from "../../Helpers";
 import { GameContext } from "../../GameContext";
 import { ease } from "../../core/Utils";
+import { Sound3D } from "../../sound/Sound3D";
 
 class ExplostionSpawnerArchetype implements AnyComponents {
     public spawnExplosionTag = true;
@@ -43,6 +44,9 @@ export class ExplosionSystem extends System {
                 sprite.name = entity.id;
                 sprite.scale.setScalar(0.25);
                 sprite.position.copy(entity.position);
+
+                const src = "/assets/sounds/plasma_explosion.wav";
+                Sound3D.get(src).emitFrom(entity);
             },
         });
     }

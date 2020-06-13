@@ -99,6 +99,7 @@ export class GameClient extends GameContext implements Game {
             // Preload weapon audio
             Sound3D.load([
                 ...weaponSounds,
+                "/assets/sounds/plasma_explosion.wav",
                 "/assets/sounds/footstep.wav",
                 "/assets/sounds/whoosh.wav",
                 "/assets/sounds/bounce.wav",
