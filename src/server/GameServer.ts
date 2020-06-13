@@ -18,6 +18,7 @@ import { ProjectileDamageSystem } from "../game/systems/ProjectileDamageSystem";
 import { GameContext } from "../game/GameContext";
 import { PickupSpawnSystem } from "../game/systems/PickupSpawnSystem";
 import { PickupConsumeSystem } from "../game/systems/PickupConsumeSystem";
+import { DEFAULT_LEVEL } from "../game/data/Globals";
 
 /**
  * Server-side player entity archetype
@@ -49,7 +50,7 @@ export class GameServer extends GameContext {
         super();
 
         // Init level
-        const levelPath = __dirname + "/../../assets/levels/arena.json";
+        const levelPath = __dirname + "/../.." + DEFAULT_LEVEL;
         const levelJson = fs.readFileSync(levelPath);
         this.world.level.readJson(JSON.parse(String(levelJson)));
 
