@@ -8,7 +8,7 @@ import {
 } from "three";
 
 export class InputSettings {
-    public mouseSensitivity = 0.1;
+    public mouseSensitivity = 0.5;
 }
 
 export class AudioSettings {

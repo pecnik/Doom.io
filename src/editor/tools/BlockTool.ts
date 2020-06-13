@@ -1,12 +1,11 @@
 import { KeyCode, MouseBtn } from "../../game/core/Input";
-import { MeshBasicMaterial, Scene, Vector3, Color } from "three";
+import { Scene, Vector3, Color } from "three";
 import { MoveTool } from "./MoveTool";
 import { Tool } from "./Tool";
 import { Level, LevelBlock } from "../Level";
 import { EraserTool } from "./EraserTool";
 import { SampleTool } from "./SampleTool";
 import { Cursor3D } from "./Cursor3D";
-import { disposeMeshMaterial } from "../../game/Helpers";
 
 export class BlockTool extends Tool {
     public readonly name = "Block tool";
@@ -50,12 +49,7 @@ export class BlockTool extends Tool {
 
         this.scene.add(this.cursor, this.brush.mesh);
         this.brush.mesh.renderOrder = 2;
-        this.brush.loadMaterial().then(() => {
-            disposeMeshMaterial(this.brush.mesh.material);
-            this.brush.mesh.material = new MeshBasicMaterial({
-                color: 0x229922,
-            });
-        });
+        this.brush.loadMaterial();
     }
 
     public start() {

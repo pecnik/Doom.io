@@ -3,11 +3,14 @@ import { World } from "./World";
 import { Family } from "./Family";
 import { Entity } from "./Entity";
 import { AnyComponents } from "./Components";
+import { GameContext } from "../GameContext";
 
-export abstract class System {
+export abstract class System<T extends GameContext = GameContext> {
+    protected readonly game: T;
     protected readonly world: World;
-    public constructor(world: World) {
-        this.world = world;
+    public constructor(game: T) {
+        this.game = game;
+        this.world = game.world;
     }
 
     public lastUpdate: number = 0;

@@ -2,12 +2,10 @@ import { System } from "../ecs";
 import { AvatarArchetype, PickupArchetype } from "../ecs/Archetypes";
 import { sample, uniqueId } from "lodash";
 import { WeaponType } from "../data/Weapon";
-import { GameContext } from "../GameContext";
 import { Action } from "../Action";
 import { Vector3 } from "three";
 
 export class PickupSpawnSystem extends System {
-    private readonly game: GameContext;
     private readonly pickups = this.createEntityFamily({
         archetype: new PickupArchetype(),
     });
@@ -25,11 +23,6 @@ export class PickupSpawnSystem extends System {
         ];
         return () => sample(types) as WeaponType;
     })();
-
-    public constructor(game: GameContext) {
-        super(game.world);
-        this.game = game;
-    }
 
     public readonly updateInterval = 3; // every 3 sec
     public update() {

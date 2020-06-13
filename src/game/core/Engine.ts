@@ -1,6 +1,14 @@
-import { WebGLRenderer, Scene, Camera, PerspectiveCamera } from "three";
+import { WebGLRenderer, Scene, Camera, PerspectiveCamera, Clock } from "three";
 import { clamp } from "lodash";
 import { Settings } from "../../settings/Settings";
+import { Stats } from "./Stats";
+
+const RS = {
+    // Textures: Stats.createPanel("Texture"),
+    RenderCalls: Stats.createPanel("Render calls"),
+    RenderTime: Stats.createPanel("Render time"),
+    RenderTimeClock: new Clock(false),
+};
 
 export interface Game {
     readonly world: { scene: Scene; camera: PerspectiveCamera };
@@ -35,6 +43,7 @@ export class Engine {
         this.renderer.setPixelRatio(Settings.graphics.renderResolution);
         this.renderer.toneMapping = Settings.graphics.toneMap;
         this.renderer.toneMappingExposure = Settings.graphics.toneMapExposure;
+        this.renderer.info.autoReset = false;
     }
 
     public start(width: number, height: number) {
@@ -61,13 +70,27 @@ export class Engine {
     }
 
     private update(dt: number) {
+        Stats.begin();
+
         const { world, hud } = this.game;
         this.game.update(dt);
+
+        RS.RenderTimeClock.elapsedTime = 0;
+        RS.RenderTimeClock.start();
+
+        this.renderer.info.reset();
         this.renderer.render(world.scene, world.camera);
         for (let i = 0; i < hud.layers.length; i++) {
             this.renderer.clearDepth();
             this.renderer.render(hud.layers[i], hud.camera);
         }
+
+        // Update render stats
+        const { info } = this.renderer;
+        RS.RenderCalls.update(info.render.calls, 2000);
+        RS.RenderTime.update(RS.RenderTimeClock.getDelta() * 10000, 100);
+
+        Stats.end();
     }
 
     private loop(gameTime: number) {
@@ -75,7 +98,7 @@ export class Engine {
         this.gameTime = gameTime;
 
         let delta = (this.gameTime - lastTime) * 0.001;
-        delta = clamp(delta, 1 / 120, 1);
+        delta = clamp(delta, 1 / 120, 1 / 30);
         this.update(delta);
 
         requestAnimationFrame(this.loop.bind(this));

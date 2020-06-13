@@ -1,10 +1,9 @@
 import { KeyCode } from "../../game/core/Input";
-import { MeshBasicMaterial, Scene, Vector3, Color } from "three";
+import { Scene, Vector3, Color } from "three";
 import { MoveTool } from "./MoveTool";
 import { Tool } from "./Tool";
 import { Level, LevelBlock } from "../Level";
 import { Cursor3D } from "./Cursor3D";
-import { disposeMeshMaterial } from "../../game/Helpers";
 
 export class EraserTool extends Tool {
     public readonly name = "Eraser tool";
@@ -35,9 +34,9 @@ export class EraserTool extends Tool {
         this.scene.add(this.cursor, this.brush.mesh);
         this.brush.mesh.renderOrder = 2;
         this.brush.loadMaterial().then(() => {
-            disposeMeshMaterial(this.brush.mesh.material);
-            this.brush.mesh.material = new MeshBasicMaterial({
-                color: 0x992222,
+            this.brush.textures.forEach((textrue) => {
+                textrue.material.color = new Color(0xff0000);
+                textrue.material.needsUpdate = true;
             });
         });
     }

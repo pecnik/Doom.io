@@ -57,9 +57,9 @@ export class GameServer extends GameContext {
         this.world.addSystem(new AvatarSpawnSystem(this));
         this.world.addSystem(new PickupSpawnSystem(this));
         this.world.addSystem(new PickupConsumeSystem(this));
-        this.world.addSystem(new PhysicsSystem(this.world));
+        this.world.addSystem(new PhysicsSystem(this));
         this.world.addSystem(new ProjectileDamageSystem(this));
-        this.world.addSystem(new ProjectileDisposalSystem(this.world));
+        this.world.addSystem(new ProjectileDisposalSystem(this));
 
         // Start game loop
         setInterval(() => {

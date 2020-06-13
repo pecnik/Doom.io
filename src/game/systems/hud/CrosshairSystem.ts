@@ -1,8 +1,8 @@
 import { System } from "../../ecs";
-import { World } from "../../ecs";
 import { MeshBasicMaterial, Mesh, RingGeometry, Scene } from "three";
 import { LocalAvatarArchetype } from "../../ecs/Archetypes";
 import { getWeaponSpec } from "../../Helpers";
+import { GameClient } from "../../GameClient";
 
 export class CrosshairSystem extends System {
     private readonly crosshair: Mesh;
@@ -10,8 +10,8 @@ export class CrosshairSystem extends System {
         archetype: new LocalAvatarArchetype(),
     });
 
-    public constructor(world: World, layer: Scene) {
-        super(world);
+    public constructor(game: GameClient, layer: Scene) {
+        super(game);
 
         const geo = new RingGeometry(4, 4.1, 16);
         const mat = new MeshBasicMaterial({

@@ -30,9 +30,7 @@ class HitscanResponse {
         this.normal = face ? face.normal : new Vector3(0, 0, 1);
     }
 }
-export class PlayerShootSystem extends System {
-    private readonly game: GameClient;
-
+export class PlayerShootSystem extends System<GameClient> {
     private readonly players = this.createEntityFamily({
         archetype: new LocalAvatarArchetype(),
     });
@@ -40,11 +38,6 @@ export class PlayerShootSystem extends System {
     private readonly targets = this.createEntityFamily({
         archetype: new EnemyAvatarArchetype(),
     });
-
-    public constructor(client: GameClient) {
-        super(client.world);
-        this.game = client;
-    }
 
     public update() {
         const avatar = this.players.first();
@@ -239,7 +232,7 @@ export class PlayerShootSystem extends System {
         Hitscan.raycaster.setFromCamera(Hitscan.origin, Hitscan.camera);
 
         const buffer: Intersection[] = [];
-        Hitscan.raycaster.intersectObject(this.world.level.mesh, false, buffer);
+        Hitscan.raycaster.intersectObject(this.world.level.mesh, true, buffer);
 
         let response: HitscanResponse | undefined = undefined;
         if (buffer[0] !== undefined) {

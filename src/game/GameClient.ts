@@ -1,7 +1,6 @@
-import Stats from "stats.js";
 import { Hud } from "./data/Hud";
 import { Input } from "./core/Input";
-import { World, Family } from "./ecs";
+import { World } from "./ecs";
 import { PlayerInputSystem } from "./systems/PlayerInputSystem";
 import { PlayerCameraSystem } from "./systems/PlayerCameraSystem";
 import { PlayerMoveSystem } from "./systems/PlayerMoveSystem";
@@ -10,14 +9,14 @@ import { PlayerShootSystem } from "./systems/PlayerShootSystem";
 import { WeaponSpriteSystem } from "./systems/rendering/WeaponSpriteSystem";
 import { Game } from "./core/Engine";
 import { InfineteRespawnSystem } from "./systems/InfineteRespawnSystem";
-import { LocalAvatarArchetype, AvatarArchetype } from "./ecs/Archetypes";
+import { LocalAvatarArchetype } from "./ecs/Archetypes";
 import { AvatarStateSystem } from "./systems/AvatarStateSystem";
 import { ShooterAudioSystem } from "./systems/audio/ShooterAudioSystem";
 import { Sound3D } from "./sound/Sound3D";
 import { FootstepAudioSystem } from "./systems/audio/FootstepAudioSystem";
 import { createSkybox } from "./data/Skybox";
 import { WEAPON_SPEC_RECORD } from "./data/Weapon";
-import { uniq } from "lodash";
+import { uniq, debounce, sample } from "lodash";
 import { CrosshairSystem } from "./systems/hud/CrosshairSystem";
 import { PlayerDashSystem } from "./systems/PlayerDashSystem";
 import { AvatarMeshSystem } from "./systems/rendering/AvatarMeshSystem";
@@ -40,30 +39,19 @@ import { GameContext } from "./GameContext";
 import { PickupConsumeSystem } from "./systems/PickupConsumeSystem";
 import { getHeadPosition } from "./Helpers";
 import { LeaderboardSystem } from "./systems/hud/LeaderboardSystem";
+import { ProjectileMeshSystem } from "./systems/rendering/ProjectileMeshSystem";
+import { ExplosionSystem } from "./systems/rendering/ExplosionSystem";
 
 export class GameClient extends GameContext implements Game {
-    private readonly stats = GameClient.createStats();
-
     private readonly route = location.hash.replace("#", "");
     private readonly isMultiplayer = this.route === "/game/multiplayer";
 
     public readonly hud = new Hud();
     public readonly world = new World();
-    public readonly input = new Input({ requestPointerLock: true });
-    public readonly avatars = Family.findOrCreate(new AvatarArchetype());
-
-    private static createStats() {
-        if (Settings.graphics.fpsMeter) {
-            const stats = new Stats();
-            document.body.appendChild(stats.dom);
-            return stats;
-        }
-
-        return {
-            begin() {},
-            end() {},
-        };
-    }
+    public readonly input = new Input({
+        requestPointerLock: true,
+        element: document.getElementById("viewport") as HTMLCanvasElement,
+    });
 
     private connect() {
         const url = location.origin
@@ -111,6 +99,7 @@ export class GameClient extends GameContext implements Game {
             // Preload weapon audio
             Sound3D.load([
                 ...weaponSounds,
+                "/assets/sounds/plasma_explosion.wav",
                 "/assets/sounds/footstep.wav",
                 "/assets/sounds/whoosh.wav",
                 "/assets/sounds/bounce.wav",
@@ -159,44 +148,46 @@ export class GameClient extends GameContext implements Game {
         this.world.scene.add(Sound3D.group);
 
         // Systems
-        this.world.addSystem(new PlayerInputSystem(this.world, this.input));
-        this.world.addSystem(new PlayerMoveSystem(this.world));
+        this.world.addSystem(new PlayerInputSystem(this));
+        this.world.addSystem(new PlayerMoveSystem(this));
         this.world.addSystem(new PlayerDashSystem(this));
         this.world.addSystem(new PlayerBounceSystem(this));
-        this.world.addSystem(new PhysicsSystem(this.world));
-        this.world.addSystem(new AvatarStateSystem(this.world));
-        this.world.addSystem(new PlayerCameraSystem(this.world));
+        this.world.addSystem(new PhysicsSystem(this));
+        this.world.addSystem(new AvatarStateSystem(this));
+        this.world.addSystem(new PlayerCameraSystem(this));
         this.world.addSystem(new PlayerShootSystem(this));
-        this.world.addSystem(new ProjectileDisposalSystem(this.world));
+        this.world.addSystem(new ProjectileDisposalSystem(this));
 
         // World rendering
-        this.world.addSystem(new EntityMeshSystem(this.world));
-        this.world.addSystem(new AvatarMeshSystem(this.world));
-        this.world.addSystem(new PickupMeshSystem(this.world));
+        this.world.addSystem(new EntityMeshSystem(this));
+        this.world.addSystem(new AvatarMeshSystem(this));
+        this.world.addSystem(new PickupMeshSystem(this));
+        this.world.addSystem(new ExplosionSystem(this));
+        this.world.addSystem(new ProjectileMeshSystem(this));
 
         {
             // Hud rendering
             const layers = [new Scene(), new Scene()];
             this.hud.layers.push(...layers);
-            this.world.addSystem(new WeaponSpriteSystem(this.world, layers[0]));
-            this.world.addSystem(new CrosshairSystem(this.world, layers[1]));
-            this.world.addSystem(new AmmoCountSystem(this.world, layers[1]));
-            this.world.addSystem(new DashChargeSystem(this.world, layers[1]));
-            this.world.addSystem(new HealthBarSystem(this.world, layers[1]));
-            this.world.addSystem(new LeaderboardSystem(this.world, layers[1]));
+            this.world.addSystem(new WeaponSpriteSystem(this, layers[0]));
+            this.world.addSystem(new CrosshairSystem(this, layers[1]));
+            this.world.addSystem(new AmmoCountSystem(this, layers[1]));
+            this.world.addSystem(new DashChargeSystem(this, layers[1]));
+            this.world.addSystem(new HealthBarSystem(this, layers[1]));
+            this.world.addSystem(new LeaderboardSystem(this, layers[1]));
             this.world.addSystem(new HitIndicatorSystem(this, layers[1]));
         }
 
         // Audio
         this.world.addSystem(new ShooterAudioSystem(this));
-        this.world.addSystem(new FootstepAudioSystem(this.world));
+        this.world.addSystem(new FootstepAudioSystem(this));
 
         if (this.isMultiplayer) {
             this.connect();
             this.world.addSystem(new PlayerSyncSystem(this));
         } else {
             const avatar = { id: "p1", ...new LocalAvatarArchetype() };
-            this.world.addSystem(new InfineteRespawnSystem(this.world));
+            this.world.addSystem(new InfineteRespawnSystem(this));
             this.world.addSystem(new PickupSpawnSystem(this));
             this.world.addSystem(new PickupConsumeSystem(this));
             this.world.addEntity(avatar);
@@ -204,10 +195,8 @@ export class GameClient extends GameContext implements Game {
     }
 
     public update(dt: number) {
-        this.stats.begin();
         this.world.update(dt);
         this.input.clear();
-        this.stats.end();
     }
 
     /**
@@ -253,8 +242,33 @@ export class GameClient extends GameContext implements Game {
                     .normalize()
                     .multiplyScalar(-1);
                 this.world.particles.blood(p1, direction);
+
+                if (target.health.value > 0 && target.localAvatarTag === true) {
+                    this.painSound(false);
+                }
+
                 return;
             }
         }
     }
+
+    public painSound = (() => {
+        const death = [
+            "/assets/sounds/death_jack_01.wav",
+            "/assets/sounds/death_jack_02.wav",
+        ];
+
+        const pain = [
+            "/assets/sounds/pain_jack_01.wav",
+            "/assets/sounds/pain_jack_02.wav",
+            "/assets/sounds/pain_jack_03.wav",
+        ];
+
+        return debounce((dead = false) => {
+            const sound = dead ? sample(death) : sample(pain);
+            if (sound !== undefined) {
+                Sound2D.get(sound).play();
+            }
+        }, 1000 / 30);
+    })();
 }

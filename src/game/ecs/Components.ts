@@ -12,6 +12,7 @@ export type AllComponents = {
     pickupTag: boolean;
     enemyAvatarTag: boolean;
     localAvatarTag: boolean;
+    spawnExplosionTag: boolean;
     gravity: boolean;
     playerData: Components.PlayerData;
     position: Components.Position;

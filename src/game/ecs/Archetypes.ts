@@ -34,13 +34,14 @@ export class EnemyAvatarArchetype extends AvatarArchetype {
 
 export class ProjectileArchetype implements AnyComponents {
     public playerId = "";
+    public spawnExplosionTag = true;
     public projectile = new Components.Projectile();
     public position = new Components.Position();
     public velocity = new Components.Velocity();
     public collision = new Components.Collision();
-    public entityMesh = new Components.EntityMesh(
-        "/assets/mesh/projectile.glb"
-    );
+    // public entityMesh = new Components.EntityMesh(
+    //     "/assets/mesh/projectile.glb"
+    // );
 }
 
 export class PickupArchetype implements AnyComponents {

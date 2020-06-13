@@ -63,6 +63,24 @@ export default {
                             });
                         });
                     }
+                },
+                {
+                    label: "Symmetrize Z",
+                    click: () => {
+                        editor.commitLevelMutation(level => {
+                            const mid = Math.floor(level.depth / 2);
+                            level.blocks.forEach(block => {
+                                const mirror = level.getBlock(
+                                    block.origin.x,
+                                    block.origin.y,
+                                    block.origin.z < mid
+                                        ? block.origin.z
+                                        : level.depth - block.origin.z - 1
+                                );
+                                block.copy(mirror);
+                            });
+                        });
+                    }
                 }
             ]
         };

@@ -7,16 +7,10 @@ import { GameClient } from "../GameClient";
 import { getMoveDirection } from "../Helpers";
 import { Action } from "../Action";
 
-export class PlayerDashSystem extends System {
-    private readonly game: GameClient;
+export class PlayerDashSystem extends System<GameClient> {
     private readonly family = this.createEntityFamily({
         archetype: new LocalAvatarArchetype(),
     });
-
-    public constructor(client: GameClient) {
-        super(client.world);
-        this.game = client;
-    }
 
     public update(dt: number) {
         this.family.entities.forEach((avatar) => {

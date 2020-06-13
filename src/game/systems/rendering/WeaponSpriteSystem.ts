@@ -1,11 +1,12 @@
 import { LocalAvatarArchetype, AvatarArchetype } from "../../ecs/Archetypes";
-import { System, World } from "../../ecs";
+import { System } from "../../ecs";
 import { Group, Sprite, Vector3, Scene } from "three";
 import { HUD_WIDTH, HUD_HEIGHT, SWAP_SPEED } from "../../data/Globals";
 import { WEAPON_SPEC_RECORD } from "../../data/Weapon";
 import { loadTexture, getWeaponSpec, isScopeActive } from "../../Helpers";
 import { AvatarState, WeaponState } from "../../data/Types";
 import { lerp, ease } from "../../core/Utils";
+import { GameClient } from "../../GameClient";
 
 class Clip {
     public time = 0;
@@ -83,8 +84,8 @@ export class WeaponSpriteSystem extends System {
         play: false,
     };
 
-    public constructor(world: World, layer: Scene) {
-        super(world);
+    public constructor(game: GameClient, layer: Scene) {
+        super(game);
 
         // Create weapon sprite container
         const container = new Group();

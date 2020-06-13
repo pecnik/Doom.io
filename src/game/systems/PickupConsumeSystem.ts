@@ -1,11 +1,8 @@
 import { System } from "../ecs";
-import { GameContext } from "../GameContext";
 import { PickupArchetype, AvatarArchetype } from "../ecs/Archetypes";
 import { Action } from "../Action";
 
 export class PickupConsumeSystem extends System {
-    private readonly game: GameContext;
-
     private readonly pickups = this.createEntityFamily({
         archetype: new PickupArchetype(),
     });
@@ -13,11 +10,6 @@ export class PickupConsumeSystem extends System {
     private readonly avatars = this.createEntityFamily({
         archetype: new AvatarArchetype(),
     });
-
-    public constructor(game: GameContext) {
-        super(game.world);
-        this.game = game;
-    }
 
     public update() {
         this.avatars.entities.forEach((avatar) => {
