@@ -2,6 +2,7 @@ import { System } from "../../ecs";
 import { ProjectileArchetype } from "../../ecs/Archetypes";
 import { Sprite, SpriteMaterial, AdditiveBlending } from "three";
 import { loadTexture } from "../../Helpers";
+import { random } from "lodash";
 
 export class ProjectileMeshSystem extends System {
     private readonly material = (() => {
@@ -9,7 +10,7 @@ export class ProjectileMeshSystem extends System {
             blending: AdditiveBlending,
         });
 
-        loadTexture("/assets/sprites/blood.png").then((map) => {
+        loadTexture("/assets/sprites/plasma_ball.png").then((map) => {
             material.map = map;
             material.needsUpdate = true;
         });
@@ -27,12 +28,12 @@ export class ProjectileMeshSystem extends System {
 
             if (sprite === undefined) {
                 sprite = new Sprite(this.material);
-                sprite.scale.set(1, 1, 1);
                 this.group.add(sprite);
             }
 
             sprite.visible = true;
             sprite.name = entity.id;
+            sprite.scale.setScalar(random(0.5, 0.75, true));
             sprite.position.copy(entity.position);
         },
 
