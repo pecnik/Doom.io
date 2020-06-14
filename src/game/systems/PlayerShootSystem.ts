@@ -61,7 +61,14 @@ export class PlayerShootSystem extends System<GameClient> {
                 return this.transition(WeaponState.Reload, avatar);
             }
 
-            if (input.shoot && ammo.loaded > 0) {
+            let shoot = false;
+            if (shooter.weaponType === WeaponType.Pistol) {
+                shoot = input.shootPressed;
+            } else if (input.shoot) {
+                shoot = input.shoot;
+            }
+
+            if (shoot && ammo.loaded > 0) {
                 return this.transition(WeaponState.Shoot, avatar);
             } else if (input.shootPressed && ammo.loaded === 0) {
                 Sound2D.get("/assets/sounds/gun_outofammo_01.wav").play();

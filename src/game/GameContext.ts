@@ -140,10 +140,6 @@ export abstract class GameContext {
                 const healthPack = EntityFactory.HealthPack(id);
                 healthPack.pickupHealth.heal = heal;
                 healthPack.position.copy(position);
-
-                // const mesh = "/assets/mesh/healt_pickup.gltf";
-                // healthPack.entityMesh = new Components.EntityMesh(mesh);
-
                 this.world.addEntity(healthPack);
                 break;
             }

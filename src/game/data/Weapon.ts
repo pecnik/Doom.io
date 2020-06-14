@@ -108,10 +108,10 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
         .type(WeaponType.Pistol)
         .name("Pistol")
         .icon("/assets/sprites/hud/icon_hg.png")
-        .ammo(7, 60)
+        .ammo(12, 60)
         .damage(15)
         .accuracy(0.9)
-        .roundsPerSec(6)
+        .roundsPerSec(30)
         .reloadSpeed(1)
         .povSprite("/assets/sprites/Pistol/PIS001.png", [
             "/assets/sprites/Pistol/PIS002.png",
@@ -130,10 +130,10 @@ export const WEAPON_SPEC_RECORD: Record<WeaponType, Readonly<WeaponSpec>> = {
         .type(WeaponType.Shotgun)
         .name("Shotgun")
         .icon("/assets/sprites/hud/icon_sg.png")
-        .ammo(3, 64)
-        .damage(15, 4)
+        .ammo(5, 128)
+        .damage(20, 4)
         .accuracy(0.5)
-        .roundsPerSec(2)
+        .roundsPerSec(2.25)
         .reloadSpeed(1.25)
         .povSprite("/assets/sprites/Shotgun/SHT001.png", [
             "/assets/sprites/Shotgun/SHT002.png",
