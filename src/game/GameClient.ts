@@ -124,7 +124,8 @@ export class GameClient extends GameContext implements Game {
                     .then(() => this.world.level.loadMaterial())
                     .then(() => this.world.level.updateGeometry())
                     .then(() => this.world.level.updateGeometryLightning())
-                    .then(() => this.world.level.updateAmbientOcclusion());
+                    .then(() => this.world.level.updateAmbientOcclusion())
+                    .then(() => this.world.level.updateBlockLightColor());
             }),
 
             // Create skyboc
