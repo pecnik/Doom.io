@@ -39,16 +39,12 @@ export class ProjectileArchetype implements AnyComponents {
     public position = new Components.Position();
     public velocity = new Components.Velocity();
     public collision = new Components.Collision();
-    // public entityMesh = new Components.EntityMesh(
-    //     "/assets/mesh/projectile.glb"
-    // );
 }
 
 export class PickupArchetype implements AnyComponents {
     public pickupTag = true;
     public position = new Components.Position();
     public rotation = new Components.Rotation();
-    public entityMesh = new Components.EntityMesh();
 }
 
 export class AmmoPackArchetype extends PickupArchetype {
@@ -56,7 +52,6 @@ export class AmmoPackArchetype extends PickupArchetype {
     public pickupAmmo = new Components.PickupAmmo();
     public position = new Components.Position();
     public rotation = new Components.Rotation();
-    public entityMesh = new Components.EntityMesh();
 }
 
 export class HealthArchetype extends PickupArchetype {
@@ -64,5 +59,4 @@ export class HealthArchetype extends PickupArchetype {
     public pickupHealth = new Components.PickupHealth();
     public position = new Components.Position();
     public rotation = new Components.Rotation();
-    public entityMesh = new Components.EntityMesh();
 }

@@ -270,7 +270,7 @@ export module Action {
     export function spawnHealthPack(
         id: string,
         position: Vector3,
-        heal = 15
+        heal = 25
     ): SpawnHealthPackAction {
         return {
             type: ActionType.SpawnHealthPack,

@@ -1,7 +1,7 @@
 import { System, Components } from "../../ecs";
-import { Object3D } from "three";
+import { Object3D, Mesh, MeshBasicMaterial, MeshStandardMaterial } from "three";
 import GLTFLoader from "three-gltf-loader";
-import { getEntityMesh } from "../../Helpers";
+import { getEntityMesh, disposeMeshMaterial } from "../../Helpers";
 
 export class EntityMeshSystem extends System {
     private readonly group = this.createSceneGroup();
@@ -25,6 +25,22 @@ export class EntityMeshSystem extends System {
                 this.group.add(newobj);
 
                 new GLTFLoader().load(entity.entityMesh.src, (glb) => {
+                    glb.scene.traverse((child) => {
+                        if (child instanceof Mesh) {
+                            if (
+                                child.material instanceof MeshStandardMaterial
+                            ) {
+                                const oldMat = child.material;
+                                const newMat = new MeshBasicMaterial({
+                                    map:
+                                        child.material.map ||
+                                        child.material.emissiveMap,
+                                });
+                                disposeMeshMaterial(oldMat);
+                                child.material = newMat;
+                            }
+                        }
+                    });
                     newobj.add(glb.scene);
                 });
 
@@ -47,10 +63,21 @@ export class EntityMeshSystem extends System {
         this.family.entities.forEach((entity) => {
             const mesh = getEntityMesh(this.world, entity);
             if (mesh === undefined) return;
+            if (entity.position === undefined) return;
 
-            if (entity.position !== undefined) {
-                mesh.position.copy(entity.position);
-            }
+            mesh.position.copy(entity.position);
+
+            const light = this.world.level.getBlockLightAt(entity.position);
+            mesh.traverse((child) => {
+                if (child.type === "Mesh") {
+                    const mesh = child as Mesh;
+                    const material = mesh.material as MeshBasicMaterial;
+                    if (!material.color.equals(light)) {
+                        material.color.lerp(light, 0.125);
+                        material.needsUpdate = true;
+                    }
+                }
+            });
         });
     }
 }

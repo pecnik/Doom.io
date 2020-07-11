@@ -41,6 +41,7 @@ import { getHeadPosition } from "./Helpers";
 import { LeaderboardSystem } from "./systems/hud/LeaderboardSystem";
 import { ProjectileMeshSystem } from "./systems/rendering/ProjectileMeshSystem";
 import { ExplosionSystem } from "./systems/rendering/ExplosionSystem";
+import { DEFAULT_LEVEL } from "./data/Globals";
 
 export class GameClient extends GameContext implements Game {
     private readonly route = location.hash.replace("#", "");
@@ -114,7 +115,7 @@ export class GameClient extends GameContext implements Game {
                         return Promise.resolve(JSON.parse(json));
                     }
 
-                    const url = "/assets/levels/arena.json";
+                    const url = DEFAULT_LEVEL;
                     return fetch(url).then((rsp) => rsp.json());
                 };
 
@@ -123,7 +124,8 @@ export class GameClient extends GameContext implements Game {
                     .then(() => this.world.level.loadMaterial())
                     .then(() => this.world.level.updateGeometry())
                     .then(() => this.world.level.updateGeometryLightning())
-                    .then(() => this.world.level.updateAmbientOcclusion());
+                    .then(() => this.world.level.updateAmbientOcclusion())
+                    .then(() => this.world.level.updateBlockLightColor());
             }),
 
             // Create skyboc

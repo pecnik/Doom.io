@@ -49,6 +49,13 @@ export interface LevelJSON {
     }[];
 }
 
+export interface LevelLight {
+    origin: Vector3;
+    color: Color;
+    str: number;
+    rad: number;
+}
+
 export interface LevelTexture {
     src: string;
     scale: number;
@@ -200,14 +207,7 @@ export class Level {
     }
 
     public getLights() {
-        interface Light {
-            origin: Vector3;
-            color: Color;
-            str: number;
-            rad: number;
-        }
-
-        const lights: Light[] = [];
+        const lights: LevelLight[] = [];
         this.blocks.forEach((block) => {
             if (block.lightStr > 0) {
                 lights.push({
@@ -612,68 +612,7 @@ export class Level {
         const lights = this.getLights();
         if (lights.length === 0) return Promise.resolve();
 
-        const ray = new Ray();
-        const blockBox = new Box3();
-        const reachedLight = (point: Vector3, light: Vector3) => {
-            ray.origin.copy(point);
-            ray.direction.subVectors(light, point).normalize();
-
-            const step = ray.direction.clone().multiplyScalar(0.2);
-            const bray = point.clone().add(step);
-            while (bray.distanceToSquared(light) > 1) {
-                const block = this.getBlockAt(bray);
-                if (block && block.solid) {
-                    const pad = 0.001;
-                    blockBox.copy(block.aabb);
-                    blockBox.min.addScalar(pad);
-                    blockBox.max.subScalar(pad);
-                    if (ray.intersectsBox(blockBox)) {
-                        return false;
-                    }
-                }
-
-                bray.add(step);
-            }
-
-            return true;
-        };
-
-        const aggregateLight = (point: Vector3, normal: Vector3) => {
-            const result = new Color(0.25, 0.25, 0.25);
-
-            for (let l = 0; l < lights.length; l++) {
-                const lightOrigin = lights[l].origin;
-                const lightColor = lights[l].color;
-                const lightRad = lights[l].rad;
-                const lightStr = lights[l].str;
-
-                // Quick dist check
-                const distSqrt = point.distanceToSquared(lightOrigin);
-                const lightRadSqrt = lightRad ** 2;
-                if (distSqrt > lightRadSqrt) continue;
-
-                // Test if facing light
-                if (normal.x === +1 && lightOrigin.x < point.x) continue;
-                if (normal.x === -1 && lightOrigin.x > point.x) continue;
-                if (normal.y === +1 && lightOrigin.y < point.y) continue;
-                if (normal.y === -1 && lightOrigin.y > point.y) continue;
-                if (normal.z === +1 && lightOrigin.z < point.z) continue;
-                if (normal.z === -1 && lightOrigin.z > point.z) continue;
-
-                // Test if point reaches
-                if (reachedLight(point, lightOrigin)) {
-                    const dist = point.distanceTo(lightOrigin);
-                    let value = (lightRad - dist) / lightRad;
-                    value = clamp(value, 0, 1) * lightStr;
-
-                    result.r += lightColor.r * value;
-                    result.g += lightColor.g * value;
-                    result.b += lightColor.b * value;
-                }
-            }
-
-            return result;
-        };
+        const aggregateLight = this.makeLightAggregator(lights);
 
         const updateMesh = (mesh: Mesh) => {
             return new Promise((resolve, reject) => {
@@ -767,6 +706,20 @@ export class Level {
         });
     }
 
+    public updateBlockLightColor() {
+        const lights = this.getLights();
+        if (lights.length === 0) return;
+
+        const aggregateLight = this.makeLightAggregator(lights);
+
+        this.blocks.forEach((block) => {
+            if (!block.solid) {
+                const light = aggregateLight(block.origin);
+                block.lightColor.copy(light);
+            }
+        });
+    }
+
     public readJson(json: LevelJSON) {
         this.resize(json.width, json.height, json.depth);
 
@@ -853,5 +806,72 @@ export class Level {
         });
 
         return json;
+    }
+
+    private makeLightAggregator(lights: LevelLight[]) {
+        const ray = new Ray();
+        const blockBox = new Box3();
+        const reachedLight = (point: Vector3, light: Vector3) => {
+            ray.origin.copy(point);
+            ray.direction.subVectors(light, point).normalize();
+
+            const step = ray.direction.clone().multiplyScalar(0.2);
+            const bray = point.clone().add(step);
+            while (bray.distanceToSquared(light) > 1) {
+                const block = this.getBlockAt(bray);
+                if (block && block.solid) {
+                    const pad = 0.001;
+                    blockBox.copy(block.aabb);
+                    blockBox.min.addScalar(pad);
+                    blockBox.max.subScalar(pad);
+                    if (ray.intersectsBox(blockBox)) {
+                        return false;
+                    }
+                }
+
+                bray.add(step);
+            }
+
+            return true;
+        };
+
+        const aggregateLight = (point: Vector3, normal = new Vector3()) => {
+            const result = new Color(0.25, 0.25, 0.25);
+
+            for (let l = 0; l < lights.length; l++) {
+                const lightOrigin = lights[l].origin;
+                const lightColor = lights[l].color;
+                const lightRad = lights[l].rad;
+                const lightStr = lights[l].str;
+
+                // Quick dist check
+                const distSqrt = point.distanceToSquared(lightOrigin);
+                const lightRadSqrt = lightRad ** 2;
+                if (distSqrt > lightRadSqrt) continue;
+
+                // Test if facing light
+                if (normal.x === +1 && lightOrigin.x < point.x) continue;
+                if (normal.x === -1 && lightOrigin.x > point.x) continue;
+                if (normal.y === +1 && lightOrigin.y < point.y) continue;
+                if (normal.y === -1 && lightOrigin.y > point.y) continue;
+                if (normal.z === +1 && lightOrigin.z < point.z) continue;
+                if (normal.z === -1 && lightOrigin.z > point.z) continue;
+
+                // Test if point reaches
+                if (reachedLight(point, lightOrigin)) {
+                    const dist = point.distanceTo(lightOrigin);
+                    let value = (lightRad - dist) / lightRad;
+                    value = clamp(value, 0, 1) * lightStr;
+
+                    result.r += lightColor.r * value;
+                    result.g += lightColor.g * value;
+                    result.b += lightColor.b * value;
+                }
+            }
+
+            return result;
+        };
+
+        return aggregateLight;
     }
 }

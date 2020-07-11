@@ -1,9 +1,14 @@
 import { LocalAvatarArchetype, AvatarArchetype } from "../../ecs/Archetypes";
-import { System } from "../../ecs";
+import { System, Entity } from "../../ecs";
 import { Group, Sprite, Vector3, Scene } from "three";
 import { HUD_WIDTH, HUD_HEIGHT, SWAP_SPEED } from "../../data/Globals";
 import { WEAPON_SPEC_RECORD } from "../../data/Weapon";
-import { loadTexture, getWeaponSpec, isScopeActive } from "../../Helpers";
+import {
+    loadTexture,
+    getWeaponSpec,
+    isScopeActive,
+    getHeadPosition,
+} from "../../Helpers";
 import { AvatarState, WeaponState } from "../../data/Types";
 import { lerp, ease } from "../../core/Utils";
 import { GameClient } from "../../GameClient";
@@ -136,7 +141,7 @@ export class WeaponSpriteSystem extends System {
         }
     }
 
-    private updateFrameAnimation(avatar: AvatarArchetype, dt: number) {
+    private updateFrameAnimation(avatar: Entity<AvatarArchetype>, dt: number) {
         const weaponSpec = getWeaponSpec(avatar);
         const frames = this.sprite.children as Sprite[];
 
@@ -158,16 +163,21 @@ export class WeaponSpriteSystem extends System {
             }
         }
 
-        const light = this.world.level.getBlockLightAt(avatar.position);
+        const head = getHeadPosition(avatar);
+        const light = this.world.level.getBlockLightAt(head);
         for (let i = 0; i < frames.length; i++) {
             const frame = frames[i];
             frame.visible = frame.name === activeSprite;
 
             if (avatar.shooter.state === WeaponState.Shoot) {
-                frame.material.color.setRGB(1.25, 1.25, 1.25);
+                frame.material.color.setRGB(
+                    light.r + 1,
+                    light.g + 1,
+                    light.b + 1
+                );
                 frame.material.needsUpdate = true;
             } else if (!frame.material.color.equals(light)) {
-                frame.material.color.lerp(light, 0.125);
+                frame.material.color.lerp(light, 0.25);
                 frame.material.needsUpdate = true;
             }
         }

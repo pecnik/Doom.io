@@ -16,3 +16,7 @@ export const JUMP_HEIGHT = 0.5;
 export const JUMP_TIME = 0.75; // sec
 export const GRAVITY = (2 * JUMP_HEIGHT) / Math.pow(JUMP_TIME * 0.5, 2);
 export const JUMP_SPEED = GRAVITY * JUMP_TIME * 0.5;
+
+export const MAX_PICKUP_COUNT = 3;
+
+export const DEFAULT_LEVEL = "/assets/levels/dungeon_1.json";
