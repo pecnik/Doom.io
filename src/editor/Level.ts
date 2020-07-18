@@ -442,7 +442,7 @@ export class Level {
                 return neighbor !== undefined && neighbor.solid;
             };
 
-            if (!hasSolidNeighbor(-1, 0, 0) && origin.x > 0) {
+            if (!hasSolidNeighbor(-1, 0, 0)) {
                 const xmin = new PlaneGeometry(1, 1, 1, 1);
                 const textureId = block.faces[0];
                 setTextureUV(xmin, textureId, origin.z, -origin.y);
@@ -453,7 +453,7 @@ export class Level {
                 planesOf(textureId).push(xmin);
             }
 
-            if (!hasSolidNeighbor(1, 0, 0) && origin.x < this.width - 1) {
+            if (!hasSolidNeighbor(1, 0, 0)) {
                 const xmax = new PlaneGeometry(1, 1, 1, 1);
                 const textureId = block.faces[1];
                 setTextureUV(xmax, textureId, -origin.z, -origin.y);
@@ -464,7 +464,7 @@ export class Level {
                 planesOf(textureId).push(xmax);
             }
 
-            if (!hasSolidNeighbor(0, -1, 0) && origin.y > 0) {
+            if (!hasSolidNeighbor(0, -1, 0)) {
                 const ymin = new PlaneGeometry(1, 1, 1, 1);
                 const textureId = block.faces[2];
                 setTextureUV(ymin, textureId, origin.x, -origin.z);
@@ -486,7 +486,7 @@ export class Level {
                 planesOf(textureId).push(ymax);
             }
 
-            if (!hasSolidNeighbor(0, 0, -1) && origin.z > 0) {
+            if (!hasSolidNeighbor(0, 0, -1)) {
                 const zmin = new PlaneGeometry(1, 1, 1, 1);
                 const textureId = block.faces[4];
                 setTextureUV(zmin, textureId, origin.x, -origin.y);
@@ -497,7 +497,7 @@ export class Level {
                 planesOf(textureId).push(zmin);
             }
 
-            if (!hasSolidNeighbor(0, 0, 1) && origin.z < this.depth - 1) {
+            if (!hasSolidNeighbor(0, 0, 1)) {
                 const zmax = new PlaneGeometry(1, 1, 1, 1);
                 const textureId = block.faces[5];
                 setTextureUV(zmax, textureId, -origin.x, -origin.y);
