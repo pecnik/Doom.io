@@ -10260,51 +10260,51 @@
     ],
     "textures": [
         {
-            "src": "/assets/levels/textures/brick.png",
+            "src": "assets/levels/textures/brick.png",
             "scale": 1
         },
         {
-            "src": "/assets/levels/textures/metal_1.png",
+            "src": "assets/levels/textures/metal_1.png",
             "scale": 0
         },
         {
-            "src": "/assets/levels/textures/metal_2.png",
+            "src": "assets/levels/textures/metal_2.png",
             "scale": 0
         },
         {
-            "src": "/assets/levels/textures/floor_tile.png",
+            "src": "assets/levels/textures/floor_tile.png",
             "scale": 0
         },
         {
-            "src": "/assets/levels/textures/uploads/172ad129ad062618f.png",
+            "src": "assets/levels/textures/uploads/172ad129ad062618f.png",
             "scale": 1
         },
         {
-            "src": "/assets/levels/textures/uploads/172ad135fe416f465.png",
+            "src": "assets/levels/textures/uploads/172ad135fe416f465.png",
             "scale": 2
         },
         {
-            "src": "/assets/levels/textures/uploads/172ad1395f9248f39.png",
+            "src": "assets/levels/textures/uploads/172ad1395f9248f39.png",
             "scale": 2
         },
         {
-            "src": "/assets/levels/textures/uploads/172ad157169144d3f.png",
+            "src": "assets/levels/textures/uploads/172ad157169144d3f.png",
             "scale": 2
         },
         {
-            "src": "/assets/levels/textures/uploads/172ad15fe4264dc85.png",
+            "src": "assets/levels/textures/uploads/172ad15fe4264dc85.png",
             "scale": 0
         },
         {
-            "src": "/assets/levels/textures/uploads/172ad1635702e1b58.png",
+            "src": "assets/levels/textures/uploads/172ad1635702e1b58.png",
             "scale": 1
         },
         {
-            "src": "/assets/levels/textures/uploads/172ad1711ee7fd0ef.png",
+            "src": "assets/levels/textures/uploads/172ad1711ee7fd0ef.png",
             "scale": 0
         },
         {
-            "src": "/assets/levels/textures/uploads/172ad173dad6bb1cb.png",
+            "src": "assets/levels/textures/uploads/172ad173dad6bb1cb.png",
             "scale": 0
         }
     ],

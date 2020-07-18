@@ -15016,43 +15016,43 @@
     ],
     "textures": [
         {
-            "src": "/assets/levels/textures/brick.png",
+            "src": "assets/levels/textures/brick.png",
             "scale": 2
         },
         {
-            "src": "/assets/levels/textures/metal_1.png",
+            "src": "assets/levels/textures/metal_1.png",
             "scale": 0
         },
         {
-            "src": "/assets/levels/textures/metal_2.png",
+            "src": "assets/levels/textures/metal_2.png",
             "scale": 2
         },
         {
-            "src": "/assets/levels/textures/floor_tile.png",
+            "src": "assets/levels/textures/floor_tile.png",
             "scale": 0
         },
         {
-            "src": "/assets/levels/textures/uploads/1728385153f894990.png",
+            "src": "assets/levels/textures/uploads/1728385153f894990.png",
             "scale": 2
         },
         {
-            "src": "/assets/levels/textures/uploads/1728389397948f442.png",
+            "src": "assets/levels/textures/uploads/1728389397948f442.png",
             "scale": 2
         },
         {
-            "src": "/assets/levels/textures/uploads/172838bf84f86f4db.png",
+            "src": "assets/levels/textures/uploads/172838bf84f86f4db.png",
             "scale": 1
         },
         {
-            "src": "/assets/levels/textures/uploads/172838f590134554b.png",
+            "src": "assets/levels/textures/uploads/172838f590134554b.png",
             "scale": 2
         },
         {
-            "src": "/assets/levels/textures/uploads/17283979c068b45b9.png",
+            "src": "assets/levels/textures/uploads/17283979c068b45b9.png",
             "scale": 0
         },
         {
-            "src": "/assets/levels/textures/uploads/172839b2337384199.png",
+            "src": "assets/levels/textures/uploads/172839b2337384199.png",
             "scale": 0
         }
     ],
